@@ -29,7 +29,7 @@ ReactDOM.render(
   <ReduxProvider store={store}>
     <PersistGate loading={null} persistor={persister}>
       <ConfigProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={window.location.pathname || ''}>
           <App />
         </BrowserRouter>
       </ConfigProvider>
