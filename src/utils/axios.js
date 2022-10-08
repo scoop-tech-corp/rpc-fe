@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { loaderGlobalConfig } from 'components/LoaderGlobal';
 import configGlobal from '../../src/config';
 
 const axiosServices = axios.create({
@@ -7,10 +8,23 @@ const axiosServices = axios.create({
 
 // ==============================|| AXIOS - FOR MOCK SERVICES ||============================== //
 
-axiosServices.interceptors.response.use(
-  (response) => response,
+axiosServices.interceptors.request.use(
+  (config) => {
+    loaderGlobalConfig.setLoader(true);
+    return config;
+  },
   (error) => {
-    console.log('error PERTAMAAA', error);
+    return Promise.reject(error);
+  }
+);
+
+axiosServices.interceptors.response.use(
+  (response) => {
+    loaderGlobalConfig.setLoader(false);
+    return response;
+  },
+  (error) => {
+    loaderGlobalConfig.setLoader(false);
     return Promise.reject((error.response && error.response.data) || 'Wrong Services');
   }
 );

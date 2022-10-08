@@ -12,6 +12,7 @@ import authReducer from 'store/reducers/auth';
 // project import
 import Loader from 'components/Loader';
 import axios from 'utils/axios';
+// import useAuth from 'hooks/useAuth';
 
 const chance = new Chance();
 
@@ -50,37 +51,76 @@ const JWTContext = createContext(null);
 export const JWTProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // useEffect(() => {
+  //   const init = async () => {
+  //     try {
+  //       const serviceToken = window.localStorage.getItem('serviceToken');
+  //       if (serviceToken && verifyToken(serviceToken)) {
+  //         setSession(serviceToken);
+  //         const resp = await axios.get('login');
+  //         console.log('RESP', resp);
+
+  //         dispatch({
+  //           type: LOGIN,
+  //           payload: {
+  //             isLoggedIn: true,
+  //             user: {
+  //               id: 1,
+  //               email: 'adiyansyahdwiputra@gmail.com',
+  //               name: 'Adiyansyah',
+  //               role: 'Front End Developer'
+  //             }
+  //           }
+  //         });
+  //       } else {
+  //         dispatch({
+  //           type: LOGOUT
+  //         });
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //       dispatch({
+  //         type: LOGOUT
+  //       });
+  //     }
+  //   };
+
+  //   init();
+  // }, []);
+
+  const logout = async () => {
+    const getToken = localStorage.getItem('serviceToken');
+    await axios.post('logout', { token: getToken });
+
+    setSession(null);
+    dispatch({ type: LOGOUT });
+    localStorage.removeItem('user');
+  };
+
   useEffect(() => {
     const init = async () => {
       try {
         const serviceToken = window.localStorage.getItem('serviceToken');
+        const userLogin = JSON.parse(window.localStorage.getItem('user'));
+
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
-          const resp = await axios.get('login');
-          console.log('RESP', resp);
 
-          dispatch({
-            type: LOGIN,
-            payload: {
-              isLoggedIn: true,
-              user: {
-                id: 1,
-                email: 'adiyansyahdwiputra@gmail.com',
-                name: 'Adiyansyah',
-                role: 'Front End Developer'
-              }
-            }
-          });
+          console.log('userLogin', userLogin);
+          const setUser = {
+            id: userLogin.id,
+            email: userLogin.email,
+            name: userLogin.name,
+            role: userLogin.role
+          };
+
+          dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
         } else {
-          dispatch({
-            type: LOGOUT
-          });
+          logout();
         }
       } catch (err) {
         console.error(err);
-        dispatch({
-          type: LOGOUT
-        });
+        logout();
       }
     };
 
@@ -88,26 +128,20 @@ export const JWTProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    console.log('email', email, 'password', password);
-
     const response = await axios.post('login', { email, password });
     console.log('response ADIIIII', response);
-
-    const { token } = response.data;
-    console.log('token', token);
+    const { token, userEmail, userId, userName } = response.data;
     setSession(token);
-    dispatch({
-      type: LOGIN,
-      payload: {
-        isLoggedIn: true,
-        user: {
-          id: 1,
-          email: 'adiyansyahdwiputra@gmail.com',
-          name: 'Adiyansyah',
-          role: 'Front End Developer'
-        }
-      }
-    });
+
+    const setUser = {
+      id: +userId,
+      email: userEmail,
+      name: userName,
+      role: 'Front End Developer'
+    };
+
+    dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
+    window.localStorage.setItem('user', JSON.stringify(setUser));
   };
 
   const register = async (email, password, firstName, lastName) => {
@@ -136,11 +170,6 @@ export const JWTProvider = ({ children }) => {
     }
 
     window.localStorage.setItem('users', JSON.stringify(users));
-  };
-
-  const logout = () => {
-    setSession(null);
-    dispatch({ type: LOGOUT });
   };
 
   const resetPassword = async () => {};

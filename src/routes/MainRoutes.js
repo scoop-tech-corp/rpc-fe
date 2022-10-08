@@ -4,6 +4,7 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'components/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
+// import { Outlet } from 'react-router-dom';
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -54,8 +55,10 @@ const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-p
 
 // Location
 const LocationDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const LocationList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const LocationFacilities = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const LocationList = Loadable(lazy(() => import('pages/location/location-list')));
+const LocationDetail = Loadable(lazy(() => import('pages/location/detail/location-detail')));
+const LocationFacilities = Loadable(lazy(() => import('pages/location/facility/facility-list')));
+const LocationFacilitiesDetail = Loadable(lazy(() => import('pages/location/facility/detail/facility-detail')));
 const LocationStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Finance
@@ -146,7 +149,11 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <LocationDashboard /> },
             { path: 'list', element: <LocationList /> },
+            { path: 'add', element: <LocationDetail /> },
+            { path: ':id', element: <LocationDetail /> },
             { path: 'facilities', element: <LocationFacilities /> },
+            { path: 'facilities/add', element: <LocationFacilitiesDetail /> },
+            { path: 'facilities/:id', element: <LocationFacilitiesDetail /> },
             { path: 'static-data', element: <LocationStaticData /> }
           ]
         },

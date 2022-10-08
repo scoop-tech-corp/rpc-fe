@@ -22,18 +22,20 @@ import App from './App';
 import { store, persister } from 'store';
 import { ConfigProvider } from 'contexts/ConfigContext';
 import reportWebVitals from './reportWebVitals';
+import LoaderGlobal from 'components/LoaderGlobal';
 
 // ==============================|| MAIN - REACT DOM RENDER  ||============================== //
-
+// basename={window.location.pathname || ''}
 ReactDOM.render(
   <ReduxProvider store={store}>
     <PersistGate loading={null} persistor={persister}>
       <ConfigProvider>
-        <BrowserRouter basename={window.location.pathname || ''}>
+        <BrowserRouter>
           <App />
         </BrowserRouter>
       </ConfigProvider>
     </PersistGate>
+    <LoaderGlobal />
   </ReduxProvider>,
   document.getElementById('root')
 );

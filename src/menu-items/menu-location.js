@@ -25,26 +25,28 @@ const location = {
           id: 'location-dashboard',
           title: 'Dashboard',
           type: 'item',
-          url: '/location/dashboard',
-          breadcrumbs: false
+          url: '/location/dashboard'
         },
         {
           id: 'location-list',
           title: <FormattedMessage id="location-list" />,
           type: 'item',
-          url: '/location/list'
+          url: '/location/list',
+          breadcrumbs: false
         },
         {
           id: 'location-facilities',
           title: <FormattedMessage id="facilities" />,
           type: 'item',
-          url: '/location/facilities'
+          url: '/location/facilities',
+          breadcrumbs: false
         },
         {
           id: 'location-static-data',
           title: <FormattedMessage id="static-data" />,
           type: 'item',
-          url: '/location/static-data'
+          url: '/location/static-data',
+          breadcrumbs: false
         }
       ]
     }

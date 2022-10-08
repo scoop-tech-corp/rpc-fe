@@ -21,7 +21,7 @@ import {
   Stack,
   TableCell,
   TableRow,
-  TextField,
+  // TextField,
   Typography
 } from '@mui/material';
 
@@ -30,24 +30,25 @@ import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } f
 
 // ==============================|| HEADER SORT ||============================== //
 
-export const HeaderSort = ({ column, sort }) => {
+export const HeaderSort = ({ column, selectedOrder }) => {
   const theme = useTheme();
+
   return (
     <Stack direction="row" spacing={1} alignItems="center" sx={{ display: 'inline-flex' }}>
       <Box>{column.render('Header')}</Box>
-      {!column.disableSortBy && (
-        <Stack sx={{ color: 'secondary.light' }} {...(sort && { ...column.getHeaderProps(column.getSortByToggleProps()) })}>
+      {column.id !== 'selection' && (
+        <Stack sx={{ color: 'secondary.light' }}>
           <CaretUpOutlined
             style={{
               fontSize: '0.625rem',
-              color: column.isSorted && !column.isSortedDesc ? theme.palette.text.secondary : 'inherit'
+              color: column.id === selectedOrder.column && selectedOrder.order === 'asc' ? theme.palette.text.secondary : 'inherit'
             }}
           />
           <CaretDownOutlined
             style={{
               fontSize: '0.625rem',
               marginTop: -2,
-              color: column.isSortedDesc ? theme.palette.text.secondary : 'inherit'
+              color: column.id === selectedOrder.column && selectedOrder.order === 'desc' ? theme.palette.text.secondary : 'inherit'
             }}
           />
         </Stack>
@@ -55,16 +56,14 @@ export const HeaderSort = ({ column, sort }) => {
     </Stack>
   );
 };
-
-HeaderSort.propTypes = {
-  column: PropTypes.any,
-  sort: PropTypes.bool
-};
+HeaderSort.propTypes = { column: PropTypes.any, selectedOrder: PropTypes.any };
 
 // ==============================|| TABLE PAGINATION ||============================== //
 
-export const TablePagination = ({ gotoPage, rows, setPageSize, pageSize, pageIndex }) => {
+export const TablePagination = ({ gotoPage, totalPagination, changePageSize }) => {
   const [open, setOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(5);
+  const [pageIndex, setPageIndex] = useState(1);
 
   const handleClose = () => {
     setOpen(false);
@@ -75,11 +74,13 @@ export const TablePagination = ({ gotoPage, rows, setPageSize, pageSize, pageInd
   };
 
   const handleChangePagination = (event, value) => {
-    gotoPage(value - 1);
+    gotoPage(value);
+    setPageIndex(value);
   };
 
   const handleChange = (event) => {
     setPageSize(+event.target.value);
+    changePageSize(+event.target.value);
   };
 
   return (
@@ -110,28 +111,30 @@ export const TablePagination = ({ gotoPage, rows, setPageSize, pageSize, pageInd
               </Select>
             </FormControl>
           </Stack>
-          <Typography variant="caption" color="secondary">
+          {/* <Typography variant="caption" color="secondary">
             Go to
           </Typography>
           <TextField
             size="small"
             type="number"
             // @ts-ignore
-            value={pageIndex + 1}
+            value={pageIndex}
             onChange={(e) => {
               const page = e.target.value ? Number(e.target.value) : 0;
-              gotoPage(page - 1);
+              setPageIndex(page);
+              gotoPage(page);
             }}
             sx={{ '& .MuiOutlinedInput-input': { py: 0.75, px: 1.25, width: 36 } }}
-          />
+          /> */}
         </Stack>
       </Grid>
       <Grid item sx={{ mt: { xs: 2, sm: 0 } }}>
         <Pagination
           // @ts-ignore
-          count={Math.ceil(rows.length / pageSize)}
+          // count={Math.ceil(rows.length / pageSize)}
+          count={totalPagination}
           // @ts-ignore
-          page={pageIndex + 1}
+          page={pageIndex}
           onChange={handleChangePagination}
           color="primary"
           variant="combined"
@@ -145,10 +148,9 @@ export const TablePagination = ({ gotoPage, rows, setPageSize, pageSize, pageInd
 
 TablePagination.propTypes = {
   gotoPage: PropTypes.func,
-  setPageSize: PropTypes.func,
-  pageIndex: PropTypes.number,
-  pageSize: PropTypes.number,
-  rows: PropTypes.array
+  totalPagination: PropTypes.number,
+  changePageSize: PropTypes.func,
+  pageIndex: PropTypes.number
 };
 
 // ==============================|| SELECTION - PREVIEW ||============================== //

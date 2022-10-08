@@ -1,15 +1,15 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+// import { Link as RouterLink } from 'react-router-dom';
 
 // material-ui
 import {
   Button,
-  Checkbox,
+  // Checkbox,
   // Divider,
-  FormControlLabel,
+  // FormControlLabel,
   FormHelperText,
   Grid,
-  Link,
+  // Link,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -34,10 +34,10 @@ import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = () => {
-  const [checked, setChecked] = React.useState(false);
+  // const [checked, setChecked] = React.useState(false);
   const [capsWarning, setCapsWarning] = React.useState(false);
 
-  const { isLoggedIn, login } = useAuth();
+  const { login } = useAuth();
   const scriptedRef = useScriptRef();
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -61,8 +61,10 @@ const AuthLogin = () => {
     <>
       <Formik
         initialValues={{
-          email: 'info@codedthemes.com',
-          password: '123456',
+          // email: 'info@codedthemes.com',
+          // password: '123456',
+          email: '',
+          password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -164,7 +166,7 @@ const AuthLogin = () => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: -1 }}>
+              {/* <Grid item xs={12} sx={{ mt: -1 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
                   <FormControlLabel
                     control={
@@ -187,7 +189,7 @@ const AuthLogin = () => {
                     Forgot Password?
                   </Link>
                 </Stack>
-              </Grid>
+              </Grid> */}
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
