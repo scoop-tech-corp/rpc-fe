@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useMemo, useState } from 'react';
 
@@ -17,10 +17,14 @@ import IconButton from 'components/@extended/IconButton';
 import { CloseOutlined, LineOutlined, SearchOutlined } from '@ant-design/icons';
 
 export function GlobalFilter({ placeHolder, globalFilter, setGlobalFilter, ...other }) {
-  const [value, setValue] = useState(globalFilter);
+  const [value, setValue] = useState('');
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined);
   }, 200);
+
+  useEffect(() => {
+    setValue(globalFilter);
+  }, [globalFilter]);
 
   return (
     <OutlinedInput

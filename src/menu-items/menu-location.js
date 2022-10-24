@@ -32,7 +32,7 @@ const location = {
           title: <FormattedMessage id="location-list" />,
           type: 'item',
           url: '/location/list',
-          breadcrumbs: false
+          breadcrumbs: true
         },
         {
           id: 'location-facilities',

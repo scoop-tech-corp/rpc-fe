@@ -36,7 +36,6 @@ const LoaderGlobal = () => {
   useEffect(() => {
     loaderGlobalConfig.getLoaderStatus().subscribe((resp) => {
       if (resp) {
-        console.log('resp Loader', resp.isLoader);
         setShowLoading(resp.isLoader);
       }
     });

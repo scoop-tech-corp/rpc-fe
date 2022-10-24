@@ -15,6 +15,7 @@ const initialState = {
   },
   transition: 'Fade',
   close: true,
+  duration: 6000,
   actionButton: false
 };
 
@@ -25,7 +26,7 @@ const snackbar = createSlice({
   initialState,
   reducers: {
     openSnackbar(state, action) {
-      const { open, message, anchorOrigin, variant, alert, transition, close, actionButton } = action.payload;
+      const { open, message, anchorOrigin, variant, alert, transition, close, actionButton, duration } = action.payload;
 
       state.action = !state.action;
       state.open = open || initialState.open;
@@ -39,6 +40,7 @@ const snackbar = createSlice({
       state.transition = transition || initialState.transition;
       state.close = close === false ? close : initialState.close;
       state.actionButton = actionButton || initialState.actionButton;
+      state.duration = duration || initialState.duration;
     },
 
     closeSnackbar(state) {

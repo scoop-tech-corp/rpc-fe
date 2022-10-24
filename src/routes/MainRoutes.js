@@ -45,7 +45,7 @@ const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page'
 
 // Product
 const ProductDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ProductList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductList = Loadable(lazy(() => import('pages/product/list/product-list')));
 const ProductBundle = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductCategory = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -59,7 +59,7 @@ const LocationList = Loadable(lazy(() => import('pages/location/location-list'))
 const LocationDetail = Loadable(lazy(() => import('pages/location/detail/location-detail')));
 const LocationFacilities = Loadable(lazy(() => import('pages/location/facility/facility-list')));
 const LocationFacilitiesDetail = Loadable(lazy(() => import('pages/location/facility/detail/facility-detail')));
-const LocationStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const LocationStaticData = Loadable(lazy(() => import('pages/location/static-data/static-data-list')));
 
 // Finance
 const FinanceDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -150,7 +150,7 @@ const MainRoutes = {
             { path: 'dashboard', element: <LocationDashboard /> },
             { path: 'list', element: <LocationList /> },
             { path: 'add', element: <LocationDetail /> },
-            { path: ':id', element: <LocationDetail /> },
+            { path: ':code', element: <LocationDetail /> },
             { path: 'facilities', element: <LocationFacilities /> },
             { path: 'facilities/add', element: <LocationFacilitiesDetail /> },
             { path: 'facilities/:id', element: <LocationFacilitiesDetail /> },

@@ -11,8 +11,7 @@ import LocationDetailContext from '../../location-detail-context';
 const OperatingHour = () => {
   const { locationDetail, setLocationDetail } = useContext(LocationDetailContext);
 
-  const [toggleAll, setToggleAll] = useState(false);
-  const [allDay, setAllDay] = useState(false);
+  // const [allDay, setAllDay] = useState(false);
   const [operatingHours, setOperatingHours] = useState([
     { selectedDay: false, dayName: 'Monday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
     { selectedDay: false, dayName: 'Tuesday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
@@ -26,7 +25,6 @@ const OperatingHour = () => {
   useEffect(() => {
     if (locationDetail.operationalHour.length) {
       const setOperatingHour = [];
-
       operatingHours.forEach((operatingHr) => {
         const findDaySelected = locationDetail.operationalHour.find((dt) => dt.dayName === operatingHr.dayName);
         const getDateNow = new Date().toISOString().split('T')[0];
@@ -42,7 +40,7 @@ const OperatingHour = () => {
       setOperatingHours(setOperatingHour);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locationDetail.operationalHour]);
 
   const setOperationalHourToDetail = (dtOperationalHour = null) => {
     let data = dtOperationalHour ? [...dtOperationalHour] : [...operatingHours];
@@ -66,35 +64,36 @@ const OperatingHour = () => {
     });
   };
 
+  const isToggleAll = operatingHours.filter((dt) => dt.selectedDay === true).length === operatingHours.length;
+  const indeterminateToggleAll = isToggleAll === false && operatingHours.filter((dt) => dt.selectedDay === true).length > 0;
+
   const setCheckedToggleAll = (checked) => {
-    const isIndeterminate = operatingHours.filter((dt) => dt.selectedDay === true).length > 0;
-
     setOperatingHours((value) => {
       let getOperationHour = [...value];
       getOperationHour = getOperationHour.map((dt) => {
-        dt.selectedDay = isIndeterminate ? false : checked;
-        return dt;
-      });
-
-      return getOperationHour;
-    });
-    setToggleAll(isIndeterminate ? false : checked);
-  };
-
-  const setCheckedParentAllDay = (checked) => {
-    const isIndeterminate = operatingHours.filter((dt) => dt.allDay === true).length > 0;
-
-    setOperatingHours((value) => {
-      let getOperationHour = [...value];
-      getOperationHour = getOperationHour.map((dt) => {
-        dt.allDay = isIndeterminate ? false : checked;
+        dt.selectedDay = indeterminateToggleAll ? false : checked;
         return dt;
       });
       setOperationalHourToDetail(getOperationHour);
 
       return getOperationHour;
     });
-    setAllDay(isIndeterminate ? false : checked);
+  };
+
+  const isAllDay = operatingHours.filter((dt) => dt.allDay === true).length === operatingHours.length;
+  const indeterminateAllDay = isAllDay === false && operatingHours.filter((dt) => dt.allDay === true).length > 0;
+
+  const setCheckedParentAllDay = (checked) => {
+    setOperatingHours((value) => {
+      let getOperationHour = [...value];
+      getOperationHour = getOperationHour.map((dt) => {
+        dt.allDay = indeterminateAllDay ? false : checked;
+        return dt;
+      });
+      setOperationalHourToDetail(getOperationHour);
+
+      return getOperationHour;
+    });
   };
 
   const onChangeFrom = (newValue, idx) => {
@@ -143,11 +142,11 @@ const OperatingHour = () => {
           <Stack direction="row" alignItems="center" spacing={2}>
             <Checkbox
               onChange={(event) => setCheckedToggleAll(event.target.checked)}
-              checked={toggleAll}
+              checked={isToggleAll}
               name="checked"
               color="primary"
               size="small"
-              indeterminate={operatingHours.filter((dt) => dt.selectedDay === true).length > 0}
+              indeterminate={indeterminateToggleAll}
             />
             <Typography color="primary">Toggle all</Typography>
           </Stack>
@@ -166,11 +165,11 @@ const OperatingHour = () => {
           <Stack direction="row" alignItems="center" spacing={2}>
             <Checkbox
               onChange={(event) => setCheckedParentAllDay(event.target.checked)}
-              checked={allDay}
+              checked={isAllDay}
               name="checked"
               color="primary"
               size="small"
-              indeterminate={operatingHours.filter((dt) => dt.allDay === true).length > 0}
+              indeterminate={indeterminateAllDay}
             />
             <Typography color="primary">All day</Typography>
           </Stack>

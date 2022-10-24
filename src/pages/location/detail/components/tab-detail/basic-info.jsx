@@ -1,6 +1,6 @@
 import { FormattedMessage } from 'react-intl';
 import MainCard from 'components/MainCard';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Grid, Stack, InputLabel, Select, MenuItem, FormHelperText, FormControl, TextField } from '@mui/material';
 import LocationDetailContext from '../../location-detail-context';
 
@@ -16,6 +16,12 @@ const BasicInfo = () => {
   const { locationDetail, setLocationDetail, setLocationDetailError } = useContext(LocationDetailContext);
   const [basicInfo, setBasicInfo] = useState({ name: '', nameError: '', status: null, statusError: '' });
 
+  useEffect(() => {
+    setBasicInfo((val) => {
+      return { ...val, name: locationDetail.locationName, status: locationDetail.status };
+    });
+  }, [locationDetail.locationName, locationDetail.status]);
+
   const onLocationName = (event) => {
     setBasicInfo((value) => {
       return { ...value, name: event.target.value };
@@ -29,8 +35,6 @@ const BasicInfo = () => {
   };
 
   const onLocationStatus = (event) => {
-    console.log('event.target.value', event.target.value);
-
     setBasicInfo((value) => {
       return { ...value, status: event.target.value };
     });
@@ -45,7 +49,6 @@ const BasicInfo = () => {
   const onCheckValidation = (name = '', status = null) => {
     let getName = name ? name : basicInfo.name;
     let getStatus = status !== null ? status : basicInfo.status;
-
     let getLocationNameError = null;
     let getLocationStatusError = null;
 
@@ -101,7 +104,7 @@ const BasicInfo = () => {
               id="locationName"
               name="locationName"
               // placeholder="Enter location name"
-              value={basicInfo.name || locationDetail.locationName || ''}
+              value={basicInfo.name || ''}
               onChange={onLocationName}
               onBlur={onLocationName}
               error={basicInfo.nameError && basicInfo.nameError.length > 0}
@@ -113,13 +116,7 @@ const BasicInfo = () => {
           <Stack spacing={1}>
             <InputLabel htmlFor="status">Status</InputLabel>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select
-                id="status"
-                name="status"
-                value={basicInfo.status || locationDetail.status || ''}
-                onChange={onLocationStatus}
-                placeholder="Select status"
-              >
+              <Select id="status" name="status" value={basicInfo.status || ''} onChange={onLocationStatus} placeholder="Select status">
                 <MenuItem value="">
                   <em>Select status</em>
                 </MenuItem>

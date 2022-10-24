@@ -60,10 +60,16 @@ HeaderSort.propTypes = { column: PropTypes.any, selectedOrder: PropTypes.any };
 
 // ==============================|| TABLE PAGINATION ||============================== //
 
-export const TablePagination = ({ gotoPage, totalPagination, changePageSize }) => {
+export const TablePagination = ({ gotoPage, totalPagination, changePageSize, setPageNumber }) => {
   const [open, setOpen] = useState(false);
   const [pageSize, setPageSize] = useState(5);
   const [pageIndex, setPageIndex] = useState(1);
+
+  useEffect(() => {
+    if (setPageNumber) {
+      setPageIndex(setPageNumber);
+    }
+  }, [setPageNumber]);
 
   const handleClose = () => {
     setOpen(false);
@@ -130,10 +136,8 @@ export const TablePagination = ({ gotoPage, totalPagination, changePageSize }) =
       </Grid>
       <Grid item sx={{ mt: { xs: 2, sm: 0 } }}>
         <Pagination
-          // @ts-ignore
           // count={Math.ceil(rows.length / pageSize)}
           count={totalPagination}
-          // @ts-ignore
           page={pageIndex}
           onChange={handleChangePagination}
           color="primary"
@@ -150,7 +154,7 @@ TablePagination.propTypes = {
   gotoPage: PropTypes.func,
   totalPagination: PropTypes.number,
   changePageSize: PropTypes.func,
-  pageIndex: PropTypes.number
+  setPageNumber: PropTypes.number
 };
 
 // ==============================|| SELECTION - PREVIEW ||============================== //

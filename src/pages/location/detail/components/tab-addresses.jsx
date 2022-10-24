@@ -17,9 +17,9 @@ import MainCard from 'components/MainCard';
 import { useTheme } from '@mui/material/styles';
 import { useContext, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import axios from 'utils/axios';
 import LocationDetailContext, { defaultDetailAddress } from '../location-detail-context';
 import { jsonCentralized } from 'utils/json-centralized';
+import { getCityList } from '../location-detail-header';
 
 const TabAddresses = () => {
   // , setLocationDetailError
@@ -27,35 +27,22 @@ const TabAddresses = () => {
 
   const [address, setAddress] = useState([]);
   const [provinceList] = useState(locationDetail.provinceList);
-
   const countryList = [{ label: 'Indonesia', value: 'Indonesia' }];
 
-  // const provinceList = [
-  //   { label: 'Dki Jakarta', value: 'Dki jakarta' },
-  //   { label: 'Jawa Barat', value: 'Jawa Barat' },
-  //   { label: 'Lampung', value: 'Lampung' }
-  // ];
-
-  const cityList = [
-    { label: 'Bandung', value: 'Bandung' },
-    { label: 'Surabaya', value: 'Surabaya' },
-    { label: 'Jogja', value: 'Jogja' }
-  ];
-
   useEffect(() => {
-    // hit end point to get province , city
-    // setProvinceList(locationDetail.provinceList);
-    console.log('provinceList', provinceList);
-
     // fill context detail address to address
     if (locationDetail.detailAddress.length) {
       const getDetailAddress = jsonCentralized(locationDetail.detailAddress);
       console.log('getDetailAddress', getDetailAddress);
+
       const newAddress = getDetailAddress.map((dt) => {
+        const getCityList = dt.cityList;
+
         dt.streetAddressError = '';
         dt.country = countryList.find((cl) => cl.value === dt.country) || null;
-        dt.province = provinceList.find((cl) => cl.value === dt.province) || null;
-        dt.city = cityList.find((cl) => cl.value === dt.city) || null;
+        dt.province = provinceList.find((cl) => cl.value === +dt.province) || null;
+        dt.city = getCityList.find((cl) => cl.value === +dt.city) || null;
+
         return dt;
       });
 
@@ -74,7 +61,8 @@ const TabAddresses = () => {
         country: dt.country?.value,
         province: dt.province?.value,
         city: dt.city?.value,
-        postalCode: dt.postalCode
+        postalCode: dt.postalCode,
+        cityList: dt.cityList
       };
     });
 
@@ -118,30 +106,29 @@ const TabAddresses = () => {
     });
   };
 
-  const onActionRegion = (e, newValue, action, idx) => {
-    // get city from province selected
+  const onActionRegion = async (e, newValue, action, idx) => {
+    let getCity = [];
     if (action === 'province' && newValue) {
-      const getCity = getCityList(newValue.value);
+      getCity = await getCityList(newValue.value);
       console.log('getCity', getCity);
     }
 
     setAddress((value) => {
       const getAddress = [...value];
-      getAddress[idx][action] = newValue;
-
       const newAddress = jsonCentralized(value);
+
+      getAddress[idx][action] = newValue;
       newAddress[idx][action] = newValue ? newValue : '';
+
+      if (action === 'province') {
+        getAddress[idx].cityList = getCity;
+        newAddress[idx].cityList = getCity;
+      }
+
       console.log('newAddress', newAddress);
       onSetLocationDetail(newAddress);
 
       return getAddress;
-    });
-  };
-
-  const getCityList = async (provinceId) => {
-    const getData = await axios.get('locationkabupatenkota', { params: { provinceId } });
-    return getData.data.map((dt) => {
-      return { label: dt.provinceName, value: +dt.id };
     });
   };
 
@@ -159,9 +146,10 @@ const TabAddresses = () => {
     const newObj = { ...defaultDetailAddress };
     const initialFormAddress = {
       ...newObj,
-      country: countryList.find((cl) => cl.value === newObj.country) || '',
-      province: provinceList.find((cl) => cl.value === newObj.province) || '',
-      city: cityList.find((cl) => cl.value === newObj.city) || '',
+      country: countryList.find((cl) => cl.value === newObj.country) || null,
+      province: provinceList.find((cl) => cl.value === newObj.province) || null,
+      city: null,
+      cityList: [],
       usage: false,
       streetAddressError: ''
     };
@@ -231,7 +219,7 @@ const TabAddresses = () => {
                       value={dt.streetAddress}
                       onChange={(event) => onStreetAddress(event, i)}
                       onBlur={(event) => onStreetAddress(event, i)}
-                      error={dt.streetAddressError.length > 0}
+                      error={dt.streetAddressError && dt.streetAddressError.length > 0}
                       helperText={dt.streetAddressError}
                     />
                   </Stack>
@@ -315,7 +303,7 @@ const TabAddresses = () => {
                     <Autocomplete
                       id={`city-${i}`}
                       disablePortal
-                      options={cityList}
+                      options={dt.cityList}
                       value={dt.city}
                       // inputValue={dt.cityInput}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}

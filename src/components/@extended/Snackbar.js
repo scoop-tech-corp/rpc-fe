@@ -47,7 +47,7 @@ const animation = {
 const Snackbar = () => {
   const dispatch = useDispatch();
   const snackbar = useSelector((state) => state.snackbar);
-  const { actionButton, anchorOrigin, alert, close, message, open, transition, variant } = snackbar;
+  const { actionButton, anchorOrigin, alert, close, message, open, transition, variant, duration } = snackbar;
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -63,7 +63,7 @@ const Snackbar = () => {
         <MuiSnackbar
           anchorOrigin={anchorOrigin}
           open={open}
-          autoHideDuration={6000}
+          autoHideDuration={duration}
           onClose={handleClose}
           message={message}
           TransitionComponent={animation[transition]}
@@ -86,7 +86,7 @@ const Snackbar = () => {
           TransitionComponent={animation[transition]}
           anchorOrigin={anchorOrigin}
           open={open}
-          autoHideDuration={6000}
+          autoHideDuration={duration}
           onClose={handleClose}
         >
           <Alert

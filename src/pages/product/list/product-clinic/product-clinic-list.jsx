@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'utils/axios';
+// import axios from 'utils/axios';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { Chip, Stack, Table, TableBody, TableCell, TableHead, TableRow, useMediaQuery, Button, Link } from '@mui/material';
@@ -11,22 +11,30 @@ import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
-import { HeaderSort, IndeterminateCheckbox, TablePagination } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { HeaderSort, IndeterminateCheckbox, TablePagination, TableRowSelection } from 'components/third-party/ReactTable';
+import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
-import { useDispatch } from 'react-redux';
 
-function ReactTable({ columns, data, totalPagination, setPageNumber, onOrder, onGotoPage, onPageSize }) {
+function ReactTable({ columns, data, totalPagination, onOrder, onGotoPage, onPageSize }) {
   const theme = useTheme();
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    // selectedFlatRows,
+    state: { selectedRowIds }
+  } = useTable(
     {
       columns,
       data
     },
     useRowSelect
   );
+
+  // console.log('selectedFlatRows', selectedFlatRows);
 
   const [selectedOrder, setOrder] = useState({
     column: '',
@@ -35,6 +43,8 @@ function ReactTable({ columns, data, totalPagination, setPageNumber, onOrder, on
 
   const clickHeader = (column) => {
     if (column.id === 'selection') return;
+
+    console.log('click column', column);
 
     const setConfigOrder = {
       column: '',
@@ -61,8 +71,11 @@ function ReactTable({ columns, data, totalPagination, setPageNumber, onOrder, on
     onPageSize(event);
   };
 
+  // console.log('rows', rows);
+
   return (
     <>
+      <TableRowSelection selected={Object.keys(selectedRowIds).length} />
       <Table {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup, i) => (
@@ -111,7 +124,6 @@ function ReactTable({ columns, data, totalPagination, setPageNumber, onOrder, on
                 changePageSize={onChangeSetPageSize}
                 totalPagination={totalPagination}
                 pageIndex={0}
-                setPageNumber={setPageNumber}
                 // pageSize={pageSizeChange}
               />
             </TableCell>
@@ -126,57 +138,75 @@ ReactTable.propTypes = {
   columns: PropTypes.array,
   data: PropTypes.array,
   totalPagination: PropTypes.number,
-  setPageNumber: PropTypes.number,
   onOrder: PropTypes.func,
   onGotoPage: PropTypes.func,
   onPageSize: PropTypes.func
 };
 
-let paramLocationList = {};
+const paramProductClinicList = {
+  rowPerPage: 5,
+  goToPage: 1,
+  orderValue: '',
+  orderColumn: '',
+  keyword: ''
+};
 
-const LocationList = () => {
+const ProductClinicList = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
-  const [selectedRow, setSelectedRow] = useState([]);
-  const [keywordSearch, setKeywordSearch] = useState('');
+  // setProductClinicData
+  const [getProductClinicData] = useState({
+    data: [
+      { id: 1, name: 'Vet Clinic Sejawa', sku: 123456, brand: 'PTS', price: 25000, shippingStatus: 1, status: 1 },
+      { id: 2, name: 'Pager Clinic Cabang S', sku: 234567, brand: 'EAN', price: 100000, shippingStatus: 0, status: 0 }
+    ],
+    totalPagination: 0
+  });
 
   const columns = useMemo(
     () => [
       {
         title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.codeLocation);
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
-
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
+        // eslint-disable-next-line
+        Header: ({ getToggleAllRowsSelectedProps }) => <IndeterminateCheckbox indeterminate {...getToggleAllRowsSelectedProps()} />,
         accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+        // eslint-disable-next-line
+        Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         disableSortBy: true
       },
       {
         Header: <FormattedMessage id="name" />,
-        accessor: 'locationName',
+        accessor: 'name',
         Cell: (data) => {
-          const getCode = data.row.original.codeLocation;
-          return <Link href={`/location/${getCode}`}>{data.value}</Link>;
+          const getId = data.row.original.id;
+          return <Link href={`/product/list/product-clinic/${getId}`}>{data.value}</Link>;
         }
       },
-      { Header: 'Address', accessor: 'addressName' },
-      { Header: 'City', accessor: 'cityName' },
-      { Header: 'Phone', accessor: 'phoneNumber' },
+      { Header: 'Sku', accessor: 'sku' },
+      { Header: <FormattedMessage id="brand" />, accessor: 'brand' },
+      { Header: <FormattedMessage id="price" />, accessor: 'price' },
+      {
+        Header: <FormattedMessage id="shipping-status" />,
+        accessor: 'shippingStatus',
+        // className: 'cell-right',
+        Cell: (data) => {
+          switch (+data.value) {
+            case 1:
+              return <Chip color="success" label="Yes" size="small" variant="light" />;
+            default:
+              return <Chip color="error" label="No" size="small" variant="light" />;
+          }
+        }
+      },
       {
         Header: 'Status',
         accessor: 'status',
+        // className: 'cell-right',
         Cell: (data) => {
-          switch (data.value.toLowerCase()) {
-            case 'active':
+          switch (+data.value) {
+            case 1:
               return <Chip color="success" label="Active" size="small" variant="light" />;
             default:
               return <Chip color="error" label="Not Active" size="small" variant="light" />;
@@ -188,92 +218,48 @@ const LocationList = () => {
   );
 
   const onOrderingChange = (event) => {
-    paramLocationList.orderValue = event.order;
-    paramLocationList.orderColumn = event.column;
+    console.log('onOrderingChange', event);
+    paramProductClinicList.orderValue = event.order;
+    paramProductClinicList.orderColumn = event.column;
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    paramLocationList.goToPage = event;
+    console.log('event', event);
+    paramProductClinicList.goToPage = event;
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    paramLocationList.rowPerPage = event;
+    paramProductClinicList.rowPerPage = event;
     fetchData();
   };
 
   const onSearch = (event) => {
-    paramLocationList.keyword = event;
-    setKeywordSearch(event);
+    paramProductClinicList.keyword = event;
 
     fetchData();
   };
 
   const onClickAdd = () => {
-    navigate('/location/add', { replace: true });
-  };
-
-  const onDeleteLocation = async () => {
-    console.log('selectedRow', selectedRow);
-    const resp = await axios.delete('location', {
-      data: { codeLocation: selectedRow }
-    });
-
-    if (resp.status === 200 && resp.data.result === 'success') {
-      dispatch(
-        openSnackbar({
-          open: true,
-          message: 'Success Delete location',
-          variant: 'alert',
-          alert: { color: 'success' },
-          duration: 2000,
-          close: true
-        })
-      );
-      clearParamFetchData();
-      fetchData();
-    }
-  };
-
-  const onExport = async () => {
-    const resp = await axios.get('exportlocation', {
-      responseType: 'blob'
-    });
-    console.log('resp export', resp);
-    // console.log('resp.headers content-disposition', resp.headers['content-disposition']);
-
-    let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-    let downloadUrl = URL.createObjectURL(blob);
-    let a = document.createElement('a');
-
-    a.href = downloadUrl;
-    a.download = 'location';
-    document.body.appendChild(a);
-    a.click();
+    navigate('/product/list/product-clinic/add', { replace: true });
   };
 
   async function fetchData() {
-    const resp = await axios.get('location', {
-      params: {
-        rowPerPage: paramLocationList.rowPerPage,
-        goToPage: paramLocationList.goToPage,
-        orderValue: paramLocationList.orderValue,
-        orderColumn: paramLocationList.orderColumn,
-        search: paramLocationList.keyword
-      }
-    });
-
-    setLocationData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+    // const getData = await axios.get('fasilitas', {
+    //   params: {
+    //     rowPerPage: paramProductClinicList.rowPerPage,
+    //     goToPage: paramProductClinicList.goToPage,
+    //     orderValue: paramProductClinicList.orderValue,
+    //     orderColumn: paramProductClinicList.orderColumn,
+    //     search: paramProductClinicList.keyword
+    //   }
+    // });
+    // console.log('getData', getData);
+    // setProductClinicData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
   }
 
-  const clearParamFetchData = () => {
-    paramLocationList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
-    setKeywordSearch('');
-  };
-
   useEffect(() => {
-    clearParamFetchData();
     fetchData();
   }, []);
 
@@ -288,45 +274,23 @@ const LocationList = () => {
             spacing={1}
             sx={{ p: 3, pb: 0 }}
           >
-            <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
-
-            <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'}>
-              <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
-                <FormattedMessage id="export" />
-              </Button>
-              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                <FormattedMessage id="add-location" />
-              </Button>
-            </Stack>
+            <GlobalFilter placeHolder={'Search...'} setGlobalFilter={onSearch} size="small" />
+            <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+              <FormattedMessage id="add-product-clinic" />
+            </Button>
           </Stack>
           <ReactTable
             columns={columns}
-            data={getLocationData.data}
-            totalPagination={getLocationData.totalPagination}
-            setPageNumber={paramLocationList.goToPage}
+            data={getProductClinicData.data}
+            totalPagination={getProductClinicData.totalPagination}
             onOrder={onOrderingChange}
             onGotoPage={onGotoPageChange}
             onPageSize={onPageSizeChange}
           />
         </Stack>
-
-        {selectedRow.length > 0 && (
-          <Stack
-            // direction={matchDownSM ? 'column' : 'row'}
-            style={{ marginBottom: '20px' }}
-            justifyContent="space-between"
-            alignItems="flex-start"
-            spacing={1}
-            sx={{ p: 3, pb: 0 }}
-          >
-            <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={onDeleteLocation}>
-              <FormattedMessage id="delete" />
-            </Button>
-          </Stack>
-        )}
       </ScrollX>
     </MainCard>
   );
 };
 
-export default LocationList;
+export default ProductClinicList;

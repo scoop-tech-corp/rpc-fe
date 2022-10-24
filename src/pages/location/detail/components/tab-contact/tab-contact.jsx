@@ -5,6 +5,7 @@ import MainCard from 'components/MainCard';
 import { FormattedMessage } from 'react-intl';
 import { useContext, useEffect, useState } from 'react';
 import LocationDetailContext from '../../location-detail-context';
+import { jsonCentralized } from 'utils/json-centralized';
 
 const TabContact = () => {
   const { locationDetail, setLocationDetail } = useContext(LocationDetailContext);
@@ -12,24 +13,13 @@ const TabContact = () => {
   const [email, setEmail] = useState([]); // { emailUsage: '', emailAddress: '' }
   const [messenger, setMessenger] = useState([]); // { messengerUsage: '', messengerUsageName: '', messengerType: '' }
 
-  // const usageList = [
-  //   { name: 'Utama', value: 'Utama' },
-  //   { name: 'Sekunder', value: 'Sekunder' }
-  // ];
-
   const phoneUsageList = locationDetail.usageList;
   const phoneTypeList = locationDetail.telephoneType;
-
-  // const phoneTypeList = [
-  //   { name: 'Telepone Selular', value: 'Telepon Selular' },
-  //   { name: 'Faksimile', value: 'Faksimile' },
-  //   { name: 'Telepone Rumah', value: 'Telepone Rumah' }
-  // ];
 
   useEffect(() => {
     // fill context telephone to phone
     if (locationDetail.telephone.length) {
-      const getDetailTelephone = JSON.parse(JSON.stringify(locationDetail.telephone));
+      const getDetailTelephone = jsonCentralized(locationDetail.telephone);
       const newTelephone = getDetailTelephone.map((tp) => {
         return { phoneUsage: tp.usage || '', phoneNumber: tp.phoneNumber, phoneType: tp.type || '' };
       });
@@ -38,7 +28,7 @@ const TabContact = () => {
 
     // fill context email to email
     if (locationDetail.email.length) {
-      const getDetailEmail = JSON.parse(JSON.stringify(locationDetail.email));
+      const getDetailEmail = jsonCentralized(locationDetail.email);
       const newEmail = getDetailEmail.map((em) => {
         return { emailUsage: em.usage || '', emailAddress: em.username };
       });
@@ -47,9 +37,9 @@ const TabContact = () => {
 
     // fill context messenger to messenger
     if (locationDetail.messenger.length) {
-      const getDetailMessenger = JSON.parse(JSON.stringify(locationDetail.messenger));
+      const getDetailMessenger = jsonCentralized(locationDetail.messenger);
       const newMessenger = getDetailMessenger.map((ms) => {
-        return { messengerUsage: ms.usage || '', messengerUsageName: ms.messengerName, messengerType: ms.type || '' };
+        return { messengerUsage: ms.usage || '', messengerUsageName: ms.messengerNumber, messengerType: ms.type || '' };
       });
       setMessenger(newMessenger);
     }
@@ -67,7 +57,7 @@ const TabContact = () => {
         setObj = { username: dt.emailAddress, usage: dt.emailUsage };
       } else if (procedure === 'messenger') {
         setObj = {
-          messengerName: dt.messengerUsageName,
+          messengerNumber: dt.messengerUsageName,
           type: dt.messengerType,
           usage: dt.messengerUsage
         };
@@ -138,7 +128,7 @@ const TabContact = () => {
   const emailUsageList = locationDetail.usageList;
 
   const onEmailUsage = (event, idx) => {
-    setPhone((value) => {
+    setEmail((value) => {
       const getEmails = [...value];
       getEmails[idx].emailUsage = event.target.value;
 
@@ -180,12 +170,6 @@ const TabContact = () => {
   // Start Messenger
   const messengerUsageList = locationDetail.usageList;
   const messengerTypeList = locationDetail.messengerType;
-
-  // const messengerTypeList = [
-  //   { name: 'Viber', value: 1 },
-  //   { name: 'Skype', value: 2 },
-  //   { name: 'Whatsapp', value: 3 }
-  // ];
 
   const onMessengerUsage = (event, idx) => {
     setMessenger((value) => {
