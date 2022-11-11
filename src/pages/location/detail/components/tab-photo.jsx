@@ -14,7 +14,8 @@ const TabPhoto = () => {
   useEffect(() => {
     // fill context photos to photos
     if (locationDetail.photos.length) {
-      const getDetailPhotos = locationDetail.photos;
+      let getDetailPhotos = locationDetail.photos;
+
       setPhotos(getDetailPhotos);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,13 +29,13 @@ const TabPhoto = () => {
   }, [photos]);
 
   const onAddPhotos = () => {
-    setPhotos((val) => [...val, { label: '', imagePath: '', imageOriginalName: '', selectedFile: null }]);
+    setPhotos((val) => [...val, { id: null, label: '', imagePath: '', status: '', selectedFile: null }]);
   };
 
   const onDeletePhoto = (i) => {
     setPhotos((value) => {
       let getPhoto = [...value];
-      getPhoto.splice(i, 1);
+      getPhoto[i].status = 'del';
 
       return [...getPhoto];
     });
@@ -50,7 +51,6 @@ const TabPhoto = () => {
   };
 
   const onSelectedPhoto = (event, idx) => {
-    console.log(idx, event.target.files[0]);
     const getFile = event.target.files[0];
     if (getFile) {
       const reader = new FileReader();
@@ -105,42 +105,46 @@ const TabPhoto = () => {
           </Grid>
         </Grid>
       </Grid>
-      {photos.map((ph, i) => (
-        <Grid item xs={6} sm={3} key={i}>
-          <MainCard>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <div>
-                  {ph.imagePath && (
-                    <a href={ph.imagePath} target="blank">
-                      <img alt={i} src={ph.imagePath} width="100%" />
-                    </a>
-                  )}
-                </div>
-                <input type="file" onChange={(event) => onSelectedPhoto(event, i)} />
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel>
-                    <FormattedMessage id="name" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id={`photo-name-${i}`}
-                    name={`photo-name-${i}`}
-                    value={ph.label}
-                    onChange={(event) => onPhotoName(event, i)}
-                    onBlur={(event) => onPhotoName(event, i)}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <DeleteFilled style={{ fontSize: '14px', color: 'red', cursor: 'pointer' }} onClick={() => onDeletePhoto(i)} />
-              </Grid>
+      {photos.map((ph, i) => {
+        if (ph.status === '') {
+          return (
+            <Grid item xs={6} sm={3} key={i}>
+              <MainCard>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <div>
+                      {ph.imagePath && (
+                        <a href={ph.imagePath} target="blank">
+                          <img alt={i} src={ph.imagePath} width="100%" />
+                        </a>
+                      )}
+                    </div>
+                    {!ph.imagePath && <input type="file" onChange={(event) => onSelectedPhoto(event, i)} />}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel>
+                        <FormattedMessage id="name" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        id={`photo-name-${i}`}
+                        name={`photo-name-${i}`}
+                        value={ph.label}
+                        onChange={(event) => onPhotoName(event, i)}
+                        onBlur={(event) => onPhotoName(event, i)}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <DeleteFilled style={{ fontSize: '14px', color: 'red', cursor: 'pointer' }} onClick={() => onDeletePhoto(i)} />
+                  </Grid>
+                </Grid>
+              </MainCard>
             </Grid>
-          </MainCard>
-        </Grid>
-      ))}
+          );
+        }
+      })}
     </Grid>
   );
 };

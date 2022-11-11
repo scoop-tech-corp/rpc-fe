@@ -1,5 +1,6 @@
 import { Box, Tab, Tabs } from '@mui/material';
 import { useState } from 'react';
+import { useParams } from 'react-router';
 import { LocationDetailProvider as Provider } from './location-detail-context';
 
 import PropTypes from 'prop-types';
@@ -12,9 +13,12 @@ import TabDetail from './components/tab-detail/tab-detail';
 import TabAddresses from './components/tab-addresses';
 import TabContact from './components/tab-contact/tab-contact';
 import TabPhoto from './components/tab-photo';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 const LocationDetail = () => {
   const [tabSelected, setTabSelected] = useState(0);
+  const [locationName, setLocationName] = useState('');
+  let { code } = useParams();
 
   const TabPanel = (props) => {
     const { children, value, index } = props;
@@ -35,11 +39,16 @@ const LocationDetail = () => {
     setTabSelected(value);
   };
 
+  const setTitlePage = () => {
+    return code ? locationName : <FormattedMessage id="add-location" />;
+  };
+
   return (
     <Provider>
+      <HeaderPageCustom title={setTitlePage()} locationBackConfig={{ setLocationBack: true, customUrl: '/location/location-list' }} />
       <MainCard border={false} boxShadow>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <LocationDetailHeader />
+          <LocationDetailHeader locationName={(val) => setLocationName(val)} />
           <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="location detail tab">
             <Tab label="Details" id="location-tab-0" aria-controls="location-tabpanel-0" />
             <Tab label={<FormattedMessage id="description" />} id="location-tab-1" aria-controls="location-tabpanel-1" />

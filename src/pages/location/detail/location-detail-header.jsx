@@ -1,9 +1,10 @@
-import { Button, Grid, Typography } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import LocationDetailContext from './location-detail-context';
 import axios from 'utils/axios';
-import { useContext, useEffect, useState } from 'react';
+
+import { useContext, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router';
 import { openSnackbar } from 'store/reducers/snackbar';
@@ -27,10 +28,9 @@ export const getCityList = (provinceCode) => {
   });
 };
 
-const LocationDetailHeader = () => {
+const LocationDetailHeader = ({ locationName }) => {
   let { code } = useParams();
   const { locationDetail, setLocationDetail, locationDetailError } = useContext(LocationDetailContext);
-  const [locationName, setLocationName] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -49,10 +49,6 @@ const LocationDetailHeader = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
-
-  const setTitleLocation = () => {
-    return code ? locationName : <FormattedMessage id="add-location" />;
-  };
 
   const getDetailLocation = async () => {
     const getResp = await axios.get('detaillocation', { params: { codeLocation: code } });
@@ -104,14 +100,14 @@ const LocationDetailHeader = () => {
     let photos = jsonCentralized(getData.images);
     photos = photos.map((photo) => {
       return {
+        id: photo.id,
         label: photo.labelName,
         imagePath: `${configGlobal.apiUrl}${photo.imagePath}`,
-        imageOriginalName: photo.realImageName,
+        status: '',
         selectedFile: null
       };
     });
-
-    setLocationName(getData.locationName);
+    locationName(getData.locationName);
     setLocationDetail((val) => {
       const newLocationDetail = {
         locationName: getData.locationName,
@@ -163,6 +159,51 @@ const LocationDetailHeader = () => {
     });
   };
 
+  const setFormDataImage = (fd) => {
+    if (locationDetail.photos.length) {
+      const tempFileName = [];
+      locationDetail.photos.forEach((file) => {
+        fd.append('images[]', file.selectedFile);
+
+        const id = code ? +file.id : '';
+        tempFileName.push({ id, name: file.label, status: file.status });
+      });
+      fd.append('imagesName', JSON.stringify(tempFileName));
+    } else {
+      fd.append('images[]', []);
+      fd.append('imagesName', JSON.stringify([]));
+    }
+  };
+
+  const generateParamSaved = (property) => {
+    const fd = new FormData();
+    fd.append('locationName', locationDetail.locationName);
+    fd.append('status', +locationDetail.status);
+    fd.append('description', locationDetail.description);
+    fd.append('detailAddress', JSON.stringify(property.detailAddress));
+    fd.append('operationalHour', JSON.stringify(property.operationalHour));
+    fd.append('messenger', JSON.stringify(property.messenger));
+    fd.append('email', JSON.stringify(locationDetail.email));
+    fd.append('telephone', JSON.stringify(locationDetail.telephone));
+    setFormDataImage(fd);
+
+    return fd;
+  };
+
+  const generateParamUpdate = (property) => {
+    return {
+      codeLocation: code,
+      locationName: locationDetail.locationName,
+      status: +locationDetail.status,
+      description: locationDetail.description,
+      detailAddress: property.detailAddress,
+      operationalHour: property.operationalHour,
+      messenger: property.messenger,
+      email: locationDetail.email,
+      telephone: locationDetail.telephone
+    };
+  };
+
   const generateParameterSubmit = () => {
     let detailAddress = jsonCentralized(locationDetail.detailAddress);
     detailAddress = detailAddress.map((da) => {
@@ -187,69 +228,63 @@ const LocationDetailHeader = () => {
       return { messengerNumber: m.messengerNumber, type: m.type, usage: m.usage };
     });
 
-    const fd = new FormData();
-    fd.append('locationName', locationDetail.locationName);
-    fd.append('status', +locationDetail.status);
-    fd.append('description', locationDetail.description);
-    fd.append('detailAddress', JSON.stringify(detailAddress));
-    fd.append('operationalHour', JSON.stringify(operationalHour));
-    fd.append('messenger', JSON.stringify(messenger));
-    fd.append('email', JSON.stringify(locationDetail.email));
-    fd.append('telephone', JSON.stringify(locationDetail.telephone));
-
-    if (locationDetail.photos.length) {
-      const tempFileName = [];
-      locationDetail.photos.forEach((file, idx) => {
-        fd.append('images[]', file.selectedFile);
-        tempFileName.push({ id: idx + 1, name: file.label });
-      });
-      fd.append('imagesName', JSON.stringify(tempFileName));
-    } else {
-      fd.append('images[]', []);
-      fd.append('imagesName', JSON.stringify([]));
-    }
-
+    let result = null;
     if (code) {
-      fd.append('codeLocation', code);
+      result = generateParamUpdate({ detailAddress, operationalHour, messenger });
+    } else {
+      result = generateParamSaved({ detailAddress, operationalHour, messenger });
     }
 
-    return fd;
+    return result;
   };
 
   const onSubmitLocation = async () => {
     if (locationDetailError) return;
 
-    for (let [key, value] of generateParameterSubmit().entries()) {
-      console.log(key, value);
+    let response = null;
+    let isSuccess = false;
+    if (code) {
+      response = await axios.put('location', generateParameterSubmit());
+    } else {
+      response = await axios.post('location', generateParameterSubmit(), { headers: { 'Content-Type': 'multipart/form-data' } });
     }
 
-    const response = await axios.post(code ? 'patchlocation' : 'location', generateParameterSubmit(), {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    if (response && response.status === 200 && response.data.result === 'success') {
+      if (code) {
+        const fd = new FormData();
+        fd.append('codeLocation', code);
+        setFormDataImage(fd);
+        const respUpload = await axios.post('imagelocation', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        if (respUpload.status === 200 && respUpload.data.result === 'success') {
+          isSuccess = true;
+        }
+      } else {
+        isSuccess = true;
+      }
+    }
 
-    if (response.status === 200 && response.data.result === 'success') {
+    if (isSuccess) {
       const message = code ? 'Success update location' : 'Success create location';
-
       dispatch(
         openSnackbar({
           open: true,
           message,
           variant: 'alert',
           alert: { color: 'success' },
-          duration: 2000,
+          duration: 1500,
           close: true
         })
       );
-      navigate('/location/list', { replace: true });
+      navigate('/location/location-list', { replace: true });
     }
   };
 
   return (
     <Grid container sx={{ mb: 2.25 }}>
-      <Grid item xs={12} sm={6}>
+      {/* <Grid item xs={12} sm={6}>
         <Typography variant="h5">{setTitleLocation()}</Typography>
-      </Grid>
-      <Grid item xs={12} sm={6} textAlign="right">
+      </Grid> */}
+      <Grid item xs={12} sm={12} textAlign="right">
         <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmitLocation} disabled={locationDetailError}>
           <FormattedMessage id="save" />
         </Button>
@@ -259,7 +294,8 @@ const LocationDetailHeader = () => {
 };
 
 LocationDetailHeader.propTypes = {
-  locationId: PropTypes.number
+  // PropTypes.oneOfType([PropTypes.string, PropTypes.node, PropTypes.element])
+  locationName: PropTypes.any
 };
 
 export default LocationDetailHeader;

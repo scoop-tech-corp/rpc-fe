@@ -9,6 +9,9 @@
   "address": "Alamat",
   "addresses": "Alamat",
   "access-control": "Akses Kontrol",
+  "amount": "Jumlah",
+  "amount-unit": "Jumlah Unit",
+  "back": "Kembali",
   "basic-info": "Info Dasar",
   "brand": "Merk",
   "bundle": "Paket Produk",
@@ -32,6 +35,7 @@
   "enter-street-address": "Masukan Alamat Jalan",
   "enter-overview": "Masukan Gambaran",
   "facilities": "Fasilitas",
+  "facility-variant": "Variasi Fasilitas",
   "finance": "Keuangan",
   "import": "Impor",
   "introduction": "Perkenalan",
@@ -77,6 +81,7 @@
   "treatment-plan": "Rencana Perawatan",
   "type": "Tipe",
   "usage": "Pemakaian",
+  "usage-capacity": "Kapasitas Penggunaan",
   "usage-name": "Nama Pengguna",
   "units-available": "Unit Tersedia"
 }

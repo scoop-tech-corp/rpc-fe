@@ -1,3 +1,4 @@
+// useLocation
 import { Link } from 'react-router-dom';
 
 // material-ui
@@ -7,11 +8,21 @@ import { Grid, Stack, Typography } from '@mui/material';
 import useAuth from 'hooks/useAuth';
 import AuthWrapper from 'sections/auth/AuthWrapper';
 import AuthLogin from 'sections/auth/auth-forms/AuthLogin';
+// import { useEffect } from 'react';
 
 // ================================|| LOGIN ||================================ //
 
 const Login = () => {
+  // logout
   const { isLoggedIn } = useAuth();
+  // const location = useLocation();
+
+  // useEffect(() => {
+  //   if (location.state.isLogout) {
+  //     logout();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <AuthWrapper>

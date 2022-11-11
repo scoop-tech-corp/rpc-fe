@@ -68,57 +68,91 @@ const UnitsAvailable = () => {
   return (
     <MainCard title={<FormattedMessage id="units-available" />}>
       {unitsAvailable.map((dt, i) => (
-        <Grid container spacing={3} key={i}>
-          <Grid item xs={12} sm={3}>
-            <Stack spacing={1} style={{ marginTop: '5px' }}>
-              <InputLabel>
-                <FormattedMessage id="name" />
-              </InputLabel>
-              <TextField
-                fullWidth
-                id={`name-${i}`}
-                name={`name-${i}`}
-                value={dt.name}
-                onChange={(event) => onTextField(event, i, 'name')}
-                onBlur={(event) => onTextField(event, i, 'name')}
-                // error={formBasicInfo.touched.locationName && Boolean(formBasicInfo.errors.locationName)}
-                // helperText={formBasicInfo.touched.locationName && formBasicInfo.errors.locationName}
-              />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Stack spacing={1} style={{ marginTop: '5px' }}>
-              <InputLabel htmlFor="status">Status</InputLabel>
-              <FormControl sx={{ m: 1, minWidth: 120 }}>
-                <Select id="status" name="status" value={dt.status} onChange={(event) => onStatus(event, i)}>
-                  <MenuItem value="">
-                    <em>Select status</em>
-                  </MenuItem>
-                  <MenuItem value={'1'}>Active</MenuItem>
-                  <MenuItem value={'0'}>Non Active</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Stack spacing={1} style={{ marginTop: '5px' }}>
-              <InputLabel>
-                <FormattedMessage id="notes" />
-              </InputLabel>
-              <TextField
-                fullWidth
-                id={`notes-${i}`}
-                name={`notes-${i}`}
-                value={dt.notes}
-                onChange={(event) => onTextField(event, i, 'notes')}
-                onBlur={(event) => onTextField(event, i, 'notes')}
-                // error={formBasicInfo.touched.locationName && Boolean(formBasicInfo.errors.locationName)}
-                // helperText={formBasicInfo.touched.locationName && formBasicInfo.errors.locationName}
-              />
-            </Stack>
+        <Grid container spacing={2} key={i}>
+          <Grid item xs={12} sm={11}>
+            <Grid container spacing={3} key={i}>
+              <Grid item xs={12} sm={3}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
+                  <InputLabel>
+                    <FormattedMessage id="name" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    inputProps={{ maxLength: 25 }}
+                    id={`name-${i}`}
+                    name={`name-${i}`}
+                    value={dt.name}
+                    onChange={(event) => onTextField(event, i, 'name')}
+                    onBlur={(event) => onTextField(event, i, 'name')}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
+                  <InputLabel htmlFor="status">Status</InputLabel>
+                  <FormControl sx={{ m: 1, minWidth: 120 }}>
+                    <Select id="status" name="status" value={dt.status} onChange={(event) => onStatus(event, i)}>
+                      <MenuItem value="">
+                        <em>Select status</em>
+                      </MenuItem>
+                      <MenuItem value={'1'}>Active</MenuItem>
+                      <MenuItem value={'0'}>Non Active</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
+                  <InputLabel>
+                    <FormattedMessage id="capacity" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    id={`capacity-${i}`}
+                    name={`capacity-${i}`}
+                    value={dt.capacity}
+                    onChange={(event) => onTextField(event, i, 'capacity')}
+                    onBlur={(event) => onTextField(event, i, 'capacity')}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
+                  <InputLabel>
+                    <FormattedMessage id="amount" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    id={`amount-${i}`}
+                    name={`amount-${i}`}
+                    value={dt.amount}
+                    onChange={(event) => onTextField(event, i, 'amount')}
+                    onBlur={(event) => onTextField(event, i, 'amount')}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
+                  <InputLabel>
+                    <FormattedMessage id="notes" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    inputProps={{ maxLength: 300 }}
+                    id={`notes-${i}`}
+                    name={`notes-${i}`}
+                    value={dt.notes}
+                    onChange={(event) => onTextField(event, i, 'notes')}
+                    onBlur={(event) => onTextField(event, i, 'notes')}
+                  />
+                </Stack>
+              </Grid>
+            </Grid>
           </Grid>
           {unitsAvailable.length > 1 && (
-            <Grid item xs={12} sm={3} display="flex" alignItems="flex-end">
+            <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
               <IconButton size="large" color="error" onClick={() => onDeleteUnit(i)}>
                 <DeleteFilled />
               </IconButton>

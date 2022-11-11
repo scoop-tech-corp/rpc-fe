@@ -30,9 +30,10 @@ const defaultDetailMessenger = {
 };
 
 const defaultPhotos = {
+  id: null,
   label: '',
   imagePath: '',
-  imageOriginalName: '',
+  status: '',
   selectedFile: null
 };
 

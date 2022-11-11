@@ -148,9 +148,9 @@ const MainRoutes = {
           path: 'location',
           children: [
             { path: 'dashboard', element: <LocationDashboard /> },
-            { path: 'list', element: <LocationList /> },
-            { path: 'add', element: <LocationDetail /> },
-            { path: ':code', element: <LocationDetail /> },
+            { path: 'location-list', element: <LocationList /> },
+            { path: 'location-list/add', element: <LocationDetail /> },
+            { path: 'location-list/:code', element: <LocationDetail /> },
             { path: 'facilities', element: <LocationFacilities /> },
             { path: 'facilities/add', element: <LocationFacilitiesDetail /> },
             { path: 'facilities/:id', element: <LocationFacilitiesDetail /> },

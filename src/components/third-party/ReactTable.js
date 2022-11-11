@@ -6,7 +6,11 @@ import { useDrop, useDrag, useDragLayer } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 
 // material-ui
-import { styled, useTheme } from '@mui/material/styles';
+import { styled, useTheme, alpha } from '@mui/material/styles';
+
+// react-table
+import { useTable, useRowSelect } from 'react-table';
+
 import {
   Box,
   Checkbox,
@@ -22,11 +26,127 @@ import {
   TableCell,
   TableRow,
   // TextField,
-  Typography
+  Typography,
+  Table,
+  TableBody,
+  TableHead
 } from '@mui/material';
 
 // assets
 import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } from '@ant-design/icons';
+
+// ==============================|| TABLE CORE ||============================== //
+export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOrder, onGotoPage, onPageSize }) => {
+  const theme = useTheme();
+
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    {
+      columns,
+      data
+    },
+    useRowSelect
+  );
+
+  const [selectedOrder, setOrder] = useState({
+    column: '',
+    order: ''
+  });
+
+  const clickHeader = (column) => {
+    if (column.id === 'selection') return;
+
+    const setConfigOrder = {
+      column: '',
+      order: ''
+    };
+
+    setConfigOrder.column = column.id;
+
+    if (selectedOrder.column === column.id) {
+      setConfigOrder.order = selectedOrder.order === 'asc' ? 'desc' : 'asc';
+    } else {
+      setConfigOrder.order = 'asc';
+    }
+
+    setOrder(setConfigOrder);
+    onOrder(setConfigOrder);
+  };
+
+  const onChangeGotoPage = (event) => {
+    onGotoPage(event);
+  };
+
+  const onChangeSetPageSize = (event) => {
+    onPageSize(event);
+  };
+
+  return (
+    <>
+      <Table {...getTableProps()}>
+        <TableHead>
+          {headerGroups.map((headerGroup, i) => (
+            <TableRow key={i} {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column, index) => (
+                <TableCell key={index} {...column.getHeaderProps([{ className: column.className }])} onClick={() => clickHeader(column)}>
+                  <HeaderSort column={column} selectedOrder={selectedOrder} />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableHead>
+        <TableBody {...getTableBodyProps()} className="striped">
+          {rows.map((row, i) => {
+            prepareRow(row);
+            return (
+              <TableRow
+                key={i}
+                {...row.getRowProps()}
+                sx={{
+                  cursor: 'pointer',
+                  bgcolor: row.isSelected ? alpha(theme.palette.primary.lighter, 0.35) : 'inherit'
+                }}
+              >
+                {row.cells.map((cell, i) => (
+                  <TableCell key={i} {...cell.getCellProps([{ className: cell.column.className }])}>
+                    {cell.render('Cell')}
+                  </TableCell>
+                ))}
+              </TableRow>
+            );
+          })}
+          {!rows.length && (
+            <TableRow>
+              <TableCell>No Data Found...</TableCell>
+            </TableRow>
+          )}
+          <TableRow>
+            <TableCell sx={{ p: 2 }} colSpan={7}>
+              {/* rows => jumlah data, pageSize => 5, 10 */}
+              <TablePagination
+                gotoPage={onChangeGotoPage}
+                changePageSize={onChangeSetPageSize}
+                totalPagination={totalPagination}
+                pageIndex={0}
+                setPageNumber={setPageNumber}
+                // pageSize={pageSizeChange}
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </>
+  );
+};
+
+ReactTable.propTypes = {
+  columns: PropTypes.array,
+  data: PropTypes.array,
+  totalPagination: PropTypes.number,
+  setPageNumber: PropTypes.number,
+  onOrder: PropTypes.func,
+  onGotoPage: PropTypes.func,
+  onPageSize: PropTypes.func
+};
 
 // ==============================|| HEADER SORT ||============================== //
 

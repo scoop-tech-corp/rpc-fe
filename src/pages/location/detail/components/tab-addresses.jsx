@@ -302,7 +302,6 @@ const TabAddresses = () => {
                     </InputLabel>
                     <Autocomplete
                       id={`city-${i}`}
-                      disablePortal
                       options={dt.cityList}
                       value={dt.city}
                       // inputValue={dt.cityInput}

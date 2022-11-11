@@ -4,24 +4,24 @@ import PropTypes from 'prop-types';
 export const defaultUnitAvailable = {
   name: '',
   status: '',
+  capacity: '',
+  amount: '',
   notes: ''
 };
 
 const defaultPhotos = {
-  name: '',
+  id: null,
+  label: '',
+  imagePath: '',
+  status: '',
   selectedFile: null
 };
 
 const defaultFacilityDetail = {
-  facilityName: '',
-  capacity: '',
-  status: '',
   locationName: '',
   introduction: '',
   description: '',
   detailUnitAvailable: [defaultUnitAvailable],
-  image: '',
-  imageTitle: '',
   photos: [defaultPhotos]
 };
 

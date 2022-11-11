@@ -21,6 +21,11 @@ axiosServices.interceptors.request.use(
 axiosServices.interceptors.response.use(
   (response) => {
     loaderGlobalConfig.setLoader(false);
+    // if (response.data && response.data.status === 'Token is Expired') {
+    //   console.log('di lempar ke login');
+    //   navigate('/login', { state: { isLogout: true }, replace: true });
+    //   return true;
+    // }
     return response;
   },
   (error) => {

@@ -1,5 +1,5 @@
 import { Box, Tab, Tabs } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import { FacilityDetailProvider as Provider } from './facility-detail-context';
 
@@ -11,14 +11,12 @@ import FacilityDetailHeader from './facility-detail-header';
 import TabDetail from './components/tab-detail/tab-detail';
 import TabDescription from './components/tab-description';
 import TabPhoto from './components/tab-photo';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 const LocationFacilitiesDetail = () => {
-  let { id } = useParams();
   const [tabSelected, setTabSelected] = useState(0);
-
-  useEffect(() => {
-    console.log('id', id);
-  }, [id]);
+  const [facilityName, setFacilityName] = useState('');
+  let { code } = useParams();
 
   const TabPanel = (props) => {
     const { children, value, index } = props;
@@ -39,11 +37,16 @@ const LocationFacilitiesDetail = () => {
     setTabSelected(value);
   };
 
+  const setTitleFacility = () => {
+    return code ? facilityName : <FormattedMessage id="add-facility" />;
+  };
+
   return (
     <Provider>
+      <HeaderPageCustom title={setTitleFacility()} locationBackConfig={{ setLocationBack: true, customUrl: '/location/facilities' }} />
       <MainCard border={false} boxShadow>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <FacilityDetailHeader locationId={id} />
+          <FacilityDetailHeader facilityName={(val) => setFacilityName(val)} />
           <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="location detail tab">
             <Tab label="Details" id="facility-tab-0" aria-controls="facility-tabpanel-0" />
             <Tab label={<FormattedMessage id="description" />} id="facility-tab-1" aria-controls="facility-tabpanel-1" />

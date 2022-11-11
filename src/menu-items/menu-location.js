@@ -2,17 +2,21 @@
 import { FormattedMessage } from 'react-intl';
 
 // assets
-import { TeamOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined } from '@ant-design/icons';
+import AccessibilityNewOutlinedIcon from '@mui/icons-material/AccessibilityNewOutlined';
 
 // icons
 const icons = {
-  TeamOutlined
+  DashboardOutlined,
+  TeamOutlined,
+  AccessibilityNewOutlinedIcon
 };
 
 // ==============================|| MENU ITEMS - LOCATION ||============================== //
 
 const location = {
   id: 'group-location',
+  code: 'location',
   type: 'group',
   children: [
     {
@@ -25,20 +29,24 @@ const location = {
           id: 'location-dashboard',
           title: 'Dashboard',
           type: 'item',
-          url: '/location/dashboard'
+          url: '/location/dashboard',
+          icon: icons.DashboardOutlined
         },
         {
           id: 'location-list',
           title: <FormattedMessage id="location-list" />,
           type: 'item',
-          url: '/location/list',
-          breadcrumbs: true
+          url: '/location/location-list',
+          icon: icons.TeamOutlined,
+          breadcrumbs: true,
+          childrenPath: [{ url: '/location/add', title: <FormattedMessage id="location-add" /> }]
         },
         {
           id: 'location-facilities',
           title: <FormattedMessage id="facilities" />,
           type: 'item',
           url: '/location/facilities',
+          icon: icons.AccessibilityNewOutlinedIcon,
           breadcrumbs: false
         },
         {

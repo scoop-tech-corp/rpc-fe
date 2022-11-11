@@ -66,7 +66,7 @@ const MainLayout = () => {
         )}
         {!container && (
           <Box sx={{ position: 'relative', minHeight: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}>
-            <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
+            {/* <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} /> */}
             <Outlet />
             <Footer />
           </Box>
