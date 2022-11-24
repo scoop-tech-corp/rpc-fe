@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router';
 import { openSnackbar } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
+import { getFacilityLocationList } from './detail/facility-detail-header';
 
 let paramFacilityList = {};
 
@@ -22,22 +23,9 @@ const FacilityList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // setFacilityData
-  const [getFacilityData] = useState({
-    data: [
-      { id: 1, locationName: 'RPC Condet', usageCapacity: 5, facilityVariant: 6, totalUnit: 11 },
-      { id: 2, locationName: 'RPC Kelapa Gading', usageCapacity: 2, facilityVariant: 2, totalUnit: 10 },
-      { id: 3, locationName: 'RPC Tanjung Barat', usageCapacity: 6, facilityVariant: 4, totalUnit: 20 },
-      { id: 4, locationName: 'RPC BSD', usageCapacity: 5, facilityVariant: 10, totalUnit: 20 },
-      { id: 5, locationName: 'RPC Sawangan', usageCapacity: 0, facilityVariant: 0, totalUnit: 0 }
-    ],
-    totalPagination: 1
-  });
+  const [getFacilityData, setFacilityData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  const [locationList] = useState([
-    { label: 'RPC Condet', value: 'condet' },
-    { label: 'RPC Kelapa Gading', value: 'kelapa-gading' }
-  ]);
+  const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState(null);
 
   const columns = useMemo(
@@ -64,9 +52,9 @@ const FacilityList = () => {
           return <Link href={`/location/facilities/${getId}`}>{data.value}</Link>;
         }
       },
-      { Header: <FormattedMessage id="usage-capacity" />, accessor: 'usageCapacity' },
-      { Header: <FormattedMessage id="facility-variant" />, accessor: 'facilityVariant' },
-      { Header: <FormattedMessage id="amount-unit" />, accessor: 'totalUnit' }
+      { Header: <FormattedMessage id="usage-capacity" />, accessor: 'capacityUsage' },
+      { Header: <FormattedMessage id="facility-variant" />, accessor: 'facilityVariation' },
+      { Header: <FormattedMessage id="amount-unit" />, accessor: 'unitTotal' }
     ],
     []
   );
@@ -90,7 +78,7 @@ const FacilityList = () => {
   const onFilterLocation = (e, val) => {
     const getValue = val ? val.value : null;
     paramFacilityList.locationCode = getValue;
-    setFilterLocation(locationList.find((dt) => dt.value === getValue) || null);
+    setFilterLocation(facilityLocationList.find((dt) => dt.value === getValue) || null);
     fetchData();
   };
 
@@ -135,7 +123,7 @@ const FacilityList = () => {
   };
 
   async function fetchData() {
-    const getData = await axios.get('fasilitas', {
+    const getResp = await axios.get('facility', {
       params: {
         rowPerPage: paramFacilityList.rowPerPage,
         goToPage: paramFacilityList.goToPage,
@@ -144,8 +132,8 @@ const FacilityList = () => {
         locationCode: paramFacilityList.locationCode
       }
     });
-    console.log('getData', getData);
-    // setFacilityData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
+
+    setFacilityData({ data: getResp.data.data, totalPagination: getResp.data.totalPagination });
   }
 
   const clearParamFetchData = () => {
@@ -153,7 +141,13 @@ const FacilityList = () => {
     setFilterLocation(null);
   };
 
+  const getDataFacilityLocation = async () => {
+    const data = await getFacilityLocationList();
+    setFacilityLocationList(data);
+  };
+
   useEffect(() => {
+    getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -173,7 +167,7 @@ const FacilityList = () => {
             >
               <Autocomplete
                 id="filterLocation"
-                options={locationList}
+                options={facilityLocationList}
                 value={selectedFilterLocation}
                 sx={{ width: 300 }}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}

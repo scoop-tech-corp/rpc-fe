@@ -23,7 +23,7 @@ const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) =
   useEffect(() => {
     const routerList = location.pathname.split('/').splice(1);
     const tempBreadcrumb = [{ name: 'Home', link: '/dashboard' }];
-    const hideBreadcrumb = ['location'];
+    const hideBreadcrumb = ['location', 'product'];
 
     routerList.forEach((dt, index) => {
       const hideCrumb = hideBreadcrumb.find((x) => x === dt);

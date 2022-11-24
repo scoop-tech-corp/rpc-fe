@@ -38,8 +38,7 @@ const location = {
           type: 'item',
           url: '/location/location-list',
           icon: icons.TeamOutlined,
-          breadcrumbs: true,
-          childrenPath: [{ url: '/location/add', title: <FormattedMessage id="location-add" /> }]
+          breadcrumbs: true
         },
         {
           id: 'location-facilities',

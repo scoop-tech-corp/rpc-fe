@@ -7,6 +7,21 @@ import { useParams } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import axios from 'utils/axios';
 
+export const getFacilityLocationList = () => {
+  return new Promise((resolve) => {
+    const getResp = axios.get('facilitylocation', { params: {} });
+    getResp.then((resp) => {
+      let getData = [...resp.data];
+
+      getData = getData.map((dt) => {
+        return { label: dt.locationName, value: +dt.id };
+      });
+
+      resolve(getData);
+    });
+  });
+};
+
 const FacilityDetailHeader = ({ facilityName }) => {
   let { code } = useParams();
   const { facilityDetail, facilityDetailError } = useContext(FacilityDetailContext);

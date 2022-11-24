@@ -8,11 +8,11 @@ import MainCard from 'components/MainCard';
 import { FormattedMessage } from 'react-intl';
 
 import LocationDetailHeader from './location-detail-header';
-import TabDescription from './components/tab-description';
-import TabDetail from './components/tab-detail/tab-detail';
-import TabAddresses from './components/tab-addresses';
-import TabContact from './components/tab-contact/tab-contact';
-import TabPhoto from './components/tab-photo';
+import TabDescription from './tab/tab-description';
+import TabDetail from './tab/tab-detail/tab-detail';
+import TabAddresses from './tab/tab-addresses';
+import TabContact from './tab/tab-contact/tab-contact';
+import TabPhoto from './tab/tab-photo';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 const LocationDetail = () => {
@@ -48,7 +48,7 @@ const LocationDetail = () => {
       <HeaderPageCustom title={setTitlePage()} locationBackConfig={{ setLocationBack: true, customUrl: '/location/location-list' }} />
       <MainCard border={false} boxShadow>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <LocationDetailHeader locationName={(val) => setLocationName(val)} />
+          <LocationDetailHeader setLocationName={setLocationName} />
           <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="location detail tab">
             <Tab label="Details" id="location-tab-0" aria-controls="location-tabpanel-0" />
             <Tab label={<FormattedMessage id="description" />} id="location-tab-1" aria-controls="location-tabpanel-1" />
