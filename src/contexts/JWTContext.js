@@ -93,7 +93,7 @@ export const JWTProvider = ({ children }) => {
     if (getToken) {
       await axios.post('logout', { token: getToken });
     }
-    console.log('logout');
+
     setSession(null);
     dispatch({ type: LOGOUT });
     localStorage.removeItem('user');
