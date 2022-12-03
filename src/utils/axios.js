@@ -21,15 +21,17 @@ axiosServices.interceptors.request.use(
 axiosServices.interceptors.response.use(
   (response) => {
     loaderGlobalConfig.setLoader(false);
-    // if (response.data && response.data.status === 'Token is Expired') {
-    //   console.log('di lempar ke login');
-    //   navigate('/login', { state: { isLogout: true }, replace: true });
-    //   return true;
-    // }
     return response;
   },
   (error) => {
     loaderGlobalConfig.setLoader(false);
+    if (error.response.status === 401 && error.response?.data.status === 'Token is Expired') {
+      console.log('di lempar ke login');
+      // navigate('/login', { state: { isLogout: true }, replace: true });
+      window.location.href = `/login?islogout=1`;
+      return true;
+    }
+
     return Promise.reject((error.response && error.response.data) || 'Wrong Services');
   }
 );

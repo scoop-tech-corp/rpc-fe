@@ -118,7 +118,6 @@ function ReactTable({ columns, data, totalPagination, onOrder, onGotoPage, onPag
           )}
           <TableRow>
             <TableCell sx={{ p: 2 }} colSpan={7}>
-              {/* rows => jumlah data, pageSize => 5, 10 */}
               <TablePagination
                 gotoPage={onChangeGotoPage}
                 changePageSize={onChangeSetPageSize}
@@ -242,11 +241,11 @@ const ProductSellList = () => {
   };
 
   const onClickAdd = () => {
-    navigate('/product/list/product-sell/add', { replace: true });
+    navigate('/product/product-list/sell/add', { replace: true });
   };
 
   async function fetchData() {
-    // const getData = await axios.get('fasilitas', {
+    // const getData = await axios.get('product-sell', {
     //   params: {
     //     rowPerPage: paramProductSellList.rowPerPage,
     //     goToPage: paramProductSellList.goToPage,

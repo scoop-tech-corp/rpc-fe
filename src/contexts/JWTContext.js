@@ -90,7 +90,9 @@ export const JWTProvider = ({ children }) => {
 
   const logout = async () => {
     const getToken = localStorage.getItem('serviceToken');
-    await axios.post('logout', { token: getToken });
+    if (getToken) {
+      await axios.post('logout', { token: getToken });
+    }
 
     setSession(null);
     dispatch({ type: LOGOUT });

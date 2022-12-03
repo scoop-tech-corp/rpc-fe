@@ -28,7 +28,7 @@ export const getCityList = (provinceCode) => {
   });
 };
 
-const LocationDetailHeader = ({ locationName }) => {
+const LocationDetailHeader = ({ setLocationName }) => {
   let { code } = useParams();
   const { locationDetail, setLocationDetail, locationDetailError } = useContext(LocationDetailContext);
 
@@ -107,7 +107,7 @@ const LocationDetailHeader = ({ locationName }) => {
         selectedFile: null
       };
     });
-    locationName(getData.locationName);
+    setLocationName(getData.locationName);
     setLocationDetail((val) => {
       const newLocationDetail = {
         locationName: getData.locationName,
@@ -281,9 +281,6 @@ const LocationDetailHeader = ({ locationName }) => {
 
   return (
     <Grid container sx={{ mb: 2.25 }}>
-      {/* <Grid item xs={12} sm={6}>
-        <Typography variant="h5">{setTitleLocation()}</Typography>
-      </Grid> */}
       <Grid item xs={12} sm={12} textAlign="right">
         <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmitLocation} disabled={locationDetailError}>
           <FormattedMessage id="save" />
@@ -294,8 +291,7 @@ const LocationDetailHeader = ({ locationName }) => {
 };
 
 LocationDetailHeader.propTypes = {
-  // PropTypes.oneOfType([PropTypes.string, PropTypes.node, PropTypes.element])
-  locationName: PropTypes.any
+  setLocationName: PropTypes.string
 };
 
 export default LocationDetailHeader;

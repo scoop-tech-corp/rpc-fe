@@ -32,7 +32,7 @@ const product = {
           id: 'product-list',
           title: <FormattedMessage id="product-list" />,
           type: 'item',
-          url: '/product/list'
+          url: '/product/product-list'
         },
         {
           id: 'product-bundle',

@@ -1,28 +1,24 @@
-// useLocation
-import { Link } from 'react-router-dom';
-
-// material-ui
+import { Link, useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Grid, Stack, Typography } from '@mui/material';
 
-// project import
 import useAuth from 'hooks/useAuth';
 import AuthWrapper from 'sections/auth/AuthWrapper';
 import AuthLogin from 'sections/auth/auth-forms/AuthLogin';
-// import { useEffect } from 'react';
 
 // ================================|| LOGIN ||================================ //
 
 const Login = () => {
-  // logout
-  const { isLoggedIn } = useAuth();
-  // const location = useLocation();
+  const { isLoggedIn, logout } = useAuth();
+  const [searchParams] = useSearchParams();
 
-  // useEffect(() => {
-  //   if (location.state.isLogout) {
-  //     logout();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  useEffect(() => {
+    if (+searchParams.get('islogout')) {
+      window.history.pushState({ path: '/login' }, '', '/login');
+      logout();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AuthWrapper>
