@@ -6,7 +6,9 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { openSnackbar } from 'store/reducers/snackbar';
 import { PlusOutlined } from '@ant-design/icons';
-import { getCustomerGroupList, getLocationList, getBrandList, getSupplierList, getProductCategoryList, createProductSell } from './service';
+import { getCustomerGroupList, getBrandList, getSupplierList, getProductCategoryList, createProductSell } from '../../service';
+import { getLocationList } from 'service/service-global';
+
 import ProductSellDetailContext from './product-sell-detail-context';
 import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
@@ -141,7 +143,7 @@ const ProductSellDetail = () => {
 
       <MainCard border={false} boxShadow>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="location detail tab">
+          <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="product sell detail tab">
             <Tab label="Details" id="product-sell-tab-0" aria-controls="product-sell-tabpanel-0" />
             <Tab label={<FormattedMessage id="description" />} id="product-sell-tab-1" aria-controls="product-sell-tabpanel-1" />
             <Tab label={<FormattedMessage id="category" />} id="product-sell-tab-2" aria-controls="product-sell-tabpanel-2" />

@@ -1,5 +1,6 @@
 import { createContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { jsonCentralized } from 'utils/json-centralized';
 
 const defaultPhotos = {
   id: null,
@@ -53,7 +54,7 @@ const defaultProductSellDetail = {
 };
 
 const ProductSellDetailContext = createContext({
-  productSellDetail: { ...defaultProductSellDetail },
+  productSellDetail: jsonCentralized(defaultProductSellDetail),
   setProductSellDetail: null,
   productSellDetailError: false,
   setProductSellDetailError: null
@@ -61,7 +62,8 @@ const ProductSellDetailContext = createContext({
 
 export const ProductSellDetailProvider = (props) => {
   const { children } = props;
-  const [productSellDetail, setProductSellDetail] = useState(defaultProductSellDetail);
+
+  const [productSellDetail, setProductSellDetail] = useState(jsonCentralized(defaultProductSellDetail));
   const [productSellDetailError, setProductSellDetailError] = useState(false);
 
   return (

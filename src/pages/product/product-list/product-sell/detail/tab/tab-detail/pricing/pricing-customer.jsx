@@ -115,13 +115,11 @@ const PricingCustomer = () => {
                 </Stack>
               </Grid>
 
-              {customerGroup.length > 1 && (
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeleteCustomer(i)}>
-                    <DeleteFilled />
-                  </IconButton>
-                </Grid>
-              )}
+              <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                <IconButton size="large" color="error" onClick={() => onDeleteCustomer(i)}>
+                  <DeleteFilled />
+                </IconButton>
+              </Grid>
             </Grid>
           ))}
 

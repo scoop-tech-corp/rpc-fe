@@ -42,6 +42,17 @@ const animation = {
   Fade
 };
 
+export const SetupConfigSnackbar = (open, alert, message, duration) => {
+  return {
+    open, // true or false
+    message,
+    variant: 'alert',
+    alert, // { color: 'success', severity: 'success' }
+    duration, // 1500
+    close: true
+  };
+};
+
 // ==============================|| SNACKBAR ||============================== //
 
 const Snackbar = () => {

@@ -1,56 +1,26 @@
 import { Button, Grid, InputLabel, Stack, TextField, useMediaQuery } from '@mui/material';
-import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { FormattedMessage } from 'react-intl';
 import MainCard from './MainCard';
 import PropTypes from 'prop-types';
-import { jsonCentralized } from 'utils/json-centralized';
 
 const PhotoC = (props) => {
   const { photoValue, photoOutput } = props;
-  const [photos, setPhotos] = useState([]);
-
-  useEffect(() => {
-    // fill context photos to photos
-    if (photoValue.length) {
-      setPhotos(photoValue);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const onAddPhotos = () => {
-    setPhotos((val) => {
-      const newValue = [...val, { id: null, label: '', imagePath: '', status: '', selectedFile: null }];
-
-      photoOutput(newValue);
-      return newValue;
-    });
+    photoOutput([...photoValue, { id: null, label: '', imagePath: '', status: '', selectedFile: null }]);
   };
 
   const onDeletePhoto = (i) => {
-    setPhotos((value) => {
-      let getPhoto = [...value];
-      getPhoto[i].status = 'del';
-
-      photoOutput(getPhoto);
-      return [...getPhoto];
-    });
+    let getPhoto = [...photoValue];
+    getPhoto[i].status = 'del';
+    photoOutput(getPhoto);
   };
 
   const onChangeLabel = (event, idx) => {
-    setPhotos((value) => {
-      const getPhoto = [...value];
-      getPhoto[idx].label = event.target.value;
-
-      return getPhoto;
-    });
-  };
-
-  const onBlurLabel = (event, idx) => {
-    const getPhoto = jsonCentralized(photos);
+    let getPhoto = [...photoValue];
     getPhoto[idx].label = event.target.value;
-
     photoOutput(getPhoto);
   };
 
@@ -59,14 +29,11 @@ const PhotoC = (props) => {
     if (getFile) {
       const reader = new FileReader();
       reader.onload = function () {
-        setPhotos((value) => {
-          const getPhoto = [...value];
-          getPhoto[idx].selectedFile = getFile;
-          getPhoto[idx].imagePath = this.result;
+        const getPhoto = [...photoValue];
 
-          photoOutput(getPhoto);
-          return getPhoto;
-        });
+        getPhoto[idx].selectedFile = getFile;
+        getPhoto[idx].imagePath = this.result;
+        photoOutput(getPhoto);
       };
       reader.readAsDataURL(getFile);
     }
@@ -91,7 +58,7 @@ const PhotoC = (props) => {
           </Grid>
         </Grid>
       </Grid>
-      {photos.map((ph, i) => {
+      {photoValue.map((ph, i) => {
         if (ph.status === '') {
           return (
             <Grid item xs={6} sm={3} key={i}>
@@ -118,7 +85,6 @@ const PhotoC = (props) => {
                         name={`photo-name-${i}`}
                         value={ph.label}
                         onChange={(event) => onChangeLabel(event, i)}
-                        onBlur={(event) => onBlurLabel(event, i)}
                       />
                     </Stack>
                   </Grid>
@@ -137,6 +103,7 @@ const PhotoC = (props) => {
 
 PhotoC.propTypes = {
   photoValue: PropTypes.array,
+  setPhotos: PropTypes.func,
   photoOutput: PropTypes.any
 };
 

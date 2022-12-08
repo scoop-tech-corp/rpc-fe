@@ -1,8 +1,9 @@
 import MainCard from 'components/MainCard';
 import { Box, Tab, Tabs } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useSearchParams } from 'react-router-dom';
 
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ProductSellList from './product-sell/product-sell-list';
@@ -10,7 +11,8 @@ import ProductClinic from './product-clinic/product-clinic-list';
 import ProductInventory from './product-inventory/product-inventory-list';
 
 const ProductList = () => {
-  const [tabSelected, setTabSelected] = useState(0);
+  const [tabSelected, setTabSelected] = useState();
+  const [searchParams] = useSearchParams();
 
   const TabPanel = (props) => {
     const { children, value, index } = props;
@@ -30,6 +32,16 @@ const ProductList = () => {
   const onChangeTab = (event, value) => {
     setTabSelected(value);
   };
+
+  useEffect(() => {
+    const getTab = +searchParams.get('tab');
+    if (getTab) {
+      setTabSelected(getTab);
+      window.history.pushState({ path: '/product/product-list' }, '', '/product/product-list');
+    } else {
+      setTabSelected(0);
+    }
+  }, [searchParams]);
 
   return (
     <>
