@@ -1,10 +1,12 @@
 {
   "add": "Tambah",
+  "add-brand": "Tambah Brand",
   "add-facility": "Tambah Fasilitas",
   "add-location": "Tambah Lokasi",
   "add-product-clinic": "Tambah Produk Klinik",
   "add-product-inventory": "Tambah Produk Inventori",
   "add-product-sell": "Tambah Produk Jual",
+  "add-supplier": "Tambah Pemasok",
   "additional-info": "Informasi Tambahan",
   "address": "Alamat",
   "addresses": "Alamat",

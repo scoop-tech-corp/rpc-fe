@@ -1,7 +1,7 @@
 import ProductSellDetail from './product-sell-detail';
 import { ProductSellDetailProvider as Provider } from './product-sell-detail-context';
 
-const ProductSellDetailIndex = () => {
+const ProductSellDetailPage = () => {
   return (
     <Provider>
       <ProductSellDetail />
@@ -9,4 +9,4 @@ const ProductSellDetailIndex = () => {
   );
 };
 
-export default ProductSellDetailIndex;
+export default ProductSellDetailPage;

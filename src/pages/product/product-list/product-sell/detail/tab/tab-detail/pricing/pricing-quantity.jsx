@@ -75,30 +75,27 @@ const PricingQuantity = () => {
       const getData = [...value];
       getData[i][key] = getValue;
 
-      const conditionFrom = validationForm(key, getData, i);
-
-      setProductSellDetailError(conditionFrom);
-      setProductSellDetail((val) => {
-        return { ...val, quantities: getData };
-      });
-
       return getData;
     });
   };
 
-  const onFromQty = (e, i) => {
+  const onFieldChange = (e, i, procedure) => {
     const getValue = +e.target.value;
-    processFrom('fromQty', getValue, i);
+    processFrom(procedure, getValue, i);
   };
 
-  const onToQty = (e, i) => {
+  const onFieldBlur = (e, i, procedure) => {
     const getValue = +e.target.value;
-    processFrom('toQty', getValue, i);
-  };
 
-  const onPrice = (e, i) => {
-    const getValue = +e.target.value.replace(',', '');
-    processFrom('price', getValue, i);
+    setProductSellDetail((val) => {
+      const getQuantity = [...val.quantities];
+      getQuantity[i][procedure] = getValue;
+
+      const conditionFrom = validationForm(procedure, getQuantity, i);
+      setProductSellDetailError(conditionFrom);
+
+      return { ...val, quantities: getQuantity };
+    });
   };
 
   const onAddQty = () => {
@@ -147,7 +144,8 @@ const PricingQuantity = () => {
                     id={`from${i}`}
                     name={`from${i}`}
                     value={dt.fromQty}
-                    onChange={(event) => onFromQty(event, i)}
+                    onChange={(event) => onFieldChange(event, i, 'fromQty')}
+                    onBlur={(event) => onFieldBlur(event, i, 'fromQty')}
                   />
                 </Stack>
               </Grid>
@@ -162,7 +160,8 @@ const PricingQuantity = () => {
                     id={`to${i}`}
                     name={`to${i}`}
                     value={dt.toQty}
-                    onChange={(event) => onToQty(event, i)}
+                    onChange={(event) => onFieldChange(event, i, 'toQty')}
+                    onBlur={(event) => onFieldBlur(event, i, 'toQty')}
                   />
                 </Stack>
               </Grid>
@@ -176,7 +175,8 @@ const PricingQuantity = () => {
                     id={`price${i}`}
                     name={`price${i}`}
                     value={dt.price}
-                    onChange={(event) => onPrice(event, i)}
+                    onChange={(event) => onFieldChange(event, i, 'price')}
+                    onBlur={(event) => onFieldBlur(event, i, 'price')}
                     InputProps={{
                       startAdornment: 'Rp',
                       inputComponent: NumberFormatCustom
@@ -185,13 +185,11 @@ const PricingQuantity = () => {
                 </Stack>
               </Grid>
 
-              {quantityList.length > 1 && (
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeleteQty(i)}>
-                    <DeleteFilled />
-                  </IconButton>
-                </Grid>
-              )}
+              <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                <IconButton size="large" color="error" onClick={() => onDeleteQty(i)}>
+                  <DeleteFilled />
+                </IconButton>
+              </Grid>
             </Grid>
           ))}
 

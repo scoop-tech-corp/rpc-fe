@@ -47,6 +47,7 @@ const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page'
 const ProductDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductList = Loadable(lazy(() => import('pages/product/product-list/product-list')));
 const ProductSellDetail = Loadable(lazy(() => import('pages/product/product-list/product-sell/detail')));
+const ProductClinicDetail = Loadable(lazy(() => import('pages/product/product-list/product-clinic/detail')));
 const ProductBundle = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductCategory = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -57,9 +58,9 @@ const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-p
 // Location
 const LocationDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const LocationList = Loadable(lazy(() => import('pages/location/location-list')));
-const LocationDetail = Loadable(lazy(() => import('pages/location/detail/location-detail')));
+const LocationDetail = Loadable(lazy(() => import('pages/location/location-list/detail')));
 const LocationFacilities = Loadable(lazy(() => import('pages/location/facility/facility-list')));
-const LocationFacilitiesDetail = Loadable(lazy(() => import('pages/location/facility/detail/facility-detail')));
+const LocationFacilitiesDetail = Loadable(lazy(() => import('pages/location/facility/detail')));
 const LocationStaticData = Loadable(lazy(() => import('pages/location/static-data/static-data-list')));
 
 // Finance
@@ -138,6 +139,7 @@ const MainRoutes = {
             { path: 'dashboard', element: <ProductDashboard /> },
             { path: 'product-list', element: <ProductList /> },
             { path: 'product-list/sell/add', element: <ProductSellDetail /> },
+            { path: 'product-list/clinic/add', element: <ProductClinicDetail /> },
             { path: 'bundle', element: <ProductBundle /> },
             { path: 'category', element: <ProductCategory /> },
             { path: 'policies', element: <ProductPolicies /> },

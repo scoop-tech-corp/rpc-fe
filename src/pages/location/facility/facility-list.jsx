@@ -13,7 +13,8 @@ import { useNavigate } from 'react-router';
 import { openSnackbar } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
-import { getFacilityLocationList } from './detail/facility-detail-header';
+import { SetupConfigSnackbar } from 'components/@extended/Snackbar';
+import { breakdownMessageBackend, getLocationList } from 'service/service-global';
 
 let paramFacilityList = {};
 
@@ -28,13 +29,16 @@ const FacilityList = () => {
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState(null);
 
+  const snackbarSuccess = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'success', severity: 'success' }, message, 1500));
+  const snackbarError = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'error', severity: 'error' }, message, 3000));
+
   const columns = useMemo(
     () => [
       {
         title: 'Row Selection',
         Header: (header) => {
           useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.codeLocation);
+            const selectRows = header.selectedFlatRows.map(({ original }) => original.locationId);
             setSelectedRow(selectRows);
           }, [header.selectedFlatRows]);
 
@@ -48,8 +52,12 @@ const FacilityList = () => {
         Header: <FormattedMessage id="location" />,
         accessor: 'locationName',
         Cell: (data) => {
-          const getId = data.row.original.id;
-          return <Link href={`/location/facilities/${getId}`}>{data.value}</Link>;
+          const getId = data.row.original.locationId;
+          const getName = data.row.original.locationName;
+          const getFacilityVariation = +data.row.original.facilityVariation;
+
+          if (getFacilityVariation) return <Link href={`/location/facilities/${getId}`}>{data.value}</Link>;
+          else return getName;
         }
       },
       { Header: <FormattedMessage id="usage-capacity" />, accessor: 'capacityUsage' },
@@ -61,7 +69,24 @@ const FacilityList = () => {
 
   const onOrderingChange = (event) => {
     paramFacilityList.orderValue = event.order;
-    paramFacilityList.orderColumn = event.column;
+
+    let setOrderColumn = '';
+    switch (event.column) {
+      case 'locationName':
+        setOrderColumn = 'location.locationName';
+        break;
+      case 'capacityUsage':
+        setOrderColumn = 'facility_unit.capacity';
+        break;
+      case 'facilityVariation':
+        setOrderColumn = 'facility.locationId';
+        break;
+      case 'unitTotal':
+        setOrderColumn = 'facility_unit.unitName';
+        break;
+    }
+
+    paramFacilityList.orderColumn = setOrderColumn;
     fetchData();
   };
 
@@ -77,7 +102,7 @@ const FacilityList = () => {
 
   const onFilterLocation = (e, val) => {
     const getValue = val ? val.value : null;
-    paramFacilityList.locationCode = getValue;
+    paramFacilityList.search = getValue;
     setFilterLocation(facilityLocationList.find((dt) => dt.value === getValue) || null);
     fetchData();
   };
@@ -87,28 +112,24 @@ const FacilityList = () => {
   };
 
   const onDeleteFacility = async () => {
-    const resp = await axios.delete('facility', {
-      data: { id: selectedRow }
-    });
-
-    if (resp.status === 200 && resp.data.result === 'success') {
-      dispatch(
-        openSnackbar({
-          open: true,
-          message: 'Success Delete facility',
-          variant: 'alert',
-          alert: { color: 'success' },
-          duration: 2000,
-          close: true
-        })
-      );
-      clearParamFetchData();
-      fetchData();
-    }
+    await axios
+      .delete('facility', {
+        data: { locationId: selectedRow }
+      })
+      .then((resp) => {
+        if (resp.status === 200 && resp.data.result === 'success') {
+          dispatch(snackbarSuccess('Success Delete facility'));
+          initList();
+        }
+      })
+      .catch((err) => {
+        const message = breakdownMessageBackend(err.errors);
+        dispatch(snackbarError(message));
+      });
   };
 
   const onExport = async () => {
-    const resp = await axios.get('exportfacility', {
+    const resp = await axios.get('facilityexport', {
       responseType: 'blob'
     });
 
@@ -129,7 +150,7 @@ const FacilityList = () => {
         goToPage: paramFacilityList.goToPage,
         orderValue: paramFacilityList.orderValue,
         orderColumn: paramFacilityList.orderColumn,
-        locationCode: paramFacilityList.locationCode
+        search: paramFacilityList.search
       }
     });
 
@@ -137,19 +158,24 @@ const FacilityList = () => {
   }
 
   const clearParamFetchData = () => {
-    paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationCode: '' };
+    paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', search: '' };
     setFilterLocation(null);
   };
 
   const getDataFacilityLocation = async () => {
-    const data = await getFacilityLocationList();
+    const data = await getLocationList();
     setFacilityLocationList(data);
   };
 
-  useEffect(() => {
+  const initList = () => {
     getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
+  };
+
+  useEffect(() => {
+    initList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -194,14 +220,7 @@ const FacilityList = () => {
           </Stack>
 
           {selectedRow.length > 0 && (
-            <Stack
-              // direction={matchDownSM ? 'column' : 'row'}
-              style={{ marginBottom: '20px' }}
-              justifyContent="space-between"
-              alignItems="flex-start"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
+            <Stack style={{ marginBottom: '20px' }} justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ p: 3, pb: 0 }}>
               <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={onDeleteFacility}>
                 <FormattedMessage id="delete" />
               </Button>

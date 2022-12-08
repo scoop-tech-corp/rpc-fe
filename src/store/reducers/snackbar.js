@@ -28,7 +28,6 @@ const snackbar = createSlice({
   reducers: {
     openSnackbar(state, action) {
       const { open, message, anchorOrigin, variant, alert, transition, close, actionButton, duration } = action.payload;
-
       state.action = !state.action;
       state.open = open || initialState.open;
       state.message = message || initialState.message;
@@ -52,5 +51,5 @@ const snackbar = createSlice({
 });
 
 export default snackbar.reducer;
-
+console.log('snackbar', snackbar);
 export const { closeSnackbar, openSnackbar } = snackbar.actions;

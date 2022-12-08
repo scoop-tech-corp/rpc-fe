@@ -81,9 +81,7 @@ const TabReminders = () => {
         <Grid container spacing={3} key={i}>
           <Grid item xs={12} sm={3}>
             <Stack spacing={1} style={{ marginTop: '5px' }}>
-              <InputLabel htmlFor="unit">
-                <FormattedMessage id="unit" />
-              </InputLabel>
+              <InputLabel htmlFor="unit">Unit</InputLabel>
               <TextField
                 fullWidth
                 id={`unit${i}`}

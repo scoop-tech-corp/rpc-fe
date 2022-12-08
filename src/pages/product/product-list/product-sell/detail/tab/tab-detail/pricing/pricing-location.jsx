@@ -28,18 +28,25 @@ const PricingLocation = () => {
     });
   };
 
-  const onPrice = (event, i) => {
-    const getPrice = +event.target.value.replace(',', '');
+  const onPriceChange = (event, i) => {
+    const getPrice = +event.target.value.replaceAll(',', '');
 
     setPricingLocation((value) => {
       const getData = [...value];
       getData[i].price = getPrice;
 
-      setProductSellDetail((val) => {
-        return { ...val, priceLocations: getData };
-      });
-
       return getData;
+    });
+  };
+
+  const onPriceBlur = (event, i) => {
+    const getPrice = +event.target.value.replaceAll(',', '');
+
+    setProductSellDetail((val) => {
+      const getPriceLocation = [...val.priceLocations];
+      getPriceLocation[i].price = getPrice;
+
+      return { ...val, priceLocations: getPriceLocation };
     });
   };
 
@@ -106,7 +113,8 @@ const PricingLocation = () => {
                     id={`price${i}`}
                     name={`price${i}`}
                     value={dt.price}
-                    onChange={(event) => onPrice(event, i)}
+                    onChange={(event) => onPriceChange(event, i)}
+                    onBlur={(event) => onPriceBlur(event, i)}
                     InputProps={{
                       startAdornment: 'Rp',
                       inputComponent: NumberFormatCustom
@@ -115,13 +123,11 @@ const PricingLocation = () => {
                 </Stack>
               </Grid>
 
-              {pricingLocation.length > 1 && (
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeleteLocation(i)}>
-                    <DeleteFilled />
-                  </IconButton>
-                </Grid>
-              )}
+              <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                <IconButton size="large" color="error" onClick={() => onDeleteLocation(i)}>
+                  <DeleteFilled />
+                </IconButton>
+              </Grid>
             </Grid>
           ))}
 

@@ -1,10 +1,12 @@
 {
   "add": "Add",
+  "add-brand": "Add Brand",
   "add-facility": "Add Facility",
   "add-location": "Add Location",
   "add-product-clinic": "Add Product Clinic",
   "add-product-inventory": "Add Product Inventory",
   "add-product-sell": "Add Product Sell",
+  "add-supplier": "Add Supplier",
   "additional-info": "Additional Info",
   "address": "Address",
   "addresses": "Addresses",
