@@ -18,12 +18,12 @@ const BasicInfo = () => {
   const [basicInfoErr, setBasicInfoErr] = useState({ nameError: '', statusError: '' });
 
   const onFieldHandler = (event) => {
-    useLocationDetailStore.setState({ locationName: event.target.value });
+    useLocationDetailStore.setState({ locationName: event.target.value, locataionTouch: true });
     onCheckValidation();
   };
 
   const onLocationStatus = (event) => {
-    useLocationDetailStore.setState({ status: event.target.value });
+    useLocationDetailStore.setState({ status: event.target.value, locataionTouch: true });
     onCheckValidation();
   };
 

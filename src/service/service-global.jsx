@@ -28,7 +28,7 @@ export const breakdownMessageBackend = (arrayMessageErr) => {
   let message = '';
   if (arrayMessageErr && Array.isArray(arrayMessageErr)) {
     arrayMessageErr.forEach((dt) => {
-      message += '\n' + dt;
+      message += '<li>' + dt + '</li>';
     });
   }
 

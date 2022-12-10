@@ -5,7 +5,7 @@ const TabPhoto = () => {
   const photos = useLocationDetailStore((state) => state.photos);
 
   const outputHandler = (output) => {
-    useLocationDetailStore.setState({ photos: output });
+    useLocationDetailStore.setState({ photos: output, locataionTouch: true });
   };
 
   return <PhotoC photoValue={photos} photoOutput={(event) => outputHandler(event)} />;

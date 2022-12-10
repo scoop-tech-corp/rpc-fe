@@ -22,10 +22,8 @@ import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
 
 const TabAddresses = () => {
-  // const { locationDetail, setLocationDetail } = useContext(LocationDetailContext);
   const detailAddress = useLocationDetailStore((state) => state.detailAddress);
   const provinceList = useLocationDetailStore((state) => state.provinceList);
-  // const [address, setAddress] = useState([]);
   let address = [];
 
   const countryList = [{ label: 'Indonesia', value: 'Indonesia' }];
@@ -62,10 +60,7 @@ const TabAddresses = () => {
       };
     });
 
-    useLocationDetailStore.setState({ detailAddress: newData });
-    // setLocationDetail((value) => {
-    //   return { ...value, detailAddress: newData };
-    // });
+    useLocationDetailStore.setState({ detailAddress: newData, locataionTouch: true });
   };
 
   const onSetPrimary = (index) => {

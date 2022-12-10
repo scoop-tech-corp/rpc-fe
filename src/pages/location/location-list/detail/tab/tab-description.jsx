@@ -15,7 +15,7 @@ const TabDescription = () => {
         name="description"
         value={description}
         rows={5}
-        onChange={(event) => useLocationDetailStore.setState({ description: event.target.value })}
+        onChange={(event) => useLocationDetailStore.setState({ description: event.target.value, locataionTouch: true })}
       />
     </MainCard>
   );

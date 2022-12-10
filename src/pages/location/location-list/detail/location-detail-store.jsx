@@ -52,7 +52,8 @@ export const defaultLocationDetail = {
   usageList: [],
   telephoneType: [],
   messengerType: [],
-  locationDetailError: true
+  locationDetailError: false,
+  locataionTouch: false
 };
 
 export const useLocationDetailStore = create(() => jsonCentralized(defaultLocationDetail));

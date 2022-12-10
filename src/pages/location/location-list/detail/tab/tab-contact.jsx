@@ -1,7 +1,8 @@
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
 import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
+import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { jsonCentralized } from 'utils/json-centralized';
 import { useLocationDetailStore } from '../location-detail-store';
@@ -62,7 +63,7 @@ const TabContact = () => {
       return setObj;
     });
 
-    const assignObject = { [procedure]: newData };
+    const assignObject = { [procedure]: newData, locataionTouch: true };
 
     useLocationDetailStore.setState({ ...assignObject });
   };
@@ -168,10 +169,54 @@ const TabContact = () => {
   };
   // End Messenger
 
+  const [openMenuPhone, setOpenMenuPhone] = useState(null);
+  const renderExtendedMenu = () => {
+    const handleClose = () => setOpenMenuPhone(null);
+    return (
+      <Stack direction="row" justifyContent="flex-end">
+        <IconButton
+          variant="light"
+          color="secondary"
+          id="basic-button"
+          aria-controls={openMenuPhone ? 'basic-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={openMenuPhone ? 'true' : undefined}
+          onClick={(e) => setOpenMenuPhone(e?.currentTarget)}
+        >
+          <MoreOutlined />
+        </IconButton>
+        <Menu
+          id="basic-menu"
+          anchorEl={openMenuPhone}
+          open={Boolean(openMenuPhone)}
+          onClose={handleClose}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button'
+          }}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right'
+          }}
+        >
+          <MenuItem>
+            <PlusCircleFilled style={{ color: '#1890ff' }} /> &nbsp;Usage
+          </MenuItem>
+          <MenuItem>
+            <PlusCircleFilled style={{ color: '#1890ff' }} /> &nbsp;Type
+          </MenuItem>
+        </Menu>
+      </Stack>
+    );
+  };
+
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} sm={6}>
-        <MainCard title={<FormattedMessage id="phone" />}>
+        <MainCard title={<FormattedMessage id="phone" />} secondary={renderExtendedMenu()}>
           {phone.map((dt, i) => (
             <Grid container spacing={3} key={i}>
               <Grid item xs={12} sm={3}>

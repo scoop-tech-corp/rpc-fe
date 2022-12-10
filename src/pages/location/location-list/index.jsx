@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router';
 import { openSnackbar } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
+import ConfirmationC from 'components/ConfirmationC';
 
 let paramLocationList = {};
 
@@ -26,6 +27,7 @@ const LocationList = () => {
   const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
+  const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -97,25 +99,29 @@ const LocationList = () => {
     navigate('/location/location-list/add', { replace: true });
   };
 
-  const onDeleteLocation = async () => {
-    console.log('selectedRow', selectedRow);
-    const resp = await axios.delete('location', {
-      data: { codeLocation: selectedRow }
-    });
+  const onConfirm = async (value) => {
+    if (value) {
+      const resp = await axios.delete('location', {
+        data: { codeLocation: selectedRow }
+      });
 
-    if (resp.status === 200 && resp.data.result === 'success') {
-      dispatch(
-        openSnackbar({
-          open: true,
-          message: 'Success Delete location',
-          variant: 'alert',
-          alert: { color: 'success' },
-          duration: 2000,
-          close: true
-        })
-      );
-      clearParamFetchData();
-      fetchData();
+      if (resp.status === 200 && resp.data.result === 'success') {
+        setDialog(false);
+        dispatch(
+          openSnackbar({
+            open: true,
+            message: 'Success Delete location',
+            variant: 'alert',
+            alert: { color: 'success' },
+            duration: 2000,
+            close: true
+          })
+        );
+        clearParamFetchData();
+        fetchData();
+      }
+    } else {
+      setDialog(false);
     }
   };
 
@@ -123,8 +129,6 @@ const LocationList = () => {
     const resp = await axios.get('exportlocation', {
       responseType: 'blob'
     });
-    console.log('resp export', resp);
-    // console.log('resp.headers content-disposition', resp.headers['content-disposition']);
 
     let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
     let downloadUrl = URL.createObjectURL(blob);
@@ -173,9 +177,21 @@ const LocationList = () => {
               spacing={1}
               sx={{ p: 3, pb: 0 }}
             >
-              <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <GlobalFilter
+                  placeHolder={'Search...'}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '36.5px' }}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
 
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'}>
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
@@ -194,23 +210,16 @@ const LocationList = () => {
               onPageSize={onPageSizeChange}
             />
           </Stack>
-
-          {selectedRow.length > 0 && (
-            <Stack
-              // direction={matchDownSM ? 'column' : 'row'}
-              style={{ marginBottom: '20px' }}
-              justifyContent="space-between"
-              alignItems="flex-start"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
-              <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={onDeleteLocation}>
-                <FormattedMessage id="delete" />
-              </Button>
-            </Stack>
-          )}
         </ScrollX>
       </MainCard>
+      <ConfirmationC
+        open={dialog}
+        title="Delete"
+        content="Are you sure you want to delete this data ?"
+        onClose={(response) => onConfirm(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
     </>
   );
 };

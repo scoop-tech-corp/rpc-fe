@@ -10,22 +10,29 @@ import { breakdownMessageBackend } from 'service/service-global';
 import { saveLocation, updateLocation, uploadImageLocation } from './service';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import PropTypes from 'prop-types';
+import ErrorContainer from 'components/@extended/ErrorContainer';
+import { useState } from 'react';
 
 const LocationDetailHeader = (props) => {
   const locationDetailError = useLocationDetailStore((state) => state.locationDetailError);
+  const isTouchForm = useLocationDetailStore((state) => state.locataionTouch);
+
+  const [isError, setIsError] = useState(false);
+  const [errContent, setErrContent] = useState({ title: '', detail: '' });
+
   let { code } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const snackbarSuccess = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'success', severity: 'success' }, message, 1500));
-  const snackbarError = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'error', severity: 'error' }, message, 3000));
   const setTitlePage = () => (code ? props.locationName : <FormattedMessage id="add-location" />);
 
   const responseError = (err) => {
-    let message = err.message;
-    message += breakdownMessageBackend(err.errors);
+    const detailErr = breakdownMessageBackend(err.errors);
+    setIsError(true);
+    useLocationDetailStore.setState({ locataionTouch: false });
 
-    dispatch(snackbarError(message));
+    setErrContent({ title: err.message, detail: detailErr });
   };
 
   const nextProcessSuccess = (message) => {
@@ -49,8 +56,8 @@ const LocationDetailHeader = (props) => {
   };
 
   const onSubmitLocation = async () => {
-    console.log('getAllState()', getAllState());
     if (locationDetailError) return;
+
     if (code) {
       await updateLocation(code, getAllState()).then(responseSuccess).catch(responseError);
     } else {
@@ -59,15 +66,23 @@ const LocationDetailHeader = (props) => {
   };
 
   return (
-    <HeaderPageCustom
-      title={setTitlePage()}
-      locationBackConfig={{ setLocationBack: true, customUrl: '/location/location-list' }}
-      action={
-        <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmitLocation} disabled={locationDetailError}>
-          <FormattedMessage id="save" />
-        </Button>
-      }
-    />
+    <>
+      <HeaderPageCustom
+        title={setTitlePage()}
+        locationBackConfig={{ setLocationBack: true, customUrl: '/location/location-list' }}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<PlusOutlined />}
+            onClick={onSubmitLocation}
+            disabled={!isTouchForm || locationDetailError}
+          >
+            <FormattedMessage id="save" />
+          </Button>
+        }
+      />
+      <ErrorContainer open={!isTouchForm && isError} content={errContent} />
+    </>
   );
 };
 
