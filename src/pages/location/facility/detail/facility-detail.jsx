@@ -71,7 +71,7 @@ const FacilityDetail = () => {
   const responseError = (err) => {
     let message = err.message;
     message += breakdownMessageBackend(err.errors);
-    console.log('message', message);
+
     dispatch(snackbarError(message));
   };
 

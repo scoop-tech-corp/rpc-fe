@@ -23,7 +23,7 @@ export default function FilesPreview({ showList = false, files, onRemove }) {
     <List disablePadding sx={{ ...(hasFile && { my: 3 }) }}>
       {files.map((file, index) => {
         const { key, name, size, preview, type } = getDropzoneData(file, index);
-        console.log(type);
+
         if (showList) {
           return (
             <ListItem

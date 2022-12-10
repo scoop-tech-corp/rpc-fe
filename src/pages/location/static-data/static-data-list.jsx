@@ -34,8 +34,6 @@ function ReactTable({ columns, data, totalPagination, onOrder, onGotoPage, onPag
     useRowSelect
   );
 
-  // console.log('selectedFlatRows', selectedFlatRows);
-
   const [selectedOrder, setOrder] = useState({
     column: '',
     order: ''
@@ -43,8 +41,6 @@ function ReactTable({ columns, data, totalPagination, onOrder, onGotoPage, onPag
 
   const clickHeader = (column) => {
     if (column.id === 'selection') return;
-
-    console.log('click column', column);
 
     const setConfigOrder = {
       column: '',
@@ -181,14 +177,12 @@ const StaticDataList = () => {
   );
 
   const onOrderingChange = (event) => {
-    console.log('onOrderingChange', event);
     paramDataStaticList.orderValue = event.order;
     paramDataStaticList.orderColumn = event.column;
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    console.log('event', event);
     paramDataStaticList.goToPage = event;
     fetchData();
   };
@@ -218,7 +212,6 @@ const StaticDataList = () => {
     //     search: paramDataStaticList.keyword
     //   }
     // });
-    // console.log('getData', getData);
     // setStaticData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
   }
 

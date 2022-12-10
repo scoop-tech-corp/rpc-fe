@@ -28,7 +28,7 @@ export const createFacilityLocation = async (property) => {
   fd.append('introduction', property.introduction);
   fd.append('description', property.description);
   fd.append('unit', JSON.stringify(property.detailUnitAvailable));
-  console.log('property.photos', property.photos);
+
   setFormDataImage(property.photos, fd, 'save');
 
   return await axios.post('facility', fd, { headers: { 'Content-Type': 'multipart/form-data' } });

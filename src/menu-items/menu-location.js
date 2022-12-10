@@ -2,13 +2,16 @@
 import { FormattedMessage } from 'react-intl';
 
 // assets
-import { DashboardOutlined, TeamOutlined } from '@ant-design/icons';
+import { TeamOutlined } from '@ant-design/icons';
 import AccessibilityNewOutlinedIcon from '@mui/icons-material/AccessibilityNewOutlined';
+import StorageIcon from '@mui/icons-material/Storage';
+import { LocationOn } from '@mui/icons-material';
 
 // icons
 const icons = {
-  DashboardOutlined,
   TeamOutlined,
+  LocationOn,
+  StorageIcon,
   AccessibilityNewOutlinedIcon
 };
 
@@ -23,21 +26,14 @@ const location = {
       id: 'location',
       title: <FormattedMessage id="location" />,
       type: 'collapse',
-      icon: icons.TeamOutlined,
+      icon: icons.LocationOn,
       children: [
-        {
-          id: 'location-dashboard',
-          title: 'Dashboard',
-          type: 'item',
-          url: '/location/dashboard',
-          icon: icons.DashboardOutlined
-        },
         {
           id: 'location-list',
           title: <FormattedMessage id="location-list" />,
           type: 'item',
           url: '/location/location-list',
-          icon: icons.TeamOutlined,
+          icon: icons.LocationOn,
           breadcrumbs: true
         },
         {
@@ -53,6 +49,7 @@ const location = {
           title: <FormattedMessage id="static-data" />,
           type: 'item',
           url: '/location/static-data',
+          icon: icons.StorageIcon,
           breadcrumbs: false
         }
       ]

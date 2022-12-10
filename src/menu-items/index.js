@@ -1,7 +1,8 @@
 // import standAloneMenu from './stand-alone';
 // import other from './other';
 import { FormattedMessage } from 'react-intl';
-import { DashboardOutlined, CalendarOutlined, MessageOutlined, FileOutlined } from '@ant-design/icons';
+import { CalendarOutlined, MessageOutlined, FileOutlined } from '@ant-design/icons';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import customerMenu from './menu-customer';
 import staffMenu from './menu-staff';
 import promotionMenu from './menu-promotion';
@@ -12,7 +13,7 @@ import financeMenu from './menu-finance';
 
 // icons
 const icons = {
-  DashboardOutlined,
+  DashboardIcon,
   CalendarOutlined,
   MessageOutlined,
   FileOutlined
@@ -32,7 +33,7 @@ const menuItems = {
           type: 'item',
           url: '/dashboard',
           breadcrumbs: false,
-          icon: icons.DashboardOutlined
+          icon: icons.DashboardIcon
         },
         {
           id: 'calendar-menu',

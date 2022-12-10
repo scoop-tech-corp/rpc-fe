@@ -69,9 +69,6 @@ const ProductSellDetail = () => {
   const setTitlePage = id ? productSellName : <FormattedMessage id="add-product-sell" />;
 
   const onSubmit = async () => {
-    console.log('SUBMIT', productSellDetail);
-    console.log('isError', productSellDetailError);
-
     if (productSellDetailError) return;
 
     if (id) {
@@ -79,7 +76,6 @@ const ProductSellDetail = () => {
     } else {
       await createProductSell(productSellDetail)
         .then((resp) => {
-          console.log('response resp', resp);
           if (resp && resp.status === 200) {
             const message = id ? 'Success update product sell' : 'Success create product sell';
             dispatch(
@@ -96,7 +92,6 @@ const ProductSellDetail = () => {
           }
         })
         .catch((err) => {
-          console.log('response ERROR', err);
           let message = '';
           message += err.message;
 

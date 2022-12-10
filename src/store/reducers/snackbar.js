@@ -51,5 +51,5 @@ const snackbar = createSlice({
 });
 
 export default snackbar.reducer;
-console.log('snackbar', snackbar);
+
 export const { closeSnackbar, openSnackbar } = snackbar.actions;

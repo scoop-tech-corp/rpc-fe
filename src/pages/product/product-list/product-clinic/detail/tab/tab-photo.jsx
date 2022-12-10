@@ -13,7 +13,6 @@ const TabPhoto = () => {
   }, [productClinicDetail.photos]);
 
   const outputValueHandler = (output) => {
-    console.log('output', output);
     setProductClinicDetail((value) => ({ ...value, photos: output }));
   };
 

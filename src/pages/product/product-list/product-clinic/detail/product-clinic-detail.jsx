@@ -69,9 +69,6 @@ const ProductClinicDetail = () => {
   const setTitlePage = id ? productClinicName : <FormattedMessage id="add-product-clinic" />;
 
   const onSubmit = async () => {
-    console.log('SUBMIT', productClinicDetail);
-    console.log('isError', productClinicDetailError);
-
     if (productClinicDetailError) return;
 
     if (id) {
@@ -79,7 +76,6 @@ const ProductClinicDetail = () => {
     } else {
       await createProductClinic(productClinicDetail)
         .then((resp) => {
-          console.log('response resp', resp);
           if (resp && resp.status === 200) {
             const message = id ? 'Success update product clinic' : 'Success create product clinic';
             dispatch(
@@ -96,7 +92,6 @@ const ProductClinicDetail = () => {
           }
         })
         .catch((err) => {
-          console.log('response ERROR', err);
           let message = '';
           message += err.message;
 
