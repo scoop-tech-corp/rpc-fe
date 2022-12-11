@@ -4,8 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { getAllState, useLocationDetailStore } from './location-detail-store';
-import { openSnackbar } from 'store/reducers/snackbar';
-import { SetupConfigSnackbar } from 'components/@extended/Snackbar';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 import { breakdownMessageBackend } from 'service/service-global';
 import { saveLocation, updateLocation, uploadImageLocation } from './service';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -24,7 +23,6 @@ const LocationDetailHeader = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const snackbarSuccess = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'success', severity: 'success' }, message, 1500));
   const setTitlePage = () => (code ? props.locationName : <FormattedMessage id="add-location" />);
 
   const responseError = (err) => {

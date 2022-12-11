@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { SetupConfigSnackbar } from 'components/@extended/Snackbar';
 
 const initialState = {
   action: false,
@@ -53,3 +54,7 @@ const snackbar = createSlice({
 export default snackbar.reducer;
 
 export const { closeSnackbar, openSnackbar } = snackbar.actions;
+
+export const snackbarSuccess = (message) =>
+  openSnackbar(SetupConfigSnackbar(true, { color: 'success', severity: 'success' }, message, 1500));
+export const snackbarError = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'error', severity: 'error' }, message, 3000));

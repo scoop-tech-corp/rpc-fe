@@ -1,11 +1,13 @@
 import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
-import IconButton from 'components/@extended/IconButton';
-import MainCard from 'components/MainCard';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { jsonCentralized } from 'utils/json-centralized';
 import { useLocationDetailStore } from '../location-detail-store';
+import IconButton from 'components/@extended/IconButton';
+import FormDataStatic from 'components/FormDataStatic';
+import MainCard from 'components/MainCard';
+import { getDataStaticLocation } from '../service';
 
 const TabContact = () => {
   const locationEmail = useLocationDetailStore((state) => state.email);
@@ -170,7 +172,27 @@ const TabContact = () => {
   // End Messenger
 
   const [openMenuPhone, setOpenMenuPhone] = useState(null);
-  const renderExtendedMenu = () => {
+  const [valueOpenMenu, setValueOpenMenu] = useState({ modalUsage: false, modalType: false, typeValue: '' });
+
+  const onOpenMenu = (procedure, typeValue = '') => {
+    let modalUsage = false;
+    let modalType = false;
+    if (procedure === 'usage') modalUsage = true;
+    if (procedure === 'type') modalType = true;
+
+    const newObj = { modalUsage, modalType, typeValue };
+    setValueOpenMenu(newObj);
+  };
+
+  const onCloseFormDataStatic = async (val) => {
+    setValueOpenMenu({ modalUsage: false, modalType: false });
+    if (val) {
+      const newConstruct = await getDataStaticLocation();
+      useLocationDetailStore.setState({ ...newConstruct });
+    }
+  };
+
+  const renderExtendedMenu = (typeMenu = '') => {
     const handleClose = () => setOpenMenuPhone(null);
     return (
       <Stack direction="row" justifyContent="flex-end">
@@ -202,10 +224,10 @@ const TabContact = () => {
             horizontal: 'right'
           }}
         >
-          <MenuItem>
+          <MenuItem onClick={() => onOpenMenu('usage')}>
             <PlusCircleFilled style={{ color: '#1890ff' }} /> &nbsp;Usage
           </MenuItem>
-          <MenuItem>
+          <MenuItem onClick={() => onOpenMenu('type', typeMenu)}>
             <PlusCircleFilled style={{ color: '#1890ff' }} /> &nbsp;Type
           </MenuItem>
         </Menu>
@@ -216,11 +238,11 @@ const TabContact = () => {
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} sm={6}>
-        <MainCard title={<FormattedMessage id="phone" />} secondary={renderExtendedMenu()}>
+        <MainCard title={<FormattedMessage id="phone" />} secondary={renderExtendedMenu('telephone')}>
           {phone.map((dt, i) => (
-            <Grid container spacing={3} key={i}>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+            <Grid container spacing={1} key={i}>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel htmlFor="status">
                     <FormattedMessage id="usage" />
                   </InputLabel>
@@ -244,7 +266,7 @@ const TabContact = () => {
                 </Stack>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel>Nomor</InputLabel>
                   <TextField
                     fullWidth
@@ -257,8 +279,8 @@ const TabContact = () => {
                   />
                 </Stack>
               </Grid>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel htmlFor="type">
                     <FormattedMessage id="type" />
                   </InputLabel>
@@ -284,7 +306,7 @@ const TabContact = () => {
               </Grid>
 
               {phone.length > 1 && (
-                <Grid item xs={12} sm={3} display="flex" alignItems="flex-end">
+                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
                   <IconButton size="large" color="error" onClick={() => onDeletePhone(i)}>
                     <DeleteFilled />
                   </IconButton>
@@ -302,9 +324,9 @@ const TabContact = () => {
       <Grid item xs={12} sm={6}>
         <MainCard title="Email">
           {email.map((dt, i) => (
-            <Grid container spacing={4} key={i}>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+            <Grid container spacing={2} key={i}>
+              <Grid item xs={12} sm={6}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel htmlFor="usage">
                     <FormattedMessage id="usage" />
                   </InputLabel>
@@ -327,8 +349,8 @@ const TabContact = () => {
                   </FormControl>
                 </Stack>
               </Grid>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+              <Grid item xs={12} sm={5}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel>
                     <FormattedMessage id="address" />
                   </InputLabel>
@@ -343,7 +365,7 @@ const TabContact = () => {
               </Grid>
 
               {email.length > 1 && (
-                <Grid item xs={12} sm={4} display="flex" alignItems="flex-end">
+                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
                   <IconButton size="large" color="error" onClick={() => onDeleteEmail(i)}>
                     <DeleteFilled />
                   </IconButton>
@@ -359,11 +381,11 @@ const TabContact = () => {
       </Grid>
 
       <Grid item xs={12}>
-        <MainCard title="Messenger">
+        <MainCard title="Messenger" secondary={renderExtendedMenu('messenger')}>
           {messenger.map((dt, i) => (
-            <Grid container spacing={5} key={i}>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+            <Grid container spacing={2} key={i}>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel>
                     <FormattedMessage id="usage" />
                   </InputLabel>
@@ -387,7 +409,7 @@ const TabContact = () => {
                 </Stack>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel>
                     <FormattedMessage id="usage-name" />
                   </InputLabel>
@@ -400,8 +422,8 @@ const TabContact = () => {
                   />
                 </Stack>
               </Grid>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={1} style={{ marginTop: '10px' }}>
                   <InputLabel>Type</InputLabel>
                   <FormControl sx={{ m: 1, minWidth: 120 }}>
                     <Select
@@ -424,7 +446,7 @@ const TabContact = () => {
               </Grid>
 
               {messenger.length > 1 && (
-                <Grid item xs={12} sm={3} display="flex" alignItems="flex-end">
+                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
                   <IconButton size="large" color="error" onClick={() => onDeleteMessenger(i)}>
                     <DeleteFilled />
                   </IconButton>
@@ -438,6 +460,12 @@ const TabContact = () => {
           </Button>
         </MainCard>
       </Grid>
+      <FormDataStatic
+        open={valueOpenMenu.modalUsage || valueOpenMenu.modalType}
+        onClose={onCloseFormDataStatic}
+        procedure={valueOpenMenu.modalUsage ? 'usage' : valueOpenMenu.modalType ? 'type' : ''}
+        typeValue={valueOpenMenu.typeValue}
+      />
     </Grid>
   );
 };

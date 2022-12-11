@@ -179,6 +179,14 @@ export const saveLocation = async (data) => {
   return await axios.post('location', generateParameterSubmit(data), { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const saveDataStaticLocation = async (data) => {
+  const fd = new FormData();
+  fd.append('keyword', data.keyword); // Usage, Telephone, Messenger
+  fd.append('name', data.name);
+
+  return await axios.post('datastatic', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 export const uploadImageLocation = async (property, code) => {
   const fd = new FormData();
   fd.append('codeLocation', code);
