@@ -87,7 +87,11 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
           {headerGroups.map((headerGroup, i) => (
             <TableRow key={i} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column, index) => (
-                <TableCell key={index} {...column.getHeaderProps([{ className: column.className }])} onClick={() => clickHeader(column)}>
+                <TableCell
+                  key={index}
+                  {...column.getHeaderProps([{ className: column.className, style: column.style }])}
+                  onClick={() => clickHeader(column)}
+                >
                   <HeaderSort column={column} selectedOrder={selectedOrder} />
                 </TableCell>
               ))}
@@ -116,7 +120,7 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
           })}
           {!rows.length && (
             <TableRow>
-              <TableCell>No Data Found...</TableCell>
+              <TableCell colSpan={10}>No Data Found...</TableCell>
             </TableRow>
           )}
           <TableRow>

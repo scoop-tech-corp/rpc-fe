@@ -143,9 +143,9 @@ export const getProductClinic = async (property) => {
 // ============= END PRODUCT CLINIC ============= //
 
 // ============= PRODUCT INVENTORY ============= //
-
+const productInventoryUrl = 'product/inventory';
 export const getProductInventory = async (property) => {
-  const getResp = await axios.get(productClinicUrl, {
+  const getResp = await axios.get(productInventoryUrl, {
     params: {
       rowPerPage: property.rowPerPage,
       goToPage: property.goToPage,
@@ -159,7 +159,7 @@ export const getProductInventory = async (property) => {
 };
 
 export const deleteProductInventory = async (id) => {
-  return await axios.delete(productClinicUrl, {
+  return await axios.delete(productInventoryUrl, {
     data: { id }
   });
 };

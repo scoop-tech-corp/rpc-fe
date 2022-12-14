@@ -1,6 +1,7 @@
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import { FormattedMessage } from 'react-intl';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { getAllState, useLocationDetailStore } from './location-detail-store';
@@ -10,7 +11,6 @@ import { saveLocation, updateLocation, uploadImageLocation } from './service';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import PropTypes from 'prop-types';
 import ErrorContainer from 'components/@extended/ErrorContainer';
-import { useState } from 'react';
 
 const LocationDetailHeader = (props) => {
   const locationDetailError = useLocationDetailStore((state) => state.locationDetailError);

@@ -48,6 +48,7 @@ const ProductDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-pa
 const ProductList = Loadable(lazy(() => import('pages/product/product-list/product-list')));
 const ProductSellDetail = Loadable(lazy(() => import('pages/product/product-list/product-sell/detail')));
 const ProductClinicDetail = Loadable(lazy(() => import('pages/product/product-list/product-clinic/detail')));
+const ProductInventoryDetail = Loadable(lazy(() => import('pages/product/product-list/product-inventory/detail')));
 const ProductBundle = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductCategory = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -140,6 +141,7 @@ const MainRoutes = {
             { path: 'product-list', element: <ProductList /> },
             { path: 'product-list/sell/add', element: <ProductSellDetail /> },
             { path: 'product-list/clinic/add', element: <ProductClinicDetail /> },
+            { path: 'product-list/inventory/add', element: <ProductInventoryDetail /> },
             { path: 'bundle', element: <ProductBundle /> },
             { path: 'category', element: <ProductCategory /> },
             { path: 'policies', element: <ProductPolicies /> },

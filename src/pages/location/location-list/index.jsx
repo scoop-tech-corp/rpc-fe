@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'utils/axios';
 import { useTheme } from '@mui/material/styles';
-
 import { Chip, Stack, useMediaQuery, Button, Link } from '@mui/material';
-
-import MainCard from 'components/MainCard';
-import ScrollX from 'components/ScrollX';
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
+import MainCard from 'components/MainCard';
+import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ConfirmationC from 'components/ConfirmationC';
 
@@ -43,7 +41,10 @@ const LocationList = () => {
         },
         accessor: 'selection',
         Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true
+        disableSortBy: true,
+        style: {
+          width: '10px'
+        }
       },
       {
         Header: <FormattedMessage id="name" />,
@@ -101,25 +102,18 @@ const LocationList = () => {
 
   const onConfirm = async (value) => {
     if (value) {
-      const resp = await axios.delete('location', {
-        data: { codeLocation: selectedRow }
-      });
-
-      if (resp.status === 200 && resp.data.result === 'success') {
-        setDialog(false);
-        dispatch(
-          openSnackbar({
-            open: true,
-            message: 'Success Delete location',
-            variant: 'alert',
-            alert: { color: 'success' },
-            duration: 2000,
-            close: true
-          })
-        );
-        clearParamFetchData();
-        fetchData();
-      }
+      await axios
+        .delete('location', {
+          data: { codeLocation: selectedRow }
+        })
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialog(false);
+            dispatch(snackbarSuccess('Success delete data'));
+            clearParamFetchData();
+            fetchData();
+          }
+        });
     } else {
       setDialog(false);
     }

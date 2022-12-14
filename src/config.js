@@ -30,10 +30,10 @@ export const AUTH0_API = {
 };
 
 // API Production and UAT
-const apiUrl = 'https://www.rpc.rambadvetclinic.com';
+// const apiUrl = 'https://www.rpc.rambadvetclinic.com';
 
 // API Development
-// const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
+const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
 
 // ==============================|| THEME CONFIG  ||============================== //
 

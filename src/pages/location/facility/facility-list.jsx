@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'utils/axios';
 import { useTheme } from '@mui/material/styles';
-
 import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
-
-import MainCard from 'components/MainCard';
-import ScrollX from 'components/ScrollX';
 import { FormattedMessage } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
+import { createMessageBackend, getLocationList } from 'service/service-global';
+
+import MainCard from 'components/MainCard';
+import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
-import { SetupConfigSnackbar } from 'components/@extended/Snackbar';
-import { breakdownMessageBackend, getLocationList } from 'service/service-global';
+import ConfirmationC from 'components/ConfirmationC';
 
 let paramFacilityList = {};
 
@@ -28,9 +27,7 @@ const FacilityList = () => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState(null);
-
-  const snackbarSuccess = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'success', severity: 'success' }, message, 1500));
-  const snackbarError = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'error', severity: 'error' }, message, 3000));
+  const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -46,7 +43,10 @@ const FacilityList = () => {
         },
         accessor: 'selection',
         Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true
+        disableSortBy: true,
+        style: {
+          width: '10px'
+        }
       },
       {
         Header: <FormattedMessage id="location" />,
@@ -111,21 +111,27 @@ const FacilityList = () => {
     navigate('/location/facilities/add', { replace: true });
   };
 
-  const onDeleteFacility = async () => {
-    await axios
-      .delete('facility', {
-        data: { locationId: selectedRow }
-      })
-      .then((resp) => {
-        if (resp.status === 200 && resp.data.result === 'success') {
-          dispatch(snackbarSuccess('Success Delete facility'));
-          initList();
-        }
-      })
-      .catch((err) => {
-        const message = breakdownMessageBackend(err.errors);
-        dispatch(snackbarError(message));
-      });
+  const onConfirm = async (value) => {
+    if (value) {
+      await axios
+        .delete('facility', {
+          data: { locationId: selectedRow }
+        })
+        .then((resp) => {
+          if (resp.status === 200) {
+            dispatch(snackbarSuccess('Success Delete facility'));
+            initList();
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialog(false);
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else {
+      setDialog(false);
+    }
   };
 
   const onExport = async () => {
@@ -191,15 +197,23 @@ const FacilityList = () => {
               spacing={1}
               sx={{ p: 3, pb: 0 }}
             >
-              <Autocomplete
-                id="filterLocation"
-                options={facilityLocationList}
-                value={selectedFilterLocation}
-                sx={{ width: 300 }}
-                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                onChange={(event, value) => onFilterLocation(event, value)}
-                renderInput={(params) => <TextField {...params} label="Filter location" />}
-              />
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <Autocomplete
+                  id="filterLocation"
+                  options={facilityLocationList}
+                  value={selectedFilterLocation}
+                  sx={{ width: 300 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(event, value) => onFilterLocation(event, value)}
+                  renderInput={(params) => <TextField {...params} label="Filter location" />}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
+
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'}>
                 <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
@@ -218,16 +232,16 @@ const FacilityList = () => {
               onPageSize={onPageSizeChange}
             />
           </Stack>
-
-          {selectedRow.length > 0 && (
-            <Stack style={{ marginBottom: '20px' }} justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ p: 3, pb: 0 }}>
-              <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={onDeleteFacility}>
-                <FormattedMessage id="delete" />
-              </Button>
-            </Stack>
-          )}
         </ScrollX>
       </MainCard>
+      <ConfirmationC
+        open={dialog}
+        title="Delete"
+        content="Are you sure you want to delete this data ?"
+        onClose={(response) => onConfirm(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
     </>
   );
 };

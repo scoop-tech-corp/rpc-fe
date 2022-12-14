@@ -24,13 +24,24 @@ export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
   }
 };
 
-export const breakdownMessageBackend = (arrayMessageErr) => {
+export const breakdownMessageBackend = (arrayMessageErr, isNewLine = false) => {
   let message = '';
   if (arrayMessageErr && Array.isArray(arrayMessageErr)) {
     arrayMessageErr.forEach((dt) => {
-      message += '<li>' + dt + '</li>';
+      if (isNewLine) {
+        message += '\n' + dt;
+      } else {
+        message += '<li>' + dt + '</li>';
+      }
     });
   }
+
+  return message;
+};
+
+export const createMessageBackend = (errResp, isBreakdownArrErr = false) => {
+  let message = errResp.message ? errResp.message : 'Something when wrong';
+  if (isBreakdownArrErr) message += breakdownMessageBackend(errResp.errors, true);
 
   return message;
 };
