@@ -30,8 +30,8 @@ const BasicInfo = () => {
   const onCheckValidation = () => {
     let getName = getAllState().locationName; // name ? name : locationName;
     let getStatus = getAllState().status;
-    let getLocationNameError = null;
-    let getLocationStatusError = null;
+    let getLocationNameError = '';
+    let getLocationStatusError = '';
 
     if (!getName) {
       getLocationNameError = locationNameValidation.find((d) => d.code === 0);

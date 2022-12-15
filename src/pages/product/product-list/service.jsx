@@ -33,6 +33,44 @@ export const getProductCategoryList = async () => {
   });
 };
 
+export const getProductSellDropdown = async (productLocationId) => {
+  const getResp = await axios.get('product/sell/dropdown', {
+    params: {
+      locationId: productLocationId
+    }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+
+export const getProductClinicDropdown = async (productLocationId) => {
+  const getResp = await axios.get('product/clinic/dropdown', {
+    params: {
+      locationId: productLocationId
+    }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+
+export const getProductUsage = async () => {
+  const getResp = await axios.get('product/usage');
+  return getResp.data.map((dt) => {
+    return { label: dt.usage, value: +dt.id };
+  });
+};
+
+export const createPrductUsage = async (usageName) => {
+  const parameter = new FormData();
+  parameter.append('usage', usageName);
+
+  return await axios.post('product/usage', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 export const createBrand = async (brandName) => {
   const parameter = new FormData();
   parameter.append('brandName', brandName);
@@ -164,4 +202,13 @@ export const deleteProductInventory = async (id) => {
   });
 };
 
-// ============= END PRODUCT CLINIC ============= //
+export const createProductInventory = async (property) => {
+  const fd = new FormData();
+  fd.append('requirementName', property.requirementName);
+  fd.append('locationId', property.locationId);
+  fd.append('listProducts', JSON.stringify(property.listProducts));
+
+  return await axios.post(productInventoryUrl, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+// ============= END PRODUCT INVENTORY ============= //

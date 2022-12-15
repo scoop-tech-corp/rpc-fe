@@ -53,7 +53,7 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
   });
 
   const clickHeader = (column) => {
-    if (column.id === 'selection') return;
+    if (column.id === 'selection' || column.isNotSorting) return;
 
     const setConfigOrder = {
       column: '',
@@ -123,19 +123,21 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
               <TableCell colSpan={10}>No Data Found...</TableCell>
             </TableRow>
           )}
-          <TableRow>
-            <TableCell sx={{ p: 2 }} colSpan={7}>
-              {/* rows => jumlah data, pageSize => 5, 10 */}
-              <TablePagination
-                gotoPage={onChangeGotoPage}
-                changePageSize={onChangeSetPageSize}
-                totalPagination={totalPagination}
-                pageIndex={0}
-                setPageNumber={setPageNumber}
-                // pageSize={pageSizeChange}
-              />
-            </TableCell>
-          </TableRow>
+          {totalPagination > 0 && (
+            <TableRow>
+              <TableCell sx={{ p: 2 }} colSpan={7}>
+                {/* rows => jumlah data, pageSize => 5, 10 */}
+                <TablePagination
+                  gotoPage={onChangeGotoPage}
+                  changePageSize={onChangeSetPageSize}
+                  totalPagination={totalPagination}
+                  pageIndex={0}
+                  setPageNumber={setPageNumber}
+                  // pageSize={pageSizeChange}
+                />
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </>
@@ -160,7 +162,7 @@ export const HeaderSort = ({ column, selectedOrder }) => {
   return (
     <Stack direction="row" spacing={1} alignItems="center" sx={{ display: 'inline-flex' }}>
       <Box>{column.render('Header')}</Box>
-      {column.id !== 'selection' && (
+      {column.id !== 'selection' && !column.isNotSorting && (
         <Stack sx={{ color: 'secondary.light' }}>
           <CaretUpOutlined
             style={{

@@ -13,7 +13,6 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-// import { useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { jsonCentralized } from 'utils/json-centralized';
 import { getCityList } from '../service';
