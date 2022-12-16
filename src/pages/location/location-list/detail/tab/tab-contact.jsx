@@ -171,13 +171,16 @@ const TabContact = () => {
   };
   // End Messenger
 
-  const [openMenuPhone, setOpenMenuPhone] = useState(null);
+  const [openMenu, setOpenMenu] = useState({ el: null, type: '' });
   const [valueOpenMenu, setValueOpenMenu] = useState({ modalUsage: false, modalType: false, typeValue: '' });
 
   const onOpenMenu = (procedure, typeValue = '') => {
     let modalUsage = false;
     let modalType = false;
-    if (procedure === 'usage') modalUsage = true;
+    if (procedure === 'usage') {
+      modalUsage = true;
+      typeValue = 'usage';
+    }
     if (procedure === 'type') modalType = true;
 
     const newObj = { modalUsage, modalType, typeValue };
@@ -185,7 +188,7 @@ const TabContact = () => {
   };
 
   const onCloseFormDataStatic = async (val) => {
-    setValueOpenMenu({ modalUsage: false, modalType: false });
+    setValueOpenMenu({ modalUsage: false, modalType: false, typeValue: '' });
     if (val) {
       const newConstruct = await getDataStaticLocation();
       useLocationDetailStore.setState({ ...newConstruct });
@@ -193,24 +196,25 @@ const TabContact = () => {
   };
 
   const renderExtendedMenu = (typeMenu = '') => {
-    const handleClose = () => setOpenMenuPhone(null);
+    const handleClose = () => setOpenMenu({ el: null, type: '' });
+
     return (
       <Stack direction="row" justifyContent="flex-end">
         <IconButton
           variant="light"
           color="secondary"
           id="basic-button"
-          aria-controls={openMenuPhone ? 'basic-menu' : undefined}
+          aria-controls={openMenu.el ? 'basic-menu' : undefined}
           aria-haspopup="true"
-          aria-expanded={openMenuPhone ? 'true' : undefined}
-          onClick={(e) => setOpenMenuPhone(e?.currentTarget)}
+          aria-expanded={openMenu.el ? 'true' : undefined}
+          onClick={(e) => setOpenMenu({ el: e?.currentTarget, type: typeMenu })}
         >
           <MoreOutlined />
         </IconButton>
         <Menu
           id="basic-menu"
-          anchorEl={openMenuPhone}
-          open={Boolean(openMenuPhone)}
+          anchorEl={openMenu.el}
+          open={Boolean(openMenu.el)}
           onClose={handleClose}
           MenuListProps={{
             'aria-labelledby': 'basic-button'
@@ -227,7 +231,7 @@ const TabContact = () => {
           <MenuItem onClick={() => onOpenMenu('usage')}>
             <PlusCircleFilled style={{ color: '#1890ff' }} /> &nbsp;Usage
           </MenuItem>
-          <MenuItem onClick={() => onOpenMenu('type', typeMenu)}>
+          <MenuItem onClick={() => onOpenMenu('type', openMenu.type)}>
             <PlusCircleFilled style={{ color: '#1890ff' }} /> &nbsp;Type
           </MenuItem>
         </Menu>
