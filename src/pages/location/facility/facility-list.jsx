@@ -35,14 +35,19 @@ const FacilityList = () => {
         title: 'Row Selection',
         Header: (header) => {
           useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.locationId);
+            const selectRows = header.selectedFlatRows
+              .filter(({ original }) => +original.facilityVariation)
+              .map(({ original }) => original.locationId);
             setSelectedRow(selectRows);
           }, [header.selectedFlatRows]);
 
           return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
         },
         accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+        Cell: (cell) => {
+          const getFacilityVariation = +cell.row.original.facilityVariation;
+          return <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} disabled={!getFacilityVariation} />;
+        },
         disableSortBy: true,
         style: {
           width: '10px'
@@ -120,6 +125,7 @@ const FacilityList = () => {
         .then((resp) => {
           if (resp.status === 200) {
             dispatch(snackbarSuccess('Success Delete facility'));
+            setDialog(false);
             initList();
           }
         })
