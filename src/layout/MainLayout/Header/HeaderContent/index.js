@@ -9,6 +9,7 @@ import Search from './Search';
 import Profile from './Profile';
 import Localization from './Localization';
 import MobileSection from './MobileSection';
+import QuickMenu from './quick-menu';
 
 // import Message from './Message';
 // import Notification from './Notification';
@@ -28,11 +29,11 @@ const HeaderContent = () => {
 
   return (
     <>
+      <QuickMenu />
       {!matchesXs && <Search />}
       {/* {!matchesXs && megaMenu} */}
       {!matchesXs && localization}
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
-
       {/* <Notification /> */}
       {/* <Message /> */}
       {!matchesXs && <Profile />}
