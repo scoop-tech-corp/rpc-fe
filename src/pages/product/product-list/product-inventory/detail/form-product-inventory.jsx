@@ -70,7 +70,7 @@ const FormProductInventory = () => {
   const onProductType = async (event) => {
     const getValue = event.target.value;
     useProductInventoryDetailStore.setState({ productType: getValue, productInventoryDetailTouch: true });
-    console.log('productLocation', productLocation);
+
     if (getValue === 'productClinic') {
       const getList = await getProductClinicDropdown(productLocation.value);
       useProductInventoryDetailStore.setState({ productNameList: getList });

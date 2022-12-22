@@ -196,6 +196,40 @@ export const getProductInventory = async (property) => {
   return getResp;
 };
 
+export const getProductInventoryApproval = async (property) => {
+  const getResp = await axios.get(productInventoryUrl + '/approval', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword
+    }
+  });
+
+  return getResp;
+};
+
+export const getProductInventoryApprovalHistory = async (property) => {
+  const getResp = await axios.get(productInventoryUrl + '/history', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword
+    }
+  });
+
+  return getResp;
+};
+
+export const getProductInventoryDetail = async (id) => {
+  return await axios.get(productInventoryUrl + '/detail', {
+    params: { id }
+  });
+};
+
 export const deleteProductInventory = async (id) => {
   return await axios.delete(productInventoryUrl, {
     data: { id }
@@ -209,6 +243,12 @@ export const createProductInventory = async (property) => {
   fd.append('listProducts', JSON.stringify(property.listProducts));
 
   return await axios.post(productInventoryUrl, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateProductInventoryApproval = async (property) => {
+  const parameter = { id: property.id, status: property.status, reason: property.reason };
+
+  return await axios.put(productInventoryUrl + '/approval', parameter);
 };
 
 // ============= END PRODUCT INVENTORY ============= //

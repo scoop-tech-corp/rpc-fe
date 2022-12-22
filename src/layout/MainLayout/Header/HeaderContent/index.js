@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 // material-ui
 import { Box, useMediaQuery } from '@mui/material';
@@ -10,6 +10,7 @@ import Profile from './Profile';
 import Localization from './Localization';
 import MobileSection from './MobileSection';
 import QuickMenu from './quick-menu';
+import ProductInventoryApproval from 'pages/product/product-list/product-inventory/approval';
 
 // import Message from './Message';
 // import Notification from './Notification';
@@ -24,12 +25,17 @@ const HeaderContent = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const localization = useMemo(() => <Localization />, [i18n]);
+  const [openModalInvenApproval, setOpenModalInvenApproval] = useState(false);
 
   // const megaMenu = useMemo(() => <MegaMenuSection />, []);
 
+  const responseQuckMenu = (event) => {
+    if (event.menuType === 'IA') setOpenModalInvenApproval(event.isOpen);
+  };
+
   return (
     <>
-      <QuickMenu />
+      <QuickMenu onQuickMenuOpen={responseQuckMenu} />
       {!matchesXs && <Search />}
       {/* {!matchesXs && megaMenu} */}
       {!matchesXs && localization}
@@ -38,6 +44,8 @@ const HeaderContent = () => {
       {/* <Message /> */}
       {!matchesXs && <Profile />}
       {matchesXs && <MobileSection />}
+
+      <ProductInventoryApproval open={openModalInvenApproval} onClose={(e) => setOpenModalInvenApproval(!e)} />
     </>
   );
 };

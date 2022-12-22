@@ -7,20 +7,22 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const ModalC = (props) => {
-  const { open, title, children, okText, cancelText, onOk, onCancel, ...other } = props;
+  const { open, title, children, okText, cancelText, onOk, onCancel, isModalAction = true, ...other } = props;
 
   return (
-    <Dialog open={open} TransitionComponent={Transition} {...other}>
+    <Dialog onClose={onCancel} open={open} TransitionComponent={Transition} {...other}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent dividers={false}>{children}</DialogContent>
-      <DialogActions>
-        <Button variant="outlined" color="error" onClick={onCancel}>
-          {cancelText}
-        </Button>
-        <Button variant="contained" onClick={onOk}>
-          {okText}
-        </Button>
-      </DialogActions>
+      {isModalAction && (
+        <DialogActions>
+          <Button variant="outlined" color="error" onClick={onCancel}>
+            {cancelText}
+          </Button>
+          <Button variant="contained" onClick={onOk}>
+            {okText}
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 };
@@ -33,6 +35,7 @@ ModalC.propTypes = {
   cancelText: PropTypes.string,
   onOk: PropTypes.func,
   onCancel: PropTypes.func,
+  isModalAction: PropTypes.bool,
   other: PropTypes.any
 };
 

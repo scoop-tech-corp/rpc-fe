@@ -67,7 +67,6 @@ const ProductList = () => {
           </TabPanel>
           <TabPanel value={tabSelected} index={2}>
             <ProductInventory />
-            {/* <ProductClinic /> */}
           </TabPanel>
         </Box>
       </MainCard>
