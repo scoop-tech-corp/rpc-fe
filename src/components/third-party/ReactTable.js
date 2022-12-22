@@ -36,7 +36,7 @@ import {
 import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } from '@ant-design/icons';
 
 // ==============================|| TABLE CORE ||============================== //
-export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOrder, onGotoPage, onPageSize }) => {
+export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOrder, onGotoPage, onPageSize, colSpanPagination = 7 }) => {
   const theme = useTheme();
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
@@ -125,7 +125,7 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
           )}
           {totalPagination > 0 && (
             <TableRow>
-              <TableCell sx={{ p: 2 }} colSpan={7}>
+              <TableCell sx={{ p: 2 }} colSpan={colSpanPagination}>
                 {/* rows => jumlah data, pageSize => 5, 10 */}
                 <TablePagination
                   gotoPage={onChangeGotoPage}
@@ -151,7 +151,8 @@ ReactTable.propTypes = {
   setPageNumber: PropTypes.number,
   onOrder: PropTypes.func,
   onGotoPage: PropTypes.func,
-  onPageSize: PropTypes.func
+  onPageSize: PropTypes.func,
+  colSpanPagination: PropTypes.number
 };
 
 // ==============================|| HEADER SORT ||============================== //
