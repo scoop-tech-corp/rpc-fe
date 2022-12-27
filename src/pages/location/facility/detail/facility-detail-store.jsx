@@ -1,4 +1,4 @@
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import create from 'zustand';
 
 const defaultUnitAvailable = {

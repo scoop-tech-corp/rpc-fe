@@ -13,12 +13,12 @@ import {
   getFacilityLocationList,
   uploadImageFacility
 } from './service';
-import { breakdownMessageBackend } from 'service/service-global';
+import { breakdownDetailMessageBackend } from 'service/service-global';
 import { SetupConfigSnackbar } from 'components/@extended/Snackbar';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import FacilityDetailTab from './tab/facility-detail-tab';
 import { defaultFacilityDetail, getAllState, useFacilityDetailStore } from './facility-detail-store';
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import configGlobal from '../../../../config';
 
 const FacilityDetail = () => {
@@ -70,7 +70,7 @@ const FacilityDetail = () => {
 
   const responseError = (err) => {
     let message = err.message;
-    message += breakdownMessageBackend(err.errors);
+    message += breakdownDetailMessageBackend(err.errors);
 
     dispatch(snackbarError(message));
   };

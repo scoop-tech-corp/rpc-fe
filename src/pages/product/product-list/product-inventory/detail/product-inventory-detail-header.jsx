@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { getAllState, useProductInventoryDetailStore } from './product-inventory-detail-store';
 import { createProductInventory } from '../../service';
-import { breakdownMessageBackend } from 'service/service-global';
+import { breakdownDetailMessageBackend } from 'service/service-global';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -35,7 +35,7 @@ const ProductInventoryDetailHeader = (props) => {
   };
 
   const responseError = (err) => {
-    const detailErr = breakdownMessageBackend(err.errors);
+    const detailErr = breakdownDetailMessageBackend(err.errors);
     setIsError(true);
     useProductInventoryDetailStore.setState({ productInventoryDetailTouch: false });
 

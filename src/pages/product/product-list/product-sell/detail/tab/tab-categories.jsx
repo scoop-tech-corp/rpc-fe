@@ -1,7 +1,7 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { useEffect, useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import ProductSellDetailContext from '../product-sell-detail-context';
 
 const TabCategories = () => {

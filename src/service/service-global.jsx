@@ -24,7 +24,7 @@ export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
   }
 };
 
-export const breakdownMessageBackend = (arrayMessageErr, isNewLine = false) => {
+export const breakdownDetailMessageBackend = (arrayMessageErr, isNewLine = false) => {
   let message = '';
   if (arrayMessageErr && Array.isArray(arrayMessageErr)) {
     arrayMessageErr.forEach((dt) => {
@@ -41,7 +41,7 @@ export const breakdownMessageBackend = (arrayMessageErr, isNewLine = false) => {
 
 export const createMessageBackend = (errResp, isBreakdownArrErr = false) => {
   let message = errResp.message ? errResp.message : 'Something when wrong';
-  if (isBreakdownArrErr) message += breakdownMessageBackend(errResp.errors, true);
+  if (isBreakdownArrErr) message += breakdownDetailMessageBackend(errResp.errors, true);
 
   return message;
 };

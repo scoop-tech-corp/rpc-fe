@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { getAllState, useLocationDetailStore } from './location-detail-store';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { breakdownMessageBackend } from 'service/service-global';
+import { breakdownDetailMessageBackend } from 'service/service-global';
 import { saveLocation, updateLocation, uploadImageLocation } from './service';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import PropTypes from 'prop-types';
@@ -26,7 +26,7 @@ const LocationDetailHeader = (props) => {
   const setTitlePage = () => (code ? props.locationName : <FormattedMessage id="add-location" />);
 
   const responseError = (err) => {
-    const detailErr = breakdownMessageBackend(err.errors);
+    const detailErr = breakdownDetailMessageBackend(err.errors);
     setIsError(true);
     useLocationDetailStore.setState({ locataionTouch: false });
 

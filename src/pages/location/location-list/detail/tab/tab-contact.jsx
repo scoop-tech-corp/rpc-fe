@@ -2,7 +2,7 @@ import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import { useLocationDetailStore } from '../location-detail-store';
 import IconButton from 'components/@extended/IconButton';
 import FormDataStatic from 'components/FormDataStatic';

@@ -1,4 +1,4 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Slide } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Slide, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
@@ -7,11 +7,16 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const ModalC = (props) => {
-  const { open, title, children, okText, cancelText, onOk, onCancel, isModalAction = true, ...other } = props;
+  const { open, title, children, okText, cancelText, onOk, onCancel, action, isModalAction = true, ...other } = props;
 
   return (
     <Dialog onClose={onCancel} open={open} TransitionComponent={Transition} {...other}>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle>
+        <Stack direction={'row'} justifyContent={action?.justifyContent || 'space-between'} alignItems={action?.alignItems || 'center'}>
+          {title}
+          {action?.element}
+        </Stack>
+      </DialogTitle>
       <DialogContent dividers={false}>{children}</DialogContent>
       {isModalAction && (
         <DialogActions>
@@ -35,6 +40,7 @@ ModalC.propTypes = {
   cancelText: PropTypes.string,
   onOk: PropTypes.func,
   onCancel: PropTypes.func,
+  action: PropTypes.shape({ element: PropTypes.node, justifyContent: PropTypes.string, alignItems: PropTypes.string }),
   isModalAction: PropTypes.bool,
   other: PropTypes.any
 };

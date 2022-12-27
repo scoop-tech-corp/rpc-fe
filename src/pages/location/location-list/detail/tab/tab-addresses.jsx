@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import { getCityList } from '../service';
 import { defaultDetailAddress, useLocationDetailStore } from '../location-detail-store';
 import IconButton from 'components/@extended/IconButton';

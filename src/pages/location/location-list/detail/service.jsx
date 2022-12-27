@@ -1,6 +1,6 @@
 import axios from 'utils/axios';
 import configGlobal from '../../../../config';
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import { setFormDataImage } from 'service/service-global';
 
 export const getCityList = (provinceCode) => {

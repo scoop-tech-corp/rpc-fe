@@ -53,7 +53,7 @@ export const getProductClinicDropdown = async (productLocationId) => {
   });
 
   return getResp.data.map((dt) => {
-    return { label: dt.fullName, value: +dt.id };
+    return { label: dt.fullName, value: +dt.id, data: { ...dt } };
   });
 };
 
