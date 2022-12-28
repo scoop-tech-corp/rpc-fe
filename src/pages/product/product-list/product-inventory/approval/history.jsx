@@ -29,9 +29,11 @@ const History = () => {
         Cell: (data) => {
           switch (+data.value) {
             case 0:
-              return <Chip color="warning" label="Menunggu" size="small" variant="light" />;
+              return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
             case 1:
               return <Chip color="success" label="Accept" size="small" variant="light" />;
+            case 2:
+              return <Chip color="error" label="Reject" size="small" variant="light" />;
           }
         }
       },
