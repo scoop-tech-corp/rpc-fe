@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarSuccess, snackbarError } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import {
@@ -14,11 +14,11 @@ import {
   uploadImageFacility
 } from './service';
 import { breakdownDetailMessageBackend } from 'service/service-global';
-import { SetupConfigSnackbar } from 'components/@extended/Snackbar';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
-import FacilityDetailTab from './tab/facility-detail-tab';
 import { defaultFacilityDetail, getAllState, useFacilityDetailStore } from './facility-detail-store';
 import { jsonCentralized } from 'utils/func';
+
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import FacilityDetailTab from './tab/facility-detail-tab';
 import configGlobal from '../../../../config';
 
 const FacilityDetail = () => {
@@ -27,9 +27,6 @@ const FacilityDetail = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const snackbarSuccess = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'success', severity: 'success' }, message, 1500));
-  const snackbarError = (message) => openSnackbar(SetupConfigSnackbar(true, { color: 'error', severity: 'error' }, message, 3000));
 
   const setTitleFacility = () => (id ? facilityName : <FormattedMessage id="add-facility" />);
 

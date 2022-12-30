@@ -1,18 +1,16 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { jsonCentralized } from 'utils/func';
-import ProductClinicDetailContext from '../product-clinic-detail-context';
+import { useProductClinicDetailStore } from '../product-clinic-detail-store';
 
 const TabCategories = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
+  const productCategoryList = useProductClinicDetailStore((state) => state.dataSupport.productCategoryList);
+  const categoriesStore = useProductClinicDetailStore((state) => state.categories);
   const [categories, setCategories] = useState([]);
-  const productCategoryList = productClinicDetail.dataSupport.productCategoryList;
 
   useEffect(() => {
-    if (productClinicDetail.categories.length) {
-      const getCategory = jsonCentralized(productClinicDetail.categories);
-      const newCategory = getCategory.map((gc) => {
+    if (categoriesStore.length) {
+      const newCategory = categoriesStore.map((gc) => {
         const findPc = productCategoryList.find((pcl) => +pcl.value === +gc);
         if (findPc) {
           return findPc;
@@ -21,17 +19,13 @@ const TabCategories = () => {
       setCategories(newCategory);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productClinicDetail.categories]);
+  }, [categoriesStore]);
 
-  const onSelectedCategory = (e, val) => {
+  const onSelectedCategory = (_, val) => {
+    let setNewData = val.map((dt) => dt.value);
     setCategories(val);
 
-    let setNewData = jsonCentralized(val);
-    setNewData = setNewData.map((dt) => dt.value);
-
-    setProductClinicDetail((value) => {
-      return { ...value, categories: setNewData };
-    });
+    useProductClinicDetailStore.setState({ categories: setNewData });
   };
 
   return (

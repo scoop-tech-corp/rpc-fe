@@ -1,18 +1,16 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { jsonCentralized } from 'utils/func';
-import ProductSellDetailContext from '../product-sell-detail-context';
+import { useProductSellDetailStore } from '../product-sell-detail-store';
 
 const TabCategories = () => {
-  const { productSellDetail, setProductSellDetail } = useContext(ProductSellDetailContext);
+  const productCategoryList = useProductSellDetailStore((state) => state.dataSupport.productCategoryList);
+  const categoriesStore = useProductSellDetailStore((state) => state.categories);
   const [categories, setCategories] = useState([]);
-  const productCategoryList = productSellDetail.dataSupport.productCategoryList;
 
   useEffect(() => {
-    if (productSellDetail.categories.length) {
-      const getCategory = jsonCentralized(productSellDetail.categories);
-      const newCategory = getCategory.map((gc) => {
+    if (categoriesStore.length) {
+      const newCategory = categoriesStore.map((gc) => {
         const findPc = productCategoryList.find((pcl) => +pcl.value === +gc);
         if (findPc) {
           return findPc;
@@ -21,17 +19,13 @@ const TabCategories = () => {
       setCategories(newCategory);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productSellDetail.categories]);
+  }, [categoriesStore]);
 
-  const onSelectedCategory = (e, val) => {
+  const onSelectedCategory = (_, val) => {
+    let setNewData = val.map((dt) => dt.value);
     setCategories(val);
 
-    let setNewData = jsonCentralized(val);
-    setNewData = setNewData.map((dt) => dt.value);
-
-    setProductSellDetail((value) => {
-      return { ...value, categories: setNewData };
-    });
+    useProductSellDetailStore.setState({ categories: setNewData, productSellDetailTouch: true });
   };
 
   return (

@@ -1,27 +1,17 @@
 import { Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import MainCard from 'components/MainCard';
-import { useContext, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import ProductSellDetailContext from '../../../product-sell-detail-context';
+import { useProductSellDetailStore } from '../../../product-sell-detail-store';
+
+import MainCard from 'components/MainCard';
 import PricingBasic from './pricing-basic';
 import PricingCustomer from './pricing-customer';
 import PricingLocation from './pricing-location';
 import PricingQuantity from './pricing-quantity';
 
 const Pricing = () => {
-  const { productSellDetail, setProductSellDetail } = useContext(ProductSellDetailContext);
-  const [pricingStatus, setPricingStatus] = useState('Basic');
+  const pricingStatus = useProductSellDetailStore((state) => state.pricingStatus);
 
-  useEffect(() => {
-    setPricingStatus(productSellDetail.pricingStatus);
-  }, [productSellDetail.pricingStatus]);
-
-  const onChangePricing = (event) => {
-    setPricingStatus(event.target.value);
-    setProductSellDetail((value) => {
-      return { ...value, pricingStatus: event.target.value };
-    });
-  };
+  const onChangePricing = (e) => useProductSellDetailStore.setState({ pricingStatus: e.target.value, productSellDetailTouch: true });
 
   const renderContentPricing = () => {
     switch (pricingStatus) {

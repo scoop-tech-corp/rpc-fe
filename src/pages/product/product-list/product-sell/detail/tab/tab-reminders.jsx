@@ -1,14 +1,13 @@
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
+import { useProductSellDetailStore } from '../product-sell-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
-import { useState, useContext, useEffect } from 'react';
-import { FormattedMessage } from 'react-intl';
-import ProductSellDetailContext from '../product-sell-detail-context';
 
 const TabReminders = () => {
-  const { productSellDetail, setProductSellDetail } = useContext(ProductSellDetailContext);
-  const [reminders, setReminders] = useState([]);
+  const reminders = useProductSellDetailStore((state) => state.reminders);
   const timingList = [
     { label: 'Days', value: 'Days' },
     { label: 'Hours', value: 'Hours' },
@@ -16,63 +15,28 @@ const TabReminders = () => {
     { label: 'Weeks', value: 'Weeks' }
   ];
 
-  useEffect(() => {
-    setReminders(productSellDetail.reminders);
-  }, [productSellDetail]);
-
-  const onFieldHandler = (event, idx) => {
-    setReminders((value) => {
-      const getData = [...value];
-      getData[idx][event.target.name] = +event.target.value;
-
-      return getData;
-    });
-  };
-
-  const onBlurHandler = (event, idx) => {
-    setProductSellDetail((value) => {
-      const getData = [...value.reminders];
-      getData[idx][event.target.name] = +event.target.value;
-
-      return { ...value, reminders: getData };
-    });
-  };
-
-  const onSelectTiming = (event, idx) => {
-    setReminders((value) => {
-      const getData = [...value];
-      getData[idx].timing = event.target.value;
-
-      setProductSellDetail((value) => {
-        return { ...value, reminders: getData };
-      });
-      return getData;
+  const onChangeHandler = (i, newObjReminder) => {
+    useProductSellDetailStore.setState((prevState) => {
+      const getReminders = [...prevState.reminders];
+      getReminders[i] = newObjReminder;
+      return { reminders: getReminders, productSellDetailTouch: true };
     });
   };
 
   const onDeleteReminders = (i) => {
-    setReminders((value) => {
-      let getData = [...value];
-      getData.splice(i, 1);
+    useProductSellDetailStore.setState((prevState) => {
+      let newData = [...prevState.reminders];
+      newData.splice(i, 1);
 
-      setProductSellDetail((value) => {
-        return { ...value, reminders: getData };
-      });
-
-      return getData;
+      return { reminders: newData, productSellDetailTouch: true };
     });
   };
 
   const onAddReminders = () => {
-    setReminders((value) => {
-      const setNewData = [...value, { unit: '', timing: '', status: 'After Add On' }];
-
-      setProductSellDetail((value) => {
-        return { ...value, reminders: setNewData };
-      });
-
-      return setNewData;
-    });
+    useProductSellDetailStore.setState((s) => ({
+      reminders: [...s.reminders, { unit: '', timing: '', status: 'After Add On' }],
+      productSellDetailTouch: true
+    }));
   };
 
   return (
@@ -87,10 +51,9 @@ const TabReminders = () => {
                 id={`unit${i}`}
                 name="unit"
                 value={dt.unit}
-                onChange={(e) => onFieldHandler(e, i)}
-                onBlur={(e) => onBlurHandler(e, i)}
                 type="number"
                 inputProps={{ min: 0 }}
+                onChange={(e) => onChangeHandler(i, { ...dt, unit: e.target.value })}
               />
             </Stack>
           </Grid>
@@ -100,7 +63,12 @@ const TabReminders = () => {
                 <FormattedMessage id="timing" />
               </InputLabel>
               <FormControl sx={{ m: 1, minWidth: 120 }}>
-                <Select id={`timing${i}`} name={`timing${i}`} value={dt.timing} onChange={(event) => onSelectTiming(event, i)}>
+                <Select
+                  id={`timing${i}`}
+                  name={`timing${i}`}
+                  value={dt.timing}
+                  onChange={(e) => onChangeHandler(i, { ...dt, timing: e.target.value })}
+                >
                   <MenuItem value="">
                     <em>Select timing</em>
                   </MenuItem>

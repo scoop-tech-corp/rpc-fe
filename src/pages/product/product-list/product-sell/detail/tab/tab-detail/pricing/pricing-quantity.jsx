@@ -1,20 +1,15 @@
 import { Button, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
+import { useProductSellDetailStore } from '../../../product-sell-detail-store';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
-import ProductSellDetailContext from '../../../product-sell-detail-context';
+
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
 
 let erorQuantity = { isError: false, errorType: null };
 
 const PricingQuantity = () => {
-  const { productSellDetail, setProductSellDetail, setProductSellDetailError } = useContext(ProductSellDetailContext);
-  const [quantityList, setQuantityList] = useState([]);
-
-  useEffect(() => {
-    setQuantityList(productSellDetail.quantities);
-  }, [productSellDetail.quantities]);
+  const quantityList = useProductSellDetailStore((state) => state.quantities);
 
   const validationForm = (procedure, data, i) => {
     let isError = false;
@@ -71,11 +66,11 @@ const PricingQuantity = () => {
   };
 
   const processFrom = (key, getValue, i) => {
-    setQuantityList((value) => {
-      const getData = [...value];
+    useProductSellDetailStore.setState((prevState) => {
+      const getData = [...prevState.quantities];
       getData[i][key] = getValue;
 
-      return getData;
+      return { quantities: getData, productSellDetailError: validationForm(key, getData, i), productSellDetailTouch: true };
     });
   };
 
@@ -84,40 +79,18 @@ const PricingQuantity = () => {
     processFrom(procedure, getValue, i);
   };
 
-  const onFieldBlur = (e, i, procedure) => {
-    const getValue = +e.target.value;
-
-    setProductSellDetail((val) => {
-      const getQuantity = [...val.quantities];
-      getQuantity[i][procedure] = getValue;
-
-      const conditionFrom = validationForm(procedure, getQuantity, i);
-      setProductSellDetailError(conditionFrom);
-
-      return { ...val, quantities: getQuantity };
-    });
-  };
-
   const onAddQty = () => {
-    setQuantityList((value) => {
-      const setNewData = [...value, { fromQty: '', toQty: '', price: '' }];
-
-      setProductSellDetail((val) => {
-        return { ...val, quantities: setNewData };
-      });
-      return setNewData;
+    useProductSellDetailStore.setState((prevState) => {
+      return { quantities: [...prevState.quantities, { fromQty: '', toQty: '', price: '' }], productSellDetailTouch: true };
     });
   };
 
   const onDeleteQty = (i) => {
-    setQuantityList((value) => {
-      const setNewData = [...value];
+    useProductSellDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.quantities];
       setNewData.splice(i, 1);
 
-      setProductSellDetail((val) => {
-        return { ...val, quantities: setNewData };
-      });
-      return setNewData;
+      return { quantities: setNewData, productSellDetailTouch: true };
     });
   };
 
@@ -145,7 +118,6 @@ const PricingQuantity = () => {
                     name={`from${i}`}
                     value={dt.fromQty}
                     onChange={(event) => onFieldChange(event, i, 'fromQty')}
-                    onBlur={(event) => onFieldBlur(event, i, 'fromQty')}
                   />
                 </Stack>
               </Grid>
@@ -161,7 +133,6 @@ const PricingQuantity = () => {
                     name={`to${i}`}
                     value={dt.toQty}
                     onChange={(event) => onFieldChange(event, i, 'toQty')}
-                    onBlur={(event) => onFieldBlur(event, i, 'toQty')}
                   />
                 </Stack>
               </Grid>
@@ -176,7 +147,6 @@ const PricingQuantity = () => {
                     name={`price${i}`}
                     value={dt.price}
                     onChange={(event) => onFieldChange(event, i, 'price')}
-                    onBlur={(event) => onFieldBlur(event, i, 'price')}
                     InputProps={{
                       startAdornment: 'Rp',
                       inputComponent: NumberFormatCustom

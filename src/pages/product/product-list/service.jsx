@@ -86,13 +86,17 @@ export const createSupplier = async (supplierName) => {
 };
 
 const generateParamSaved = (property) => {
+  const productBrandId = property.productBrand ? +property.productBrand.value : '';
+  const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
+  const expiredDate = property.expiredDate ? new Date(property.expiredDate).toLocaleDateString('en-CA') : '';
+
   const fd = new FormData();
   fd.append('fullName', property.fullName);
   fd.append('simpleName', property.simpleName);
-  fd.append('productBrandId', +property.productBrandId);
-  fd.append('productSupplierId', +property.productSupplierId);
+  fd.append('productBrandId', productBrandId);
+  fd.append('productSupplierId', productSupplierId);
   fd.append('sku', property.sku);
-  fd.append('expiredDate', property.expiredDate);
+  fd.append('expiredDate', expiredDate);
   fd.append('status', property.status);
   fd.append('pricingStatus', property.pricingStatus);
   fd.append('costPrice', property.costPrice);
@@ -123,8 +127,7 @@ const generateParamSaved = (property) => {
 const productSellUrl = 'product/sell';
 export const createProductSell = async (property) => {
   const parameter = generateParamSaved(property);
-  const response = await axios.post(productSellUrl, parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
-  return response;
+  return await axios.post(productSellUrl, parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const deleteProductSell = async (id) => {

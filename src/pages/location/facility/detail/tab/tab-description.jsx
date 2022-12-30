@@ -1,7 +1,8 @@
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
-import MainCard from 'components/MainCard';
 import { FormattedMessage } from 'react-intl';
 import { useFacilityDetailStore } from '../facility-detail-store';
+
+import MainCard from 'components/MainCard';
 
 const TabDescription = () => {
   const introduction = useFacilityDetailStore((state) => state.introduction);
