@@ -1,39 +1,18 @@
 import { Grid, Stack, InputLabel, TextField } from '@mui/material';
-import { useState, useEffect, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useProductClinicDetailStore } from '../../../product-clinic-detail-store';
+
 import NumberFormatCustom from 'utils/number-format';
-import ProductClinicDetailContext from '../../../product-clinic-detail-context';
 
 const PricingBasic = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [pricingBasic, setPricingBasic] = useState({
-    costPrice: '',
-    marketPrice: '',
-    price: ''
-  });
+  const costPrice = useProductClinicDetailStore((state) => state.costPrice);
+  const marketPrice = useProductClinicDetailStore((state) => state.marketPrice);
+  const price = useProductClinicDetailStore((state) => state.price);
 
-  useEffect(() => {
-    setPricingBasic({
-      costPrice: productClinicDetail.costPrice || '',
-      marketPrice: productClinicDetail.marketPrice || '',
-      price: productClinicDetail.price || ''
-    });
-  }, [productClinicDetail.costPrice, productClinicDetail.marketPrice, productClinicDetail.price]);
+  const onFieldHandler = (e) => {
+    const getValue = e.target.value ? +e.target.value.replace(',', '') : '';
 
-  const onBlurHandler = (event) => {
-    const getValue = event.target.value ? +event.target.value.replace(',', '') : '';
-
-    setProductClinicDetail((value) => {
-      return { ...value, [event.target.name]: getValue };
-    });
-  };
-
-  const onFieldHandler = (event, procedure) => {
-    const getValue = +event.target.value.replace(',', '');
-
-    setPricingBasic((value) => {
-      return { ...value, [procedure]: getValue };
-    });
+    useProductClinicDetailStore.setState({ [e.target.name]: getValue, productClinicDetailTouch: true });
   };
 
   return (
@@ -47,9 +26,8 @@ const PricingBasic = () => {
             fullWidth
             id="costPrice"
             name="costPrice"
-            value={pricingBasic.costPrice}
-            onChange={(e) => onFieldHandler(e, 'costPrice')}
-            onBlur={onBlurHandler}
+            value={costPrice}
+            onChange={onFieldHandler}
             InputProps={{
               startAdornment: 'Rp',
               inputComponent: NumberFormatCustom
@@ -66,9 +44,8 @@ const PricingBasic = () => {
             fullWidth
             id="marketPrice"
             name="marketPrice"
-            value={pricingBasic.marketPrice}
-            onChange={(e) => onFieldHandler(e, 'marketPrice')}
-            onBlur={onBlurHandler}
+            value={marketPrice}
+            onChange={onFieldHandler}
             InputProps={{
               startAdornment: 'Rp',
               inputComponent: NumberFormatCustom
@@ -86,9 +63,8 @@ const PricingBasic = () => {
             fullWidth
             id="price"
             name="price"
-            value={pricingBasic.price}
-            onChange={(e) => onFieldHandler(e, 'price')}
-            onBlur={onBlurHandler}
+            value={price}
+            onChange={onFieldHandler}
             InputProps={{
               startAdornment: 'Rp',
               inputComponent: NumberFormatCustom

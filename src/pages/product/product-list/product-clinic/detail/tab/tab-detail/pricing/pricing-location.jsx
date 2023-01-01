@@ -1,68 +1,47 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
-import { useContext, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { useProductClinicDetailStore } from '../../../product-clinic-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
-import ProductClinicDetailContext from '../../../product-clinic-detail-context';
 import NumberFormatCustom from 'utils/number-format';
 
 const PricingLocation = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [pricingLocation, setPricingLocation] = useState([]);
-  const locationDropdown = productClinicDetail.dataSupport.locationList;
-
-  useEffect(() => {
-    setPricingLocation(productClinicDetail.priceLocations);
-  }, [productClinicDetail.priceLocations]);
+  const priceLocations = useProductClinicDetailStore((state) => state.priceLocations);
+  const locationDropdown = useProductClinicDetailStore((state) => state.dataSupport.locationList);
 
   const onSelectLocation = (event, i) => {
-    setPricingLocation((value) => {
-      const getData = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const getData = [...prevState.priceLocations];
       getData[i].locationId = event.target.value;
 
-      setProductClinicDetail((val) => {
-        return { ...val, priceLocations: getData };
-      });
-
-      return getData;
+      return { priceLocations: getData, productClinicDetailTouch: true };
     });
   };
 
-  const onPrice = (event, i) => {
-    const getPrice = +event.target.value.replace(',', '');
+  const onPriceChange = (event, i) => {
+    const getPrice = +event.target.value.replaceAll(',', '');
 
-    setPricingLocation((value) => {
-      const getData = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const getData = [...prevState.priceLocations];
       getData[i].price = getPrice;
 
-      setProductClinicDetail((val) => {
-        return { ...val, priceLocations: getData };
-      });
-
-      return getData;
+      return { priceLocations: getData, productClinicDetailTouch: true };
     });
   };
 
   const onAddLocation = () => {
-    setPricingLocation((value) => {
-      const setNewData = [...value, { locationId: '', price: '' }];
-
-      setProductClinicDetail((val) => {
-        return { ...val, priceLocations: setNewData };
-      });
-      return setNewData;
+    useProductClinicDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.priceLocations, { locationId: '', price: '' }];
+      return { priceLocations: setNewData, productClinicDetailTouch: true };
     });
   };
 
   const onDeleteLocation = (i) => {
-    setPricingLocation((value) => {
-      const setNewData = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.priceLocations];
       setNewData.splice(i, 1);
-
-      setProductClinicDetail((val) => {
-        return { ...val, priceLocations: setNewData };
-      });
-      return setNewData;
+      return { priceLocations: setNewData, productClinicDetailTouch: true };
     });
   };
 
@@ -70,7 +49,7 @@ const PricingLocation = () => {
     <>
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} sm={10}>
-          {pricingLocation.map((dt, i) => (
+          {priceLocations.map((dt, i) => (
             <Grid container spacing={4} key={i}>
               <Grid item xs={12} sm={6}>
                 <Stack spacing={1} style={{ marginTop: '5px' }}>
@@ -106,7 +85,7 @@ const PricingLocation = () => {
                     id={`price${i}`}
                     name={`price${i}`}
                     value={dt.price}
-                    onChange={(event) => onPrice(event, i)}
+                    onChange={(event) => onPriceChange(event, i)}
                     InputProps={{
                       startAdornment: 'Rp',
                       inputComponent: NumberFormatCustom

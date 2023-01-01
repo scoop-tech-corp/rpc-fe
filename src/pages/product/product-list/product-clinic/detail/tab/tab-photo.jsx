@@ -5,7 +5,7 @@ const TabPhoto = () => {
   const photos = useProductClinicDetailStore((state) => state.photos);
 
   const outputHandler = (output) => {
-    useProductClinicDetailStore.setState({ photos: output });
+    useProductClinicDetailStore.setState({ photos: output, productClinicDetailTouch: true });
   };
 
   return <PhotoC photoValue={photos} photoOutput={(event) => outputHandler(event)} />;

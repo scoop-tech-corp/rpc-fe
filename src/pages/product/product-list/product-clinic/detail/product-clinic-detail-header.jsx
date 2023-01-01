@@ -36,7 +36,7 @@ const ProductClinicDetailHeader = (props) => {
   const responseError = (err) => {
     const detailErr = breakdownDetailMessageBackend(err.errors);
     setIsError(true);
-    useProductClinicDetailStore.setState({ productClinicDetailError: false });
+    useProductClinicDetailStore.setState({ productClinicDetailTouch: false });
     setErrContent({ title: err.message, detail: detailErr });
   };
 

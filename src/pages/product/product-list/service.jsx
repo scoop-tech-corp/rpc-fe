@@ -102,11 +102,20 @@ const generateParamSaved = (property) => {
   fd.append('costPrice', property.costPrice);
   fd.append('marketPrice', property.marketPrice);
   fd.append('price', property.price);
+
   fd.append('isShipped', property.isShipped);
   fd.append('weight', property.weight);
   fd.append('length', property.length);
   fd.append('width', property.width);
   fd.append('height', property.height);
+
+  fd.append('isCustomerPurchase', property.isCustomerPurchase);
+  fd.append('isCustomerPurchaseOnline', property.isCustomerPurchaseOnline);
+  fd.append('isCustomerPurchaseOutStock', property.isCustomerPurchaseOutStock);
+  fd.append('isStockLevelCheck', property.isStockLevelCheck);
+  fd.append('isNonChargeable', property.isNonChargeable);
+  fd.append('isOfficeApproval', property.isOfficeApproval);
+  fd.append('isAdminApproval', property.isAdminApproval);
 
   fd.append('introduction', property.introduction);
   fd.append('description', property.description);
@@ -157,8 +166,7 @@ export const getProductSell = async (property) => {
 const productClinicUrl = 'product/clinic';
 export const createProductClinic = async (property) => {
   const parameter = generateParamSaved(property);
-  const response = await axios.post(productClinicUrl, parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
-  return response;
+  return await axios.post(productClinicUrl, parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const deleteProductClinic = async (id) => {

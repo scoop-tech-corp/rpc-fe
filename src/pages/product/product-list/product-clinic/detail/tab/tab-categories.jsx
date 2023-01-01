@@ -25,7 +25,7 @@ const TabCategories = () => {
     let setNewData = val.map((dt) => dt.value);
     setCategories(val);
 
-    useProductClinicDetailStore.setState({ categories: setNewData });
+    useProductClinicDetailStore.setState({ categories: setNewData, productClinicDetailTouch: true });
   };
 
   return (

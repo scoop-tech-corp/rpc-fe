@@ -21,7 +21,9 @@ const TabDescription = () => {
               id="introduction"
               name="introduction"
               value={introduction}
-              onChange={(event) => useProductClinicDetailStore.setState({ introduction: event.target.value })}
+              onChange={(event) =>
+                useProductClinicDetailStore.setState({ introduction: event.target.value, productClinicDetailTouch: true })
+              }
             />
           </Stack>
         </Grid>
@@ -36,7 +38,9 @@ const TabDescription = () => {
               id="description"
               name="description"
               value={description}
-              onChange={(event) => useProductClinicDetailStore.setState({ description: event.target.value })}
+              onChange={(event) =>
+                useProductClinicDetailStore.setState({ description: event.target.value, productClinicDetailTouch: true })
+              }
             />
           </Stack>
         </Grid>

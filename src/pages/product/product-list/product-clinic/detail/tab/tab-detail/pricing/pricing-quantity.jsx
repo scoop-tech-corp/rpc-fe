@@ -1,20 +1,15 @@
 import { Button, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
+import { useProductClinicDetailStore } from '../../../product-clinic-detail-store';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
-import ProductClinicDetailContext from '../../../product-clinic-detail-context';
+
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
 
 let erorQuantity = { isError: false, errorType: null };
 
 const PricingQuantity = () => {
-  const { productClinicDetail, setProductClinicDetail, setProductClinicDetailError } = useContext(ProductClinicDetailContext);
-  const [quantityList, setQuantityList] = useState([]);
-
-  useEffect(() => {
-    setQuantityList(productClinicDetail.quantities);
-  }, [productClinicDetail.quantities]);
+  const quantityList = useProductClinicDetailStore((state) => state.quantities);
 
   const validationForm = (procedure, data, i) => {
     let isError = false;
@@ -71,56 +66,31 @@ const PricingQuantity = () => {
   };
 
   const processFrom = (key, getValue, i) => {
-    setQuantityList((value) => {
-      const getData = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const getData = [...prevState.quantities];
       getData[i][key] = getValue;
 
-      const conditionFrom = validationForm(key, getData, i);
-
-      setProductClinicDetailError(conditionFrom);
-      setProductClinicDetail((val) => {
-        return { ...val, quantities: getData };
-      });
-
-      return getData;
+      return { quantities: getData, productClinicDetailError: validationForm(key, getData, i), productClinicDetailTouch: true };
     });
   };
 
-  const onFromQty = (e, i) => {
+  const onFieldChange = (e, i, procedure) => {
     const getValue = +e.target.value;
-    processFrom('fromQty', getValue, i);
-  };
-
-  const onToQty = (e, i) => {
-    const getValue = +e.target.value;
-    processFrom('toQty', getValue, i);
-  };
-
-  const onPrice = (e, i) => {
-    const getValue = +e.target.value.replace(',', '');
-    processFrom('price', getValue, i);
+    processFrom(procedure, getValue, i);
   };
 
   const onAddQty = () => {
-    setQuantityList((value) => {
-      const setNewData = [...value, { fromQty: '', toQty: '', price: '' }];
-
-      setProductClinicDetail((val) => {
-        return { ...val, quantities: setNewData };
-      });
-      return setNewData;
+    useProductClinicDetailStore.setState((prevState) => {
+      return { quantities: [...prevState.quantities, { fromQty: '', toQty: '', price: '' }], productClinicDetailTouch: true };
     });
   };
 
   const onDeleteQty = (i) => {
-    setQuantityList((value) => {
-      const setNewData = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.quantities];
       setNewData.splice(i, 1);
 
-      setProductClinicDetail((val) => {
-        return { ...val, quantities: setNewData };
-      });
-      return setNewData;
+      return { quantities: setNewData, productClinicDetailTouch: true };
     });
   };
 
@@ -147,7 +117,7 @@ const PricingQuantity = () => {
                     id={`from${i}`}
                     name={`from${i}`}
                     value={dt.fromQty}
-                    onChange={(event) => onFromQty(event, i)}
+                    onChange={(event) => onFieldChange(event, i, 'fromQty')}
                   />
                 </Stack>
               </Grid>
@@ -162,7 +132,7 @@ const PricingQuantity = () => {
                     id={`to${i}`}
                     name={`to${i}`}
                     value={dt.toQty}
-                    onChange={(event) => onToQty(event, i)}
+                    onChange={(event) => onFieldChange(event, i, 'toQty')}
                   />
                 </Stack>
               </Grid>
@@ -176,7 +146,7 @@ const PricingQuantity = () => {
                     id={`price${i}`}
                     name={`price${i}`}
                     value={dt.price}
-                    onChange={(event) => onPrice(event, i)}
+                    onChange={(event) => onFieldChange(event, i, 'price')}
                     InputProps={{
                       startAdornment: 'Rp',
                       inputComponent: NumberFormatCustom

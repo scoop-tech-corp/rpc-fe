@@ -33,6 +33,14 @@ export const defaultProductSellDetail = {
   width: '',
   height: '',
 
+  isCustomerPurchase: false,
+  isCustomerPurchaseOnline: false,
+  isCustomerPurchaseOutStock: false,
+  isStockLevelCheck: false,
+  isNonChargeable: false,
+  isOfficeApproval: false,
+  isAdminApproval: false,
+
   introduction: '',
   description: '',
 

@@ -1,9 +1,10 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { useProductSellDetailStore } from '../../../product-sell-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
-import { useProductSellDetailStore } from '../../../product-sell-detail-store';
 
 const PricingCustomer = () => {
   const customerGroups = useProductSellDetailStore((state) => state.customerGroups);

@@ -1,55 +1,18 @@
 import { FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
-import MainCard from 'components/MainCard';
-import { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import ProductClinicDetailContext from '../../product-clinic-detail-context';
+import { useProductClinicDetailStore } from '../../product-clinic-detail-store';
+
+import MainCard from 'components/MainCard';
 
 const Shipping = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [shipping, setShipping] = useState({
-    isShipped: null,
-    weight: '',
-    length: '',
-    width: '',
-    height: ''
-  });
+  const isShipped = useProductClinicDetailStore((state) => state.isShipped);
+  const weight = useProductClinicDetailStore((state) => state.weight);
+  const length = useProductClinicDetailStore((state) => state.length);
+  const width = useProductClinicDetailStore((state) => state.width);
+  const height = useProductClinicDetailStore((state) => state.height);
 
-  useEffect(() => {
-    setShipping((value) => {
-      return {
-        ...value,
-        isShipped: productClinicDetail.isShipped,
-        weight: productClinicDetail.weight || '',
-        length: productClinicDetail.length || '',
-        width: productClinicDetail.width || '',
-        height: productClinicDetail.height || ''
-      };
-    });
-  }, [productClinicDetail]);
-
-  const onFieldHandler = (event) => {
-    setShipping((value) => {
-      return { ...value, [event.target.name]: +event.target.value };
-    });
-  };
-
-  const onBlurHandler = (event) => {
-    setProductClinicDetail((value) => {
-      return { ...value, [event.target.name]: +event.target.value };
-    });
-  };
-
-  const onSelectShipping = (e) => {
-    const objStatus = { isShipped: e.target.value };
-
-    setShipping((value) => {
-      return { ...value, ...objStatus };
-    });
-
-    setProductClinicDetail((value) => {
-      return { ...value, ...objStatus };
-    });
-  };
+  const onFieldHandler = (event) =>
+    useProductClinicDetailStore.setState({ [event.target.name]: +event.target.value, productClinicDetailTouch: true });
 
   return (
     <MainCard title={<FormattedMessage id="shipping" />}>
@@ -60,7 +23,7 @@ const Shipping = () => {
               <FormattedMessage id="shippable" />
             </InputLabel>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select id="status" name="status" value={shipping.isShipped || ''} onChange={onSelectShipping} placeholder="Select shippable">
+              <Select id="isShipped" name="isShipped" value={isShipped} onChange={onFieldHandler} placeholder="Select shippable">
                 <MenuItem value="">
                   <em>Select shippable</em>
                 </MenuItem>
@@ -80,16 +43,7 @@ const Shipping = () => {
             <InputLabel htmlFor="weight">
               <FormattedMessage id="weight" />
             </InputLabel>
-            <TextField
-              fullWidth
-              id="weight"
-              name="weight"
-              value={shipping.weight}
-              onChange={onFieldHandler}
-              onBlur={onBlurHandler}
-              type="number"
-              inputProps={{ min: 0 }}
-            />
+            <TextField fullWidth id="weight" name="weight" value={weight} onChange={onFieldHandler} type="number" inputProps={{ min: 0 }} />
           </Stack>
         </Grid>
 
@@ -98,16 +52,7 @@ const Shipping = () => {
             <InputLabel htmlFor="length">
               <FormattedMessage id="length" />
             </InputLabel>
-            <TextField
-              fullWidth
-              id="length"
-              name="length"
-              value={shipping.length}
-              onChange={onFieldHandler}
-              onBlur={onBlurHandler}
-              type="number"
-              inputProps={{ min: 0 }}
-            />
+            <TextField fullWidth id="length" name="length" value={length} onChange={onFieldHandler} type="number" inputProps={{ min: 0 }} />
           </Stack>
         </Grid>
 
@@ -116,16 +61,7 @@ const Shipping = () => {
             <InputLabel htmlFor="width">
               <FormattedMessage id="width" />
             </InputLabel>
-            <TextField
-              fullWidth
-              id="width"
-              name="width"
-              value={shipping.width}
-              onChange={onFieldHandler}
-              onBlur={onBlurHandler}
-              type="number"
-              inputProps={{ min: 0 }}
-            />
+            <TextField fullWidth id="width" name="width" value={width} onChange={onFieldHandler} type="number" inputProps={{ min: 0 }} />
           </Stack>
         </Grid>
 
@@ -134,16 +70,7 @@ const Shipping = () => {
             <InputLabel htmlFor="height">
               <FormattedMessage id="height" />
             </InputLabel>
-            <TextField
-              fullWidth
-              id="height"
-              name="height"
-              value={shipping.height}
-              onChange={onFieldHandler}
-              onBlur={onBlurHandler}
-              type="number"
-              inputProps={{ min: 0 }}
-            />
+            <TextField fullWidth id="height" name="height" value={height} onChange={onFieldHandler} type="number" inputProps={{ min: 0 }} />
           </Stack>
         </Grid>
       </Grid>

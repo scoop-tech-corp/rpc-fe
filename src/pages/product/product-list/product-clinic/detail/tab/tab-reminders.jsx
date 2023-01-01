@@ -19,7 +19,7 @@ const TabReminders = () => {
     useProductClinicDetailStore.setState((prevState) => {
       const getReminders = [...prevState.reminders];
       getReminders[i] = newObjReminder;
-      return { reminders: getReminders };
+      return { reminders: getReminders, productClinicDetailTouch: true };
     });
   };
 
@@ -28,13 +28,14 @@ const TabReminders = () => {
       let newData = [...prevState.reminders];
       newData.splice(i, 1);
 
-      return { reminders: newData };
+      return { reminders: newData, productClinicDetailTouch: true };
     });
   };
 
   const onAddReminders = () => {
     useProductClinicDetailStore.setState((s) => ({
-      reminders: [...s.reminders, { unit: '', timing: '', status: 'After Add On' }]
+      reminders: [...s.reminders, { unit: '', timing: '', status: 'After Add On' }],
+      productClinicDetailTouch: true
     }));
   };
 

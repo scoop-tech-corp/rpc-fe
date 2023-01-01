@@ -12,11 +12,11 @@ const defaultPhotos = {
 export const defaultProductClinicDetail = {
   fullName: '',
   simpleName: '',
-  productBrandId: null,
-  productSupplierId: null,
+  productBrand: null,
+  productSupplier: null,
   status: 1,
   sku: '',
-  expiredDate: '',
+  expiredDate: null,
 
   pricingStatus: 'Basic',
   costPrice: '',
@@ -29,9 +29,17 @@ export const defaultProductClinicDetail = {
 
   isShipped: 1,
   weight: '',
-  length: null,
-  width: null,
-  height: null,
+  length: '',
+  width: '',
+  height: '',
+
+  isCustomerPurchase: false,
+  isCustomerPurchaseOnline: false,
+  isCustomerPurchaseOutStock: false,
+  isStockLevelCheck: false,
+  isNonChargeable: false,
+  isOfficeApproval: false,
+  isAdminApproval: false,
 
   introduction: '',
   description: '',

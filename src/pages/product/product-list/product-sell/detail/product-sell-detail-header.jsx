@@ -36,7 +36,7 @@ const ProductSellDetailHeader = (props) => {
   const responseError = (err) => {
     const detailErr = breakdownDetailMessageBackend(err.errors);
     setIsError(true);
-    useProductSellDetailStore.setState({ productSellDetailError: false });
+    useProductSellDetailStore.setState({ productSellDetailTouch: false });
     setErrContent({ title: err.message, detail: detailErr });
   };
 

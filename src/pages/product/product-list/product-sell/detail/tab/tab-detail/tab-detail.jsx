@@ -3,6 +3,7 @@ import BasicDetail from './basic-detail';
 import Pricing from './pricing';
 import Shipping from './shipping';
 import InventoryProduct from './inventory-product';
+import Settings from './settings';
 
 const TabDetail = () => {
   return (
@@ -18,6 +19,9 @@ const TabDetail = () => {
       </Grid>
       <Grid item xs={12} sm={12}>
         <Shipping />
+      </Grid>
+      <Grid item xs={12} sm={12}>
+        <Settings />
       </Grid>
     </Grid>
   );
