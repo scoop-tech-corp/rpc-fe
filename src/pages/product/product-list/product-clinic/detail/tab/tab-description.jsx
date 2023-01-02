@@ -1,34 +1,12 @@
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
-import MainCard from 'components/MainCard';
-import { useEffect, useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import ProductClinicDetailContext from '../product-clinic-detail-context';
+import { useProductClinicDetailStore } from '../product-clinic-detail-store';
+
+import MainCard from 'components/MainCard';
 
 const TabDescription = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [overview, setOverview] = useState({ introduction: '', description: '' });
-
-  useEffect(() => {
-    setOverview((value) => {
-      return {
-        ...value,
-        introduction: productClinicDetail.introduction || '',
-        description: productClinicDetail.description || ''
-      };
-    });
-  }, [productClinicDetail]);
-
-  const onFieldHandler = (event) => {
-    setOverview((value) => {
-      return { ...value, [event.target.name]: event.target.value };
-    });
-  };
-
-  const onBlurHandler = (event) => {
-    setProductClinicDetail((value) => {
-      return { ...value, [event.target.name]: event.target.value };
-    });
-  };
+  const introduction = useProductClinicDetailStore((state) => state.introduction);
+  const description = useProductClinicDetailStore((state) => state.description);
 
   return (
     <MainCard title={<FormattedMessage id="overview" />}>
@@ -42,9 +20,10 @@ const TabDescription = () => {
               fullWidth
               id="introduction"
               name="introduction"
-              value={overview.introduction}
-              onChange={onFieldHandler}
-              onBlur={onBlurHandler}
+              value={introduction}
+              onChange={(event) =>
+                useProductClinicDetailStore.setState({ introduction: event.target.value, productClinicDetailTouch: true })
+              }
             />
           </Stack>
         </Grid>
@@ -58,9 +37,10 @@ const TabDescription = () => {
               fullWidth
               id="description"
               name="description"
-              value={overview.description}
-              onChange={onFieldHandler}
-              onBlur={onBlurHandler}
+              value={description}
+              onChange={(event) =>
+                useProductClinicDetailStore.setState({ description: event.target.value, productClinicDetailTouch: true })
+              }
             />
           </Stack>
         </Grid>

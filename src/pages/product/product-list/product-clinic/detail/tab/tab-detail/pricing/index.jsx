@@ -1,27 +1,17 @@
 import { Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import MainCard from 'components/MainCard';
-import { useContext, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import ProductClinicDetailContext from '../../../product-clinic-detail-context';
+import { useProductClinicDetailStore } from '../../../product-clinic-detail-store';
+
+import MainCard from 'components/MainCard';
 import PricingBasic from './pricing-basic';
 import PricingCustomer from './pricing-customer';
 import PricingLocation from './pricing-location';
 import PricingQuantity from './pricing-quantity';
 
 const Pricing = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [pricingStatus, setPricingStatus] = useState('Basic');
+  const pricingStatus = useProductClinicDetailStore((state) => state.pricingStatus);
 
-  useEffect(() => {
-    setPricingStatus(productClinicDetail.pricingStatus);
-  }, [productClinicDetail.pricingStatus]);
-
-  const onChangePricing = (event) => {
-    setPricingStatus(event.target.value);
-    setProductClinicDetail((value) => {
-      return { ...value, pricingStatus: event.target.value };
-    });
-  };
+  const onChangePricing = (e) => useProductClinicDetailStore.setState({ pricingStatus: e.target.value, productClinicDetailTouch: true });
 
   const renderContentPricing = () => {
     switch (pricingStatus) {

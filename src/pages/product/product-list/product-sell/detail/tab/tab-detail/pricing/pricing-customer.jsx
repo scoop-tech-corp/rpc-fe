@@ -1,68 +1,49 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { useProductSellDetailStore } from '../../../product-sell-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
-import ProductSellDetailContext from '../../../product-sell-detail-context';
 
 const PricingCustomer = () => {
-  const { productSellDetail, setProductSellDetail } = useContext(ProductSellDetailContext);
-  const [customerGroup, setCustomGroup] = useState([]);
-  const customerGroupDropdown = productSellDetail.dataSupport.customerGroupsList;
+  const customerGroups = useProductSellDetailStore((state) => state.customerGroups);
+  const customerGroupDropdown = useProductSellDetailStore((state) => state.dataSupport.customerGroupsList);
 
-  useEffect(() => {
-    setCustomGroup(productSellDetail.customerGroups);
-  }, [productSellDetail.customerGroups]);
+  const onSelectCustomerGroup = (e, i) => {
+    useProductSellDetailStore.setState((prevState) => {
+      const getCustomGroup = [...prevState.customerGroups];
+      getCustomGroup[i].customerGroupId = e.target.value;
 
-  const onSelectCustomerGroup = (event, i) => {
-    setCustomGroup((value) => {
-      const getCustomGroup = [...value];
-      getCustomGroup[i].customerGroupId = event.target.value;
-
-      setProductSellDetail((val) => {
-        return { ...val, customerGroups: getCustomGroup };
-      });
-
-      return getCustomGroup;
+      return { customerGroups: getCustomGroup, productSellDetailTouch: true };
     });
   };
 
   const onPrice = (event, i) => {
     const getPrice = +event.target.value.replace(',', '');
 
-    setCustomGroup((value) => {
-      const getCustomGroup = [...value];
+    useProductSellDetailStore.setState((prevState) => {
+      const getCustomGroup = [...prevState.customerGroups];
       getCustomGroup[i].price = getPrice;
 
-      setProductSellDetail((val) => {
-        return { ...val, customerGroups: getCustomGroup };
-      });
-
-      return getCustomGroup;
+      return { customerGroups: getCustomGroup, productSellDetailTouch: true };
     });
   };
 
   const onAddCustomer = () => {
-    setCustomGroup((value) => {
-      const setNewData = [...value, { customerGroupId: '', price: '' }];
+    useProductSellDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.customerGroups, { customerGroupId: '', price: '' }];
 
-      setProductSellDetail((val) => {
-        return { ...val, customerGroups: setNewData };
-      });
-      return setNewData;
+      return { customerGroups: setNewData, productSellDetailTouch: true };
     });
   };
 
   const onDeleteCustomer = (i) => {
-    setCustomGroup((value) => {
-      const setNewData = [...value];
+    useProductSellDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.customerGroups];
       setNewData.splice(i, 1);
 
-      setProductSellDetail((val) => {
-        return { ...val, customerGroups: setNewData };
-      });
-      return setNewData;
+      return { customerGroups: setNewData, productSellDetailTouch: true };
     });
   };
 
@@ -70,7 +51,7 @@ const PricingCustomer = () => {
     <>
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} sm={10}>
-          {customerGroup.map((dt, i) => (
+          {customerGroups.map((dt, i) => (
             <Grid container spacing={4} key={i}>
               <Grid item xs={12} sm={6}>
                 <Stack spacing={1} style={{ marginTop: '5px' }}>

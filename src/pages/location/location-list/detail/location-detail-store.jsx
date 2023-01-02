@@ -1,4 +1,4 @@
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import create from 'zustand';
 
 export const defaultDetailAddress = {
@@ -52,7 +52,8 @@ export const defaultLocationDetail = {
   usageList: [],
   telephoneType: [],
   messengerType: [],
-  locationDetailError: true
+  locationDetailError: false,
+  locataionTouch: false
 };
 
 export const useLocationDetailStore = create(() => jsonCentralized(defaultLocationDetail));

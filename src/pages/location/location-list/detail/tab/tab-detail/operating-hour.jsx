@@ -58,10 +58,7 @@ const OperatingHour = () => {
         };
       });
 
-    useLocationDetailStore.setState({ operationalHour: data });
-    // setLocationDetail((value) => {
-    //   return { ...value, operationalHour: data };
-    // });
+    useLocationDetailStore.setState({ operationalHour: data, locataionTouch: true });
   };
 
   const isToggleAll = operatingHours.filter((dt) => dt.selectedDay === true).length === operatingHours.length;

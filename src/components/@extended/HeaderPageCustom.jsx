@@ -94,10 +94,10 @@ const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) =
 };
 
 HeaderPageCustom.propTypes = {
-  title: PropTypes.object,
+  title: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   isBreadcrumb: PropTypes.bool,
   locationBackConfig: PropTypes.shape({ setLocationBack: PropTypes.bool, customUrl: PropTypes.string }),
-  action: PropTypes.any
+  action: PropTypes.node
 };
 
 export default HeaderPageCustom;

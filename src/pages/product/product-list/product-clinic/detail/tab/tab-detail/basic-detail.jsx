@@ -1,91 +1,46 @@
-import { useContext, useEffect, useState } from 'react';
-import MainCard from 'components/MainCard';
-import { Grid, Stack, InputLabel, Select, MenuItem, FormControl, TextField, Autocomplete, Button } from '@mui/material';
-import ProductClinicDetailContext from '../../product-clinic-detail-context';
+import { useState } from 'react';
+import { Grid, Stack, InputLabel, Select, MenuItem, FormControl, TextField, Autocomplete } from '@mui/material';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { FormattedMessage } from 'react-intl';
 import { PlusOutlined } from '@ant-design/icons';
 import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
+import { useProductClinicDetailStore } from '../../product-clinic-detail-store';
+
+import MainCard from 'components/MainCard';
 import FormBrand from 'components/FormBrand';
 import FormSupplier from 'components/FormSupplier';
+import IconButton from 'components/@extended/IconButton';
 
 const BasicDetail = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [basicDetail, setBasicDetail] = useState({
-    fullName: '',
-    simpleName: '',
-    productBrand: null,
-    productSupplier: null,
-    status: null,
-    sku: '',
-    expiredDate: null
-  });
-  const [productBrandList] = useState(productClinicDetail.dataSupport.brandList);
-  const [productSupplierList] = useState(productClinicDetail.dataSupport.supplierList);
+  const fullName = useProductClinicDetailStore((state) => state.fullName);
+  const simpleName = useProductClinicDetailStore((state) => state.simpleName);
+  const productBrand = useProductClinicDetailStore((state) => state.productBrand);
+  const productSupplier = useProductClinicDetailStore((state) => state.productSupplier);
+  const status = useProductClinicDetailStore((state) => state.status);
+  const sku = useProductClinicDetailStore((state) => state.sku);
+  const expiredDate = useProductClinicDetailStore((state) => state.expiredDate);
+
+  const productBrandList = useProductClinicDetailStore((state) => state.dataSupport.brandList);
+  const productSupplierList = useProductClinicDetailStore((state) => state.dataSupport.supplierList);
+
   const [openFormBrand, setOpenFormBrand] = useState(false);
   const [openFormSupplier, setOpenFormSupplier] = useState(false);
 
-  useEffect(() => {
-    setBasicDetail((val) => {
-      return {
-        ...val,
-        fullName: productClinicDetail.fullName || '',
-        simpleName: productClinicDetail.simpleName || '',
-        productBrand: productBrandList.find((pb) => pb.value === productClinicDetail.productBrandId) || null,
-        productSupplier: productSupplierList.find((ps) => ps.value === productClinicDetail.productSupplierId) || null,
-        status: productClinicDetail.status,
-        sku: productClinicDetail.sku || '',
-        expiredDate: productClinicDetail.expiredDate ? new Date(productClinicDetail.expiredDate) : null
-      };
-    });
-  }, [productClinicDetail, productBrandList, productSupplierList]);
-
   const onFieldHandler = (event) => {
-    setBasicDetail((value) => {
-      return { ...value, [event.target.name]: event.target.value };
-    });
+    useProductClinicDetailStore.setState({ [event.target.name]: event.target.value, productClinicDetailTouch: true });
   };
 
-  const onBlurHandler = (event) => {
-    setProductClinicDetail((value) => {
-      return { ...value, [event.target.name]: event.target.value };
-    });
-  };
-
-  const onSelectStatus = (e) => {
-    const objStatus = { status: e.target.value };
-
-    setBasicDetail((value) => {
-      return { ...value, ...objStatus };
-    });
-
-    setProductClinicDetail((value) => {
-      return { ...value, ...objStatus };
-    });
-  };
-
-  const onDropdownHandler = (e, selected, procedure) => {
-    const keyObjectBasicInfo = procedure === 'brand' ? 'productBrand' : 'productSupplier';
-    const keyObjectProductClinic = procedure === 'brand' ? 'productBrandId' : 'productSupplierId';
-
-    setBasicDetail((value) => {
-      return { ...value, [keyObjectBasicInfo]: selected };
-    });
-
-    setProductClinicDetail((value) => {
-      return { ...value, [keyObjectProductClinic]: selected ? selected.value : '' };
-    });
+  const onDropdownHandler = (selected, procedure) => {
+    if (procedure === 'brand') {
+      useProductClinicDetailStore.setState({ productBrand: selected ? selected : '', productClinicDetailTouch: true });
+    } else if (procedure === 'supplier') {
+      useProductClinicDetailStore.setState({ productSupplier: selected ? selected : '', productClinicDetailTouch: true });
+    }
   };
 
   const onExpiredDate = (selectedDate) => {
-    setBasicDetail((value) => {
-      return { ...value, expiredDate: selectedDate };
-    });
-
-    setProductClinicDetail((value) => {
-      return { ...value, expiredDate: new Date(selectedDate).toLocaleDateString('en-CA') };
-    });
+    useProductClinicDetailStore.setState({ expiredDate: selectedDate, productClinicDetailTouch: true });
   };
 
   const onAddBrand = () => setOpenFormBrand(true);
@@ -96,15 +51,15 @@ const BasicDetail = () => {
     if (val) {
       setOpenFormBrand(false);
       const getBrand = await getBrandList();
-      setProductSellDetail((value) => {
+      useProductClinicDetailStore.setState((prevState) => {
         return {
-          ...value,
+          ...prevState,
           dataSupport: {
-            customerGroupsList: value.dataSupport.customerGroupsList,
-            locationList: value.dataSupport.locationList,
+            customerGroupsList: prevState.dataSupport.customerGroupsList,
+            locationList: prevState.dataSupport.locationList,
             brandList: getBrand,
-            supplierList: value.dataSupport.supplierList,
-            productCategoryList: value.dataSupport.productCategoryList
+            supplierList: prevState.dataSupport.supplierList,
+            productCategoryList: prevState.dataSupport.productCategoryList
           }
         };
       });
@@ -115,15 +70,15 @@ const BasicDetail = () => {
     if (val) {
       setOpenFormSupplier(false);
       const getSupplier = await getSupplierList();
-      setProductSellDetail((value) => {
+      useProductClinicDetailStore.setState((prevState) => {
         return {
-          ...value,
+          ...prevState,
           dataSupport: {
-            customerGroupsList: value.dataSupport.customerGroupsList,
-            locationList: value.dataSupport.locationList,
-            brandList: value.dataSupport.brandList,
+            customerGroupsList: prevState.dataSupport.customerGroupsList,
+            locationList: prevState.dataSupport.locationList,
+            brandList: prevState.dataSupport.brandList,
             supplierList: getSupplier,
-            productCategoryList: value.dataSupport.productCategoryList
+            productCategoryList: prevState.dataSupport.productCategoryList
           }
         };
       });
@@ -137,34 +92,20 @@ const BasicDetail = () => {
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="name">{<FormattedMessage id="name" />}</InputLabel>
-              <TextField
-                fullWidth
-                id="fullName"
-                name="fullName"
-                value={basicDetail.fullName}
-                onChange={onFieldHandler}
-                onBlur={onBlurHandler}
-              />
+              <TextField fullWidth id="fullName" name="fullName" value={fullName} onChange={onFieldHandler} />
             </Stack>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="simpleName">{<FormattedMessage id="simple-name" />}</InputLabel>
-              <TextField
-                fullWidth
-                id="simpleName"
-                name="simpleName"
-                value={basicDetail.simpleName}
-                onChange={onFieldHandler}
-                onBlur={onBlurHandler}
-              />
+              <TextField fullWidth id="simpleName" name="simpleName" value={simpleName} onChange={onFieldHandler} />
             </Stack>
           </Grid>
 
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="sku">SKU</InputLabel>
-              <TextField fullWidth id="sku" name="sku" value={basicDetail.sku} onChange={onFieldHandler} onBlur={onBlurHandler} />
+              <TextField fullWidth id="sku" name="sku" value={sku} onChange={onFieldHandler} />
             </Stack>
           </Grid>
 
@@ -175,21 +116,25 @@ const BasicDetail = () => {
                   <FormattedMessage id="brand" />
                 </InputLabel>
               </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onAddBrand}>
-                  <FormattedMessage id="add" />
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={9}>
-                <Autocomplete
-                  id="brand"
-                  name="brand"
-                  options={productBrandList}
-                  value={basicDetail.productBrand}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(e, value) => onDropdownHandler(e, value, 'brand')}
-                  renderInput={(params) => <TextField {...params} />}
-                />
+              <Grid item xs={12} sm={12}>
+                <Grid container spacing={2}>
+                  <Grid item xs={3} sm={3} md={2} display="flex" alignItems="center">
+                    <IconButton size="medium" variant="contained" color="primary" onClick={onAddBrand}>
+                      <PlusOutlined />
+                    </IconButton>
+                  </Grid>
+                  <Grid item xs={9} sm={9} md={10}>
+                    <Autocomplete
+                      id="brand"
+                      name="brand"
+                      options={productBrandList}
+                      value={productBrand}
+                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                      onChange={(_, value) => onDropdownHandler(value, 'brand')}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -201,21 +146,25 @@ const BasicDetail = () => {
                   <FormattedMessage id="supplier" />
                 </InputLabel>
               </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onAddSupplier}>
-                  <FormattedMessage id="add" />
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={9}>
-                <Autocomplete
-                  id="supplier"
-                  name="supplier"
-                  options={productSupplierList}
-                  value={basicDetail.productSupplier}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(e, value) => onDropdownHandler(e, value, 'supplier')}
-                  renderInput={(params) => <TextField {...params} />}
-                />
+              <Grid item xs={12} sm={12}>
+                <Grid container spacing={2}>
+                  <Grid item xs={3} sm={3} md={2} display="flex" alignItems="center">
+                    <IconButton size="medium" variant="contained" color="primary" onClick={onAddSupplier}>
+                      <PlusOutlined />
+                    </IconButton>
+                  </Grid>
+                  <Grid item xs={9} sm={9} md={10}>
+                    <Autocomplete
+                      id="supplier"
+                      name="supplier"
+                      options={productSupplierList}
+                      value={productSupplier}
+                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                      onChange={(_, value) => onDropdownHandler(value, 'supplier')}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -224,7 +173,7 @@ const BasicDetail = () => {
             <Stack spacing={1}>
               <InputLabel htmlFor="status">Status</InputLabel>
               <FormControl sx={{ m: 1, minWidth: 120 }}>
-                <Select id="status" name="status" value={basicDetail.status || ''} onChange={onSelectStatus} placeholder="Select status">
+                <Select id="status" name="status" value={status || ''} onChange={onFieldHandler} placeholder="Select status">
                   <MenuItem value="">
                     <em>Select status</em>
                   </MenuItem>
@@ -241,11 +190,7 @@ const BasicDetail = () => {
                 <FormattedMessage id="expired-date" />
               </InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  value={basicDetail.expiredDate}
-                  onChange={onExpiredDate}
-                  renderInput={(params) => <TextField {...params} />}
-                />
+                <DesktopDatePicker value={expiredDate} onChange={onExpiredDate} renderInput={(params) => <TextField {...params} />} />
               </LocalizationProvider>
             </Stack>
           </Grid>

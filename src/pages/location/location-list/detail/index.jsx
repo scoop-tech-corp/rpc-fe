@@ -52,7 +52,7 @@ const LocationDetailPage = () => {
 
   return (
     <>
-      <Header locationCode={code} locationName={locationName} />
+      <Header locationName={locationName} />
       <LocationDetailTab />
     </>
   );

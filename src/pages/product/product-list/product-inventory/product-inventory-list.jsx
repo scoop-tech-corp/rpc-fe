@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link } from '@mui/material';
+import { Stack, useMediaQuery, Button, Link, Chip } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { getProductInventory, deleteProductInventory } from '../service';
 import MainCard from 'components/MainCard';
@@ -21,7 +21,7 @@ const ProductInventoryList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [getProductInventoryData, setProductInventoryData] = useState({ data: [], totalPagination: 0 });
+  const [productInventoryData, setProductInventoryData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
@@ -40,7 +40,10 @@ const ProductInventoryList = () => {
         },
         accessor: 'selection',
         Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true
+        disableSortBy: true,
+        style: {
+          width: '10px'
+        }
       },
       {
         Header: <FormattedMessage id="requirement-name" />,
@@ -50,22 +53,40 @@ const ProductInventoryList = () => {
           return <Link href={`/product/product-list/inventory/${getId}`}>{data.value}</Link>;
         }
       },
-      { Header: <FormattedMessage id="total-product" />, accessor: 'totalProduct' },
-      { Header: <FormattedMessage id="location-product" />, accessor: 'locationProduct' },
+      { Header: <FormattedMessage id="total-product" />, accessor: 'totalItem' },
+      { Header: <FormattedMessage id="location-product" />, accessor: 'locationName' },
       {
-        Header: 'Status',
-        accessor: 'status',
+        Header: <FormattedMessage id="status-approval-office" />,
+        accessor: 'isApprovedOffice',
         Cell: (data) => {
           switch (+data.value) {
-            case 1:
+            case 0:
               return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
-            case 3:
+            case 1:
               return <Chip color="success" label="Accept" size="small" variant="light" />;
+            case 2:
+              return <Chip color="error" label="Reject" size="small" variant="light" />;
           }
         }
       },
-      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
-      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
+      { Header: <FormattedMessage id="approved-by-(office)" />, accessor: 'officeApprovedBy' },
+      { Header: <FormattedMessage id="approved-at-(office)" />, accessor: 'officeApprovedAt' },
+      {
+        Header: <FormattedMessage id="status-approval-admin" />,
+        accessor: 'isApprovedAdmin',
+        Cell: (data) => {
+          switch (+data.value) {
+            case 0:
+              return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
+            case 1:
+              return <Chip color="success" label="Accept" size="small" variant="light" />;
+            case 2:
+              return <Chip color="error" label="Reject" size="small" variant="light" />;
+          }
+        }
+      },
+      { Header: <FormattedMessage id="approved-by-(admin)" />, accessor: 'adminApprovedBy' },
+      { Header: <FormattedMessage id="approved-at-(admin)" />, accessor: 'adminApprovedAt' }
     ],
     []
   );
@@ -97,10 +118,10 @@ const ProductInventoryList = () => {
     navigate('/product/product-list/inventory/add', { replace: true });
   };
 
-  const fetchData = async () => {
-    const getData = await getProductInventory(paramProductInventoryList);
-    setProductInventoryData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
-  };
+  async function fetchData() {
+    const resp = await getProductInventory(paramProductInventoryList);
+    setProductInventoryData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+  }
 
   const clearParamFetchData = () => {
     paramProductInventoryList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
@@ -112,17 +133,7 @@ const ProductInventoryList = () => {
       await deleteProductInventory(selectedRow).then((resp) => {
         if (resp.status === 200) {
           setDialog(false);
-
-          dispatch(
-            openSnackbar({
-              open: true,
-              message: 'Success Delete product inventory',
-              variant: 'alert',
-              alert: { color: 'success' },
-              duration: 2000,
-              close: true
-            })
-          );
+          dispatch(snackbarSuccess('Success delete data'));
           clearParamFetchData();
           fetchData();
         }
@@ -149,7 +160,19 @@ const ProductInventoryList = () => {
               spacing={1}
               sx={{ p: 3, pb: 0 }}
             >
-              <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <GlobalFilter
+                  placeHolder={'Search...'}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '36.5px' }}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
 
               <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                 <FormattedMessage id="add-product-inventory" />
@@ -157,22 +180,15 @@ const ProductInventoryList = () => {
             </Stack>
             <ReactTable
               columns={columns}
-              data={getProductInventoryData.data}
-              totalPagination={getProductInventoryData.totalPagination}
-              setPageNumber={getProductInventoryData.goToPage}
+              data={productInventoryData.data}
+              totalPagination={productInventoryData.totalPagination}
+              setPageNumber={paramProductInventoryList.goToPage}
+              colSpanPagination={10}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
             />
           </Stack>
-
-          {selectedRow.length > 0 && (
-            <Stack style={{ marginBottom: '20px' }} justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ p: 3, pb: 0 }}>
-              <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
-                <FormattedMessage id="delete" />
-              </Button>
-            </Stack>
-          )}
         </ScrollX>
       </MainCard>
       <ConfirmationC

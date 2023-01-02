@@ -1,194 +1,63 @@
 import { useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
-// import axios from 'utils/axios';
-import { alpha, useTheme } from '@mui/material/styles';
-
-import { Stack, Table, TableBody, TableCell, TableHead, TableRow, useMediaQuery } from '@mui/material';
-
-import { useTable, useRowSelect } from 'react-table';
-
-import MainCard from 'components/MainCard';
-import ScrollX from 'components/ScrollX';
+import axios from 'utils/axios';
+import { useTheme } from '@mui/material/styles';
+import { Stack, useMediaQuery, Button } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
-import { HeaderSort, IndeterminateCheckbox, TablePagination, TableRowSelection } from 'components/third-party/ReactTable';
-// import { PlusOutlined } from '@ant-design/icons';
-// import { useNavigate } from 'react-router';
+import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
+import { DeleteFilled } from '@ant-design/icons';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { useDispatch } from 'react-redux';
+import { createMessageBackend } from 'service/service-global';
+import MainCard from 'components/MainCard';
+import ScrollX from 'components/ScrollX';
+import HeaderCustom from 'components/@extended/HeaderPageCustom';
+import ConfirmationC from 'components/ConfirmationC';
 
-function ReactTable({ columns, data, totalPagination, onOrder, onGotoPage, onPageSize }) {
-  const theme = useTheme();
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    // selectedFlatRows,
-    state: { selectedRowIds }
-  } = useTable(
-    {
-      columns,
-      data
-    },
-    useRowSelect
-  );
-
-  // console.log('selectedFlatRows', selectedFlatRows);
-
-  const [selectedOrder, setOrder] = useState({
-    column: '',
-    order: ''
-  });
-
-  const clickHeader = (column) => {
-    if (column.id === 'selection') return;
-
-    console.log('click column', column);
-
-    const setConfigOrder = {
-      column: '',
-      order: ''
-    };
-
-    setConfigOrder.column = column.id;
-
-    if (selectedOrder.column === column.id) {
-      setConfigOrder.order = selectedOrder.order === 'asc' ? 'desc' : 'asc';
-    } else {
-      setConfigOrder.order = 'asc';
-    }
-
-    setOrder(setConfigOrder);
-    onOrder(setConfigOrder);
-  };
-
-  const onChangeGotoPage = (event) => {
-    onGotoPage(event);
-  };
-
-  const onChangeSetPageSize = (event) => {
-    onPageSize(event);
-  };
-
-  return (
-    <>
-      <TableRowSelection selected={Object.keys(selectedRowIds).length} />
-      <Table {...getTableProps()}>
-        <TableHead>
-          {headerGroups.map((headerGroup, i) => (
-            <TableRow key={i} {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, index) => (
-                <TableCell key={index} {...column.getHeaderProps([{ className: column.className }])} onClick={() => clickHeader(column)}>
-                  <HeaderSort column={column} selectedOrder={selectedOrder} />
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody {...getTableBodyProps()} className="striped">
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <TableRow
-                key={i}
-                {...row.getRowProps()}
-                onClick={() => {
-                  row.toggleRowSelected();
-                }}
-                sx={{
-                  cursor: 'pointer',
-                  bgcolor: row.isSelected ? alpha(theme.palette.primary.lighter, 0.35) : 'inherit'
-                }}
-              >
-                {row.cells.map((cell, i) => (
-                  <TableCell key={i} {...cell.getCellProps([{ className: cell.column.className }])}>
-                    {cell.render('Cell')}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
-          {!rows.length && (
-            <TableRow>
-              <TableCell>No Data Found...</TableCell>
-            </TableRow>
-          )}
-          <TableRow>
-            <TableCell sx={{ p: 2 }} colSpan={7}>
-              {/* rows => jumlah data, pageSize => 5, 10 */}
-              <TablePagination
-                gotoPage={onChangeGotoPage}
-                changePageSize={onChangeSetPageSize}
-                totalPagination={totalPagination}
-                pageIndex={0}
-                // pageSize={pageSizeChange}
-              />
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </>
-  );
-}
-
-ReactTable.propTypes = {
-  columns: PropTypes.array,
-  data: PropTypes.array,
-  totalPagination: PropTypes.number,
-  onOrder: PropTypes.func,
-  onGotoPage: PropTypes.func,
-  onPageSize: PropTypes.func
-};
-
-const paramDataStaticList = {
-  rowPerPage: 5,
-  goToPage: 1,
-  orderValue: '',
-  orderColumn: '',
-  keyword: ''
-};
+let paramDataStaticList = {};
 
 const StaticDataList = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  // const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // setStaticData
-  const [getStaticData] = useState({
-    data: [
-      { id: 1, type: 'Contact Usages', name: 'Reza' },
-      { id: 2, type: 'Address Usages', name: 'Tempat Tinggal' }
-    ],
-    totalPagination: 0
-  });
+  const [staticData, setStaticData] = useState({ data: [], totalPagination: 0 });
+  const [selectedRow, setSelectedRow] = useState([]);
+  const [keywordSearch, setKeywordSearch] = useState('');
+  const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
     () => [
       {
         title: 'Row Selection',
-        // eslint-disable-next-line
-        Header: ({ getToggleAllRowsSelectedProps }) => <IndeterminateCheckbox indeterminate {...getToggleAllRowsSelectedProps()} />,
+        Header: (header) => {
+          useEffect(() => {
+            const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
+            setSelectedRow(selectRows);
+          }, [header.selectedFlatRows]);
+
+          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+        },
         accessor: 'selection',
-        // eslint-disable-next-line
-        Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
-        disableSortBy: true
+        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+        disableSortBy: true,
+        style: {
+          width: '10px'
+        }
       },
-      { Header: <FormattedMessage id="type" />, accessor: 'type' },
+      { Header: <FormattedMessage id="type" />, accessor: 'value' },
       { Header: <FormattedMessage id="name" />, accessor: 'name' }
     ],
     []
   );
 
   const onOrderingChange = (event) => {
-    console.log('onOrderingChange', event);
     paramDataStaticList.orderValue = event.order;
     paramDataStaticList.orderColumn = event.column;
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    console.log('event', event);
     paramDataStaticList.goToPage = event;
     fetchData();
   };
@@ -200,59 +69,111 @@ const StaticDataList = () => {
 
   const onSearch = (event) => {
     paramDataStaticList.keyword = event;
+    setKeywordSearch(event);
 
     fetchData();
   };
 
-  // const onClickAdd = () => {
-  //   navigate('/location/facilities/add', { replace: true });
-  // };
+  const onConfirm = async (value) => {
+    if (value) {
+      await axios
+        .delete('datastatic', {
+          data: { id: selectedRow }
+        })
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialog(false);
+            dispatch(snackbarSuccess('Success delete data'));
+            initList();
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialog(false);
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else {
+      setDialog(false);
+    }
+  };
 
   async function fetchData() {
-    // const getData = await axios.get('datastatic', {
-    //   params: {
-    //     rowPerPage: paramDataStaticList.rowPerPage,
-    //     goToPage: paramDataStaticList.goToPage,
-    //     orderValue: paramDataStaticList.orderValue,
-    //     orderColumn: paramDataStaticList.orderColumn,
-    //     search: paramDataStaticList.keyword
-    //   }
-    // });
-    // console.log('getData', getData);
-    // setStaticData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
+    const resp = await axios.get('datastatic', {
+      params: {
+        rowPerPage: paramDataStaticList.rowPerPage,
+        goToPage: paramDataStaticList.goToPage,
+        orderValue: paramDataStaticList.orderValue,
+        orderColumn: paramDataStaticList.orderColumn,
+        search: paramDataStaticList.keyword
+      }
+    });
+    setStaticData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
   }
 
-  useEffect(() => {
+  const clearParamFetchData = () => {
+    paramDataStaticList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+    setKeywordSearch('');
+  };
+
+  const initList = () => {
+    clearParamFetchData();
     fetchData();
+  };
+
+  useEffect(() => {
+    initList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <MainCard content={false}>
-      <ScrollX>
-        <Stack spacing={3}>
-          <Stack
-            direction={matchDownSM ? 'column' : 'row'}
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={1}
-            sx={{ p: 3, pb: 0 }}
-          >
-            <GlobalFilter placeHolder={'Search...'} setGlobalFilter={onSearch} size="small" />
-            {/* <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-              <FormattedMessage id="add-static-data" />
-            </Button> */}
+    <>
+      <HeaderCustom title={<FormattedMessage id="static-data" />} isBreadcrumb={true} />
+      <MainCard content={false}>
+        <ScrollX>
+          <Stack spacing={3}>
+            <Stack
+              direction={matchDownSM ? 'column' : 'row'}
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={1}
+              sx={{ p: 3, pb: 0 }}
+            >
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <GlobalFilter
+                  placeHolder={'Search...'}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '36.5px' }}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
+            </Stack>
+            <ReactTable
+              columns={columns}
+              data={staticData.data}
+              totalPagination={staticData.totalPagination}
+              setPageNumber={paramDataStaticList.goToPage}
+              onOrder={onOrderingChange}
+              onGotoPage={onGotoPageChange}
+              onPageSize={onPageSizeChange}
+            />
           </Stack>
-          <ReactTable
-            columns={columns}
-            data={getStaticData.data}
-            totalPagination={getStaticData.totalPagination}
-            onOrder={onOrderingChange}
-            onGotoPage={onGotoPageChange}
-            onPageSize={onPageSizeChange}
-          />
-        </Stack>
-      </ScrollX>
-    </MainCard>
+        </ScrollX>
+      </MainCard>
+      <ConfirmationC
+        open={dialog}
+        title="Delete"
+        content="Are you sure you want to delete this data ?"
+        onClose={(response) => onConfirm(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
+    </>
   );
 };
 

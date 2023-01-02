@@ -19,7 +19,8 @@ import { openDrawer } from 'store/reducers/menu';
 
 const MainLayout = () => {
   const theme = useTheme();
-  const matchDownLG = useMediaQuery(theme.breakpoints.down('xl'));
+  // const matchDownLG = useMediaQuery(theme.breakpoints.down('xl'));
+  const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
 
   const { container, miniDrawer } = useConfig();
   const dispatch = useDispatch();
@@ -34,14 +35,25 @@ const MainLayout = () => {
     dispatch(openDrawer({ drawerOpen: !open }));
   };
 
-  // set media wise responsive drawer
   useEffect(() => {
-    if (!miniDrawer) {
-      setOpen(!matchDownLG);
-      dispatch(openDrawer({ drawerOpen: !matchDownLG }));
+    if (!matchDownMD) {
+      setOpen(true);
+      dispatch(openDrawer({ drawerOpen: true }));
+    } else {
+      setOpen(false);
+      dispatch(openDrawer({ drawerOpen: false }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchDownLG]);
+  }, [matchDownMD]);
+
+  // // set media wise responsive drawer
+  // useEffect(() => {
+  //   if (!miniDrawer) {
+  //     setOpen(!matchDownLG);
+  //     dispatch(openDrawer({ drawerOpen: !matchDownLG }));
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [matchDownLG]);
 
   useEffect(() => {
     if (open !== drawerOpen) setOpen(drawerOpen);

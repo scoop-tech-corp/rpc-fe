@@ -13,19 +13,16 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-// import { useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { jsonCentralized } from 'utils/json-centralized';
+import { jsonCentralized } from 'utils/func';
 import { getCityList } from '../service';
 import { defaultDetailAddress, useLocationDetailStore } from '../location-detail-store';
 import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
 
 const TabAddresses = () => {
-  // const { locationDetail, setLocationDetail } = useContext(LocationDetailContext);
   const detailAddress = useLocationDetailStore((state) => state.detailAddress);
   const provinceList = useLocationDetailStore((state) => state.provinceList);
-  // const [address, setAddress] = useState([]);
   let address = [];
 
   const countryList = [{ label: 'Indonesia', value: 'Indonesia' }];
@@ -62,10 +59,7 @@ const TabAddresses = () => {
       };
     });
 
-    useLocationDetailStore.setState({ detailAddress: newData });
-    // setLocationDetail((value) => {
-    //   return { ...value, detailAddress: newData };
-    // });
+    useLocationDetailStore.setState({ detailAddress: newData, locataionTouch: true });
   };
 
   const onSetPrimary = (index) => {

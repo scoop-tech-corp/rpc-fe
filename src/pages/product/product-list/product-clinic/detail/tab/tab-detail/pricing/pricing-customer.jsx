@@ -1,68 +1,49 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { useProductClinicDetailStore } from '../../../product-clinic-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
-import ProductClinicDetailContext from '../../../product-clinic-detail-context';
 
 const PricingCustomer = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [customerGroup, setCustomGroup] = useState([]);
-  const customerGroupDropdown = productClinicDetail.dataSupport.customerGroupsList;
+  const customerGroups = useProductClinicDetailStore((state) => state.customerGroups);
+  const customerGroupDropdown = useProductClinicDetailStore((state) => state.dataSupport.customerGroupsList);
 
-  useEffect(() => {
-    setCustomGroup(productClinicDetail.customerGroups);
-  }, [productClinicDetail.customerGroups]);
+  const onSelectCustomerGroup = (e, i) => {
+    useProductClinicDetailStore.setState((prevState) => {
+      const getCustomGroup = [...prevState.customerGroups];
+      getCustomGroup[i].customerGroupId = e.target.value;
 
-  const onSelectCustomerGroup = (event, i) => {
-    setCustomGroup((value) => {
-      const getCustomGroup = [...value];
-      getCustomGroup[i].customerGroupId = event.target.value;
-
-      setProductClinicDetail((val) => {
-        return { ...val, customerGroups: getCustomGroup };
-      });
-
-      return getCustomGroup;
+      return { customerGroups: getCustomGroup, productClinicDetailTouch: true };
     });
   };
 
   const onPrice = (event, i) => {
     const getPrice = +event.target.value.replace(',', '');
 
-    setCustomGroup((value) => {
-      const getCustomGroup = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const getCustomGroup = [...prevState.customerGroups];
       getCustomGroup[i].price = getPrice;
 
-      setProductClinicDetail((val) => {
-        return { ...val, customerGroups: getCustomGroup };
-      });
-
-      return getCustomGroup;
+      return { customerGroups: getCustomGroup, productClinicDetailTouch: true };
     });
   };
 
   const onAddCustomer = () => {
-    setCustomGroup((value) => {
-      const setNewData = [...value, { customerGroupId: '', price: '' }];
+    useProductClinicDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.customerGroups, { customerGroupId: '', price: '' }];
 
-      setProductClinicDetail((val) => {
-        return { ...val, customerGroups: setNewData };
-      });
-      return setNewData;
+      return { customerGroups: setNewData, productClinicDetailTouch: true };
     });
   };
 
   const onDeleteCustomer = (i) => {
-    setCustomGroup((value) => {
-      const setNewData = [...value];
+    useProductClinicDetailStore.setState((prevState) => {
+      const setNewData = [...prevState.customerGroups];
       setNewData.splice(i, 1);
 
-      setProductClinicDetail((val) => {
-        return { ...val, customerGroups: setNewData };
-      });
-      return setNewData;
+      return { customerGroups: setNewData, productClinicDetailTouch: true };
     });
   };
 
@@ -70,7 +51,7 @@ const PricingCustomer = () => {
     <>
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} sm={10}>
-          {customerGroup.map((dt, i) => (
+          {customerGroups.map((dt, i) => (
             <Grid container spacing={4} key={i}>
               <Grid item xs={12} sm={6}>
                 <Stack spacing={1} style={{ marginTop: '5px' }}>

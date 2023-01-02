@@ -29,6 +29,12 @@ export const AUTH0_API = {
   domain: 'dev-w0-vxep3.us.auth0.com'
 };
 
+// API Production and UAT
+const apiUrl = 'https://www.rpc.rambadvetclinic.com';
+
+// API Development
+// const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
+
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {
@@ -40,7 +46,7 @@ const config = {
   mode: 'light',
   presetColor: 'default',
   themeDirection: 'ltr',
-  apiUrl: 'https://www.rpc.rambadvetclinic.com'
+  apiUrl
 };
 
 export default config;

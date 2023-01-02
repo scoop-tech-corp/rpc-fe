@@ -1,14 +1,13 @@
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
+import { useProductClinicDetailStore } from '../product-clinic-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
-import { useState, useContext, useEffect } from 'react';
-import { FormattedMessage } from 'react-intl';
-import ProductClinicDetailContext from '../product-clinic-detail-context';
 
 const TabReminders = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [reminders, setReminders] = useState([]);
+  const reminders = useProductClinicDetailStore((state) => state.reminders);
   const timingList = [
     { label: 'Days', value: 'Days' },
     { label: 'Hours', value: 'Hours' },
@@ -16,63 +15,28 @@ const TabReminders = () => {
     { label: 'Weeks', value: 'Weeks' }
   ];
 
-  useEffect(() => {
-    setReminders(productClinicDetail.reminders);
-  }, [productClinicDetail]);
-
-  const onFieldHandler = (event, idx) => {
-    setReminders((value) => {
-      const getData = [...value];
-      getData[idx][event.target.name] = +event.target.value;
-
-      return getData;
-    });
-  };
-
-  const onBlurHandler = (event, idx) => {
-    setProductClinicDetail((value) => {
-      const getData = [...value.reminders];
-      getData[idx][event.target.name] = +event.target.value;
-
-      return { ...value, reminders: getData };
-    });
-  };
-
-  const onSelectTiming = (event, idx) => {
-    setReminders((value) => {
-      const getData = [...value];
-      getData[idx].timing = event.target.value;
-
-      setProductClinicDetail((value) => {
-        return { ...value, reminders: getData };
-      });
-      return getData;
+  const onChangeHandler = (i, newObjReminder) => {
+    useProductClinicDetailStore.setState((prevState) => {
+      const getReminders = [...prevState.reminders];
+      getReminders[i] = newObjReminder;
+      return { reminders: getReminders, productClinicDetailTouch: true };
     });
   };
 
   const onDeleteReminders = (i) => {
-    setReminders((value) => {
-      let getData = [...value];
-      getData.splice(i, 1);
+    useProductClinicDetailStore.setState((prevState) => {
+      let newData = [...prevState.reminders];
+      newData.splice(i, 1);
 
-      setProductClinicDetail((value) => {
-        return { ...value, reminders: getData };
-      });
-
-      return getData;
+      return { reminders: newData, productClinicDetailTouch: true };
     });
   };
 
   const onAddReminders = () => {
-    setReminders((value) => {
-      const setNewData = [...value, { unit: '', timing: '', status: 'After Add On' }];
-
-      setProductClinicDetail((value) => {
-        return { ...value, reminders: setNewData };
-      });
-
-      return setNewData;
-    });
+    useProductClinicDetailStore.setState((s) => ({
+      reminders: [...s.reminders, { unit: '', timing: '', status: 'After Add On' }],
+      productClinicDetailTouch: true
+    }));
   };
 
   return (
@@ -87,10 +51,9 @@ const TabReminders = () => {
                 id={`unit${i}`}
                 name="unit"
                 value={dt.unit}
-                onChange={(e) => onFieldHandler(e, i)}
-                onBlur={(e) => onBlurHandler(e, i)}
                 type="number"
                 inputProps={{ min: 0 }}
+                onChange={(e) => onChangeHandler(i, { ...dt, unit: e.target.value })}
               />
             </Stack>
           </Grid>
@@ -100,7 +63,12 @@ const TabReminders = () => {
                 <FormattedMessage id="timing" />
               </InputLabel>
               <FormControl sx={{ m: 1, minWidth: 120 }}>
-                <Select id={`timing${i}`} name={`timing${i}`} value={dt.timing} onChange={(event) => onSelectTiming(event, i)}>
+                <Select
+                  id={`timing${i}`}
+                  name={`timing${i}`}
+                  value={dt.timing}
+                  onChange={(e) => onChangeHandler(i, { ...dt, timing: e.target.value })}
+                >
                   <MenuItem value="">
                     <em>Select timing</em>
                   </MenuItem>

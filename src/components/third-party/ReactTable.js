@@ -36,7 +36,17 @@ import {
 import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } from '@ant-design/icons';
 
 // ==============================|| TABLE CORE ||============================== //
-export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOrder, onGotoPage, onPageSize }) => {
+export const ReactTable = ({
+  columns,
+  data,
+  totalPagination,
+  setPageNumber,
+  onOrder,
+  onGotoPage,
+  onPageSize,
+  colSpanPagination = 7,
+  extensionRow
+}) => {
   const theme = useTheme();
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
@@ -53,7 +63,7 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
   });
 
   const clickHeader = (column) => {
-    if (column.id === 'selection') return;
+    if (column.id === 'selection' || column.isNotSorting) return;
 
     const setConfigOrder = {
       column: '',
@@ -87,7 +97,11 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
           {headerGroups.map((headerGroup, i) => (
             <TableRow key={i} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column, index) => (
-                <TableCell key={index} {...column.getHeaderProps([{ className: column.className }])} onClick={() => clickHeader(column)}>
+                <TableCell
+                  key={index}
+                  {...column.getHeaderProps([{ className: column.className, style: column.style }])}
+                  onClick={() => clickHeader(column)}
+                >
                   <HeaderSort column={column} selectedOrder={selectedOrder} />
                 </TableCell>
               ))}
@@ -116,22 +130,25 @@ export const ReactTable = ({ columns, data, totalPagination, setPageNumber, onOr
           })}
           {!rows.length && (
             <TableRow>
-              <TableCell>No Data Found...</TableCell>
+              <TableCell colSpan={10}>No Data Found...</TableCell>
             </TableRow>
           )}
-          <TableRow>
-            <TableCell sx={{ p: 2 }} colSpan={7}>
-              {/* rows => jumlah data, pageSize => 5, 10 */}
-              <TablePagination
-                gotoPage={onChangeGotoPage}
-                changePageSize={onChangeSetPageSize}
-                totalPagination={totalPagination}
-                pageIndex={0}
-                setPageNumber={setPageNumber}
-                // pageSize={pageSizeChange}
-              />
-            </TableCell>
-          </TableRow>
+          {extensionRow}
+          {totalPagination > 0 && (
+            <TableRow>
+              <TableCell sx={{ p: 2 }} colSpan={colSpanPagination}>
+                {/* rows => jumlah data, pageSize => 5, 10 */}
+                <TablePagination
+                  gotoPage={onChangeGotoPage}
+                  changePageSize={onChangeSetPageSize}
+                  totalPagination={totalPagination}
+                  pageIndex={0}
+                  setPageNumber={setPageNumber}
+                  // pageSize={pageSizeChange}
+                />
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </>
@@ -145,7 +162,9 @@ ReactTable.propTypes = {
   setPageNumber: PropTypes.number,
   onOrder: PropTypes.func,
   onGotoPage: PropTypes.func,
-  onPageSize: PropTypes.func
+  onPageSize: PropTypes.func,
+  colSpanPagination: PropTypes.number,
+  extensionRow: PropTypes.node
 };
 
 // ==============================|| HEADER SORT ||============================== //
@@ -156,7 +175,7 @@ export const HeaderSort = ({ column, selectedOrder }) => {
   return (
     <Stack direction="row" spacing={1} alignItems="center" sx={{ display: 'inline-flex' }}>
       <Box>{column.render('Header')}</Box>
-      {column.id !== 'selection' && (
+      {column.id !== 'selection' && !column.isNotSorting && (
         <Stack sx={{ color: 'secondary.light' }}>
           <CaretUpOutlined
             style={{

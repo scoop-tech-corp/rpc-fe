@@ -18,20 +18,20 @@ const BasicInfo = () => {
   const [basicInfoErr, setBasicInfoErr] = useState({ nameError: '', statusError: '' });
 
   const onFieldHandler = (event) => {
-    useLocationDetailStore.setState({ locationName: event.target.value });
+    useLocationDetailStore.setState({ locationName: event.target.value, locataionTouch: true });
     onCheckValidation();
   };
 
   const onLocationStatus = (event) => {
-    useLocationDetailStore.setState({ status: event.target.value });
+    useLocationDetailStore.setState({ status: event.target.value, locataionTouch: true });
     onCheckValidation();
   };
 
   const onCheckValidation = () => {
     let getName = getAllState().locationName; // name ? name : locationName;
     let getStatus = getAllState().status;
-    let getLocationNameError = null;
-    let getLocationStatusError = null;
+    let getLocationNameError = '';
+    let getLocationStatusError = '';
 
     if (!getName) {
       getLocationNameError = locationNameValidation.find((d) => d.code === 0);

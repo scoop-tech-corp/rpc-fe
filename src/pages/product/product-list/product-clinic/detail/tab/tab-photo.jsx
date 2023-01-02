@@ -1,23 +1,14 @@
 import PhotoC from 'components/PhotoC';
-import { useContext, useEffect, useState } from 'react';
-import ProductClinicDetailContext from '../product-clinic-detail-context';
+import { useProductClinicDetailStore } from '../product-clinic-detail-store';
 
 const TabPhoto = () => {
-  const { productClinicDetail, setProductClinicDetail } = useContext(ProductClinicDetailContext);
-  const [photos, setPhotos] = useState([]);
+  const photos = useProductClinicDetailStore((state) => state.photos);
 
-  useEffect(() => {
-    if (productClinicDetail.photos) {
-      setPhotos(productClinicDetail.photos);
-    }
-  }, [productClinicDetail.photos]);
-
-  const outputValueHandler = (output) => {
-    console.log('output', output);
-    setProductClinicDetail((value) => ({ ...value, photos: output }));
+  const outputHandler = (output) => {
+    useProductClinicDetailStore.setState({ photos: output, productClinicDetailTouch: true });
   };
 
-  return <PhotoC photoValue={photos} setPhotos={setPhotos} photoOutput={(event) => outputValueHandler(event)} />;
+  return <PhotoC photoValue={photos} photoOutput={(event) => outputHandler(event)} />;
 };
 
 export default TabPhoto;

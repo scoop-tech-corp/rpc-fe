@@ -1,22 +1,14 @@
 import PhotoC from 'components/PhotoC';
-import { useContext, useEffect, useState } from 'react';
-import ProductSellDetailContext from '../product-sell-detail-context';
+import { useProductSellDetailStore } from '../product-sell-detail-store';
 
 const TabPhoto = () => {
-  const { productSellDetail, setProductSellDetail } = useContext(ProductSellDetailContext);
-  const [photos, setPhotos] = useState([]);
+  const photos = useProductSellDetailStore((state) => state.photos);
 
-  useEffect(() => {
-    if (productSellDetail.photos) {
-      setPhotos(productSellDetail.photos);
-    }
-  }, [productSellDetail.photos]);
-
-  const outputValueHandler = (output) => {
-    setProductSellDetail((value) => ({ ...value, photos: output }));
+  const outputHandler = (output) => {
+    useProductSellDetailStore.setState({ photos: output, productSellDetailTouch: true });
   };
 
-  return <PhotoC photoValue={photos} setPhotos={setPhotos} photoOutput={(event) => outputValueHandler(event)} />;
+  return <PhotoC photoValue={photos} photoOutput={(event) => outputHandler(event)} />;
 };
 
 export default TabPhoto;

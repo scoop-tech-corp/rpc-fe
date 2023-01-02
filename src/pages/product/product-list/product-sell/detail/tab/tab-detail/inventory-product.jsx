@@ -1,65 +1,41 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import MainCard from 'components/MainCard';
-import { useState, useEffect, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import ProductSellDetailContext from '../../product-sell-detail-context';
+import { useProductSellDetailStore } from '../../product-sell-detail-store';
+
+import MainCard from 'components/MainCard';
 
 const InventoryProduct = () => {
-  const { productSellDetail, setProductSellDetail } = useContext(ProductSellDetailContext);
-  const [inventoryProduct, setInventoryProduct] = useState({ selectedSellingPrice: [], locations: [] });
-  const locationDropdown = productSellDetail.dataSupport.locationList;
+  const selectedSellingPrice = useProductSellDetailStore((state) => state.selectedSellingPrice);
+  const locations = useProductSellDetailStore((state) => state.locations);
+  const locationDropdown = useProductSellDetailStore((state) => state.dataSupport.locationList);
 
-  useEffect(() => {
-    setInventoryProduct((value) => {
-      return {
-        ...value,
-        selectedSellingPrice: productSellDetail.selectedSellingPrice,
-        locations: productSellDetail.locations
-      };
-    });
-  }, [productSellDetail]);
-
-  const onSelectedSellingPrice = (e, val) => {
+  const onSelectedSellingPrice = (_, val) => {
     const getSelectSellingPrice = val;
     const tempLocation = [];
 
     getSelectSellingPrice.forEach((sp) => {
-      const findObj = inventoryProduct.locations.find((l) => l.locationId === sp.value);
+      const findObj = locations.find((l) => l.locationId === sp.value);
 
       tempLocation.push({
         locationName: sp.label,
         locationId: sp.value,
         inStock: findObj ? findObj.inStock : '',
-        lowStock: findObj ? findObj.lowStock : ''
+        lowStock: findObj ? findObj.lowStock : '',
+        reStockLimit: findObj ? findObj.reStockLimit : ''
       });
     });
 
-    const setNewObj = { selectedSellingPrice: val, locations: tempLocation };
+    const setNewObj = { selectedSellingPrice: val, locations: tempLocation, productSellDetailTouch: true };
 
-    setInventoryProduct((value) => {
-      return { ...value, ...setNewObj };
-    });
-
-    setProductSellDetail((value) => {
-      return { ...value, ...setNewObj };
-    });
+    useProductSellDetailStore.setState(setNewObj);
   };
 
   const onFieldHandler = (event, idx) => {
-    setInventoryProduct((value) => {
-      const getData = [...value.locations];
+    useProductSellDetailStore.setState((prevState) => {
+      const getData = [...prevState.locations];
       getData[idx][event.target.name] = +event.target.value;
 
-      return { ...value, locations: getData };
-    });
-  };
-
-  const onBlurHandler = (event, idx) => {
-    setProductSellDetail((value) => {
-      const getData = [...value.locations];
-      getData[idx][event.target.name] = +event.target.value;
-
-      return { ...value, locations: getData };
+      return { locations: getData, productSellDetailTouch: true };
     });
   };
 
@@ -76,7 +52,7 @@ const InventoryProduct = () => {
               multiple
               limitTags={3}
               options={locationDropdown}
-              value={inventoryProduct.selectedSellingPrice}
+              value={selectedSellingPrice}
               isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
               onChange={onSelectedSellingPrice}
               renderInput={(params) => <TextField {...params} />}
@@ -84,9 +60,9 @@ const InventoryProduct = () => {
           </Stack>
         </Grid>
         <Grid item xs={12} sm={12}>
-          {inventoryProduct.locations.map((dt, i) => (
+          {locations.map((dt, i) => (
             <Grid container spacing={3} key={i}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
                 <Stack spacing={1} style={{ marginTop: '5px' }}>
                   <InputLabel>
                     <FormattedMessage id="location" />
@@ -94,7 +70,7 @@ const InventoryProduct = () => {
                   <TextField fullWidth id={`location${i}`} name={`location${i}`} value={dt.locationName} inputProps={{ readOnly: true }} />
                 </Stack>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
                 <Stack spacing={1} style={{ marginTop: '5px' }}>
                   <InputLabel>
                     <FormattedMessage id="in-stock" />
@@ -105,13 +81,12 @@ const InventoryProduct = () => {
                     name="inStock"
                     value={dt.inStock}
                     onChange={(e) => onFieldHandler(e, i)}
-                    onBlur={(e) => onBlurHandler(e, i)}
                     type="number"
                     inputProps={{ min: 0 }}
                   />
                 </Stack>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
                 <Stack spacing={1} style={{ marginTop: '5px' }}>
                   <InputLabel>
                     <FormattedMessage id="low-stock" />
@@ -122,7 +97,22 @@ const InventoryProduct = () => {
                     name="lowStock"
                     value={dt.lowStock}
                     onChange={(e) => onFieldHandler(e, i)}
-                    onBlur={(e) => onBlurHandler(e, i)}
+                    type="number"
+                    inputProps={{ min: 0 }}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <Stack spacing={1} style={{ marginTop: '5px' }}>
+                  <InputLabel>
+                    <FormattedMessage id="restock-limit" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    id={`reStockLimit${i}`}
+                    name="reStockLimit"
+                    value={dt.reStockLimit}
+                    onChange={(e) => onFieldHandler(e, i)}
                     type="number"
                     inputProps={{ min: 0 }}
                   />
