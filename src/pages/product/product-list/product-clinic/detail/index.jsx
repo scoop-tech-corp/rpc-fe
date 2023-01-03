@@ -5,7 +5,8 @@ import { FormattedMessage } from 'react-intl';
 
 import { getCustomerGroupList, getBrandList, getSupplierList, getProductCategoryList } from '../../service';
 import { getLocationList } from 'service/service-global';
-import { useProductClinicDetailStore } from './product-clinic-detail-store';
+import { defaultProductClinicDetail, useProductClinicDetailStore } from './product-clinic-detail-store';
+import { jsonCentralized } from 'utils/func';
 
 import PropTypes from 'prop-types';
 import ProductClinicDetailHeader from './product-clinic-detail-header';
@@ -63,6 +64,10 @@ const ProductClinicDetail = () => {
     if (id) {
       getDetailProductClinic();
     }
+
+    return () => {
+      useProductClinicDetailStore.setState(jsonCentralized(defaultProductClinicDetail));
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

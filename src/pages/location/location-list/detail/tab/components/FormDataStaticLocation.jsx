@@ -1,11 +1,13 @@
-import ModalC from './ModalC';
-import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarSuccess, snackbarError } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { saveDataStaticLocation } from 'pages/location/location-list/detail/service';
+import { createMessageBackend } from 'service/service-global';
+
+import ModalC from 'components/ModalC';
+import PropTypes from 'prop-types';
 
 const FormDataStatic = (props) => {
   const [dataStatic, setDataStatic] = useState('');
@@ -27,8 +29,7 @@ const FormDataStatic = (props) => {
         }
       })
       .catch((err) => {
-        const msg = err.message ? err.message : 'Something when wrong';
-        if (err) dispatch(snackbarError(msg));
+        if (err) dispatch(snackbarError(createMessageBackend(err)));
       });
   };
 

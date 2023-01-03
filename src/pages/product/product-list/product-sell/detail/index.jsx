@@ -5,7 +5,8 @@ import { FormattedMessage } from 'react-intl';
 
 import { getCustomerGroupList, getBrandList, getSupplierList, getProductCategoryList } from '../../service';
 import { getLocationList } from 'service/service-global';
-import { useProductSellDetailStore } from './product-sell-detail-store';
+import { defaultProductSellDetail, useProductSellDetailStore } from './product-sell-detail-store';
+import { jsonCentralized } from 'utils/func';
 
 import PropTypes from 'prop-types';
 import ProductSellDetailHeader from './product-sell-detail-header';
@@ -63,6 +64,10 @@ const ProductSellDetail = () => {
     if (id) {
       getDetailProductSell();
     }
+
+    return () => {
+      useProductSellDetailStore.setState(jsonCentralized(defaultProductSellDetail));
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

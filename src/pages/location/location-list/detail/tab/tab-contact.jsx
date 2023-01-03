@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { jsonCentralized } from 'utils/func';
 import { useLocationDetailStore } from '../location-detail-store';
-import IconButton from 'components/@extended/IconButton';
-import FormDataStatic from 'components/FormDataStatic';
-import MainCard from 'components/MainCard';
 import { getDataStaticLocation } from '../service';
+
+import IconButton from 'components/@extended/IconButton';
+import FormDataStatic from './components/FormDataStaticLocation';
+import MainCard from 'components/MainCard';
 
 const TabContact = () => {
   const locationEmail = useLocationDetailStore((state) => state.email);
