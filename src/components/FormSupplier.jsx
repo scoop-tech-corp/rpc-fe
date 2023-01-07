@@ -1,11 +1,13 @@
-import ModalC from './ModalC';
-import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { createSupplier } from 'pages/product/product-list/service';
+import { createMessageBackend } from 'service/service-global';
+
+import ModalC from './ModalC';
+import PropTypes from 'prop-types';
 
 const FormSupplier = (props) => {
   const [supplierName, setSupplierName] = useState('');
@@ -15,32 +17,12 @@ const FormSupplier = (props) => {
     await createSupplier(supplierName)
       .then((resp) => {
         if (resp && resp.status === 200) {
-          dispatch(
-            openSnackbar({
-              open: true,
-              message: `${supplierName} supplier has been created successfully`,
-              variant: 'alert',
-              alert: { color: 'success', severity: 'success' },
-              duration: 1500,
-              close: true
-            })
-          );
+          dispatch(snackbarSuccess(`${supplierName} supplier has been created successfully`));
           props.onClose(true);
         }
       })
       .catch((err) => {
-        if (err) {
-          dispatch(
-            openSnackbar({
-              open: true,
-              message: 'Something when wrong',
-              variant: 'alert',
-              alert: { color: 'error', severity: 'error' },
-              duration: 1500,
-              close: true
-            })
-          );
-        }
+        if (err) dispatch(snackbarError(createMessageBackend(err)));
       });
   };
 

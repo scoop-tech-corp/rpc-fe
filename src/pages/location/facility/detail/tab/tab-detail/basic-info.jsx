@@ -9,7 +9,7 @@ const BasicInfo = () => {
   const locationValue = locationList.find((val) => val.value === locationId) || null;
 
   const onLocation = (val) => {
-    useFacilityDetailStore.setState({ locationId: val ? val.value : '' });
+    useFacilityDetailStore.setState({ locationId: val ? val.value : '', facilityDetailTouch: true });
   };
 
   return (

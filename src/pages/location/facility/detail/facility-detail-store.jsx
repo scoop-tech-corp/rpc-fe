@@ -25,8 +25,9 @@ export const defaultFacilityDetail = {
   description: '',
   detailUnitAvailable: [defaultUnitAvailable],
   photos: [defaultPhotos],
+  facilityLocationList: [],
   facilityDetailError: false,
-  facilityLocationList: []
+  facilityDetailTouch: false
 };
 
 export const useFacilityDetailStore = create(() => jsonCentralized(defaultFacilityDetail));

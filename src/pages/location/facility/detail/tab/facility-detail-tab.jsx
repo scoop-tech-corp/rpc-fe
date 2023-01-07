@@ -26,14 +26,18 @@ const FacilityDetailTab = () => {
     index: PropTypes.number
   };
 
-  const onChangeTab = (event, value) => {
-    setTabSelected(value);
-  };
+  const onChangeTab = (value) => setTabSelected(value);
 
   return (
     <MainCard border={false} boxShadow>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-        <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="location detail tab">
+        <Tabs
+          value={tabSelected}
+          onChange={(_, value) => onChangeTab(value)}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="location detail tab"
+        >
           <Tab label="Details" id="facility-tab-0" aria-controls="facility-tabpanel-0" />
           <Tab label={<FormattedMessage id="description" />} id="facility-tab-1" aria-controls="facility-tabpanel-1" />
           <Tab label={<FormattedMessage id="photos" />} id="facility-tab-2" aria-controls="facility-tabpanel-2" />

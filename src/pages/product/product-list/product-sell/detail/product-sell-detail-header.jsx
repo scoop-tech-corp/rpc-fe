@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createProductSell } from '../../service';
 import { getAllState, useProductSellDetailStore } from './product-sell-detail-store';
-import { breakdownDetailMessageBackend } from 'service/service-global';
+import { createMessageBackend } from 'service/service-global';
 
 import PropTypes from 'prop-types';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -34,10 +34,11 @@ const ProductSellDetailHeader = (props) => {
   };
 
   const responseError = (err) => {
-    const detailErr = breakdownDetailMessageBackend(err.errors);
+    const message = createMessageBackend(err, true);
     setIsError(true);
     useProductSellDetailStore.setState({ productSellDetailTouch: false });
-    setErrContent({ title: err.message, detail: detailErr });
+
+    setErrContent({ title: message.msg, detail: message.detail });
   };
 
   const onSubmit = async () => {

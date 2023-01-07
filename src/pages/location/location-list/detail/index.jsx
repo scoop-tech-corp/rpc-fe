@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { getDataStaticLocation, getDetailLocation, getProvinceLocation } from './service';
 import { defaultLocationDetail, useLocationDetailStore } from './location-detail-store';
+
 import LocationDetailTab from './tab/location-detail-tab';
 import Header from './location-detail-header';
 

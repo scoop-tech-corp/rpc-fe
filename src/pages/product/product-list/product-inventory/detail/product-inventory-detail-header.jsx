@@ -7,12 +7,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { getAllState, useProductInventoryDetailStore } from './product-inventory-detail-store';
 import { createProductInventory } from '../../service';
-import { breakdownDetailMessageBackend } from 'service/service-global';
 import { snackbarSuccess } from 'store/reducers/snackbar';
+import { createMessageBackend } from 'service/service-global';
 
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import PropTypes from 'prop-types';
 import ErrorContainer from 'components/@extended/ErrorContainer';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 const ProductInventoryDetailHeader = (props) => {
   const productInventoryDetailError = useProductInventoryDetailStore((state) => state.productInventoryDetailError);
@@ -35,11 +35,11 @@ const ProductInventoryDetailHeader = (props) => {
   };
 
   const responseError = (err) => {
-    const detailErr = breakdownDetailMessageBackend(err.errors);
+    const message = createMessageBackend(err, true);
     setIsError(true);
     useProductInventoryDetailStore.setState({ productInventoryDetailTouch: false });
 
-    setErrContent({ title: err.message, detail: detailErr });
+    setErrContent({ title: message.msg, detail: message.detail });
   };
 
   const onSubmit = async () => {
