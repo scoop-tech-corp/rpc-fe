@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link } from '@mui/material';
+import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { getProductSell, deleteProductSell } from '../service';
+import { getProductSell, deleteProductSell, exportProductSell } from '../service';
+import { createMessageBackend, getLocationList } from 'service/service-global';
+
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import ModalExport from '../components/ModalExport';
 
 let paramProductSellList = {};
 
@@ -24,7 +27,10 @@ const ProductSellList = () => {
   const [getProductSellData, setProductSellData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
+  const [selectedFilterLocation, setFilterLocation] = useState([]);
+  const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const [isModalExport, setModalExport] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -97,6 +103,12 @@ const ProductSellList = () => {
     fetchData();
   };
 
+  const onFilterLocation = (selected) => {
+    paramProductSellList.locationId = selected.map((dt) => dt.value);
+    setFilterLocation(selected);
+    fetchData();
+  };
+
   const onSearch = (event) => {
     paramProductSellList.keyword = event;
     setKeywordSearch(event);
@@ -114,8 +126,13 @@ const ProductSellList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramProductSellList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+    paramProductSellList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
     setKeywordSearch('');
+  };
+
+  const getDataFacilityLocation = async () => {
+    const data = await getLocationList();
+    setFacilityLocationList(data);
   };
 
   const onConfirm = async (value) => {
@@ -123,17 +140,7 @@ const ProductSellList = () => {
       await deleteProductSell(selectedRow).then((resp) => {
         if (resp.status === 200) {
           setDialog(false);
-
-          dispatch(
-            openSnackbar({
-              open: true,
-              message: 'Success Delete product sell',
-              variant: 'alert',
-              alert: { color: 'success' },
-              duration: 2000,
-              close: true
-            })
-          );
+          dispatch(snackbarSuccess('Success Delete product sell'));
           clearParamFetchData();
           fetchData();
         }
@@ -143,7 +150,29 @@ const ProductSellList = () => {
     }
   };
 
+  const onExport = async (event) => {
+    await exportProductSell({ ...paramProductSellList, allData: event.allData, onlyItem: event.onlyItem })
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+
+        a.href = downloadUrl;
+        a.download = 'product-sell';
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+
+    setModalExport(false);
+  };
+
   useEffect(() => {
+    getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -160,11 +189,37 @@ const ProductSellList = () => {
               spacing={1}
               sx={{ p: 3, pb: 0 }}
             >
-              <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
-
-              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                <FormattedMessage id="add-product-sell" />
-              </Button>
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <GlobalFilter
+                  placeHolder={'Search...'}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '41.3px' }}
+                />
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  options={facilityLocationList}
+                  value={selectedFilterLocation}
+                  sx={{ width: 300 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterLocation(value)}
+                  renderInput={(params) => <TextField {...params} label="Filter location" />}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={() => setModalExport(true)} color="success">
+                  <FormattedMessage id="export" />
+                </Button>
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="add-product-sell" />
+                </Button>
+              </Stack>
             </Stack>
             <ReactTable
               columns={columns}
@@ -176,14 +231,6 @@ const ProductSellList = () => {
               onPageSize={onPageSizeChange}
             />
           </Stack>
-
-          {selectedRow.length > 0 && (
-            <Stack style={{ marginBottom: '20px' }} justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ p: 3, pb: 0 }}>
-              <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
-                <FormattedMessage id="delete" />
-              </Button>
-            </Stack>
-          )}
         </ScrollX>
       </MainCard>
       <ConfirmationC
@@ -194,6 +241,7 @@ const ProductSellList = () => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+      <ModalExport isModalExport={isModalExport} onExport={(e) => onExport(e)} onClose={(e) => setModalExport(!e)} />
     </>
   );
 };

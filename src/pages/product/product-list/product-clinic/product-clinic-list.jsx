@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link } from '@mui/material';
+import { Chip, Stack, useMediaQuery, Button, Link, TextField, Autocomplete } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { deleteProductClinic, getProductClinic } from '../service';
+import { deleteProductClinic, exportProductClinic, getProductClinic } from '../service';
+import { createMessageBackend, getLocationList } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import ModalExport from '../components/ModalExport';
 
 let paramProductClinicList = {};
 
@@ -25,7 +27,10 @@ const ProductClinicList = () => {
   const [getProductClinicData, setProductClinicData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
+  const [selectedFilterLocation, setFilterLocation] = useState([]);
+  const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const [isModalExport, setModalExport] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -98,6 +103,12 @@ const ProductClinicList = () => {
     fetchData();
   };
 
+  const onFilterLocation = (selected) => {
+    paramProductClinicList.locationId = selected.map((dt) => dt.value);
+    setFilterLocation(selected);
+    fetchData();
+  };
+
   const onSearch = (event) => {
     paramProductClinicList.keyword = event;
     setKeywordSearch(event);
@@ -115,8 +126,13 @@ const ProductClinicList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramProductClinicList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+    paramProductClinicList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
     setKeywordSearch('');
+  };
+
+  const getDataFacilityLocation = async () => {
+    const data = await getLocationList();
+    setFacilityLocationList(data);
   };
 
   const onConfirm = async (value) => {
@@ -125,16 +141,7 @@ const ProductClinicList = () => {
         if (resp.status === 200) {
           setDialog(false);
 
-          dispatch(
-            openSnackbar({
-              open: true,
-              message: 'Success Delete product clinic',
-              variant: 'alert',
-              alert: { color: 'success' },
-              duration: 2000,
-              close: true
-            })
-          );
+          dispatch(snackbarSuccess('Success Delete product clinic'));
           clearParamFetchData();
           fetchData();
         }
@@ -144,7 +151,27 @@ const ProductClinicList = () => {
     }
   };
 
+  const onExport = async (event) => {
+    await exportProductClinic({ ...paramProductClinicList, allData: event.allData, onlyItem: event.onlyItem })
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+
+        a.href = downloadUrl;
+        a.download = 'product-clinic';
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
   useEffect(() => {
+    getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -161,11 +188,38 @@ const ProductClinicList = () => {
               spacing={1}
               sx={{ p: 3, pb: 0 }}
             >
-              <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <GlobalFilter
+                  placeHolder={'Search...'}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '41.3px' }}
+                />
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  options={facilityLocationList}
+                  value={selectedFilterLocation}
+                  sx={{ width: 300 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterLocation(value)}
+                  renderInput={(params) => <TextField {...params} label="Filter location" />}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
 
-              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                <FormattedMessage id="add-product-clinic" />
-              </Button>
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={() => setModalExport(true)} color="success">
+                  <FormattedMessage id="export" />
+                </Button>
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="add-product-clinic" />
+                </Button>
+              </Stack>
             </Stack>
             <ReactTable
               columns={columns}
@@ -195,6 +249,7 @@ const ProductClinicList = () => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+      <ModalExport isModalExport={isModalExport} onExport={(e) => onExport(e)} onClose={(e) => setModalExport(!e)} />
     </>
   );
 };

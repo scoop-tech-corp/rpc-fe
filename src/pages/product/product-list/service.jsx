@@ -33,10 +33,11 @@ export const getProductCategoryList = async () => {
   });
 };
 
-export const getProductSellDropdown = async (productLocationId) => {
+export const getProductSellDropdown = async (productLocationId, productBrandId = '') => {
   const getResp = await axios.get('product/sell/dropdown', {
     params: {
-      locationId: productLocationId
+      locationId: productLocationId,
+      brandId: productBrandId
     }
   });
 
@@ -45,10 +46,11 @@ export const getProductSellDropdown = async (productLocationId) => {
   });
 };
 
-export const getProductClinicDropdown = async (productLocationId) => {
+export const getProductClinicDropdown = async (productLocationId, productBrandId = '') => {
   const getResp = await axios.get('product/clinic/dropdown', {
     params: {
-      locationId: productLocationId
+      locationId: productLocationId,
+      brandId: productBrandId
     }
   });
 
@@ -145,6 +147,22 @@ export const deleteProductSell = async (id) => {
   });
 };
 
+export const exportProductSell = async (property) => {
+  return await axios.get(productSellUrl + '/export', {
+    responseType: 'blob',
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      goToPage: property.goToPage,
+      rowPerPage: property.rowPerPage,
+      locationId: property.locationId.length ? property.locationId : [''],
+      isExportAll: property.allData ? 1 : 0,
+      isExportLimit: property.onlyItem ? 1 : 0
+    }
+  });
+};
+
 export const getProductSell = async (property) => {
   const getResp = await axios.get(productSellUrl, {
     params: {
@@ -152,7 +170,8 @@ export const getProductSell = async (property) => {
       goToPage: property.goToPage,
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      search: property.keyword
+      search: property.keyword,
+      locationId: property.locationId
     }
   });
 
@@ -175,6 +194,22 @@ export const deleteProductClinic = async (id) => {
   });
 };
 
+export const exportProductClinic = async (property) => {
+  return await axios.get(productClinicUrl + '/export', {
+    responseType: 'blob',
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      goToPage: property.goToPage,
+      rowPerPage: property.rowPerPage,
+      locationId: property.locationId.length ? property.locationId : [''],
+      isExportAll: property.allData ? 1 : 0,
+      isExportLimit: property.onlyItem ? 1 : 0
+    }
+  });
+};
+
 export const getProductClinic = async (property) => {
   const getResp = await axios.get(productClinicUrl, {
     params: {
@@ -182,7 +217,8 @@ export const getProductClinic = async (property) => {
       goToPage: property.goToPage,
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      search: property.keyword
+      search: property.keyword,
+      locationId: property.locationId
     }
   });
 
@@ -252,6 +288,7 @@ export const createProductInventory = async (property) => {
   fd.append('requirementName', property.requirementName);
   fd.append('locationId', property.locationId);
   fd.append('listProducts', JSON.stringify(property.listProducts));
+  setFormDataImage(property.images, fd, 'save');
 
   return await axios.post(productInventoryUrl, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
