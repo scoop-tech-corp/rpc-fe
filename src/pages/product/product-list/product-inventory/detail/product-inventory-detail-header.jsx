@@ -52,14 +52,18 @@ const ProductInventoryDetailHeader = (props) => {
           productType: dt.productType,
           productId: dt.productId,
           usageId: dt.usageId,
-          quantity: dt.quantity
+          quantity: dt.quantity,
+          dateCondition: dt.dateCondition ? new Date(dt.dateCondition).toLocaleDateString('en-CA') : '',
+          itemCondition: dt.itemCondition,
+          isAnyImage: dt.isAnyImage
         };
       });
 
       const newParam = {
         requirementName: getFormValue.requirementName,
         locationId: getFormValue.productLocation.value,
-        listProducts
+        listProducts,
+        images: getFormValue.images
       };
 
       await createProductInventory(newParam).then(responseSuccess).catch(responseError);

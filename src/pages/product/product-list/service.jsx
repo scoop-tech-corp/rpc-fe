@@ -87,7 +87,7 @@ export const createSupplier = async (supplierName) => {
   return await axios.post('product/supplier', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-const generateParamSaved = (property) => {
+const generateParamSaved = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
   const expiredDate = property.expiredDate ? new Date(property.expiredDate).toLocaleDateString('en-CA') : '';
@@ -118,6 +118,10 @@ const generateParamSaved = (property) => {
   fd.append('isNonChargeable', property.isNonChargeable);
   fd.append('isOfficeApproval', property.isOfficeApproval);
   fd.append('isAdminApproval', property.isAdminApproval);
+
+  if (procedure === 'clinic') {
+    fd.append('dosages', JSON.stringify(property.dosage));
+  }
 
   fd.append('introduction', property.introduction);
   fd.append('description', property.description);
@@ -288,7 +292,10 @@ export const createProductInventory = async (property) => {
   fd.append('requirementName', property.requirementName);
   fd.append('locationId', property.locationId);
   fd.append('listProducts', JSON.stringify(property.listProducts));
-  setFormDataImage(property.images, fd, 'save');
+
+  property.images.forEach((file) => {
+    fd.append('images[]', file.selectedFile);
+  });
 
   return await axios.post(productInventoryUrl, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { getLocationList } from 'service/service-global';
 import { jsonCentralized } from 'utils/func';
-import { getProductUsage } from '../../service';
+import { getBrandList, getProductUsage } from '../../service';
 import { useProductInventoryDetailStore, defaultProductInventoryDetail } from './product-inventory-detail-store';
 
 import FormProductInventory from './form-product-inventory';
@@ -15,9 +15,11 @@ const ProductInventoryDetail = () => {
   const getDropdownData = async () => {
     const locationList = await getLocationList();
     const productUsageList = await getProductUsage();
+    const brandList = await getBrandList();
     useProductInventoryDetailStore.setState({
       locationList,
-      productUsageList
+      productUsageList,
+      brandList
     });
   };
 
