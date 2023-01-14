@@ -26,6 +26,7 @@ export const defaultProductClinicDetail = {
   customerGroups: [],
   priceLocations: [],
   quantities: [],
+  dosage: [],
 
   isShipped: 1,
   weight: '',

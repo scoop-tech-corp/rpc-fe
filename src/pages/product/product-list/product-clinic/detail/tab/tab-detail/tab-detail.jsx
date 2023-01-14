@@ -1,15 +1,20 @@
 import { Grid } from '@mui/material';
+
 import BasicDetail from './basic-detail';
 import Pricing from './pricing';
 import Shipping from './shipping';
 import InventoryProduct from './inventory-product';
 import Settings from './settings';
+import Dosis from './dosis';
 
 const TabDetail = () => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} sm={12}>
         <BasicDetail />
+      </Grid>
+      <Grid item xs={12} sm={12}>
+        <Dosis />
       </Grid>
       <Grid item xs={12} sm={12}>
         <Pricing />
