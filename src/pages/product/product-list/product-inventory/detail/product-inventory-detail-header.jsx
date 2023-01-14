@@ -53,7 +53,7 @@ const ProductInventoryDetailHeader = (props) => {
           productId: dt.productId,
           usageId: dt.usageId,
           quantity: dt.quantity,
-          dateCondition: dt.dateCondition ? new Date(dt.dateCondition).toLocaleDateString('en-CA') : '',
+          dateCondition: dt.dateCondition,
           itemCondition: dt.itemCondition,
           isAnyImage: dt.isAnyImage
         };

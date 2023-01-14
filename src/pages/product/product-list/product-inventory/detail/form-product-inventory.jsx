@@ -133,7 +133,7 @@ const FormProductInventory = () => {
       productName: getData.productName.label,
       usageId: getData.productUsage.value,
       usageName: getData.productUsage.label,
-      dateCondition: getData.dateCondition,
+      dateCondition: new Date(getData.dateCondition).toLocaleDateString('en-CA'),
       itemCondition: getData.itemCondition,
       imagePath: getData.imagePath,
       isAnyImage: getData.imagePath ? 1 : 0,
