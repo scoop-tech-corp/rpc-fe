@@ -158,8 +158,6 @@ export const exportProductSell = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      goToPage: property.goToPage,
-      rowPerPage: property.rowPerPage,
       locationId: property.locationId.length ? property.locationId : [''],
       isExportAll: property.allData ? 1 : 0,
       isExportLimit: property.onlyItem ? 1 : 0
@@ -205,8 +203,6 @@ export const exportProductClinic = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      goToPage: property.goToPage,
-      rowPerPage: property.rowPerPage,
       locationId: property.locationId.length ? property.locationId : [''],
       isExportAll: property.allData ? 1 : 0,
       isExportLimit: property.onlyItem ? 1 : 0
