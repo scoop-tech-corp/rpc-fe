@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Box, Tab, Tabs } from '@mui/material';
+import { getLocationList } from 'service/service-global';
+
 import PropTypes from 'prop-types';
 import ModalC from 'components/ModalC';
 import RequestProduct from './request';
@@ -8,6 +10,8 @@ import History from './history';
 
 const ProductInventoryApproval = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
+  const [filterLocationList, setFilterLocationList] = useState([]);
+
   const onCancel = () => {
     props.onClose(true);
     setTabSelected(0);
@@ -29,7 +33,13 @@ const ProductInventoryApproval = (props) => {
 
   const onChangeTab = (value) => setTabSelected(value);
 
+  const getLocation = async () => {
+    const data = await getLocationList();
+    setFilterLocationList(data);
+  };
+
   useEffect(() => {
+    getLocation();
     return () => {};
   }, []);
 
@@ -40,7 +50,7 @@ const ProductInventoryApproval = (props) => {
       onCancel={onCancel}
       isModalAction={false}
       fullWidth
-      maxWidth="lg"
+      maxWidth="xl"
     >
       <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
         <Tabs
@@ -66,10 +76,10 @@ const ProductInventoryApproval = (props) => {
         {props.open && (
           <>
             <TabPanel value={tabSelected} index={0}>
-              <RequestProduct />
+              <RequestProduct filterLocationList={filterLocationList} />
             </TabPanel>
             <TabPanel value={tabSelected} index={1}>
-              <History />
+              <History filterLocationList={filterLocationList} />
             </TabPanel>
           </>
         )}

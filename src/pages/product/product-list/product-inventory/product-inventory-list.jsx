@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Stack, useMediaQuery, Button, Link, Chip } from '@mui/material';
+import { Stack, useMediaQuery, Button, Link } from '@mui/material'; //Chip
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -54,39 +54,39 @@ const ProductInventoryList = () => {
         }
       },
       { Header: <FormattedMessage id="total-product" />, accessor: 'totalItem' },
-      { Header: <FormattedMessage id="location-product" />, accessor: 'locationName' },
-      {
-        Header: <FormattedMessage id="status-approval-office" />,
-        accessor: 'isApprovedOffice',
-        Cell: (data) => {
-          switch (+data.value) {
-            case 0:
-              return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
-            case 1:
-              return <Chip color="success" label="Accept" size="small" variant="light" />;
-            case 2:
-              return <Chip color="error" label="Reject" size="small" variant="light" />;
-          }
-        }
-      },
-      { Header: <FormattedMessage id="approved-by-(office)" />, accessor: 'officeApprovedBy' },
-      { Header: <FormattedMessage id="approved-at-(office)" />, accessor: 'officeApprovedAt' },
-      {
-        Header: <FormattedMessage id="status-approval-admin" />,
-        accessor: 'isApprovedAdmin',
-        Cell: (data) => {
-          switch (+data.value) {
-            case 0:
-              return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
-            case 1:
-              return <Chip color="success" label="Accept" size="small" variant="light" />;
-            case 2:
-              return <Chip color="error" label="Reject" size="small" variant="light" />;
-          }
-        }
-      },
-      { Header: <FormattedMessage id="approved-by-(admin)" />, accessor: 'adminApprovedBy' },
-      { Header: <FormattedMessage id="approved-at-(admin)" />, accessor: 'adminApprovedAt' }
+      { Header: <FormattedMessage id="location-product" />, accessor: 'locationName' }
+      // {
+      //   Header: <FormattedMessage id="status-approval-office" />,
+      //   accessor: 'isApprovedOffice',
+      //   Cell: (data) => {
+      //     switch (+data.value) {
+      //       case 0:
+      //         return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
+      //       case 1:
+      //         return <Chip color="success" label="Accept" size="small" variant="light" />;
+      //       case 2:
+      //         return <Chip color="error" label="Reject" size="small" variant="light" />;
+      //     }
+      //   }
+      // },
+      // { Header: <FormattedMessage id="approved-by-(office)" />, accessor: 'officeApprovedBy' },
+      // { Header: <FormattedMessage id="approved-at-(office)" />, accessor: 'officeApprovedAt' },
+      // {
+      //   Header: <FormattedMessage id="status-approval-admin" />,
+      //   accessor: 'isApprovedAdmin',
+      //   Cell: (data) => {
+      //     switch (+data.value) {
+      //       case 0:
+      //         return <Chip color="warning" label="Waiting for Appoval" size="small" variant="light" />;
+      //       case 1:
+      //         return <Chip color="success" label="Accept" size="small" variant="light" />;
+      //       case 2:
+      //         return <Chip color="error" label="Reject" size="small" variant="light" />;
+      //     }
+      //   }
+      // },
+      // { Header: <FormattedMessage id="approved-by-(admin)" />, accessor: 'adminApprovedBy' },
+      // { Header: <FormattedMessage id="approved-at-(admin)" />, accessor: 'adminApprovedAt' }
     ],
     []
   );

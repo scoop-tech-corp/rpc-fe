@@ -183,13 +183,7 @@ const ProductSellList = () => {
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
-            <Stack
-              direction={matchDownSM ? 'column' : 'row'}
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
+            <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={1} sx={{ pt: 1 }}>
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
                   placeHolder={'Search...'}

@@ -250,7 +250,8 @@ export const getProductInventoryApproval = async (property) => {
       goToPage: property.goToPage,
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      search: property.keyword
+      search: property.keyword,
+      locationId: property.locationId.length ? property.locationId : ['']
     }
   });
 
@@ -269,6 +270,32 @@ export const getProductInventoryApprovalHistory = async (property) => {
   });
 
   return getResp;
+};
+
+export const getProductInventoryApprovalHistoryExport = async (property) => {
+  return await axios.get(productInventoryUrl + '/history/export', {
+    responseType: 'blob',
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      fromDate: property.fromDate,
+      toDate: property.toDate,
+      locationId: property.locationId.length ? property.locationId : ['']
+    }
+  });
+};
+
+export const getProductInventoryApprovalExport = async (property) => {
+  return await axios.get(productInventoryUrl + '/approval/export', {
+    responseType: 'blob',
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId.length ? property.locationId : ['']
+    }
+  });
 };
 
 export const getProductInventoryDetail = async (id) => {

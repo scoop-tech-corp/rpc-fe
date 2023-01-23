@@ -45,7 +45,7 @@ const HeaderContent = () => {
       {!matchesXs && <Profile />}
       {matchesXs && <MobileSection />}
 
-      <ProductInventoryApproval open={openModalInvenApproval} onClose={(e) => setOpenModalInvenApproval(!e)} />
+      {openModalInvenApproval && <ProductInventoryApproval open={openModalInvenApproval} onClose={(e) => setOpenModalInvenApproval(!e)} />}
     </>
   );
 };
