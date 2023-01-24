@@ -44,7 +44,7 @@ const LocationDetailHeader = (props) => {
       const message = `Success ${code ? 'update' : 'create'} data`;
 
       if (code) {
-        const respUpload = await uploadImageLocation(locationDetail, code);
+        const respUpload = await uploadImageLocation(getAllState(), code);
         if (respUpload.status === 200 && respUpload.data.result === 'success') {
           nextProcessSuccess(message);
         }
