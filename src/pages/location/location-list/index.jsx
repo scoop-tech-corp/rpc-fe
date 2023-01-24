@@ -199,6 +199,7 @@ const LocationList = () => {
               data={getLocationData.data}
               totalPagination={getLocationData.totalPagination}
               setPageNumber={paramLocationList.goToPage}
+              setPageRow={paramLocationList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}

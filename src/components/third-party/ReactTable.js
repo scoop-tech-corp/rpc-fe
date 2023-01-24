@@ -41,6 +41,7 @@ export const ReactTable = ({
   data,
   totalPagination,
   setPageNumber,
+  setPageRow,
   onOrder,
   onGotoPage,
   onPageSize,
@@ -144,6 +145,7 @@ export const ReactTable = ({
                   totalPagination={totalPagination}
                   pageIndex={0}
                   setPageNumber={setPageNumber}
+                  setPageRow={setPageRow}
                   // pageSize={pageSizeChange}
                 />
               </TableCell>
@@ -160,6 +162,7 @@ ReactTable.propTypes = {
   data: PropTypes.array,
   totalPagination: PropTypes.number,
   setPageNumber: PropTypes.number,
+  setPageRow: PropTypes.number,
   onOrder: PropTypes.func,
   onGotoPage: PropTypes.func,
   onPageSize: PropTypes.func,
@@ -199,7 +202,7 @@ HeaderSort.propTypes = { column: PropTypes.any, selectedOrder: PropTypes.any };
 
 // ==============================|| TABLE PAGINATION ||============================== //
 
-export const TablePagination = ({ gotoPage, totalPagination, changePageSize, setPageNumber }) => {
+export const TablePagination = ({ gotoPage, totalPagination, changePageSize, setPageNumber, setPageRow }) => {
   const [open, setOpen] = useState(false);
   const [pageSize, setPageSize] = useState(5);
   const [pageIndex, setPageIndex] = useState(1);
@@ -209,6 +212,12 @@ export const TablePagination = ({ gotoPage, totalPagination, changePageSize, set
       setPageIndex(setPageNumber);
     }
   }, [setPageNumber]);
+
+  useEffect(() => {
+    if (setPageRow) {
+      setPageSize(setPageRow);
+    }
+  }, [setPageRow]);
 
   const handleClose = () => {
     setOpen(false);
@@ -293,7 +302,8 @@ TablePagination.propTypes = {
   gotoPage: PropTypes.func,
   totalPagination: PropTypes.number,
   changePageSize: PropTypes.func,
-  setPageNumber: PropTypes.number
+  setPageNumber: PropTypes.number,
+  setPageRow: PropTypes.number
 };
 
 // ==============================|| SELECTION - PREVIEW ||============================== //

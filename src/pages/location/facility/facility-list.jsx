@@ -233,6 +233,8 @@ const FacilityList = () => {
               columns={columns}
               data={getFacilityData.data}
               totalPagination={getFacilityData.totalPagination}
+              setPageNumber={paramFacilityList.goToPage}
+              setPageRow={paramFacilityList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}

@@ -158,6 +158,7 @@ const StaticDataList = () => {
               data={staticData.data}
               totalPagination={staticData.totalPagination}
               setPageNumber={paramDataStaticList.goToPage}
+              setPageRow={paramDataStaticList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}

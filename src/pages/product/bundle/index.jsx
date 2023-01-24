@@ -196,6 +196,7 @@ const ProductBundle = () => {
               data={productBundleData.data}
               totalPagination={productBundleData.totalPagination}
               setPageNumber={paramProductBundleList.goToPage}
+              setPageRow={paramProductBundleList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
