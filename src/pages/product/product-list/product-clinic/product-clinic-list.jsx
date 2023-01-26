@@ -226,7 +226,8 @@ const ProductClinicList = () => {
               columns={columns}
               data={getProductClinicData.data}
               totalPagination={getProductClinicData.totalPagination}
-              setPageNumber={getProductClinicData.goToPage}
+              setPageNumber={paramProductClinicList.goToPage}
+              setPageRow={paramProductClinicList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}

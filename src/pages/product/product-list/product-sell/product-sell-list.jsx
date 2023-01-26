@@ -220,7 +220,8 @@ const ProductSellList = () => {
               columns={columns}
               data={getProductSellData.data}
               totalPagination={getProductSellData.totalPagination}
-              setPageNumber={getProductSellData.goToPage}
+              setPageNumber={paramProductSellList.goToPage}
+              setPageRow={paramProductSellList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}

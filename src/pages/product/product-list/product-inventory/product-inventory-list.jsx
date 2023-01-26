@@ -183,6 +183,7 @@ const ProductInventoryList = () => {
               data={productInventoryData.data}
               totalPagination={productInventoryData.totalPagination}
               setPageNumber={paramProductInventoryList.goToPage}
+              setPageRow={paramProductInventoryList.rowPerPage}
               colSpanPagination={10}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
