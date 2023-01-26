@@ -24,6 +24,17 @@ const QuickMenu = (props) => {
     setOpen((prevOpen) => !prevOpen);
   };
 
+  const titleListItemStyle = {
+    cursor: 'default',
+    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    paddingTop: '2px',
+    paddingBottom: '2px'
+  };
+
+  const subListItemStyle = {
+    paddingLeft: '30px'
+  };
+
   return (
     <>
       <Box sx={{ flexShrink: 0, ml: 1 }}>
@@ -75,13 +86,19 @@ const QuickMenu = (props) => {
                       }
                     }}
                   >
-                    <ListItemButton>
-                      <ListItemText primary={<Typography color="textPrimary">Product</Typography>} />
+                    <ListItemButton style={titleListItemStyle}>
+                      <ListItemText
+                        primary={
+                          <Typography color="textPrimary" style={{ fontWeight: 'bold' }}>
+                            Product
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
-                    <ListItemButton onClick={() => props.onQuickMenuOpen({ menuType: 'IA', isOpen: true })}>
+                    <ListItemButton style={subListItemStyle} onClick={() => props.onQuickMenuOpen({ menuType: 'IA', isOpen: true })}>
                       <ListItemText primary={<Typography color="textPrimary">Inventory Approval</Typography>} />
                     </ListItemButton>
-                    <ListItemButton>
+                    <ListItemButton style={subListItemStyle}>
                       <ListItemText primary={<Typography color="textPrimary">Restock Approval</Typography>} />
                     </ListItemButton>
                   </List>
