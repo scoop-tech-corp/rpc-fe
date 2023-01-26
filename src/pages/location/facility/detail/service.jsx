@@ -50,5 +50,5 @@ export const uploadImageFacility = async (property) => {
   fd.append('locationId', property.locationId);
   setFormDataImage(property.photos, fd);
 
-  return await axios.post('imagelocation', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('imagefacility', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
