@@ -168,8 +168,8 @@ const StaticDataList = () => {
       </MainCard>
       <ConfirmationC
         open={dialog}
-        title="Delete"
-        content="Are you sure you want to delete this data ?"
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"

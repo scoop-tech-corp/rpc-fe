@@ -183,7 +183,13 @@ const ProductSellList = () => {
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
-            <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={1} sx={{ pt: 1 }}>
+            <Stack
+              direction={matchDownSM ? 'column' : 'row'}
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={1}
+              sx={{ p: 3, pb: 0 }}
+            >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
                   placeHolder={'Search...'}
@@ -231,8 +237,8 @@ const ProductSellList = () => {
       </MainCard>
       <ConfirmationC
         open={dialog}
-        title="Delete"
-        content="Are you sure you want to delete this data ?"
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
