@@ -180,6 +180,12 @@ export const getProductSell = async (property) => {
   return getResp;
 };
 
+export const getProductSellDetail = async (id) => {
+  return await axios.get(productSellUrl + '/detail', {
+    params: { id }
+  });
+};
+
 // ============= END PRODUCT SELL ============= //
 
 // ============= PRODUCT CLINIC ============= //
@@ -223,6 +229,12 @@ export const getProductClinic = async (property) => {
   });
 
   return getResp;
+};
+
+export const getProductClinicDetail = async (id) => {
+  return await axios.get(productClinicUrl + '/detail', {
+    params: { id }
+  });
 };
 
 // ============= END PRODUCT CLINIC ============= //

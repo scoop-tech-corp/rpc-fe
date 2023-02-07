@@ -46,8 +46,8 @@ const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page'
 // Product
 const ProductDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductList = Loadable(lazy(() => import('pages/product/product-list/product-list')));
-const ProductSellDetail = Loadable(lazy(() => import('pages/product/product-list/product-sell/detail')));
-const ProductClinicDetail = Loadable(lazy(() => import('pages/product/product-list/product-clinic/detail')));
+const ProductSellForm = Loadable(lazy(() => import('pages/product/product-list/product-sell/form')));
+const ProductClinicForm = Loadable(lazy(() => import('pages/product/product-list/product-clinic/form')));
 const ProductInventoryDetail = Loadable(lazy(() => import('pages/product/product-list/product-inventory/detail')));
 const ProductBundle = Loadable(lazy(() => import('pages/product/bundle')));
 const ProductBundleForm = Loadable(lazy(() => import('pages/product/bundle/form')));
@@ -140,8 +140,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <ProductDashboard /> },
             { path: 'product-list', element: <ProductList /> },
-            { path: 'product-list/sell/add', element: <ProductSellDetail /> },
-            { path: 'product-list/clinic/add', element: <ProductClinicDetail /> },
+            { path: 'product-list/sell/add', element: <ProductSellForm /> },
+            { path: 'product-list/clinic/add', element: <ProductClinicForm /> },
             { path: 'product-list/inventory/add', element: <ProductInventoryDetail /> },
             { path: 'bundle', element: <ProductBundle /> },
             { path: 'bundle/form', element: <ProductBundleForm /> },

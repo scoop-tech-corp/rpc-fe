@@ -8,13 +8,15 @@ import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-desig
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { getProductSell, deleteProductSell, exportProductSell } from '../service';
+import { getProductSell, deleteProductSell, exportProductSell, getProductSellDetail } from '../service';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import ModalExport from '../components/ModalExport';
+import ProductSellDetail from './detail';
+import { formatThousandSeparator } from 'utils/func';
 
 let paramProductSellList = {};
 
@@ -31,6 +33,7 @@ const ProductSellList = () => {
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [isModalExport, setModalExport] = useState(false);
+  const [openDetail, setOpenDetail] = useState({ isOpen: false, name: '', detailData: null });
 
   const columns = useMemo(
     () => [
@@ -53,7 +56,63 @@ const ProductSellList = () => {
         accessor: 'fullName',
         Cell: (data) => {
           const getId = data.row.original.id;
-          return <Link href={`/product/product-list/sell/${getId}`}>{data.value}</Link>;
+          const getName = data.row.original.fullName;
+
+          const onClickDetail = async () => {
+            await getProductSellDetail(getId)
+              .then((resp) => {
+                const detailData = {
+                  details: {
+                    sku: resp.data.details.sku,
+                    status: +resp.data.details.status,
+                    supplierName: resp.data.details.supplierName,
+                    brandName: resp.data.details.brandName
+                  },
+                  shipping: {
+                    isShipped: +resp.data.isShipped,
+                    length: resp.data.length,
+                    height: resp.data.height,
+                    width: resp.data.width,
+                    weight: resp.data.weight
+                  },
+                  description: {
+                    introduction: resp.data.introduction,
+                    description: resp.data.description
+                  },
+                  inventory: {
+                    locationName: resp.data.location.locationName,
+                    stock: resp.data.location.inStock,
+                    status: resp.data.location.status.toLowerCase()
+                  },
+                  pricing: {
+                    price: `Rp ${formatThousandSeparator(resp.data.price)}`,
+                    pricingStatus: resp.data.pricingStatus,
+                    marketPrice: resp.data.marketPrice,
+                    priceLocations: resp.data.priceLocations,
+                    customerGroups: resp.data.customerGroups,
+                    quantities: resp.data.quantities
+                  },
+                  settings: {
+                    isCustomerPurchase: +resp.data.setting.isCustomerPurchase ? true : false,
+                    isCustomerPurchaseOnline: +resp.data.setting.isCustomerPurchaseOnline ? true : false,
+                    isCustomerPurchaseOutStock: +resp.data.setting.isCustomerPurchaseOutStock ? true : false,
+                    isStockLevelCheck: +resp.data.setting.isStockLevelCheck ? true : false,
+                    isNonChargeable: +resp.data.setting.isNonChargeable ? true : false,
+                    isOfficeApproval: +resp.data.setting.isOfficeApproval ? true : false,
+                    isAdminApproval: +resp.data.setting.isAdminApproval ? true : false
+                  }
+                };
+
+                setOpenDetail({ isOpen: true, name: getName, detailData });
+              })
+              .catch((err) => {
+                if (err) {
+                  dispatch(snackbarError(createMessageBackend(err)));
+                }
+              });
+          };
+
+          return <Link onClick={() => onClickDetail()}>{data.value}</Link>; // href={`/product/product-list/sell/${getId}`}
         }
       },
       { Header: 'Sku', accessor: 'sku' },
@@ -84,6 +143,7 @@ const ProductSellList = () => {
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -244,6 +304,12 @@ const ProductSellList = () => {
         btnFalseText="Cancel"
       />
       <ModalExport isModalExport={isModalExport} onExport={(e) => onExport(e)} onClose={(e) => setModalExport(!e)} />
+      <ProductSellDetail
+        title={openDetail.name}
+        open={openDetail.isOpen}
+        data={openDetail.detailData}
+        onClose={(e) => setOpenDetail({ isOpen: !e, name: '', detailData: null })}
+      />
     </>
   );
 };

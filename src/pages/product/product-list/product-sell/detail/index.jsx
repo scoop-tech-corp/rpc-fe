@@ -1,110 +1,79 @@
-import { Box, Tab, Tabs } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Box, Tab, Tabs } from '@mui/material';
 
-import { getCustomerGroupList, getBrandList, getSupplierList, getProductCategoryList } from '../../service';
-import { getLocationList } from 'service/service-global';
-import { defaultProductSellDetail, useProductSellDetailStore } from './product-sell-detail-store';
-import { jsonCentralized } from 'utils/func';
-
+import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
-import ProductSellDetailHeader from './product-sell-detail-header';
-import MainCard from 'components/MainCard';
-import TabDetail from './tab/tab-detail/tab-detail';
-import TabDescription from './tab/tab-description';
-import TabCategories from './tab/tab-categories';
-import TabReminders from './tab/tab-reminders';
-import TabPhoto from './tab/tab-photo';
+import ProductSellDetailOverview from './overview';
 
-const ProductSellDetail = () => {
+const ProductSellDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
-  const [productSellName, setProductSellName] = useState('');
-  let { id } = useParams();
 
-  const getDropdownData = async () => {
-    const getCustomer = await getCustomerGroupList();
-    const getLoc = await getLocationList();
-    const getBrand = await getBrandList();
-    const getSupplier = await getSupplierList();
-    const getCategory = await getProductCategoryList();
-
-    useProductSellDetailStore.setState((prevState) => {
-      return {
-        ...prevState,
-        dataSupport: {
-          customerGroupsList: getCustomer,
-          locationList: getLoc,
-          brandList: getBrand,
-          supplierList: getSupplier,
-          productCategoryList: getCategory
-        }
-      };
-    });
+  const onCancel = () => {
+    props.onClose(true);
+    setTabSelected(0);
   };
-
-  const getDetailProductSell = async () => setProductSellName('');
 
   const TabPanel = (props) => {
     const { children, value, index } = props;
 
     return (
-      <div role="tabpanel" id={`product-sell-tabpanel-${value}`} aria-labelledby={`product-sell-tab-${value}`}>
+      <div role="tabpanel" id={`product-sell-detail-tabpanel-${value}`} aria-labelledby={`product-sell-detail-tab-${value}`}>
         {value === index && <>{children}</>}
       </div>
     );
   };
-  TabPanel.propTypes = { children: PropTypes.node, value: PropTypes.number, index: PropTypes.number };
+  TabPanel.propTypes = {
+    children: PropTypes.node,
+    value: PropTypes.number,
+    index: PropTypes.number
+  };
 
-  const onChangeTab = (_, value) => setTabSelected(value);
-
-  useEffect(() => {
-    getDropdownData();
-
-    if (id) {
-      getDetailProductSell();
-    }
-
-    return () => {
-      useProductSellDetailStore.setState(jsonCentralized(defaultProductSellDetail));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  const onChangeTab = (value) => setTabSelected(value);
 
   return (
-    <>
-      <ProductSellDetailHeader productSellName={productSellName} />
-
-      <MainCard border={false} boxShadow>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <Tabs value={tabSelected} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="product sell detail tab">
-            <Tab label="Details" id="product-sell-tab-0" aria-controls="product-sell-tabpanel-0" />
-            <Tab label={<FormattedMessage id="description" />} id="product-sell-tab-1" aria-controls="product-sell-tabpanel-1" />
-            <Tab label={<FormattedMessage id="category" />} id="product-sell-tab-2" aria-controls="product-sell-tabpanel-2" />
-            <Tab label={<FormattedMessage id="photos" />} id="product-sell-tab-3" aria-controls="product-sell-tabpanel-3" />
-            <Tab label={<FormattedMessage id="reminders" />} id="product-sell-tab-4" aria-controls="product-sell-tabpanel-4" />
-          </Tabs>
-        </Box>
-        <Box sx={{ mt: 2.5 }}>
-          <TabPanel value={tabSelected} index={0}>
-            <TabDetail />
-          </TabPanel>
-          <TabPanel value={tabSelected} index={1}>
-            <TabDescription />
-          </TabPanel>
-          <TabPanel value={tabSelected} index={2}>
-            <TabCategories />
-          </TabPanel>
-          <TabPanel value={tabSelected} index={3}>
-            <TabPhoto />
-          </TabPanel>
-          <TabPanel value={tabSelected} index={4}>
-            <TabReminders />
-          </TabPanel>
-        </Box>
-      </MainCard>
-    </>
+    <ModalC title={props.title} open={props.open} onCancel={onCancel} isModalAction={false} fullWidth maxWidth="lg">
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
+        <Tabs
+          value={tabSelected}
+          onChange={(_, value) => onChangeTab(value)}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="product sell detail tab"
+        >
+          <Tab label={<FormattedMessage id="overview" />} id="product-sell-detail-tab-0" aria-controls="product-sell-detail-tabpanel-0" />
+          <Tab
+            label={<FormattedMessage id="batch-stock" />}
+            id="product-sell-detail-tab-1"
+            aria-controls="product-sell-detail-tabpanel-1"
+          />
+          <Tab
+            label={<FormattedMessage id="log-transaction" />}
+            id="product-sell-detail-tab-2"
+            aria-controls="product-sell-detail-tabpanel-2"
+          />
+        </Tabs>
+      </Box>
+      <Box sx={{ mt: 1.25 }}>
+        {props.open && (
+          <>
+            <TabPanel value={tabSelected} index={0}>
+              <ProductSellDetailOverview data={props.data} />
+            </TabPanel>
+            <TabPanel value={tabSelected} index={1}></TabPanel>
+            <TabPanel value={tabSelected} index={2}></TabPanel>
+          </>
+        )}
+      </Box>
+    </ModalC>
   );
+};
+
+ProductSellDetail.propTypes = {
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+  title: PropTypes.string,
+  data: PropTypes.object
 };
 
 export default ProductSellDetail;
