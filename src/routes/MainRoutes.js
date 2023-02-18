@@ -140,7 +140,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <ProductDashboard /> },
             { path: 'product-list', element: <ProductList /> },
-            { path: 'product-list/sell/add', element: <ProductSellForm /> },
+            { path: 'product-list/sell/form', element: <ProductSellForm /> },
+            { path: 'product-list/sell/form/:id', element: <ProductSellForm /> },
             { path: 'product-list/clinic/add', element: <ProductClinicForm /> },
             { path: 'product-list/inventory/add', element: <ProductInventoryDetail /> },
             { path: 'bundle', element: <ProductBundle /> },

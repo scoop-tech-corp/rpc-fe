@@ -38,7 +38,7 @@ const FacilityDetailTab = () => {
           scrollButtons="auto"
           aria-label="location detail tab"
         >
-          <Tab label="Details" id="facility-tab-0" aria-controls="facility-tabpanel-0" />
+          <Tab label={<FormattedMessage id="details" />} id="facility-tab-0" aria-controls="facility-tabpanel-0" />
           <Tab label={<FormattedMessage id="description" />} id="facility-tab-1" aria-controls="facility-tabpanel-1" />
           <Tab label={<FormattedMessage id="photos" />} id="facility-tab-2" aria-controls="facility-tabpanel-2" />
         </Tabs>

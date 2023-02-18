@@ -46,6 +46,7 @@ const ProductSellFormHeader = (props) => {
 
     if (id) {
       // update process
+      console.log('submit update', getAllState());
     } else {
       await createProductSell(getAllState()).then(responseSuccess).catch(responseError);
     }

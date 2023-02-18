@@ -8,6 +8,7 @@ import Header from './location-detail-header';
 
 const LocationDetailPage = () => {
   const [locationName, setLocationName] = useState('');
+  const [isDoneLoadDetail, setIsDoneLoadDetail] = useState(false);
   let { code } = useParams();
 
   const getDropdownData = async () => {
@@ -36,6 +37,7 @@ const LocationDetailPage = () => {
       email: data.email,
       telephone: data.telephone
     });
+    setIsDoneLoadDetail(true);
   };
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const LocationDetailPage = () => {
   return (
     <>
       <Header locationName={locationName} />
-      <LocationDetailTab />
+      {isDoneLoadDetail && <LocationDetailTab />}
     </>
   );
 };

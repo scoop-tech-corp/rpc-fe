@@ -6,6 +6,7 @@ import { FormattedMessage } from 'react-intl';
 import { PlusOutlined } from '@ant-design/icons';
 import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
 import { useProductSellFormStore } from '../../product-sell-form-store';
+import { useParams } from 'react-router';
 
 import MainCard from 'components/MainCard';
 import FormBrand from 'components/FormBrand';
@@ -13,6 +14,7 @@ import FormSupplier from 'components/FormSupplier';
 import IconButton from 'components/@extended/IconButton';
 
 const BasicDetail = () => {
+  let { id } = useParams();
   const fullName = useProductSellFormStore((state) => state.fullName);
   const simpleName = useProductSellFormStore((state) => state.simpleName);
   const productBrand = useProductSellFormStore((state) => state.productBrand);
@@ -184,16 +186,18 @@ const BasicDetail = () => {
             </Stack>
           </Grid>
 
-          <Grid item xs={12} sm={4}>
-            <Stack spacing={1}>
-              <InputLabel htmlFor="expired-date">
-                <FormattedMessage id="expired-date" />
-              </InputLabel>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker value={expiredDate} onChange={onExpiredDate} renderInput={(params) => <TextField {...params} />} />
-              </LocalizationProvider>
-            </Stack>
-          </Grid>
+          {!id && (
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={1}>
+                <InputLabel htmlFor="expired-date">
+                  <FormattedMessage id="expired-date" />
+                </InputLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker value={expiredDate} onChange={onExpiredDate} renderInput={(params) => <TextField {...params} />} />
+                </LocalizationProvider>
+              </Stack>
+            </Grid>
+          )}
         </Grid>
       </MainCard>
       <FormBrand open={openFormBrand} onClose={onCloseFormBrand} />

@@ -9,7 +9,6 @@ import MainCard from 'components/MainCard';
 import { useLocationDetailStore } from '../../location-detail-store';
 
 const OperatingHour = () => {
-  // const [allDay, setAllDay] = useState(false);
   const locationOperationalHour = useLocationDetailStore((state) => state.operationalHour);
   const [operatingHours, setOperatingHours] = useState([
     { selectedDay: false, dayName: 'Monday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
@@ -39,10 +38,11 @@ const OperatingHour = () => {
       setOperatingHours(setOperatingHour);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locationOperationalHour]);
+  }, []);
 
   const setOperationalHourToDetail = (dtOperationalHour = null) => {
     let data = dtOperationalHour ? [...dtOperationalHour] : [...operatingHours];
+    console.log('data', data);
     data = data
       .filter((dt) => dt.selectedDay === true)
       .map((dt) => {
@@ -57,7 +57,6 @@ const OperatingHour = () => {
           toTime: dt.toTime ? `${setTime(dt.toTime.$H)}:${setTime(dt.toTime.$m)}` : ''
         };
       });
-
     useLocationDetailStore.setState({ operationalHour: data, locataionTouch: true });
   };
 
@@ -68,7 +67,8 @@ const OperatingHour = () => {
     setOperatingHours((value) => {
       let getOperationHour = [...value];
       getOperationHour = getOperationHour.map((dt) => {
-        dt.selectedDay = indeterminateToggleAll ? false : checked;
+        // dt.selectedDay = indeterminateToggleAll ? false : checked;
+        dt.selectedDay = checked;
         return dt;
       });
       setOperationalHourToDetail(getOperationHour);
@@ -84,7 +84,8 @@ const OperatingHour = () => {
     setOperatingHours((value) => {
       let getOperationHour = [...value];
       getOperationHour = getOperationHour.map((dt) => {
-        dt.allDay = indeterminateAllDay ? false : checked;
+        // dt.allDay = indeterminateAllDay ? false : checked;
+        dt.allDay = checked;
         return dt;
       });
       setOperationalHourToDetail(getOperationHour);

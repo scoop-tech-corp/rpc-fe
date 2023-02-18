@@ -4,19 +4,20 @@ import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } fro
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { getProductSell, deleteProductSell, exportProductSell, getProductSellDetail } from '../service';
 import { createMessageBackend, getLocationList } from 'service/service-global';
+import { formatThousandSeparator } from 'utils/func';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import ModalExport from '../components/ModalExport';
 import ProductSellDetail from './detail';
-import { formatThousandSeparator } from 'utils/func';
+import DownloadIcon from '@mui/icons-material/Download';
 
 let paramProductSellList = {};
 
@@ -62,6 +63,7 @@ const ProductSellList = () => {
             await getProductSellDetail(getId)
               .then((resp) => {
                 const detailData = {
+                  id: getId,
                   details: {
                     sku: resp.data.details.sku,
                     status: +resp.data.details.status,
@@ -177,7 +179,7 @@ const ProductSellList = () => {
   };
 
   const onClickAdd = () => {
-    navigate('/product/product-list/sell/add', { replace: true });
+    navigate('/product/product-list/sell/form', { replace: true });
   };
 
   const fetchData = async () => {
@@ -274,7 +276,7 @@ const ProductSellList = () => {
                 )}
               </Stack>
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={() => setModalExport(true)} color="success">
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
                   <FormattedMessage id="export" />
                 </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>

@@ -4,7 +4,7 @@ import { Chip, Stack, useMediaQuery, Button, Link, TextField, Autocomplete } fro
 import { FormattedMessage } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
@@ -17,6 +17,7 @@ import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import ModalExport from '../components/ModalExport';
 import ProductClinicDetail from './detail';
+import DownloadIcon from '@mui/icons-material/Download';
 
 let paramProductClinicList = {};
 
@@ -291,7 +292,7 @@ const ProductClinicList = () => {
               </Stack>
 
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={() => setModalExport(true)} color="success">
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
                   <FormattedMessage id="export" />
                 </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>

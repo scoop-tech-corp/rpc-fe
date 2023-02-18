@@ -10,11 +10,10 @@ const TabCategories = () => {
 
   useEffect(() => {
     if (categoriesStore.length) {
-      const newCategory = categoriesStore.map((gc) => {
-        const findPc = productCategoryList.find((pcl) => +pcl.value === +gc);
-        if (findPc) {
-          return findPc;
-        }
+      const newCategory = [];
+      categoriesStore.map((gc) => {
+        const findPc = productCategoryList.find((pcl) => +pcl.value === +gc.id);
+        if (findPc) newCategory.push(findPc);
       });
       setCategories(newCategory);
     }

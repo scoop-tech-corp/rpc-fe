@@ -3,13 +3,14 @@ import { useTheme } from '@mui/material/styles';
 import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { GlobalFilter } from 'utils/react-table';
+// import { GlobalFilter } from 'utils/react-table';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 
+import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'utils/axios';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -26,7 +27,7 @@ const FacilityList = () => {
 
   const [getFacilityData, setFacilityData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  const [keywordSearch, setKeywordSearch] = useState('');
+  // const [keywordSearch, setKeywordSearch] = useState('');
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
@@ -107,12 +108,12 @@ const FacilityList = () => {
     fetchData();
   };
 
-  const onSearch = (event) => {
-    paramFacilityList.keyword = event;
-    setKeywordSearch(event);
+  // const onSearch = (event) => {
+  //   paramFacilityList.keyword = event;
+  //   setKeywordSearch(event);
 
-    fetchData();
-  };
+  //   fetchData();
+  // };
 
   const onFilterLocation = (selected) => {
     paramFacilityList.locationId = selected.map((dt) => dt.value);
@@ -194,7 +195,7 @@ const FacilityList = () => {
 
   const clearParamFetchData = () => {
     paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
-    setKeywordSearch('');
+    // setKeywordSearch('');
     setFilterLocation([]);
   };
 
@@ -228,7 +229,7 @@ const FacilityList = () => {
               sx={{ p: 3, pb: 0 }}
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} />
+                {/* <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} /> */}
                 <Autocomplete
                   id="filterLocation"
                   multiple
@@ -248,7 +249,7 @@ const FacilityList = () => {
               </Stack>
 
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'}>
-                <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>

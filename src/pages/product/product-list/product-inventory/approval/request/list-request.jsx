@@ -5,11 +5,12 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
 import { getProductInventoryApproval, getProductInventoryApprovalExport } from 'pages/product/product-list/service';
 import { FormattedMessage } from 'react-intl';
-import { EyeOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { EyeOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 
+import DownloadIcon from '@mui/icons-material/Download';
 import PropTypes from 'prop-types';
 import ScrollX from 'components/ScrollX';
 import IconButton from 'components/@extended/IconButton';
@@ -193,7 +194,7 @@ const ListRequest = (props) => {
                 renderInput={(params) => <TextField {...params} label="Filter location" />}
               />
             </Stack>
-            <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
+            <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
               <FormattedMessage id="export" />
             </Button>
           </Stack>

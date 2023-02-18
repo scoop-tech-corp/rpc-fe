@@ -5,7 +5,7 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
 import { getProductInventoryApprovalHistory, getProductInventoryApprovalHistoryExport } from '../../service';
 import { FormattedMessage } from 'react-intl';
-import { EyeOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { EyeOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
@@ -14,6 +14,7 @@ import { createMessageBackend } from 'service/service-global';
 // import { DesktopDateRangePicker } from '@mui/x-date-pickers-pro/DesktopDateRangePicker';
 // import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 
+import DownloadIcon from '@mui/icons-material/Download';
 import PropTypes from 'prop-types';
 import IconButton from 'components/@extended/IconButton';
 import ProductInventoryApprovalDetail from './request/detail';
@@ -199,7 +200,7 @@ const History = (props) => {
                 />
               </LocalizationProvider> */}
             </Stack>
-            <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
+            <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
               <FormattedMessage id="export" />
             </Button>
           </Stack>
