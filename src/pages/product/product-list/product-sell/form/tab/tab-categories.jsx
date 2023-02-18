@@ -18,7 +18,7 @@ const TabCategories = () => {
       setCategories(newCategory);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoriesStore]);
+  }, []);
 
   const onSelectedCategory = (_, val) => {
     let setNewData = val.map((dt) => dt.value);
