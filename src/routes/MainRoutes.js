@@ -22,7 +22,7 @@ const CustomerImport = Loadable(lazy(() => import('pages/extra-pages/sample-page
 
 // Staff
 const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const StaffList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const StaffList = Loadable(lazy(() => import('pages/staff/staff-list')));
 const StaffLeaveApproval = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffAccessControl = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
