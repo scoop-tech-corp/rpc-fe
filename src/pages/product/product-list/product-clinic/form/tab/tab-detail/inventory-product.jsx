@@ -34,11 +34,16 @@ const InventoryProduct = () => {
 
   const onFieldHandler = (event, idx) => {
     useProductClinicFormStore.setState((prevState) => {
-      const getData = typeof idx === 'number' ? [...prevState.locations] : { ...prevState.locations };
-      const pivotData = typeof idx === 'number' ? getData[idx] : getData;
-      pivotData[event.target.name] = +event.target.value;
+      let getData = null;
+      if (typeof idx === 'number') {
+        getData = [...prevState.locations];
+        getData[idx][event.target.name] = +event.target.value;
+      } else {
+        getData = { ...prevState.locations };
+        getData[event.target.name] = +event.target.value;
+      }
 
-      return { locations: pivotData, productClinicFormTouch: true };
+      return { locations: getData, productClinicFormTouch: true };
     });
   };
 
