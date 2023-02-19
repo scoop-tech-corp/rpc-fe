@@ -46,6 +46,7 @@ const ProductClinicFormHeader = (props) => {
 
     if (id) {
       // update process
+      console.log('submit update', getAllState());
     } else {
       await createProductClinic(getAllState()).then(responseSuccess).catch(responseError);
     }

@@ -39,8 +39,8 @@ export const defaultProductClinicForm = {
   isCustomerPurchaseOutStock: false,
   isStockLevelCheck: false,
   isNonChargeable: false,
-  isOfficeApproval: false,
-  isAdminApproval: false,
+  isOfficeApproval: true,
+  isAdminApproval: true,
 
   introduction: '',
   description: '',

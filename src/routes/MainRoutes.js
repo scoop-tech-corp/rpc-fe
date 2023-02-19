@@ -143,6 +143,7 @@ const MainRoutes = {
             { path: 'product-list/sell/form', element: <ProductSellForm /> },
             { path: 'product-list/sell/form/:id', element: <ProductSellForm /> },
             { path: 'product-list/clinic/add', element: <ProductClinicForm /> },
+            { path: 'product-list/clinic/form/:id', element: <ProductClinicForm /> },
             { path: 'product-list/inventory/add', element: <ProductInventoryDetail /> },
             { path: 'bundle', element: <ProductBundle /> },
             { path: 'bundle/form', element: <ProductBundleForm /> },

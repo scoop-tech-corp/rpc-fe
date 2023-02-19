@@ -62,13 +62,29 @@ const ProductSellList = () => {
           const onClickDetail = async () => {
             await getProductSellDetail(getId)
               .then((resp) => {
+                let categories = '';
+                if (resp.data.details.categories.length) {
+                  resp.data.details.categories.map((dt, idx) => {
+                    categories += dt.categoryName + (idx + 1 !== resp.data.details.categories.length ? ',' : '');
+                  });
+                }
+
+                let reminders = '';
+                if (resp.data.reminders.length) {
+                  resp.data.reminders.map((dt, idx) => {
+                    reminders += dt.timing + `(${dt.unit})` + (idx + 1 !== resp.data.reminders.length ? ',' : '');
+                  });
+                }
+
                 const detailData = {
                   id: getId,
                   details: {
                     sku: resp.data.details.sku,
                     status: +resp.data.details.status,
                     supplierName: resp.data.details.supplierName,
-                    brandName: resp.data.details.brandName
+                    brandName: resp.data.details.brandName,
+                    categories,
+                    reminders
                   },
                   shipping: {
                     isShipped: +resp.data.isShipped,

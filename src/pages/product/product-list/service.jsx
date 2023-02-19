@@ -87,6 +87,15 @@ export const createSupplier = async (supplierName) => {
   return await axios.post('product/supplier', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const uploadImageProduct = async (property, id, procedure) => {
+  const fd = new FormData();
+  const url = `imageproduct${procedure.toLowerCase()}`;
+  fd.append('id', id);
+  setFormDataImage(property.photos, fd);
+
+  return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 const generateParamSaved = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
@@ -137,12 +146,62 @@ const generateParamSaved = (property, procedure = '') => {
   return fd;
 };
 
+const generateParamUpdate = (property, procedure = '') => {
+  const productBrandId = property.productBrand ? +property.productBrand.value : '';
+  const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
+  const expiredDate = property.expiredDate ? new Date(property.expiredDate).toLocaleDateString('en-CA') : '';
+
+  let finalParam = {
+    fullName: property.fullName,
+    simpleName: property.simpleName,
+    productBrandId: productBrandId,
+    productSupplierId: productSupplierId,
+    sku: property.sku,
+    expiredDate: expiredDate,
+    status: property.status,
+    pricingStatus: property.pricingStatus,
+    costPrice: property.costPrice,
+    marketPrice: property.marketPrice,
+    price: property.price,
+    isShipped: property.isShipped,
+    weight: property.weight,
+    length: property.length,
+    width: property.width,
+    height: property.height,
+    isCustomerPurchase: property.isCustomerPurchase,
+    isCustomerPurchaseOnline: property.isCustomerPurchaseOnline,
+    isCustomerPurchaseOutStock: property.isCustomerPurchaseOutStock,
+    isStockLevelCheck: property.isStockLevelCheck,
+    isNonChargeable: property.isNonChargeable,
+    isOfficeApproval: property.isOfficeApproval,
+    isAdminApproval: property.isAdminApproval,
+    introduction: property.introduction,
+    description: property.description,
+    locations: property.locations,
+    customerGroups: property.customerGroups,
+    priceLocations: property.priceLocations,
+    quantities: property.quantities,
+    categories: property.categories,
+    reminders: property.reminders
+  };
+
+  if (procedure === 'clinic') {
+    finalParam = { ...finalParam, dosages: property.dosage };
+  }
+
+  return finalParam;
+};
+
 // ============= PRODUCT SELL ============= //
 
 const productSellUrl = 'product/sell';
 export const createProductSell = async (property) => {
   const parameter = generateParamSaved(property);
   return await axios.post(productSellUrl, parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateProductSell = async (property) => {
+  return await axios.put(productSellUrl, generateParamUpdate(property));
 };
 
 export const deleteProductSell = async (id) => {
@@ -192,8 +251,12 @@ export const getProductSellDetail = async (id) => {
 
 const productClinicUrl = 'product/clinic';
 export const createProductClinic = async (property) => {
-  const parameter = generateParamSaved(property);
+  const parameter = generateParamSaved(property, 'clinic');
   return await axios.post(productClinicUrl, parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateProductClinic = async (property) => {
+  return await axios.put(productClinicUrl, generateParamUpdate(property, 'clinic'));
 };
 
 export const deleteProductClinic = async (id) => {

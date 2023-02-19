@@ -22,7 +22,7 @@ const ProductSellDetailOverviewDetails = (props) => {
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
           <Stack spacing={1} direction="row">
-            <InputLabel htmlFor="category">{<FormattedMessage id="category" />}</InputLabel>:&nbsp; asd
+            <InputLabel htmlFor="category">{<FormattedMessage id="category" />}</InputLabel>:&nbsp; {data.categories}
           </Stack>
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
@@ -32,7 +32,7 @@ const ProductSellDetailOverviewDetails = (props) => {
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
           <Stack spacing={1} direction="row">
-            <InputLabel htmlFor="reminders">{<FormattedMessage id="reminders" />}</InputLabel>:&nbsp; asd
+            <InputLabel htmlFor="reminders">{<FormattedMessage id="reminders" />}</InputLabel>:&nbsp; {data.reminders}
           </Stack>
         </Grid>
 

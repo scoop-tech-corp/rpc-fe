@@ -77,6 +77,7 @@ const ProductClinicList = () => {
                 }
 
                 const detailData = {
+                  id: getId,
                   dosages: resp.data.dosages,
                   details: {
                     sku: resp.data.details.sku,

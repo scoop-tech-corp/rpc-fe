@@ -1,6 +1,7 @@
 import { Button, CardActions, Chip, Divider, Grid, Stack, Typography } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -14,6 +15,7 @@ import ProductClinicDetailOverviewDosage from './dosage';
 const ProductClinicDetailOverview = (props) => {
   const { data } = props;
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -41,7 +43,11 @@ const ProductClinicDetailOverview = (props) => {
             <Button color="primary" size="medium">
               Buy
             </Button>
-            <Button color="warning" size="medium">
+            <Button
+              color="warning"
+              size="medium"
+              onClick={() => navigate(`/product/product-list/clinic/form/${data.id}`, { replace: true })}
+            >
               Edit
             </Button>
             <Button color="error" size="medium">

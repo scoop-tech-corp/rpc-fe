@@ -10,16 +10,17 @@ const TabCategories = () => {
 
   useEffect(() => {
     if (categoriesStore.length) {
-      const newCategory = categoriesStore.map((gc) => {
-        const findPc = productCategoryList.find((pcl) => +pcl.value === +gc);
-        if (findPc) {
-          return findPc;
-        }
+      const newCategory = [];
+      categoriesStore.map((gc) => {
+        const getId = typeof gc === 'object' ? +gc.id : +gc;
+        const findPc = productCategoryList.find((pcl) => +pcl.value === getId);
+
+        if (findPc) newCategory.push(findPc);
       });
       setCategories(newCategory);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoriesStore]);
+  }, []);
 
   const onSelectedCategory = (_, val) => {
     let setNewData = val.map((dt) => dt.value);

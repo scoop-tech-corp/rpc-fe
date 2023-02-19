@@ -42,7 +42,7 @@ const OperatingHour = () => {
 
   const setOperationalHourToDetail = (dtOperationalHour = null) => {
     let data = dtOperationalHour ? [...dtOperationalHour] : [...operatingHours];
-    console.log('data', data);
+
     data = data
       .filter((dt) => dt.selectedDay === true)
       .map((dt) => {

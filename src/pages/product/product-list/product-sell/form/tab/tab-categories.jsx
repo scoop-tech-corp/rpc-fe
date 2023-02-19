@@ -12,7 +12,8 @@ const TabCategories = () => {
     if (categoriesStore.length) {
       const newCategory = [];
       categoriesStore.map((gc) => {
-        const findPc = productCategoryList.find((pcl) => +pcl.value === +gc.id);
+        const getId = typeof gc === 'object' ? +gc.id : +gc;
+        const findPc = productCategoryList.find((pcl) => +pcl.value === getId);
         if (findPc) newCategory.push(findPc);
       });
       setCategories(newCategory);

@@ -34,10 +34,11 @@ const InventoryProduct = () => {
 
   const onFieldHandler = (event, idx) => {
     useProductSellFormStore.setState((prevState) => {
-      const getData = [...prevState.locations];
-      getData[idx][event.target.name] = +event.target.value;
+      const getData = typeof idx === 'number' ? [...prevState.locations] : { ...prevState.locations };
+      const pivotData = typeof idx === 'number' ? getData[idx] : getData;
+      pivotData[event.target.name] = +event.target.value;
 
-      return { locations: getData, productSellFormTouch: true };
+      return { locations: pivotData, productSellFormTouch: true };
     });
   };
 
@@ -137,26 +138,50 @@ const InventoryProduct = () => {
         <>
           <Grid item xs={12} sm={3}>
             <Stack spacing={1}>
-              <b>
+              <InputLabel>
                 <FormattedMessage id="location-name" />
-              </b>
+              </InputLabel>
               {locations.locationName}
             </Stack>
           </Grid>
           <Grid item xs={12} sm={3}>
             <Stack spacing={1}>
-              <b>
+              <InputLabel>
                 <FormattedMessage id="in-stock" />
-              </b>
+              </InputLabel>
               {locations.inStock}
             </Stack>
           </Grid>
           <Grid item xs={12} sm={3}>
             <Stack spacing={1}>
-              <b>
+              <InputLabel>
                 <FormattedMessage id="low-stock" />
-              </b>
-              {locations.lowStock}
+              </InputLabel>
+              <TextField
+                fullWidth
+                id="lowStock"
+                name="lowStock"
+                value={locations.lowStock}
+                onChange={(e) => onFieldHandler(e)}
+                type="number"
+                inputProps={{ min: 0 }}
+              />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="restock-limit" />
+              </InputLabel>
+              <TextField
+                fullWidth
+                id="reStockLimit"
+                name="reStockLimit"
+                value={locations.reStockLimit || ''}
+                onChange={(e) => onFieldHandler(e)}
+                type="number"
+                inputProps={{ min: 0 }}
+              />
             </Stack>
           </Grid>
         </>

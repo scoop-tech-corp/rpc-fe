@@ -153,6 +153,7 @@ const Dosis = () => {
                       type="number"
                       id={`dosage${i}`}
                       value={dt.dosage}
+                      valueState={dt.dosage}
                       onChangeOutput={(event) => onInputDecimal(event, i)}
                     />
                   </Stack>
