@@ -87,10 +87,10 @@ export const createSupplier = async (supplierName) => {
   return await axios.post('product/supplier', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const uploadImageProduct = async (property, id, procedure) => {
+export const uploadImageProduct = async (property, procedure) => {
   const fd = new FormData();
-  const url = `imageproduct${procedure.toLowerCase()}`;
-  fd.append('id', id);
+  const url = `product/${procedure.toLowerCase()}/image`;
+  fd.append('id', property.id);
   setFormDataImage(property.photos, fd);
 
   return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -152,6 +152,7 @@ const generateParamUpdate = (property, procedure = '') => {
   const expiredDate = property.expiredDate ? new Date(property.expiredDate).toLocaleDateString('en-CA') : '';
 
   let finalParam = {
+    id: property.id,
     fullName: property.fullName,
     simpleName: property.simpleName,
     productBrandId: productBrandId,

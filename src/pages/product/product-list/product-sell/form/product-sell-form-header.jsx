@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { createProductSell } from '../../service';
+import { createProductSell, updateProductSell, uploadImageProduct } from '../../service';
 import { getAllState, useProductSellFormStore } from './product-sell-form-store';
 import { createMessageBackend } from 'service/service-global';
 
@@ -25,14 +25,6 @@ const ProductSellFormHeader = (props) => {
 
   const setTitlePage = id ? props.productSellName : <FormattedMessage id="add-product-sell" />;
 
-  const responseSuccess = (resp) => {
-    if (resp && resp.status === 200) {
-      const message = id ? 'Success update product sell' : 'Success create product sell';
-      dispatch(snackbarSuccess(message));
-      navigate('/product/product-list', { replace: true });
-    }
-  };
-
   const responseError = (err) => {
     const message = createMessageBackend(err, true);
     setIsError(true);
@@ -41,12 +33,37 @@ const ProductSellFormHeader = (props) => {
     setErrContent({ title: message.msg, detail: message.detail });
   };
 
+  const responseSuccess = async (resp) => {
+    const nextProcessSuccess = (message) => {
+      dispatch(snackbarSuccess(message));
+      navigate('/product/product-list', { replace: true });
+    };
+
+    if (resp && resp.status === 200) {
+      const message = `Success ${id ? 'update' : 'create'} product sell`;
+
+      if (id) {
+        const thenUpload = (res) => {
+          if (res && res.status === 200) nextProcessSuccess(message);
+        };
+        await uploadImageProduct({ ...getAllState(), id }, 'sell')
+          .then(thenUpload)
+          .catch(responseError);
+      } else {
+        nextProcessSuccess(message);
+      }
+    }
+  };
+
   const onSubmit = async () => {
     if (productSellFormError) return;
 
     if (id) {
       // update process
       console.log('submit update', getAllState());
+      updateProductSell({ ...getAllState(), id })
+        .then(responseSuccess)
+        .catch(responseError);
     } else {
       await createProductSell(getAllState()).then(responseSuccess).catch(responseError);
     }

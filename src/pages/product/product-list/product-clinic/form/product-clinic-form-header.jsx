@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { createProductClinic } from '../../service';
+import { createProductClinic, updateProductClinic } from '../../service';
 import { getAllState, useProductClinicFormStore } from './product-clinic-form-store';
 import { createMessageBackend } from 'service/service-global';
 
@@ -25,14 +25,6 @@ const ProductClinicFormHeader = (props) => {
 
   const setTitlePage = id ? props.productClinicName : <FormattedMessage id="add-product-clinic" />;
 
-  const responseSuccess = (resp) => {
-    if (resp && resp.status === 200) {
-      const message = `Success ${id ? 'update' : 'create'} update product clinic`;
-      dispatch(snackbarSuccess(message));
-      navigate('/product/product-list?tab=1', { replace: true });
-    }
-  };
-
   const responseError = (err) => {
     const message = createMessageBackend(err, true);
     setIsError(true);
@@ -41,12 +33,37 @@ const ProductClinicFormHeader = (props) => {
     setErrContent({ title: message.msg, detail: message.detail });
   };
 
+  const responseSuccess = async (resp) => {
+    const nextProcessSuccess = (message) => {
+      dispatch(snackbarSuccess(message));
+      navigate('/product/product-list?tab=1', { replace: true });
+    };
+
+    if (resp && resp.status === 200) {
+      const message = `Success ${id ? 'update' : 'create'} product clinic`;
+
+      if (id) {
+        const thenUpload = (res) => {
+          if (res && res.status === 200) nextProcessSuccess(message);
+        };
+        await uploadImageProduct({ ...getAllState(), id }, 'clinic')
+          .then(thenUpload)
+          .catch(responseError);
+      } else {
+        nextProcessSuccess(message);
+      }
+    }
+  };
+
   const onSubmit = async () => {
     if (productClinicFormError) return;
 
     if (id) {
       // update process
       console.log('submit update', getAllState());
+      updateProductClinic({ ...getAllState(), id })
+        .then(responseSuccess)
+        .catch(responseError);
     } else {
       await createProductClinic(getAllState()).then(responseSuccess).catch(responseError);
     }
