@@ -42,6 +42,7 @@ const LocationDetailPage = () => {
 
   useEffect(() => {
     if (code) getDetail();
+    else setIsDoneLoadDetail(true);
 
     getDropdownData();
 
