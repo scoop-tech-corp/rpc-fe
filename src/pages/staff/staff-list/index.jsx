@@ -1,23 +1,21 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList } from 'service/service-global';
-import { deleteStaffList, getStaffList } from './service';
+import { deleteStaffList, exportStaff, getStaffList } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
-
+import DownloadIcon from '@mui/icons-material/Download';
 import iconWhatsapp from '../../../../src/assets/images/ico-whatsapp.png';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
@@ -31,7 +29,6 @@ const StaffList = () => {
 
   const [getStaffListData, setStaffListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
@@ -59,7 +56,8 @@ const StaffList = () => {
         Header: <FormattedMessage id="name" />,
         accessor: 'name',
         Cell: (data) => {
-          return <Link>{data.value}</Link>;
+          const getId = data.row.original.id;
+          return <Link href={`/staff/list/form/${getId}`}>{data.value}</Link>;
         }
       },
       {
@@ -75,7 +73,7 @@ const StaffList = () => {
         accessor: 'phoneNumber',
         Cell: (data) => {
           const isWhatsapp = +data.row.original.isWhatsapp;
-          const onClickWhatsapp = () => window.open(`https://api.whatsapp.com/send?phone=${data.value}&text=Hai%20Men`, '_blank');
+          const onClickWhatsapp = () => window.open(`https://api.whatsapp.com/send?phone=${data.value}&text=%20`, '_blank'); //
 
           return (
             <>
@@ -136,15 +134,28 @@ const StaffList = () => {
     fetchData();
   };
 
-  const onSearch = (event) => {
-    paramStaffList.keyword = event;
-    setKeywordSearch(event);
-
-    fetchData();
+  const onClickAdd = () => {
+    navigate('/staff/list/form', { replace: true });
   };
 
-  const onClickAdd = () => {
-    navigate('#', { replace: true });
+  const onExport = async () => {
+    await exportStaff(paramStaffList)
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
   };
 
   const fetchData = async () => {
@@ -153,8 +164,7 @@ const StaffList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
-    setKeywordSearch('');
+    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] };
   };
 
   const getDataFacilityLocation = async () => {
@@ -203,12 +213,6 @@ const StaffList = () => {
               sx={{ p: 3, pb: 0 }}
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <GlobalFilter
-                  placeHolder={'Search...'}
-                  globalFilter={keywordSearch}
-                  setGlobalFilter={onSearch}
-                  style={{ height: '41.3px' }}
-                />
                 <Autocomplete
                   id="filterLocation"
                   multiple
@@ -226,9 +230,9 @@ const StaffList = () => {
                 )}
               </Stack>
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                {/* <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
-                </Button> */}
+                </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                   <FormattedMessage id="staff" />
                 </Button>

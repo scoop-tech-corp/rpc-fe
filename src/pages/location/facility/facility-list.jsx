@@ -7,7 +7,6 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-// import { GlobalFilter } from 'utils/react-table';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 
 import DownloadIcon from '@mui/icons-material/Download';
@@ -27,7 +26,6 @@ const FacilityList = () => {
 
   const [getFacilityData, setFacilityData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  // const [keywordSearch, setKeywordSearch] = useState('');
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
@@ -108,13 +106,6 @@ const FacilityList = () => {
     fetchData();
   };
 
-  // const onSearch = (event) => {
-  //   paramFacilityList.keyword = event;
-  //   setKeywordSearch(event);
-
-  //   fetchData();
-  // };
-
   const onFilterLocation = (selected) => {
     paramFacilityList.locationId = selected.map((dt) => dt.value);
     setFilterLocation(selected);
@@ -156,7 +147,6 @@ const FacilityList = () => {
         params: {
           orderValue: paramFacilityList.orderValue,
           orderColumn: paramFacilityList.orderColumn,
-          search: paramFacilityList.keyword,
           locationId: paramFacilityList.locationId.length ? paramFacilityList.locationId : ['']
         }
       })
@@ -185,7 +175,6 @@ const FacilityList = () => {
         goToPage: paramFacilityList.goToPage,
         orderValue: paramFacilityList.orderValue,
         orderColumn: paramFacilityList.orderColumn,
-        search: paramFacilityList.keyword,
         locationId: paramFacilityList.locationId
       }
     });
@@ -194,8 +183,7 @@ const FacilityList = () => {
   }
 
   const clearParamFetchData = () => {
-    paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
-    // setKeywordSearch('');
+    paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] };
     setFilterLocation([]);
   };
 
@@ -229,7 +217,6 @@ const FacilityList = () => {
               sx={{ p: 3, pb: 0 }}
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                {/* <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} /> */}
                 <Autocomplete
                   id="filterLocation"
                   multiple

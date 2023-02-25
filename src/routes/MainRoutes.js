@@ -23,6 +23,7 @@ const CustomerImport = Loadable(lazy(() => import('pages/extra-pages/sample-page
 // Staff
 const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffList = Loadable(lazy(() => import('pages/staff/staff-list')));
+const StaffForm = Loadable(lazy(() => import('pages/staff/staff-list/form')));
 const StaffLeaveApproval = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffAccessControl = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -108,6 +109,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <StaffDashboard /> },
             { path: 'list', element: <StaffList /> },
+            { path: 'list/form', element: <StaffForm /> },
+            { path: 'list/form/:id', element: <StaffForm /> },
             { path: 'leave-approval', element: <StaffLeaveApproval /> },
             { path: 'access-control', element: <StaffAccessControl /> },
             { path: 'security-group', element: <StaffSecurityGroup /> },

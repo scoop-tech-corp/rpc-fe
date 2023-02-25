@@ -1,4 +1,3 @@
-import { CheckCircleOutlined, DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import {
   Autocomplete,
   Button,
@@ -6,27 +5,31 @@ import {
   CardContent,
   Divider,
   Grid,
+  IconButton,
   InputLabel,
   Stack,
   TextField,
   Tooltip,
   useMediaQuery
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
+import { useTheme } from '@mui/material/styles';
+import { CheckCircleOutlined, DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { defaultDetailAddress, useStaffFormStore } from '../staff-form-store';
 import { jsonCentralized } from 'utils/func';
-import { getCityList } from '../service';
-import { defaultDetailAddress, useLocationDetailStore } from '../location-detail-store';
+import { getCityList } from 'pages/location/location-list/detail/service';
 
-import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
 
-const TabAddresses = () => {
-  const detailAddress = useLocationDetailStore((state) => state.detailAddress);
-  const provinceList = useLocationDetailStore((state) => state.provinceList);
-  let address = [];
+const TabAddress = () => {
+  const theme = useTheme();
+  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const detailAddress = useStaffFormStore((state) => state.detailAddress);
+  const provinceList = useStaffFormStore((state) => state.provinceList);
   const countryList = [{ label: 'Indonesia', value: 'Indonesia' }];
+
+  let address = [];
 
   if (detailAddress.length) {
     const getDetailAddress = jsonCentralized(detailAddress);
@@ -34,7 +37,6 @@ const TabAddresses = () => {
     const newAddress = getDetailAddress.map((dt) => {
       const getCityList = dt.cityList;
 
-      dt.streetAddressError = '';
       dt.country = countryList.find((cl) => cl.value === dt.country) || null;
       dt.province = provinceList.find((cl) => cl.value === +dt.province) || null;
       dt.city = getCityList.find((cl) => cl.value === +dt.city) || null;
@@ -49,7 +51,7 @@ const TabAddresses = () => {
     let newData = [...data];
     newData = newData.map((dt) => {
       return {
-        usage: dt.usage,
+        isPrimary: dt.isPrimary,
         streetAddress: dt.streetAddress,
         additionalInfo: dt.additionalInfo,
         country: dt.country?.value,
@@ -59,14 +61,35 @@ const TabAddresses = () => {
         cityList: dt.cityList
       };
     });
-
-    useLocationDetailStore.setState({ detailAddress: newData, locataionTouch: true });
+    useStaffFormStore.setState({ detailAddress: newData, staffFormTouch: true });
   };
 
-  const onSetPrimary = (index) => {
+  const onAddAddress = () => {
+    const newObj = { ...defaultDetailAddress };
+    const initialFormAddress = {
+      ...newObj,
+      country: countryList.find((cl) => cl.value === newObj.country) || null,
+      province: provinceList.find((cl) => cl.value === newObj.province) || null,
+      city: null,
+      cityList: [],
+      isPrimary: false
+    };
+
+    const setNewData = [...address, initialFormAddress];
+    onSetLocationDetail(setNewData);
+  };
+
+  const onDeleteAddress = (i) => {
+    let getAddress = [...address];
+    getAddress.splice(i, 1);
+
+    onSetLocationDetail(getAddress);
+  };
+
+  const onSetPrimary = (indexSelected) => {
     const getAddress = [...address];
     getAddress.map((dt, idx) => {
-      dt.usage = idx === index ? true : false;
+      dt.isPrimary = idx === indexSelected ? true : false;
       return dt;
     });
 
@@ -95,32 +118,6 @@ const TabAddresses = () => {
     onSetLocationDetail(newAddress);
   };
 
-  const onAddAddress = () => {
-    const newObj = { ...defaultDetailAddress };
-    const initialFormAddress = {
-      ...newObj,
-      country: countryList.find((cl) => cl.value === newObj.country) || null,
-      province: provinceList.find((cl) => cl.value === newObj.province) || null,
-      city: null,
-      cityList: [],
-      usage: false,
-      streetAddressError: ''
-    };
-
-    const setNewData = [...address, initialFormAddress];
-    onSetLocationDetail(setNewData);
-  };
-
-  const onDeleteAddress = (i) => {
-    let getAddress = [...address];
-    getAddress.splice(i, 1);
-
-    onSetLocationDetail(getAddress);
-  };
-
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -137,14 +134,15 @@ const TabAddresses = () => {
           </Grid>
         </Grid>
       </Grid>
+
       {address.map((dt, i) => (
-        <Grid item xs={12} sm={6} key={i}>
+        <Grid item xs={12} sm={12} key={i}>
           <MainCard
             title={`Address ${i + 1}`}
             content={false}
             secondary={
               <Stack direction="row" alignItems="center" spacing={1.25}>
-                <IconButton color={dt.usage ? 'primary' : 'secondary'} size="small" onClick={() => onSetPrimary(i)}>
+                <IconButton color={dt.isPrimary ? 'primary' : 'secondary'} size="small" onClick={() => onSetPrimary(i)}>
                   <CheckCircleOutlined style={{ fontSize: '1.15rem' }} />
                 </IconButton>
               </Stack>
@@ -251,7 +249,7 @@ const TabAddresses = () => {
               </Grid>
             </CardContent>
 
-            {address.length > 1 && !dt.usage && (
+            {address.length > 1 && !dt.isPrimary && (
               <>
                 <Divider />
                 <CardActions>
@@ -272,4 +270,4 @@ const TabAddresses = () => {
   );
 };
 
-export default TabAddresses;
+export default TabAddress;

@@ -1,23 +1,23 @@
 import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
-import { useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { getDataStaticLocation } from 'pages/location/location-list/detail/service';
 import { jsonCentralized } from 'utils/func';
-import { useLocationDetailStore } from '../location-detail-store';
-import { getDataStaticLocation } from '../service';
+import { useStaffFormStore } from '../staff-form-store';
+import { FormattedMessage } from 'react-intl';
+import { useState } from 'react';
 
 import IconButton from 'components/@extended/IconButton';
-import FormDataStatic from '../../../../../components/FormDataStatic';
+import FormDataStatic from 'components/FormDataStatic';
 import MainCard from 'components/MainCard';
 
-const TabContact = () => {
-  const locationEmail = useLocationDetailStore((state) => state.email);
-  const locationTelephone = useLocationDetailStore((state) => state.telephone);
-  const locationMessenger = useLocationDetailStore((state) => state.messenger);
+const TabContacts = () => {
+  const locationEmail = useStaffFormStore((state) => state.email);
+  const locationTelephone = useStaffFormStore((state) => state.telephone);
+  const locationMessenger = useStaffFormStore((state) => state.messenger);
 
-  const usageList = useLocationDetailStore((state) => state.usageList);
-  const phoneTypeList = useLocationDetailStore((state) => state.telephoneType);
-  const messengerTypeList = useLocationDetailStore((state) => state.messengerType);
+  const usageList = useStaffFormStore((state) => state.usageList);
+  const phoneTypeList = useStaffFormStore((state) => state.telephoneType);
+  const messengerTypeList = useStaffFormStore((state) => state.messengerType);
 
   let phone = [];
   let email = [];
@@ -34,7 +34,7 @@ const TabContact = () => {
   if (locationEmail.length) {
     const getDetailEmail = jsonCentralized(locationEmail);
     const newEmail = getDetailEmail.map((em) => {
-      return { emailUsage: em.usage || '', emailAddress: em.username };
+      return { emailUsage: em.usage || '', emailAddress: em.email };
     });
     email = newEmail;
   }
@@ -47,14 +47,14 @@ const TabContact = () => {
     messenger = newMessenger;
   }
 
-  const onSetLocationDetail = (data, procedure) => {
+  const onSetStaffDetail = (data, procedure) => {
     let newData = [...data];
     newData = newData.map((dt) => {
       let setObj = {};
       if (procedure === 'telephone') {
         setObj = { phoneNumber: dt.phoneNumber, type: dt.phoneType, usage: dt.phoneUsage };
       } else if (procedure === 'email') {
-        setObj = { username: dt.emailAddress, usage: dt.emailUsage };
+        setObj = { email: dt.emailAddress, usage: dt.emailUsage };
       } else if (procedure === 'messenger') {
         setObj = {
           messengerNumber: dt.messengerUsageName,
@@ -66,9 +66,9 @@ const TabContact = () => {
       return setObj;
     });
 
-    const assignObject = { [procedure]: newData, locataionTouch: true };
+    const assignObject = { [procedure]: newData, staffFormTouch: true };
 
-    useLocationDetailStore.setState({ ...assignObject });
+    useStaffFormStore.setState({ ...assignObject });
   };
 
   const onUsageHandler = (event, idx, procedure) => {
@@ -89,7 +89,7 @@ const TabContact = () => {
         break;
     }
 
-    onSetLocationDetail(data, procedure);
+    onSetStaffDetail(data, procedure);
   };
 
   const onFieldHandler = (event, idx, procedure) => {
@@ -110,7 +110,7 @@ const TabContact = () => {
         break;
     }
 
-    onSetLocationDetail(data, procedure);
+    onSetStaffDetail(data, procedure);
   };
 
   const onTypeHandler = (event, idx, procedure) => {
@@ -127,48 +127,48 @@ const TabContact = () => {
         break;
     }
 
-    onSetLocationDetail(data, procedure);
+    onSetStaffDetail(data, procedure);
   };
 
   // Start Phone
   const onAddPhone = () => {
     const setNewData = [...phone, { phoneUsage: '', phoneNumber: '', phoneType: '' }];
-    onSetLocationDetail(setNewData, 'telephone');
+    onSetStaffDetail(setNewData, 'telephone');
   };
 
   const onDeletePhone = (i) => {
     let getPhone = [...phone];
     getPhone.splice(i, 1);
 
-    onSetLocationDetail(getPhone, 'telephone');
+    onSetStaffDetail(getPhone, 'telephone');
   };
   // End Phone
 
   // Start Email
   const onAddEmail = () => {
     const setNewData = [...email, { emailUsage: '', emailAddress: '' }];
-    onSetLocationDetail(setNewData, 'email');
+    onSetStaffDetail(setNewData, 'email');
   };
 
   const onDeleteEmail = (i) => {
     let getEmails = [...email];
     getEmails.splice(i, 1);
 
-    onSetLocationDetail(getEmails, 'email');
+    onSetStaffDetail(getEmails, 'email');
   };
   // End Email
 
   // Start Messenger
   const onAddMessenger = () => {
     const setNewData = [...messenger, { messengerUsage: '', messengerUsageName: '', messengerType: '' }];
-    onSetLocationDetail(setNewData, 'messenger');
+    onSetStaffDetail(setNewData, 'messenger');
   };
 
   const onDeleteMessenger = (i) => {
     let getMessengers = [...messenger];
     getMessengers.splice(i, 1);
 
-    onSetLocationDetail(getMessengers, 'messenger');
+    onSetStaffDetail(getMessengers, 'messenger');
   };
   // End Messenger
 
@@ -192,7 +192,7 @@ const TabContact = () => {
     setValueOpenMenu({ modalUsage: false, modalType: false, typeValue: '' });
     if (val) {
       const newConstruct = await getDataStaticLocation();
-      useLocationDetailStore.setState({ ...newConstruct });
+      useStaffFormStore.setState({ ...newConstruct });
     }
   };
 
@@ -475,4 +475,4 @@ const TabContact = () => {
   );
 };
 
-export default TabContact;
+export default TabContacts;
