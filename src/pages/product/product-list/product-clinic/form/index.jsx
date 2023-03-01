@@ -71,6 +71,9 @@ const ProductClinicForm = () => {
         };
       });
 
+      let { Id: id, ...rest } = data.location;
+      data.location = { id, ...rest };
+
       useProductClinicFormStore.setState((prevState) => {
         return {
           ...prevState,

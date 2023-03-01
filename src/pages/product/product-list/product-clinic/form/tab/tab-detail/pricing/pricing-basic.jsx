@@ -11,6 +11,7 @@ const PricingBasic = () => {
 
   const onFieldHandler = (e) => {
     const getValue = e.target.value ? +e.target.value.replace(',', '') : '';
+
     useProductClinicFormStore.setState({ [e.target.name]: getValue, productClinicFormTouch: true });
   };
 
@@ -26,7 +27,7 @@ const PricingBasic = () => {
             id="costPrice"
             name="costPrice"
             value={costPrice}
-            onKeyUp={onFieldHandler}
+            onChange={onFieldHandler}
             InputProps={{
               startAdornment: 'Rp',
               inputComponent: NumberFormatCustom
@@ -44,7 +45,7 @@ const PricingBasic = () => {
             id="marketPrice"
             name="marketPrice"
             value={marketPrice}
-            onKeyUp={onFieldHandler}
+            onChange={onFieldHandler}
             InputProps={{
               startAdornment: 'Rp',
               inputComponent: NumberFormatCustom
@@ -63,7 +64,7 @@ const PricingBasic = () => {
             id="price"
             name="price"
             value={price}
-            onKeyUp={onFieldHandler}
+            onChange={onFieldHandler}
             InputProps={{
               startAdornment: 'Rp',
               inputComponent: NumberFormatCustom

@@ -62,6 +62,9 @@ const ProductSellForm = () => {
         selectedFile: null
       }));
 
+      let { Id: id, ...rest } = data.location;
+      data.location = { id, ...rest };
+
       useProductSellFormStore.setState((prevState) => {
         return {
           ...prevState,

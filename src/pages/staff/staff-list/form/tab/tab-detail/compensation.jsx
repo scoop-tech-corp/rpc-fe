@@ -8,6 +8,7 @@ import { getPayPeriodList } from 'pages/staff/staff-list/service';
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import FormPayPeriod from 'components/FormPayPeriod';
+import NumberFormatCustom from 'utils/number-format';
 
 const Compensation = () => {
   const annualSickAllowance = useStaffFormStore((state) => state.annualSickAllowance);
@@ -99,7 +100,17 @@ const Compensation = () => {
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="pay-amount">{<FormattedMessage id="pay-amount" />} (RP)</InputLabel>
-              <TextField id="pay-amount" name="payAmount" fullWidth type="number" value={payAmount} onChange={onFieldHandler} />
+              <TextField
+                id="pay-amount"
+                name="payAmount"
+                fullWidth
+                value={payAmount}
+                onChange={onFieldHandler}
+                InputProps={{
+                  startAdornment: 'Rp',
+                  inputComponent: NumberFormatCustom
+                }}
+              />
             </Stack>
           </Grid>
         </Grid>
