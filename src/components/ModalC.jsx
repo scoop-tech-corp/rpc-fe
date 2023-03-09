@@ -7,7 +7,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const ModalC = (props) => {
-  const { open, title, children, okText, cancelText, onOk, onCancel, action, isModalAction = true, ...other } = props;
+  const { open, title, children, okText, cancelText, onOk, onCancel, action, disabledOk = false, isModalAction = true, ...other } = props;
 
   return (
     <Dialog onClose={onCancel} open={open} TransitionComponent={Transition} {...other}>
@@ -23,7 +23,7 @@ const ModalC = (props) => {
           <Button variant="outlined" color="error" onClick={onCancel}>
             {cancelText}
           </Button>
-          <Button variant="contained" onClick={onOk}>
+          <Button variant="contained" onClick={onOk} disabled={disabledOk}>
             {okText}
           </Button>
         </DialogActions>
@@ -40,6 +40,7 @@ ModalC.propTypes = {
   cancelText: PropTypes.string,
   onOk: PropTypes.func,
   onCancel: PropTypes.func,
+  disabledOk: PropTypes.bool,
   action: PropTypes.shape({ element: PropTypes.node, justifyContent: PropTypes.string, alignItems: PropTypes.string }),
   isModalAction: PropTypes.bool,
   other: PropTypes.any

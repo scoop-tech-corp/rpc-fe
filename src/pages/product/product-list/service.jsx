@@ -246,6 +246,16 @@ export const getProductSellDetail = async (id) => {
   });
 };
 
+export const splitProductSell = async (property) => {
+  const fd = new FormData();
+  fd.append('id', property.id);
+  fd.append('fullName', property.fullName);
+  fd.append('qtyReduction', property.qtyReduction);
+  fd.append('qtyIncrease', property.qtyIncrease);
+
+  return await axios.post(productSellUrl + '/split', fd);
+};
+
 // ============= END PRODUCT SELL ============= //
 
 // ============= PRODUCT CLINIC ============= //

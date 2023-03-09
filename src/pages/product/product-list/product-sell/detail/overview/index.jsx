@@ -2,6 +2,7 @@ import { Button, CardActions, Chip, Divider, Grid, Stack, Typography } from '@mu
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
+import { useState } from 'react';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -10,11 +11,20 @@ import ProductSellDetailOverviewSettings from './settings';
 import ProductSellDetailOverviewShipping from './shipping';
 import ProductSellDetailOverviewDescription from './description';
 import ProductSellDetailOverviewPricing from './pricing';
+import FormSplit from './split';
 
 const ProductSellDetailOverview = (props) => {
   const { data } = props;
+  const [openFormSplit, setOpenFormSplit] = useState(false);
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const onCloseFormSplit = (val) => {
+    setOpenFormSplit(false);
+    if (val) {
+      props.output('closeOverview');
+    }
+  };
 
   return (
     <>
@@ -30,7 +40,7 @@ const ProductSellDetailOverview = (props) => {
       >
         <Stack direction="row" justifyContent="flex-end" sx={{ width: 1 }}>
           <Stack direction="row" spacing={1} style={{ overflowX: 'auto' }}>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormSplit(true)}>
               Split
             </Button>
             <Button color="primary" size="medium">
@@ -99,12 +109,14 @@ const ProductSellDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
+      <FormSplit data={data} open={openFormSplit} onClose={onCloseFormSplit} />
     </>
   );
 };
 
 ProductSellDetailOverview.propTypes = {
-  data: PropTypes.object
+  data: PropTypes.object,
+  output: PropTypes.func
 };
 
 export default ProductSellDetailOverview;

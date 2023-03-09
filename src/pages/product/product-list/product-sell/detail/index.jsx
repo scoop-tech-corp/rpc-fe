@@ -31,6 +31,10 @@ const ProductSellDetail = (props) => {
 
   const onChangeTab = (value) => setTabSelected(value);
 
+  const outputOverviewHandler = (event) => {
+    if (event === 'closeOverview') onCancel();
+  };
+
   return (
     <ModalC title={props.title} open={props.open} onCancel={onCancel} isModalAction={false} fullWidth maxWidth="lg">
       <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
@@ -58,7 +62,7 @@ const ProductSellDetail = (props) => {
         {props.open && (
           <>
             <TabPanel value={tabSelected} index={0}>
-              <ProductSellDetailOverview data={props.data} />
+              <ProductSellDetailOverview data={props.data} output={(e) => outputOverviewHandler(e)} />
             </TabPanel>
             <TabPanel value={tabSelected} index={1}></TabPanel>
             <TabPanel value={tabSelected} index={2}></TabPanel>
