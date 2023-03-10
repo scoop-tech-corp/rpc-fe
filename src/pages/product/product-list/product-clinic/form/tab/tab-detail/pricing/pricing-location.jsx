@@ -15,6 +15,10 @@ const PricingLocation = () => {
       const getData = [...prevState.priceLocations];
       getData[i].locationId = event.target.value;
 
+      if (getData[i].id) {
+        getData[i].status = 'update';
+      }
+
       return { priceLocations: getData, productClinicFormTouch: true };
     });
   };
@@ -26,13 +30,17 @@ const PricingLocation = () => {
       const getData = [...prevState.priceLocations];
       getData[i].price = getPrice;
 
+      if (getData[i].id) {
+        getData[i].status = 'update';
+      }
+
       return { priceLocations: getData, productClinicFormTouch: true };
     });
   };
 
   const onAddLocation = () => {
     useProductClinicFormStore.setState((prevState) => {
-      const setNewData = [...prevState.priceLocations, { locationId: '', price: '' }];
+      const setNewData = [...prevState.priceLocations, { id: '', locationId: '', price: '', status: 'new' }];
       return { priceLocations: setNewData, productClinicFormTouch: true };
     });
   };
@@ -40,7 +48,8 @@ const PricingLocation = () => {
   const onDeleteLocation = (i) => {
     useProductClinicFormStore.setState((prevState) => {
       const setNewData = [...prevState.priceLocations];
-      setNewData.splice(i, 1);
+      setNewData[i].status = 'del';
+      // setNewData.splice(i, 1);
       return { priceLocations: setNewData, productClinicFormTouch: true };
     });
   };
@@ -49,58 +58,61 @@ const PricingLocation = () => {
     <>
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} sm={10}>
-          {priceLocations.map((dt, i) => (
-            <Grid container spacing={4} key={i}>
-              <Grid item xs={12} sm={6}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
-                  <InputLabel htmlFor="location">
-                    <FormattedMessage id="location" />
-                  </InputLabel>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id={`location${i}`}
-                      name={`location${i}`}
-                      value={dt.locationId}
-                      onChange={(event) => onSelectLocation(event, i)}
-                    >
-                      <MenuItem value="">
-                        <em>Select location</em>
-                      </MenuItem>
-                      {locationDropdown.map((dt, idx) => (
-                        <MenuItem value={dt.value} key={idx}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={5}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
-                  <InputLabel>
-                    <FormattedMessage id="price" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id={`price${i}`}
-                    name={`price${i}`}
-                    value={dt.price}
-                    onChange={(event) => onPriceChange(event, i)}
-                    InputProps={{
-                      startAdornment: 'Rp',
-                      inputComponent: NumberFormatCustom
-                    }}
-                  />
-                </Stack>
-              </Grid>
+          {priceLocations.map(
+            (dt, i) =>
+              dt.status !== 'del' && (
+                <Grid container spacing={4} key={i}>
+                  <Grid item xs={12} sm={6}>
+                    <Stack spacing={1} style={{ marginTop: '5px' }}>
+                      <InputLabel htmlFor="location">
+                        <FormattedMessage id="location" />
+                      </InputLabel>
+                      <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          id={`location${i}`}
+                          name={`location${i}`}
+                          value={dt.locationId}
+                          onChange={(event) => onSelectLocation(event, i)}
+                        >
+                          <MenuItem value="">
+                            <em>Select location</em>
+                          </MenuItem>
+                          {locationDropdown.map((dt, idx) => (
+                            <MenuItem value={dt.value} key={idx}>
+                              {dt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={5}>
+                    <Stack spacing={1} style={{ marginTop: '5px' }}>
+                      <InputLabel>
+                        <FormattedMessage id="price" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        id={`price${i}`}
+                        name={`price${i}`}
+                        value={dt.price}
+                        onChange={(event) => onPriceChange(event, i)}
+                        InputProps={{
+                          startAdornment: 'Rp',
+                          inputComponent: NumberFormatCustom
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
 
-              <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                <IconButton size="large" color="error" onClick={() => onDeleteLocation(i)}>
-                  <DeleteFilled />
-                </IconButton>
-              </Grid>
-            </Grid>
-          ))}
+                  <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                    <IconButton size="large" color="error" onClick={() => onDeleteLocation(i)}>
+                      <DeleteFilled />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              )
+          )}
 
           <Button variant="contained" onClick={onAddLocation} startIcon={<PlusOutlined />} style={{ marginTop: '20px' }}>
             Add

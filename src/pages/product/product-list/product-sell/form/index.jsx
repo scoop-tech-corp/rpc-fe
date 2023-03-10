@@ -62,8 +62,10 @@ const ProductSellForm = () => {
         selectedFile: null
       }));
 
-      let { Id: id, ...rest } = data.location;
-      data.location = { id, ...rest };
+      const reminders = data.reminders.map((dt) => ({ ...dt, statusData: '' }));
+      const quantities = data.quantities?.map((dt) => ({ ...dt, status: '' }));
+      const priceLocations = data.priceLocations?.map((dt) => ({ ...dt, status: '' }));
+      const customerGroups = data.customerGroups?.map((dt) => ({ ...dt, status: '' }));
 
       useProductSellFormStore.setState((prevState) => {
         return {
@@ -85,9 +87,9 @@ const ProductSellForm = () => {
           marketPrice: data.marketPrice,
           price: data.price,
 
-          customerGroups: data.customerGroups ?? [],
-          priceLocations: data.priceLocations ?? [],
-          quantities: data.quantities,
+          customerGroups: customerGroups ?? [],
+          priceLocations: priceLocations ?? [],
+          quantities: quantities ?? [],
 
           isShipped: +data.isShipped,
           length: data.length,
@@ -106,10 +108,9 @@ const ProductSellForm = () => {
           introduction: data.introduction,
           description: data.description,
 
-          // selectedSellingPrice: [],
           locations: data.location,
           categories: data.details.categories,
-          reminders: data.reminders,
+          reminders,
           photos: getImage
         };
       });

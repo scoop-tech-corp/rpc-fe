@@ -60,7 +60,6 @@ const ProductSellFormHeader = (props) => {
 
     if (id) {
       // update process
-      console.log('submit update', getAllState());
       updateProductSell({ ...getAllState(), id })
         .then(responseSuccess)
         .catch(responseError);

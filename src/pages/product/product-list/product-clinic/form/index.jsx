@@ -64,15 +64,19 @@ const ProductClinicForm = () => {
 
       const dosage = data.dosages.map((dt) => {
         return {
+          id: '',
           from: dt.fromWeight,
           to: dt.toWeight,
           dosage: dt.dosage,
-          unit: dt.unit
+          unit: dt.unit,
+          status: ''
         };
       });
 
-      let { Id: id, ...rest } = data.location;
-      data.location = { id, ...rest };
+      const reminders = data.reminders.map((dt) => ({ ...dt, statusData: '' }));
+      const quantities = data.quantities?.map((dt) => ({ ...dt, status: '' }));
+      const priceLocations = data.priceLocations?.map((dt) => ({ ...dt, status: '' }));
+      const customerGroups = data.customerGroups?.map((dt) => ({ ...dt, status: '' }));
 
       useProductClinicFormStore.setState((prevState) => {
         return {
@@ -94,9 +98,9 @@ const ProductClinicForm = () => {
           marketPrice: data.marketPrice,
           price: data.price,
 
-          customerGroups: data.customerGroups ?? [],
-          priceLocations: data.priceLocations ?? [],
-          quantities: data.quantities,
+          customerGroups: customerGroups ?? [],
+          priceLocations: priceLocations ?? [],
+          quantities: quantities ?? [],
 
           isShipped: +data.isShipped,
           length: data.length,
@@ -116,10 +120,9 @@ const ProductClinicForm = () => {
           description: data.description,
           dosage,
 
-          // selectedClinicPrice: [],
           locations: data.location,
           categories: data.details.categories,
-          reminders: data.reminders,
+          reminders,
           photos: getImage
         };
       });

@@ -11,7 +11,7 @@ import { Grid, Typography, Button, Stack } from '@mui/material';
 // project imports
 import MainCard from '../MainCard';
 import { LeftOutlined } from '@ant-design/icons';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) => {
   // const theme = useTheme();
@@ -19,10 +19,11 @@ const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) =
   const navigate = useNavigate();
   const location = useLocation();
   const [breadcrumb, setBreadcrumb] = useState([]);
+  const intl = useIntl();
 
   useEffect(() => {
     const routerList = location.pathname.split('/').splice(1);
-    const tempBreadcrumb = [{ name: 'Home', link: '/dashboard' }];
+    const tempBreadcrumb = [{ name: <FormattedMessage id="home" />, link: '/dashboard' }];
     const hideBreadcrumb = ['location', 'product', 'staff'];
 
     routerList.forEach((dt, index) => {
@@ -48,11 +49,20 @@ const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) =
       setLink = '/' + setLink;
 
       if (!hideCrumb) {
-        tempBreadcrumb.push({ name: setName, link: setLink });
+        const urlNameDisplay = setName.replace(' ', '-').toLowerCase();
+
+        const checkIsTranslate = () => {
+          return Object.keys(intl.messages).find((msg) => msg === urlNameDisplay);
+        };
+
+        const newObj = { name: checkIsTranslate() ? <FormattedMessage id={urlNameDisplay} /> : setName, link: setLink };
+
+        tempBreadcrumb.push(newObj);
       }
     });
 
     setBreadcrumb(tempBreadcrumb);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const onLocationBack = () => {

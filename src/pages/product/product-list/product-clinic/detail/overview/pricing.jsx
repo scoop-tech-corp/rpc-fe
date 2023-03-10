@@ -22,7 +22,7 @@ const ProductClinicDetailOverviewPricing = (props) => {
           },
           {
             Header: <FormattedMessage id="price" />,
-            accessor: 'Price',
+            accessor: 'price',
             isNotSorting: true,
             Cell: (data) => formatThousandSeparator(data.value)
           }
@@ -55,7 +55,7 @@ const ProductClinicDetailOverviewPricing = (props) => {
           },
           {
             Header: <FormattedMessage id="price" />,
-            accessor: 'Price',
+            accessor: 'price',
             isNotSorting: true,
             Cell: (data) => formatThousandSeparator(data.value)
           }

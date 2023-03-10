@@ -70,6 +70,10 @@ const PricingQuantity = () => {
       const getData = [...prevState.quantities];
       getData[i][key] = getValue;
 
+      if (getData[i].id) {
+        getData[i].status = 'update';
+      }
+
       return { quantities: getData, productClinicFormError: validationForm(key, getData, i), productClinicFormTouch: true };
     });
   };
@@ -81,14 +85,18 @@ const PricingQuantity = () => {
 
   const onAddQty = () => {
     useProductClinicFormStore.setState((prevState) => {
-      return { quantities: [...prevState.quantities, { fromQty: '', toQty: '', price: '' }], productClinicFormTouch: true };
+      return {
+        quantities: [...prevState.quantities, { id: '', fromQty: '', toQty: '', price: '', status: 'new' }],
+        productClinicFormTouch: true
+      };
     });
   };
 
   const onDeleteQty = (i) => {
     useProductClinicFormStore.setState((prevState) => {
       const setNewData = [...prevState.quantities];
-      setNewData.splice(i, 1);
+      setNewData[i].status = 'del';
+      // setNewData.splice(i, 1);
 
       return { quantities: setNewData, productClinicFormTouch: true };
     });
@@ -104,64 +112,67 @@ const PricingQuantity = () => {
         )}
 
         <Grid item xs={12} sm={10}>
-          {quantityList.map((dt, i) => (
-            <Grid container spacing={4} key={i}>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
-                  <InputLabel htmlFor="from">
-                    <FormattedMessage id="from" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    id={`from${i}`}
-                    name={`from${i}`}
-                    value={dt.fromQty}
-                    onChange={(event) => onFieldChange(event, i, 'fromQty')}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
-                  <InputLabel>
-                    <FormattedMessage id="to" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    id={`to${i}`}
-                    name={`to${i}`}
-                    value={dt.toQty}
-                    onChange={(event) => onFieldChange(event, i, 'toQty')}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '5px' }}>
-                  <InputLabel>
-                    <FormattedMessage id="price" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id={`price${i}`}
-                    name={`price${i}`}
-                    value={dt.price}
-                    onChange={(event) => onFieldChange(event, i, 'price')}
-                    InputProps={{
-                      startAdornment: 'Rp',
-                      inputComponent: NumberFormatCustom
-                    }}
-                  />
-                </Stack>
-              </Grid>
+          {quantityList.map(
+            (dt, i) =>
+              dt.status !== 'del' && (
+                <Grid container spacing={4} key={i}>
+                  <Grid item xs={12} sm={4}>
+                    <Stack spacing={1} style={{ marginTop: '5px' }}>
+                      <InputLabel htmlFor="from">
+                        <FormattedMessage id="from" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        id={`from${i}`}
+                        name={`from${i}`}
+                        value={dt.fromQty}
+                        onChange={(event) => onFieldChange(event, i, 'fromQty')}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Stack spacing={1} style={{ marginTop: '5px' }}>
+                      <InputLabel>
+                        <FormattedMessage id="to" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        id={`to${i}`}
+                        name={`to${i}`}
+                        value={dt.toQty}
+                        onChange={(event) => onFieldChange(event, i, 'toQty')}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Stack spacing={1} style={{ marginTop: '5px' }}>
+                      <InputLabel>
+                        <FormattedMessage id="price" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        id={`price${i}`}
+                        name={`price${i}`}
+                        value={dt.price}
+                        onChange={(event) => onFieldChange(event, i, 'price')}
+                        InputProps={{
+                          startAdornment: 'Rp',
+                          inputComponent: NumberFormatCustom
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
 
-              <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                <IconButton size="large" color="error" onClick={() => onDeleteQty(i)}>
-                  <DeleteFilled />
-                </IconButton>
-              </Grid>
-            </Grid>
-          ))}
+                  <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                    <IconButton size="large" color="error" onClick={() => onDeleteQty(i)}>
+                      <DeleteFilled />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              )
+          )}
 
           <Button variant="contained" onClick={onAddQty} startIcon={<PlusOutlined />} style={{ marginTop: '20px' }}>
             Add

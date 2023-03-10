@@ -71,6 +71,10 @@ const Dosis = () => {
       const getData = [...prevState.dosage];
       getData[i][key] = getValue;
 
+      if (getData[i].id) {
+        getData[i].status = 'update';
+      }
+
       return { dosage: getData, productClinicFormError: validationForm(key, getData, i), productClinicFormTouch: true };
     });
   };
@@ -87,14 +91,18 @@ const Dosis = () => {
 
   const onAddDosage = () => {
     useProductClinicFormStore.setState((prevState) => {
-      return { dosage: [...prevState.dosage, { from: '', to: '', dosage: '', unit: '' }], productClinicFormTouch: true };
+      return {
+        dosage: [...prevState.dosage, { id: '', from: '', to: '', dosage: '', unit: '', status: 'new' }],
+        productClinicFormTouch: true
+      };
     });
   };
 
   const onDeleteDosage = (i) => {
     useProductClinicFormStore.setState((prevState) => {
       const setNewData = [...prevState.dosage];
-      setNewData.splice(i, 1);
+      setNewData[i].status = 'del';
+      // setNewData.splice(i, 1);
 
       return { dosage: setNewData, productClinicFormTouch: true };
     });
@@ -111,77 +119,86 @@ const Dosis = () => {
           )}
 
           <Grid item xs={12} sm={12}>
-            {dosageList.map((dt, i) => (
-              <Grid container spacing={4} key={i}>
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1} style={{ marginTop: '5px' }}>
-                    <InputLabel htmlFor="from">
-                      <FormattedMessage id="from" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      id={`from${i}`}
-                      name="from"
-                      value={dt.from}
-                      onChange={(event) => onFieldChange(event, i)}
-                    />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1} style={{ marginTop: '5px' }}>
-                    <InputLabel>
-                      <FormattedMessage id="to" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      id={`to${i}`}
-                      name="to"
-                      value={dt.to}
-                      onChange={(event) => onFieldChange(event, i)}
-                    />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1} style={{ marginTop: '5px' }}>
-                    <InputLabel>
-                      <FormattedMessage id="dosage" />
-                    </InputLabel>
-                    <InputDecimal
-                      fullWidth
-                      type="number"
-                      id={`dosage${i}`}
-                      value={dt.dosage}
-                      valueState={dt.dosage}
-                      onChangeOutput={(event) => onInputDecimal(event, i)}
-                    />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12} sm={2}>
-                  <Stack spacing={1} style={{ marginTop: '5px' }}>
-                    <InputLabel htmlFor="unit">Unit</InputLabel>
-                    <FormControl>
-                      <Select id="unit" name="unit" value={dt.unit} onChange={(event) => onFieldChange(event, i)} placeholder="Select unit">
-                        <MenuItem value="">
-                          <em>Select unit</em>
-                        </MenuItem>
-                        <MenuItem value={'gr'}>gr</MenuItem>
-                        <MenuItem value={'mg'}>mg</MenuItem>
-                        <MenuItem value={'ml'}>ml</MenuItem>
-                        <MenuItem value={'cc'}>cc</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Stack>
-                </Grid>
+            {dosageList.map(
+              (dt, i) =>
+                dt.status !== 'del' && (
+                  <Grid container spacing={4} key={i}>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1} style={{ marginTop: '5px' }}>
+                        <InputLabel htmlFor="from">
+                          <FormattedMessage id="from" />
+                        </InputLabel>
+                        <TextField
+                          fullWidth
+                          type="number"
+                          id={`from${i}`}
+                          name="from"
+                          value={dt.from}
+                          onChange={(event) => onFieldChange(event, i)}
+                        />
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1} style={{ marginTop: '5px' }}>
+                        <InputLabel>
+                          <FormattedMessage id="to" />
+                        </InputLabel>
+                        <TextField
+                          fullWidth
+                          type="number"
+                          id={`to${i}`}
+                          name="to"
+                          value={dt.to}
+                          onChange={(event) => onFieldChange(event, i)}
+                        />
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1} style={{ marginTop: '5px' }}>
+                        <InputLabel>
+                          <FormattedMessage id="dosage" />
+                        </InputLabel>
+                        <InputDecimal
+                          fullWidth
+                          type="number"
+                          id={`dosage${i}`}
+                          value={dt.dosage}
+                          valueState={dt.dosage}
+                          onChangeOutput={(event) => onInputDecimal(event, i)}
+                        />
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <Stack spacing={1} style={{ marginTop: '5px' }}>
+                        <InputLabel htmlFor="unit">Unit</InputLabel>
+                        <FormControl>
+                          <Select
+                            id="unit"
+                            name="unit"
+                            value={dt.unit}
+                            onChange={(event) => onFieldChange(event, i)}
+                            placeholder="Select unit"
+                          >
+                            <MenuItem value="">
+                              <em>Select unit</em>
+                            </MenuItem>
+                            <MenuItem value={'gr'}>gr</MenuItem>
+                            <MenuItem value={'mg'}>mg</MenuItem>
+                            <MenuItem value={'ml'}>ml</MenuItem>
+                            <MenuItem value={'cc'}>cc</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Stack>
+                    </Grid>
 
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeleteDosage(i)}>
-                    <DeleteFilled />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            ))}
+                    <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                      <IconButton size="large" color="error" onClick={() => onDeleteDosage(i)}>
+                        <DeleteFilled />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                )
+            )}
 
             <Button variant="contained" onClick={onAddDosage} startIcon={<PlusOutlined />} style={{ marginTop: '20px' }}>
               Add

@@ -60,7 +60,6 @@ const ProductClinicFormHeader = (props) => {
 
     if (id) {
       // update process
-      console.log('submit update', getAllState());
       updateProductClinic({ ...getAllState(), id })
         .then(responseSuccess)
         .catch(responseError);

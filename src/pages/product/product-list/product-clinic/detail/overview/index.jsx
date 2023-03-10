@@ -32,26 +32,26 @@ const ProductClinicDetailOverview = (props) => {
         <Stack direction="row" justifyContent="flex-end" sx={{ width: 1 }}>
           <Stack direction="row" spacing={1} style={{ overflowX: 'auto' }}>
             <Button color="primary" size="medium">
-              Split
+              <FormattedMessage id="split" />
             </Button>
             <Button color="primary" size="medium">
-              Adjust
+              <FormattedMessage id="adjust" />
             </Button>
             <Button color="primary" size="medium">
-              Transfer
+              <FormattedMessage id="transfer" />
             </Button>
             <Button color="primary" size="medium">
-              Buy
+              <FormattedMessage id="buy" />
             </Button>
             <Button
               color="warning"
               size="medium"
               onClick={() => navigate(`/product/product-list/clinic/form/${data.id}`, { replace: true })}
             >
-              Edit
+              <FormattedMessage id="edit" />
             </Button>
             <Button color="error" size="medium">
-              Delete
+              <FormattedMessage id="delete" />
             </Button>
           </Stack>
         </Stack>

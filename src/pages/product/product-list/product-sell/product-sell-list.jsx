@@ -78,6 +78,7 @@ const ProductSellList = () => {
 
                 const detailData = {
                   id: getId,
+                  fullName: resp.data.fullName,
                   details: {
                     sku: resp.data.details.sku,
                     status: +resp.data.details.status,
