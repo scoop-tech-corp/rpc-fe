@@ -1,10 +1,10 @@
-import MainCard from 'components/MainCard';
 import { Box, Tab, Tabs } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSearchParams } from 'react-router-dom';
 
+import PropTypes from 'prop-types';
+import MainCard from 'components/MainCard';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ProductSell from './product-sell/product-sell-list';
 import ProductClinic from './product-clinic/product-clinic-list';
