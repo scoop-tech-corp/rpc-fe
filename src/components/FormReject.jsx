@@ -6,6 +6,7 @@ import { Grid, InputLabel, Stack, TextField } from '@mui/material';
 
 const FormReject = (props) => {
   const [reason, setReason] = useState('');
+  const [isDisabledOk, setIsDisabledOk] = useState(true);
 
   const onCancel = () => {
     props.onClose(true);
@@ -25,6 +26,7 @@ const FormReject = (props) => {
       open={props.open}
       onOk={onOk}
       onCancel={onCancel}
+      disabledOk={isDisabledOk}
       sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 435 } }}
       maxWidth="xs"
     >
@@ -39,7 +41,10 @@ const FormReject = (props) => {
               name="reason"
               value={reason}
               rows={5}
-              onChange={(event) => setReason(event.target.value)}
+              onChange={(event) => {
+                setReason(event.target.value);
+                setIsDisabledOk(Boolean(event.target.value === ''));
+              }}
             />
           </Stack>
         </Grid>

@@ -6,10 +6,11 @@ import { useDrop, useDrag, useDragLayer } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 
 // material-ui
-import { styled, useTheme, alpha } from '@mui/material/styles';
+import { styled as styledMaterial, useTheme, alpha } from '@mui/material/styles';
 
 // react-table
 import { useTable, useRowSelect } from 'react-table';
+// import styled from 'styled-components';
 
 import {
   Box,
@@ -36,6 +37,26 @@ import {
 import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } from '@ant-design/icons';
 
 // ==============================|| TABLE CORE ||============================== //
+// const StyleTable = styled.div`
+//   /* This is required to make the table full-width */
+//   display: block;
+//   max-width: 100%;
+
+//   /* This will make the table scrollable when it gets too small */
+//   .tableWrap {
+//     display: block;
+//     max-width: 100%;
+//     overflow-x: scroll;
+//     overflow-y: hidden;
+//   }
+
+//   table {
+//     /* Make sure the inner table is always as wide as needed */
+//     width: 100%;
+//     border-spacing: 0;
+//   }
+// `;
+
 export const ReactTable = ({
   columns,
   data,
@@ -50,6 +71,11 @@ export const ReactTable = ({
 }) => {
   const theme = useTheme();
 
+  const [selectedOrder, setOrder] = useState({
+    column: '',
+    order: ''
+  });
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
@@ -57,11 +83,6 @@ export const ReactTable = ({
     },
     useRowSelect
   );
-
-  const [selectedOrder, setOrder] = useState({
-    column: '',
-    order: ''
-  });
 
   const clickHeader = (column) => {
     if (column.id === 'selection' || column.isNotSorting) return;
@@ -91,8 +112,12 @@ export const ReactTable = ({
     onPageSize(event);
   };
 
+  useEffect(() => () => {});
+
   return (
     <>
+      {/* <StyleTable> */}
+      {/* <div className="tableWrap"> */}
       <Table {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup, i) => (
@@ -153,6 +178,8 @@ export const ReactTable = ({
           )}
         </TableBody>
       </Table>
+      {/* </div> */}
+      {/* // </StyleTable> */}
     </>
   );
 };
@@ -403,7 +430,7 @@ DraggableHeader.propTypes = {
 
 // ==============================|| DRAG & DROP - DRAG PREVIEW ||============================== //
 
-const DragHeader = styled('div')(({ theme, x, y }) => ({
+const DragHeader = styledMaterial('div')(({ theme, x, y }) => ({
   color: theme.palette.text.secondary,
   position: 'fixed',
   pointerEvents: 'none',
