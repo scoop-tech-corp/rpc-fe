@@ -73,8 +73,11 @@ export const createStaffLeave = async (property) => {
   fd.append('toDate', toDate);
   fd.append('workingDays', JSON.stringify(workingDays));
   fd.append('remark', property.remark);
+  fd.append('totalDays', property.totalDays);
 
   return await axios.post('staff/leave', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const getLeaveTypeList = async (usersId) => await axios.get('staff/leavetype', { params: { usersId } });
+
+export const getWorkingDaysList = async () => await axios.get('staff/workingdate');

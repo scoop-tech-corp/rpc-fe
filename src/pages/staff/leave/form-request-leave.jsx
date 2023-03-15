@@ -1,5 +1,5 @@
 import { FormattedMessage } from 'react-intl';
-import { createStaffLeave, getLeaveTypeList } from './service';
+import { createStaffLeave, getLeaveTypeList, getWorkingDaysList } from './service';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
@@ -10,29 +10,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
-
-const listWorkingDays = [
-  {
-    label: 'Monday',
-    value: 'Monday'
-  },
-  {
-    label: 'Tuesday',
-    value: 'Tuesday'
-  },
-  {
-    label: 'Wednesday',
-    value: 'Wednesday'
-  },
-  {
-    label: 'Thursday',
-    value: 'Thursday'
-  },
-  {
-    label: 'Friday',
-    value: 'Friday'
-  }
-];
 
 const configCoreErr = {
   leaveTypeErr: '',
@@ -60,14 +37,16 @@ const FormRequestLeave = (props) => {
   // const [duration, setDuration] = useState('');
   const [workingDays, setWorkingDays] = useState([]);
   const [remark, setRemark] = useState('');
+  const [totalDays, setTotalDays] = useState('');
   const [disabledOk, setDisabledOk] = useState(true);
   const [leaveTypeList, setLeaveTypeList] = useState([]);
+  const [workingDaysList, setWorkingDaysList] = useState([]);
 
   const [formErr, setFormErr] = useState(configCoreErr);
   const firstRender = useRef(true);
 
   const onSubmit = async () => {
-    await createStaffLeave({ userId: props.userId, leaveType, fromDate, toDate, workingDays, remark })
+    await createStaffLeave({ userId: props.userId, leaveType, fromDate, toDate, workingDays, remark, totalDays })
       .then((resp) => {
         if (resp && resp.status === 200) {
           dispatch(snackbarSuccess('Success create request leave'));
@@ -127,6 +106,11 @@ const FormRequestLeave = (props) => {
     }
   };
 
+  const onChangeDate = (selectedDate, procedure) => {
+    if (procedure === 'from') setFromDate(selectedDate);
+    else if (procedure === 'to') setToDate(selectedDate);
+  };
+
   const getLeaveType = async () => {
     // hit get leave type based user id
     const resp = await getLeaveTypeList(props.userId);
@@ -142,10 +126,30 @@ const FormRequestLeave = (props) => {
     setLeaveTypeList(newMapping);
   };
 
+  const getWorkingDays = async () => {
+    const resp = await getWorkingDaysList({ fromDate, toDate });
+    const getData = resp.data;
+
+    setTotalDays(getData.totalDays);
+
+    if (getData.workingDays && getData.workingDays.length) {
+      setWorkingDaysList(getData.workingDays.map((dt) => ({ label: dt.name, value: dt.name })));
+    }
+  };
+
+  const getPreparationData = () => {
+    return new Promise((resolve) => {
+      getLeaveType();
+      resolve(true);
+    });
+  };
+
+  const getData = async () => await getPreparationData();
+
   useEffect(() => {
     if (!props.userId) return;
 
-    getLeaveType();
+    getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -160,6 +164,13 @@ const FormRequestLeave = (props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveType, fromDate, toDate, remark, workingDays]);
+
+  useEffect(() => {
+    if (fromDate && toDate) {
+      getWorkingDays();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromDate, toDate]);
 
   return (
     <ModalC
@@ -201,7 +212,7 @@ const FormRequestLeave = (props) => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DesktopDatePicker
               value={fromDate}
-              onChange={(date) => setFromDate(date)}
+              onChange={(date) => onChangeDate(date, 'from')}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -220,7 +231,7 @@ const FormRequestLeave = (props) => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DesktopDatePicker
               value={toDate}
-              onChange={(date) => setToDate(date)}
+              onChange={(date) => onChangeDate(date, 'to')}
               renderInput={(params) => (
                 <TextField {...params} error={Boolean(formErr.toDateErr && formErr.toDateErr.length > 0)} helperText={formErr.toDateErr} />
               )}
@@ -235,28 +246,32 @@ const FormRequestLeave = (props) => {
           <TextField fullWidth type="number" id="duration" name="duration" value={duration} onChange={(e) => setDuration(e.target.value)} />
         </Grid> */}
 
-        <Grid item xs={12} sm={5}>
-          <InputLabel htmlFor="working-days">{<FormattedMessage id="working-days" />}</InputLabel>
-        </Grid>
-        <Grid item xs={12} sm={7}>
-          <Autocomplete
-            id="workingDays"
-            multiple
-            limitTags={2}
-            options={listWorkingDays}
-            value={workingDays}
-            sx={{ width: 360 }}
-            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-            onChange={(_, value) => setWorkingDays(value)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                error={Boolean(formErr.workingDaysErr && formErr.workingDaysErr.length > 0)}
-                helperText={formErr.workingDaysErr}
+        {fromDate && toDate && (
+          <>
+            <Grid item xs={12} sm={5}>
+              <InputLabel htmlFor="working-days">{<FormattedMessage id="working-days" />}</InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={7}>
+              <Autocomplete
+                id="workingDays"
+                multiple
+                limitTags={2}
+                options={workingDaysList}
+                value={workingDays}
+                sx={{ width: 360 }}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => setWorkingDays(value)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={Boolean(formErr.workingDaysErr && formErr.workingDaysErr.length > 0)}
+                    helperText={formErr.workingDaysErr}
+                  />
+                )}
               />
-            )}
-          />
-        </Grid>
+            </Grid>
+          </>
+        )}
 
         <Grid item xs={12} sm={5}>
           <InputLabel htmlFor="remark">{<FormattedMessage id="remark" />}</InputLabel>
