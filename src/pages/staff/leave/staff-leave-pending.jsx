@@ -6,19 +6,24 @@ import { getStaffLeave, staffLeaveApprovedRejected } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { useDispatch } from 'react-redux';
+import { getAllState, useStaffLeaveIndexStore } from '.';
 
-import PropTypes from 'prop-types';
 import ScrollX from 'components/ScrollX';
 import MainCard from 'components/MainCard';
 import useAuth from 'hooks/useAuth';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
 
-const StaffLeavePending = (props) => {
+const StaffLeavePending = () => {
+  const keyword = useStaffLeaveIndexStore((state) => state.keyword);
+  const locationId = useStaffLeaveIndexStore((state) => state.locationId);
+  const isRefresh = useStaffLeaveIndexStore((state) => state.isRefresh);
+
   const { user } = useAuth();
   const [getStaffLeavePendingData, setStaffLeavePendingData] = useState({ data: [], totalPagination: 0 });
   const [dialog, setDialog] = useState({ isOpen: false, id: null });
   const [dialogReject, setDialogReject] = useState({ isOpen: false, id: null });
+
   const dispatch = useDispatch();
   const roleHaveAction = ['administrator', 'office'];
 
@@ -92,23 +97,22 @@ const StaffLeavePending = (props) => {
   const columns = useMemo(() => [...columnDefault, ...columnDynamic], []);
 
   const onOrderingChange = (event) => {
-    props.parameter.orderValue = event.order;
-    props.parameter.orderColumn = event.column;
+    useStaffLeaveIndexStore.setState({ orderValue: event.order, orderColumn: event.column });
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    props.parameter.goToPage = event;
+    useStaffLeaveIndexStore.setState({ goToPage: event });
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    props.parameter.rowPerPage = event;
+    useStaffLeaveIndexStore.setState({ rowPerPage: event });
     fetchData();
   };
 
   const fetchData = async () => {
-    const getData = await getStaffLeave(props.parameter);
+    const getData = await getStaffLeave(getAllState());
 
     setStaffLeavePendingData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
   };
@@ -151,10 +155,16 @@ const StaffLeavePending = (props) => {
   };
 
   useEffect(() => {
-    console.log('init pending list');
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.parameter]);
+  }, [keyword, locationId]);
+
+  useEffect(() => {
+    if (isRefresh) {
+      fetchData();
+    }
+
+    useStaffLeaveIndexStore.setState({ isRefresh: false });
+  }, [isRefresh]);
 
   return (
     <>
@@ -164,8 +174,8 @@ const StaffLeavePending = (props) => {
             columns={columns}
             data={getStaffLeavePendingData.data}
             totalPagination={getStaffLeavePendingData.totalPagination}
-            setPageNumber={props.parameter.goToPage}
-            setPageRow={props.parameter.rowPerPage}
+            setPageNumber={getAllState().goToPage}
+            setPageRow={getAllState().rowPerPage}
             colSpanPagination={9}
             onOrder={onOrderingChange}
             onGotoPage={onGotoPageChange}
@@ -189,10 +199,6 @@ const StaffLeavePending = (props) => {
       />
     </>
   );
-};
-
-StaffLeavePending.propTypes = {
-  parameter: PropTypes.object
 };
 
 export default StaffLeavePending;

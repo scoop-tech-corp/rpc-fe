@@ -2,12 +2,16 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getStaffLeave } from './service';
+import { getAllState, useStaffLeaveIndexStore } from '.';
 
-import PropTypes from 'prop-types';
 import ScrollX from 'components/ScrollX';
 import MainCard from 'components/MainCard';
 
-const StaffLeaveApproved = (props) => {
+const StaffLeaveApproved = () => {
+  const keyword = useStaffLeaveIndexStore((state) => state.keyword);
+  const locationId = useStaffLeaveIndexStore((state) => state.locationId);
+  const isRefresh = useStaffLeaveIndexStore((state) => state.isRefresh);
+
   const [getStaffLeaveApproveData, setStaffLeaveApproveData] = useState({ data: [], totalPagination: 0 });
   const columns = useMemo(
     () => [
@@ -56,32 +60,37 @@ const StaffLeaveApproved = (props) => {
   );
 
   const onOrderingChange = (event) => {
-    props.parameter.orderValue = event.order;
-    props.parameter.orderColumn = event.column;
+    useStaffLeaveIndexStore.setState({ orderValue: event.order, orderColumn: event.column });
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    props.parameter.goToPage = event;
+    useStaffLeaveIndexStore.setState({ goToPage: event });
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    props.parameter.rowPerPage = event;
+    useStaffLeaveIndexStore.setState({ rowPerPage: event });
     fetchData();
   };
 
   const fetchData = async () => {
-    const getData = await getStaffLeave(props.parameter);
+    const getData = await getStaffLeave(getAllState());
 
     setStaffLeaveApproveData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
   };
 
   useEffect(() => {
-    console.log('init approve list');
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.parameter]);
+  }, [keyword, locationId]);
+
+  useEffect(() => {
+    if (isRefresh) {
+      fetchData();
+    }
+
+    useStaffLeaveIndexStore.setState({ isRefresh: false });
+  }, [isRefresh]);
 
   return (
     <>
@@ -91,8 +100,8 @@ const StaffLeaveApproved = (props) => {
             columns={columns}
             data={getStaffLeaveApproveData.data}
             totalPagination={getStaffLeaveApproveData.totalPagination}
-            setPageNumber={props.parameter.goToPage}
-            setPageRow={props.parameter.rowPerPage}
+            setPageNumber={getAllState().goToPage}
+            setPageRow={getAllState().rowPerPage}
             colSpanPagination={10}
             onOrder={onOrderingChange}
             onGotoPage={onGotoPageChange}
@@ -102,10 +111,6 @@ const StaffLeaveApproved = (props) => {
       </MainCard>
     </>
   );
-};
-
-StaffLeaveApproved.propTypes = {
-  parameter: PropTypes.object
 };
 
 export default StaffLeaveApproved;

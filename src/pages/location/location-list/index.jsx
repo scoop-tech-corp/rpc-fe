@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import axios from 'utils/axios';
 import { useTheme } from '@mui/material/styles';
 import { Chip, Stack, useMediaQuery, Button, Link } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -23,6 +23,7 @@ const LocationList = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -177,7 +178,7 @@ const LocationList = () => {
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
-                  placeHolder={'Search...'}
+                  placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
                   style={{ height: '36.5px' }}

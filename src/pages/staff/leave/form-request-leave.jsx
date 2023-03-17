@@ -109,6 +109,7 @@ const FormRequestLeave = (props) => {
   const onChangeDate = (selectedDate, procedure) => {
     if (procedure === 'from') setFromDate(selectedDate);
     else if (procedure === 'to') setToDate(selectedDate);
+    setWorkingDays([]);
   };
 
   const getLeaveType = async () => {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Chip, Stack, useMediaQuery, Button, Link, TextField, Autocomplete } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -26,6 +26,7 @@ const ProductClinicList = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [getProductClinicData, setProductClinicData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -270,7 +271,7 @@ const ProductClinicList = () => {
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
-                  placeHolder={'Search...'}
+                  placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
                   style={{ height: '41.3px' }}
@@ -283,7 +284,7 @@ const ProductClinicList = () => {
                   sx={{ width: 300 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onFilterLocation(value)}
-                  renderInput={(params) => <TextField {...params} label="Filter location" />}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
                 />
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>

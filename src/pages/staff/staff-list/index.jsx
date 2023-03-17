@@ -221,7 +221,7 @@ const StaffList = () => {
                   sx={{ width: 300 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onFilterLocation(value)}
-                  renderInput={(params) => <TextField {...params} label="Filter location" />}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
                 />
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>

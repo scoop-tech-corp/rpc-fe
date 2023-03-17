@@ -4,7 +4,7 @@ import { Autocomplete, Stack, TextField, useMediaQuery, Button } from '@mui/mate
 import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
 import { getProductInventoryApproval, getProductInventoryApprovalExport } from 'pages/product/product-list/service';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { EyeOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
@@ -24,6 +24,7 @@ const ListRequest = (props) => {
   const [selectedFilterLocation, setFilterLocation] = useState([]);
 
   const dispatch = useDispatch();
+  const intl = useIntl();
   const { user } = useAuth();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
@@ -177,7 +178,7 @@ const ListRequest = (props) => {
           <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={1} sx={{ pt: 1 }}>
             <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
               <GlobalFilter
-                placeHolder={'Search...'}
+                placeHolder={intl.formatMessage({ id: 'search' })}
                 globalFilter={keywordSearch}
                 setGlobalFilter={onSearch}
                 style={{ height: '41.3px' }}
@@ -191,7 +192,7 @@ const ListRequest = (props) => {
                 sx={{ width: 300 }}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, value) => onFilterLocation(value)}
-                renderInput={(params) => <TextField {...params} label="Filter location" />}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
               />
             </Stack>
             <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">

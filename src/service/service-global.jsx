@@ -40,7 +40,7 @@ export const breakdownDetailMessageBackend = (arrayMessageErr, isNewLine = false
 };
 
 export const createMessageBackend = (errResp, isBreakdownArrErr = false) => {
-  let message = errResp.message ? errResp.message : 'Something when wrong';
+  let message = errResp.message ? errResp.message : 'Something went wrong';
   let detail = '';
 
   if (isBreakdownArrErr) {

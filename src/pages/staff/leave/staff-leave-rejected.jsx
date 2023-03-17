@@ -2,12 +2,16 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getStaffLeave } from './service';
+import { getAllState, useStaffLeaveIndexStore } from '.';
 
-import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 
-const StaffLeaveRejected = (props) => {
+const StaffLeaveRejected = () => {
+  const keyword = useStaffLeaveIndexStore((state) => state.keyword);
+  const locationId = useStaffLeaveIndexStore((state) => state.locationId);
+  const isRefresh = useStaffLeaveIndexStore((state) => state.isRefresh);
+
   const [getStaffLeaveRejectData, setStaffLeaveRejectData] = useState({ data: [], totalPagination: 0 });
   const columns = useMemo(
     () => [
@@ -60,32 +64,37 @@ const StaffLeaveRejected = (props) => {
   );
 
   const onOrderingChange = (event) => {
-    props.parameter.orderValue = event.order;
-    props.parameter.orderColumn = event.column;
+    useStaffLeaveIndexStore.setState({ orderValue: event.order, orderColumn: event.column });
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    props.parameter.goToPage = event;
+    useStaffLeaveIndexStore.setState({ goToPage: event });
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    props.parameter.rowPerPage = event;
+    useStaffLeaveIndexStore.setState({ rowPerPage: event });
     fetchData();
   };
 
   const fetchData = async () => {
-    const getData = await getStaffLeave(props.parameter);
+    const getData = await getStaffLeave(getAllState());
 
     setStaffLeaveRejectData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
   };
 
   useEffect(() => {
-    console.log('init rejected list');
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.parameter]);
+  }, [keyword, locationId]);
+
+  useEffect(() => {
+    if (isRefresh) {
+      fetchData();
+    }
+
+    useStaffLeaveIndexStore.setState({ isRefresh: false });
+  }, [isRefresh]);
 
   return (
     <>
@@ -95,8 +104,8 @@ const StaffLeaveRejected = (props) => {
             columns={columns}
             data={getStaffLeaveRejectData.data}
             totalPagination={getStaffLeaveRejectData.totalPagination}
-            setPageNumber={props.parameter.goToPage}
-            setPageRow={props.parameter.rowPerPage}
+            setPageNumber={getAllState().goToPage}
+            setPageRow={getAllState().rowPerPage}
             colSpanPagination={11}
             onOrder={onOrderingChange}
             onGotoPage={onGotoPageChange}
@@ -106,10 +115,6 @@ const StaffLeaveRejected = (props) => {
       </MainCard>
     </>
   );
-};
-
-StaffLeaveRejected.propTypes = {
-  parameter: PropTypes.object
 };
 
 export default StaffLeaveRejected;

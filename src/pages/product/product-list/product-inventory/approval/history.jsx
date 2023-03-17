@@ -4,7 +4,7 @@ import { Stack, useMediaQuery, Autocomplete, TextField, Button } from '@mui/mate
 import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
 import { getProductInventoryApprovalHistory, getProductInventoryApprovalHistoryExport } from '../../service';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { EyeOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
@@ -30,6 +30,7 @@ const History = (props) => {
   // const [selectedFilterDateRange] = useState([]);
 
   const dispatch = useDispatch();
+  const intl = useIntl();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -170,7 +171,7 @@ const History = (props) => {
           <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={1} sx={{ pt: 1 }}>
             <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
               <GlobalFilter
-                placeHolder={'Search...'}
+                placeHolder={intl.formatMessage({ id: 'search' })}
                 globalFilter={keywordSearch}
                 setGlobalFilter={onSearch}
                 style={{ height: '41.3px' }}
@@ -184,7 +185,7 @@ const History = (props) => {
                 sx={{ width: 300 }}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, value) => onFilterLocation(value)}
-                renderInput={(params) => <TextField {...params} label="Filter location" />}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
               />
               {/* <LocalizationProvider dateAdapter={AdapterDayjs} localeText={{ start: 'Desktop start', end: 'Desktop end' }}>
                 <DesktopDateRangePicker

@@ -4,14 +4,17 @@ import { FormattedMessage } from 'react-intl';
 import { MoreOutlined } from '@ant-design/icons';
 import { Menu, MenuItem } from '@mui/material';
 import { getStaffLeaveBalance } from './service';
+import { getAllState, useStaffLeaveIndexStore } from '.';
 
 import IconButton from 'components/@extended/IconButton';
-import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import FormRequestLeave from './form-request-leave';
 
-const StaffLeaveBalance = (props) => {
+const StaffLeaveBalance = () => {
+  const keyword = useStaffLeaveIndexStore((state) => state.keyword);
+  const locationId = useStaffLeaveIndexStore((state) => state.locationId);
+
   const [openMenu, setOpenMenu] = useState({ el: null, userId: null });
   const [getStaffLeaveBalanceData, setStaffLeaveBalanceData] = useState({ data: [], totalPagination: 0 });
   const [openFormRequest, setOpenFormRequest] = useState({ isOpen: false, userId: null });
@@ -83,33 +86,31 @@ const StaffLeaveBalance = (props) => {
   );
 
   const onOrderingChange = (event) => {
-    props.parameter.orderValue = event.order;
-    props.parameter.orderColumn = event.column;
+    useStaffLeaveIndexStore.setState({ orderValue: event.order, orderColumn: event.column });
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    props.parameter.goToPage = event;
+    useStaffLeaveIndexStore.setState({ goToPage: event });
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    props.parameter.rowPerPage = event;
+    useStaffLeaveIndexStore.setState({ rowPerPage: event });
     fetchData();
   };
 
   const fetchData = async () => {
-    const getData = await getStaffLeaveBalance(props.parameter);
+    const getData = await getStaffLeaveBalance(getAllState());
 
     setStaffLeaveBalanceData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
     handleClose();
   };
 
   useEffect(() => {
-    console.log('init balance list');
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.parameter]);
+  }, [keyword, locationId]);
 
   return (
     <>
@@ -119,8 +120,8 @@ const StaffLeaveBalance = (props) => {
             columns={columns}
             data={getStaffLeaveBalanceData.data}
             totalPagination={getStaffLeaveBalanceData.totalPagination}
-            setPageNumber={props.parameter.goToPage}
-            setPageRow={props.parameter.rowPerPage}
+            setPageNumber={getAllState().goToPage}
+            setPageRow={getAllState().rowPerPage}
             colSpanPagination={11}
             onOrder={onOrderingChange}
             onGotoPage={onGotoPageChange}
@@ -165,10 +166,6 @@ const StaffLeaveBalance = (props) => {
       )}
     </>
   );
-};
-
-StaffLeaveBalance.propTypes = {
-  parameter: PropTypes.object
 };
 
 export default StaffLeaveBalance;
