@@ -14,6 +14,8 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'assets/third-party/apex-chart.css';
 import 'assets/third-party/react-table.css';
 
+import 'assets/third-party/daterange-picker-custom.css';
+
 // load mock apis
 import '_api';
 

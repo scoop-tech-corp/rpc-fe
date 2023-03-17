@@ -1,12 +1,18 @@
 import axios from 'utils/axios';
+import { formateDateYYYMMDD } from 'utils/func';
 
 export const getStaffLeave = async (property) => {
+  const fromDate = property.dateRange ? formateDateYYYMMDD(property.dateRange[0]) : '';
+  const toDate = property.dateRange ? formateDateYYYMMDD(property.dateRange[1]) : '';
+
   return await axios.get('staff/leave', {
     params: {
       rowPerPage: property.rowPerPage,
       goToPage: property.goToPage,
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
+      fromDate,
+      toDate,
       search: property.keyword,
       status: property.status,
       locationId: property.locationId

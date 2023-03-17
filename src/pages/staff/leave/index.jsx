@@ -21,6 +21,7 @@ import FormRequestLeave from './form-request-leave';
 import TabPanel from 'components/TabPanelC';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 
 //--- CREATE STORE ----//
 import { create } from 'zustand';
@@ -32,7 +33,8 @@ const defaultIndexParam = {
   keyword: '',
   status: 'pending',
   locationId: [],
-  isRefresh: false
+  isRefresh: false,
+  dateRange: null
 };
 export const useStaffLeaveIndexStore = create(() => jsonCentralized(defaultIndexParam));
 export const getAllState = () => useStaffLeaveIndexStore.getState();
@@ -50,6 +52,7 @@ const StaffLeave = () => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
+  const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
 
   const [doneRender, setDoneRender] = useState(false);
   const [openFormRequest, setOpenFormRequest] = useState(false);
@@ -96,6 +99,11 @@ const StaffLeave = () => {
 
   const onRefresh = () => useStaffLeaveIndexStore.setState({ isRefresh: true });
 
+  const onFilterDateRange = (selectedDate) => {
+    useStaffLeaveIndexStore.setState({ dateRange: selectedDate });
+    setSelectedDateRange(selectedDate);
+  };
+
   const onFilterLocation = (selected) => {
     useStaffLeaveIndexStore.setState({ locationId: selected.map((dt) => dt.value) });
     setFilterLocation(selected);
@@ -138,7 +146,7 @@ const StaffLeave = () => {
   return (
     <>
       <HeaderPageCustom title={<FormattedMessage id="staff-leave" />} isBreadcrumb={true} />
-      <MainCard border={false} boxShadow>
+      <MainCard border={false} boxShadow style={{ overflow: 'unset' }}>
         <Stack spacing={3}>
           <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={1} sx={{ pb: 2 }}>
             <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
@@ -155,11 +163,14 @@ const StaffLeave = () => {
                   limitTags={1}
                   options={facilityLocationList}
                   value={selectedFilterLocation}
-                  sx={{ width: 360 }}
+                  sx={{ width: 300 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onFilterLocation(value)}
                   renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
                 />
+              )}
+              {tabSelected !== 3 && (
+                <DateRangePicker onChange={(value) => onFilterDateRange(value)} value={selectedDateRange} format="dd/MM/yyy" />
               )}
             </Stack>
             <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>

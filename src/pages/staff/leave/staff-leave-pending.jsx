@@ -18,6 +18,7 @@ const StaffLeavePending = () => {
   const keyword = useStaffLeaveIndexStore((state) => state.keyword);
   const locationId = useStaffLeaveIndexStore((state) => state.locationId);
   const isRefresh = useStaffLeaveIndexStore((state) => state.isRefresh);
+  const dateRange = useStaffLeaveIndexStore((state) => state.dateRange);
 
   const { user } = useAuth();
   const [getStaffLeavePendingData, setStaffLeavePendingData] = useState({ data: [], totalPagination: 0 });
@@ -156,7 +157,7 @@ const StaffLeavePending = () => {
 
   useEffect(() => {
     fetchData();
-  }, [keyword, locationId]);
+  }, [keyword, locationId, dateRange]);
 
   useEffect(() => {
     if (isRefresh) {

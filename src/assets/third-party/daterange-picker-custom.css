@@ -1,0 +1,40 @@
+.react-daterange-picker__wrapper {
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 4px;
+  color: #262626 !important;
+  font-size: 13px !important;
+  padding: 5px 3px;
+  text-align: center;
+}
+
+.react-daterange-picker__wrapper:hover, .react-calendar:hover {
+  border: 1px solid #69c0ff !important;
+}
+
+.react-calendar {
+  border-radius: 4px;
+  border: 1px solid #d9d9d9 !important;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.react-calendar__tile {
+  margin: 1.5px 0px !important;
+  width: 40px;
+  height: 40px;
+}
+
+.react-calendar__tile--active {
+  background-color: rgba(66, 165, 245, 0.6) !important;
+}
+
+.react-calendar__tile--rangeStart {
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+  background-color: rgba(24, 144, 255, 0.9) !important;
+}
+
+.react-calendar__tile--rangeEnd {
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+  background-color: rgba(24, 144, 255, 0.9) !important;
+}
