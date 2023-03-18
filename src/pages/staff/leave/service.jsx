@@ -21,7 +21,7 @@ export const getStaffLeave = async (property) => {
 };
 
 export const exportStaffLeave = async (param) => {
-  return await axios.get('staff/exportleave', {
+  return await axios.get('staff/leave/exportleave', {
     responseType: 'blob',
     params: {
       search: param.keyword,
@@ -34,7 +34,7 @@ export const exportStaffLeave = async (param) => {
 };
 
 export const getStaffLeaveBalance = async (property) => {
-  return await axios.get('staff/leavebalance', {
+  return await axios.get('staff/leave/leavebalance', {
     params: {
       rowPerPage: property.rowPerPage,
       goToPage: property.goToPage,
@@ -47,7 +47,7 @@ export const getStaffLeaveBalance = async (property) => {
 };
 
 export const exportStaffLeaveBalance = async (param) => {
-  return await axios.get('staff/exportbalance', {
+  return await axios.get('staff/leave/exportbalance', {
     responseType: 'blob',
     params: {
       search: param.keyword,
@@ -64,7 +64,7 @@ export const staffLeaveApprovedRejected = async (property) => {
   fd.append('status', property.status);
   fd.append('reason', property.reason);
 
-  return await axios.post('staff/statusleave', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('staff/leave/statusleave', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const createStaffLeave = async (property) => {
@@ -84,6 +84,6 @@ export const createStaffLeave = async (property) => {
   return await axios.post('staff/leave', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const getLeaveTypeList = async (usersId) => await axios.get('staff/leavetype', { params: { usersId } });
+export const getLeaveTypeList = async (usersId) => await axios.get('staff/leave/leavetype', { params: { usersId } });
 
-export const getWorkingDaysList = async () => await axios.get('staff/workingdate');
+export const getWorkingDaysList = async () => await axios.get('staff/leave/workingdate');
