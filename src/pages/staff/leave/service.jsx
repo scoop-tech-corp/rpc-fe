@@ -86,4 +86,11 @@ export const createStaffLeave = async (property) => {
 
 export const getLeaveTypeList = async (usersId) => await axios.get('staff/leave/leavetype', { params: { usersId } });
 
-export const getWorkingDaysList = async () => await axios.get('staff/leave/workingdate');
+export const getWorkingDaysList = async (property) => {
+  const fromDate = property.fromDate ? formateDateYYYMMDD(new Date(property.fromDate)) : '';
+  const toDate = property.toDate ? formateDateYYYMMDD(new Date(property.toDate)) : '';
+
+  return await axios.get('staff/leave/workingdate', {
+    params: { fromDate, toDate }
+  });
+};
