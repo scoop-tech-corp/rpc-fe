@@ -13,7 +13,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { jsonCentralized } from 'utils/func';
 import { getCityList } from '../service';
 import { defaultDetailAddress, useLocationDetailStore } from '../location-detail-store';
@@ -22,6 +22,7 @@ import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
 
 const TabAddresses = () => {
+  const intl = useIntl();
   const detailAddress = useLocationDetailStore((state) => state.detailAddress);
   const provinceList = useLocationDetailStore((state) => state.provinceList);
   let address = [];
@@ -161,7 +162,7 @@ const TabAddresses = () => {
                       fullWidth
                       id="streetAddress"
                       name="streetAddress"
-                      placeholder="Enter street address"
+                      placeholder={intl.formatMessage({ id: 'street-address' })}
                       value={dt.streetAddress}
                       onChange={(event) => onTextField(event, i, 'streetAddress')}
                     />
@@ -177,7 +178,7 @@ const TabAddresses = () => {
                       fullWidth
                       id="additionalInfo"
                       name="additionalInfo"
-                      placeholder="Enter additional info"
+                      placeholder={intl.formatMessage({ id: 'additional-info' })}
                       value={dt.additionalInfo}
                       onChange={(event) => onTextField(event, i, 'additionalInfo')}
                     />

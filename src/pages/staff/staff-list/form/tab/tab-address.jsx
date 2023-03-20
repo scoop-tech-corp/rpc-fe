@@ -12,7 +12,7 @@ import {
   Tooltip,
   useMediaQuery
 } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { CheckCircleOutlined, DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { defaultDetailAddress, useStaffFormStore } from '../staff-form-store';
@@ -23,6 +23,7 @@ import MainCard from 'components/MainCard';
 
 const TabAddress = () => {
   const theme = useTheme();
+  const intl = useIntl();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
   const detailAddress = useStaffFormStore((state) => state.detailAddress);
@@ -159,7 +160,7 @@ const TabAddress = () => {
                       fullWidth
                       id="streetAddress"
                       name="streetAddress"
-                      placeholder="Enter street address"
+                      placeholder={intl.formatMessage({ id: 'street-address' })}
                       value={dt.streetAddress}
                       onChange={(event) => onTextField(event, i, 'streetAddress')}
                     />
@@ -175,7 +176,7 @@ const TabAddress = () => {
                       fullWidth
                       id="additionalInfo"
                       name="additionalInfo"
-                      placeholder="Enter additional info"
+                      placeholder={intl.formatMessage({ id: 'additional-info' })}
                       value={dt.additionalInfo}
                       onChange={(event) => onTextField(event, i, 'additionalInfo')}
                     />
