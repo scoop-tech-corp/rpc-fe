@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import axios from 'utils/axios';
 import { useTheme } from '@mui/material/styles';
 import { Stack, useMediaQuery, Button } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -9,6 +8,8 @@ import { DeleteFilled } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
+
+import axios from 'utils/axios';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
@@ -78,7 +79,7 @@ const StaticDataList = () => {
   const onConfirm = async (value) => {
     if (value) {
       await axios
-        .delete('datastatic', {
+        .delete('location/datastatic', {
           data: { id: selectedRow }
         })
         .then((resp) => {
@@ -100,7 +101,7 @@ const StaticDataList = () => {
   };
 
   async function fetchData() {
-    const resp = await axios.get('datastatic', {
+    const resp = await axios.get('location/datastatic', {
       params: {
         rowPerPage: paramDataStaticList.rowPerPage,
         goToPage: paramDataStaticList.goToPage,
