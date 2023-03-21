@@ -9,6 +9,7 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
+import { exportLocation, getLocation } from './detail/service';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -123,33 +124,22 @@ const LocationList = () => {
   };
 
   const onExport = async () => {
-    const resp = await axios.get('exportlocation', {
-      responseType: 'blob'
+    await exportLocation().then((resp) => {
+      let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+      let downloadUrl = URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      // const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+      a.href = downloadUrl;
+      // a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+      a.download = 'Location-list';
+      document.body.appendChild(a);
+      a.click();
     });
-
-    let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-    let downloadUrl = URL.createObjectURL(blob);
-    let a = document.createElement('a');
-    // const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
-
-    a.href = downloadUrl;
-    // a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
-    a.download = 'Location-list';
-    document.body.appendChild(a);
-    a.click();
   };
 
   async function fetchData() {
-    const resp = await axios.get('location', {
-      params: {
-        rowPerPage: paramLocationList.rowPerPage,
-        goToPage: paramLocationList.goToPage,
-        orderValue: paramLocationList.orderValue,
-        orderColumn: paramLocationList.orderColumn,
-        search: paramLocationList.keyword
-      }
-    });
-
+    const resp = await getLocation(paramLocationList);
     setLocationData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
   }
 

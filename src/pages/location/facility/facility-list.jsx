@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList } from 'service/service-global';
+import { exportFacility, getFacility } from './detail/service';
 
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'utils/axios';
@@ -141,15 +142,7 @@ const FacilityList = () => {
   };
 
   const onExport = async () => {
-    await axios
-      .get('facilityexport', {
-        responseType: 'blob',
-        params: {
-          orderValue: paramFacilityList.orderValue,
-          orderColumn: paramFacilityList.orderColumn,
-          locationId: paramFacilityList.locationId.length ? paramFacilityList.locationId : ['']
-        }
-      })
+    await exportFacility(paramFacilityList)
       .then((resp) => {
         let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
         let downloadUrl = URL.createObjectURL(blob);
@@ -169,15 +162,7 @@ const FacilityList = () => {
   };
 
   async function fetchData() {
-    const getResp = await axios.get('facility', {
-      params: {
-        rowPerPage: paramFacilityList.rowPerPage,
-        goToPage: paramFacilityList.goToPage,
-        orderValue: paramFacilityList.orderValue,
-        orderColumn: paramFacilityList.orderColumn,
-        locationId: paramFacilityList.locationId
-      }
-    });
+    const getResp = await getFacility(paramFacilityList);
 
     setFacilityData({ data: getResp.data.data, totalPagination: getResp.data.totalPagination });
   }
