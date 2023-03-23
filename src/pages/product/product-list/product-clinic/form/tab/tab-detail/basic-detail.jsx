@@ -94,7 +94,14 @@ const BasicDetail = () => {
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="name">{<FormattedMessage id="name" />}</InputLabel>
-              <TextField fullWidth id="fullName" name="fullName" value={fullName} onChange={onFieldHandler} />
+              <TextField
+                fullWidth
+                id="fullName"
+                name="fullName"
+                value={fullName}
+                onChange={onFieldHandler}
+                inputProps={{ readOnly: Boolean(id) }}
+              />
             </Stack>
           </Grid>
           <Grid item xs={12} sm={4}>
