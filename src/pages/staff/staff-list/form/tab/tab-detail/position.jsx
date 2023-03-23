@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { getAllState, useStaffFormStore } from '../../staff-form-store';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -39,6 +39,7 @@ const Position = () => {
 
   const locationId = useStaffFormStore((state) => state.locationId);
   const locationList = useStaffFormStore((state) => state.locationList);
+  const isTouchForm = useStaffFormStore((state) => state.staffFormTouch);
   const locationValue = locationList.find((val) => val.value === locationId) || null;
 
   const [positionErr, setPositonErr] = useState(configCoreErr);
@@ -112,6 +113,12 @@ const Position = () => {
       useStaffFormStore.setState({ jobTitleList: getJobTitle });
     }
   };
+
+  useEffect(() => {
+    if (isTouchForm) {
+      onCheckValidation();
+    }
+  }, [isTouchForm]);
 
   return (
     <>
