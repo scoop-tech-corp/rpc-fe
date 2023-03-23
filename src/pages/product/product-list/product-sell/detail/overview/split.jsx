@@ -33,10 +33,7 @@ const FormSplit = (props) => {
         }
       })
       .catch((err) => {
-        const getMessage = createMessageBackend(err, true);
-        const setmsg = `${getMessage.msg}, ${getMessage.detail ? getMessage.detail.replace('<li>', '').replace('</li>', '') : ''}`;
-
-        if (err) dispatch(snackbarError(setmsg));
+        if (err) dispatch(snackbarError(createMessageBackend(err, true, true)));
       });
   };
 

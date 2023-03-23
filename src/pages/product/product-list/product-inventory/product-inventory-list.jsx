@@ -6,9 +6,11 @@ import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { snackbarSuccess } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { getProductInventory, deleteProductInventory } from '../service';
+import { createMessageBackend } from 'service/service-global';
+
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
@@ -131,14 +133,18 @@ const ProductInventoryList = () => {
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteProductInventory(selectedRow).then((resp) => {
-        if (resp.status === 200) {
-          setDialog(false);
-          dispatch(snackbarSuccess('Success delete data'));
-          clearParamFetchData();
-          fetchData();
-        }
-      });
+      await deleteProductInventory(selectedRow)
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialog(false);
+            dispatch(snackbarSuccess('Success delete data'));
+            clearParamFetchData();
+            fetchData();
+          }
+        })
+        .catch((err) => {
+          if (err) dispatch(snackbarError(createMessageBackend(err, true, true)));
+        });
     } else {
       setDialog(false);
     }
