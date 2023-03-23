@@ -59,6 +59,7 @@ const ProductBundleDetail = (props) => {
             id={props.id}
             status={dataDetail.productBundle?.status}
             getDetail={getDetail}
+            onRefreshIndex={(e) => props.onRefreshIndex(e)}
             onCancelDetail={() => {
               props.onClose({ isClose: true, isCloseWithHitIndex: true });
               setTabSelected(0);
@@ -100,7 +101,8 @@ const ProductBundleDetail = (props) => {
 ProductBundleDetail.propTypes = {
   id: PropTypes.string,
   open: PropTypes.bool,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  onRefreshIndex: PropTypes.func
 };
 
 export default ProductBundleDetail;

@@ -7,9 +7,9 @@ import { getProductClinicDropdown } from 'pages/product/product-list/service';
 import { useState } from 'react';
 
 const nameValidation = [
-  { code: 0, message: 'name is required' },
-  { code: 1, message: 'name minimum 3 characters length' },
-  { code: 2, message: 'name maximum 20 characters length' }
+  { code: 0, message: <FormattedMessage id="name-is-required" /> },
+  { code: 1, message: <FormattedMessage id="name-minimum-3-characters-length" /> },
+  { code: 2, message: <FormattedMessage id="name-maximum-20-characters-length" /> }
 ];
 
 const BasicDetail = () => {
@@ -39,9 +39,9 @@ const BasicDetail = () => {
     else if (getName.length < 3) nameErr = nameValidation.find((d) => d.code === 1).message;
     else if (getName.length > 20) nameErr = nameValidation.find((d) => d.code === 2).message;
 
-    if (getRemark.length > 50) remarkErr = 'remark maximum 50 characters length';
-    if (!getSellingLocation) sellingLocationErr = 'selling location is required';
-    if (!getCategory) categoryErr = 'category is required';
+    if (getRemark.length > 50) remarkErr = <FormattedMessage id="remark-maximum-50-characters-length" />;
+    if (!getSellingLocation) sellingLocationErr = <FormattedMessage id="selling-location-is-required" />;
+    if (!getCategory) categoryErr = <FormattedMessage id="category-is-required" />;
 
     if (nameErr || remarkErr || sellingLocationErr || categoryErr) {
       setFormError((prevState) => ({ ...prevState, nameErr, remarkErr, sellingLocationErr, categoryErr }));
@@ -93,7 +93,7 @@ const BasicDetail = () => {
               name="name"
               value={name}
               onChange={onFieldHandler}
-              error={Boolean(formError.nameErr && formError.nameErr.length > 0)}
+              error={Boolean(formError.nameErr && formError.nameErr.toString().length > 0)}
               helperText={formError.nameErr}
             />
           </Stack>
@@ -112,7 +112,7 @@ const BasicDetail = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  error={Boolean(formError.sellingLocationErr && formError.sellingLocationErr.length > 0)}
+                  error={Boolean(formError.sellingLocationErr && formError.sellingLocationErr.toString().length > 0)}
                   helperText={formError.sellingLocationErr ? formError.sellingLocationErr : ''}
                   variant="outlined"
                 />
@@ -134,7 +134,7 @@ const BasicDetail = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  error={Boolean(formError.categoryErr && formError.categoryErr.length > 0)}
+                  error={Boolean(formError.categoryErr && formError.categoryErr.toString().length > 0)}
                   helperText={formError.categoryErr ? formError.categoryErr : ''}
                   variant="outlined"
                 />
@@ -153,7 +153,7 @@ const BasicDetail = () => {
               name="remark"
               value={remark}
               onChange={onFieldHandler}
-              error={Boolean(formError.remarkErr && formError.remarkErr.length > 0)}
+              error={Boolean(formError.remarkErr && formError.remarkErr.toString().length > 0)}
               helperText={formError.remarkErr}
             />
           </Stack>

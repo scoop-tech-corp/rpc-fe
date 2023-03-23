@@ -8,7 +8,7 @@ import { GlobalFilter } from 'utils/react-table';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { getProductBundle } from './service';
+import { deleteProductBundle, getProductBundle } from './service';
 import { createMessageBackend } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
@@ -148,7 +148,7 @@ const ProductBundle = () => {
         .catch((err) => {
           if (err) {
             setDialog(false);
-            dispatch(snackbarError(createMessageBackend(err)));
+            dispatch(snackbarError(createMessageBackend(err, true, true)));
           }
         });
     } else {
@@ -216,6 +216,9 @@ const ProductBundle = () => {
       <ProductBundleDetail
         open={openDetail.isOpen}
         id={openDetail.id}
+        onRefreshIndex={(e) => {
+          if (e) fetchData();
+        }}
         onClose={(e) => {
           setOpenDetail({ isOpen: !e.isClose, id: null });
           if (e.isCloseWithHitIndex) {
