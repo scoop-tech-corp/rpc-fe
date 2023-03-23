@@ -42,13 +42,18 @@ export const breakdownDetailMessageBackend = (arrayMessageErr, isNewLine = false
   return message;
 };
 
-export const createMessageBackend = (errResp, isBreakdownArrErr = false) => {
+export const createMessageBackend = (errResp, isBreakdownArrErr = false, isBreakdownErrOnSnackBar = false) => {
   let message = errResp.message ? errResp.message : 'Something went wrong';
   let detail = '';
 
   if (isBreakdownArrErr) {
     detail += breakdownDetailMessageBackend(errResp.errors);
-    return { msg: message, detail };
+
+    if (isBreakdownErrOnSnackBar) {
+      return `${message}, ${detail ? detail.replaceAll('<li>', '').replaceAll('</li>', '') : ''}`;
+    } else {
+      return { msg: message, detail };
+    }
   }
 
   return message;
