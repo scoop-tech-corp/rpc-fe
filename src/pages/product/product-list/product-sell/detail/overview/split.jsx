@@ -21,7 +21,7 @@ const FormSplit = (props) => {
   const onSubmit = async () => {
     const parameter = {
       id: props.data.id,
-      fullName: props.data.fullName,
+      fullName: toProduct,
       qtyReduction: qtyReduction,
       qtyIncrease: qtyIncrease
     };
@@ -33,7 +33,10 @@ const FormSplit = (props) => {
         }
       })
       .catch((err) => {
-        if (err) dispatch(snackbarError(createMessageBackend(err)));
+        const getMessage = createMessageBackend(err, true);
+        const setmsg = `${getMessage.msg}, ${getMessage.detail ? getMessage.detail.replace('<li>', '').replace('</li>', '') : ''}`;
+
+        if (err) dispatch(snackbarError(setmsg));
       });
   };
 
