@@ -8,12 +8,12 @@ import { GlobalFilter } from 'utils/react-table';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { getProductBundle } from './service';
+import { createMessageBackend } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
-import { getProductBundle } from './service';
-import { createMessageBackend } from 'service/service-global';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ProductBundleDetail from './detail';

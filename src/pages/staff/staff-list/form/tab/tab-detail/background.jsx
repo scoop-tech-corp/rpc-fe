@@ -36,21 +36,38 @@ const Background = () => {
     useStaffFormStore.setState({ [event.target.name]: event.target.value, staffFormTouch: true });
   };
 
+  const clearImage = () => {
+    document.getElementById('importImage').value = '';
+    useStaffFormStore.setState({
+      imagePath: '',
+      image: {
+        id: '',
+        selectedFile: '',
+        isChange: true
+      }
+    });
+  };
+
   const onSelectedPhoto = (e) => {
     const getFile = e.target.files[0];
+
     if (getFile) {
       const reader = new FileReader();
       reader.onload = function () {
         useStaffFormStore.setState((prevState) => {
-          const objFile = { id: id ? prevState.image.id : '', selectedFile: getFile, label: '', status: id ? prevState.image.status : '' };
+          const newId = id && prevState.image?.id ? prevState.image.id : '';
+          const objFile = {
+            id: newId,
+            selectedFile: getFile,
+            isChange: true
+          };
 
           return { imagePath: this.result, image: objFile, staffFormTouch: true };
         });
       };
       reader.readAsDataURL(getFile);
     } else {
-      document.getElementById('importImage').value = '';
-      useStaffFormStore.setState({ imagePath: '', image: [] });
+      clearImage();
     }
   };
 
@@ -112,14 +129,7 @@ const Background = () => {
                     </a>
                     <DeleteFilled
                       style={{ fontSize: '14px', color: 'red', cursor: 'pointer', marginRight: '10px' }}
-                      onClick={() => {
-                        useStaffFormStore.setState((prevState) => {
-                          let prevImage = { ...prevState.image };
-                          prevImage.status = 'del';
-
-                          return { image: prevImage, imagePath: '' };
-                        });
-                      }}
+                      onClick={() => clearImage()}
                     />
                   </>
                 )}

@@ -147,9 +147,9 @@ export const updateStaff = async (property) => {
 export const uploadImageStaff = async (property) => {
   const fd = new FormData();
   const url = 'staff/imageStaff';
+
   fd.append('id', property.id);
-  fd.append('image', property.image.selectedFile);
-  fd.append('status', property.image.status);
+  fd.append('image', property.image ? property.image.selectedFile : '');
 
   return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

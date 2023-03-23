@@ -34,6 +34,9 @@ export const breakdownDetailMessageBackend = (arrayMessageErr, isNewLine = false
         message += '<li>' + dt + '</li>';
       }
     });
+    // handle when arrayMessageErr only one string
+  } else if (arrayMessageErr && typeof arrayMessageErr === 'string') {
+    message = '<li>' + arrayMessageErr + '</li>';
   }
 
   return message;

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl'; // useIntl
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 import { deleteStaffList, exportStaff, getStaffList } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+// import { GlobalFilter } from 'utils/react-table';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -18,6 +19,8 @@ import ConfirmationC from 'components/ConfirmationC';
 import DownloadIcon from '@mui/icons-material/Download';
 import iconWhatsapp from '../../../../src/assets/images/ico-whatsapp.png';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import IconButton from 'components/@extended/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 let paramStaffList = {};
 
@@ -26,9 +29,11 @@ const StaffList = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  // const intl = useIntl();
 
   const [getStaffListData, setStaffListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
+  // const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
@@ -134,6 +139,13 @@ const StaffList = () => {
     fetchData();
   };
 
+  // const onSearch = (event) => {
+  //   paramStaffList.keyword = event;
+  //   setKeywordSearch(event);
+
+  //   fetchData();
+  // };
+
   const onClickAdd = () => {
     navigate('/staff/list/form', { replace: true });
   };
@@ -164,7 +176,7 @@ const StaffList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] };
+    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] }; // keyword: ''
   };
 
   const getDataFacilityLocation = async () => {
@@ -193,6 +205,8 @@ const StaffList = () => {
     }
   };
 
+  const onRefresh = () => fetchData();
+
   useEffect(() => {
     getDataFacilityLocation();
     clearParamFetchData();
@@ -213,6 +227,12 @@ const StaffList = () => {
               sx={{ p: 3, pb: 0 }}
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                {/* <GlobalFilter
+                  placeHolder={intl.formatMessage({ id: 'search' })}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '41.3px' }}
+                /> */}
                 <Autocomplete
                   id="filterLocation"
                   multiple
@@ -230,6 +250,9 @@ const StaffList = () => {
                 )}
               </Stack>
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
+                  <RefreshIcon />
+                </IconButton>
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>

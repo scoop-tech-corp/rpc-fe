@@ -1,5 +1,5 @@
 import { jsonCentralized } from 'utils/func';
-import create from 'zustand';
+import { create } from 'zustand';
 
 const defaultUnitAvailable = {
   id: '',

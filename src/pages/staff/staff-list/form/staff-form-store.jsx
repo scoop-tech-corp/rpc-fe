@@ -1,5 +1,5 @@
 import { jsonCentralized } from 'utils/func';
-import create from 'zustand';
+import { create } from 'zustand';
 
 export const defaultDetailAddress = {
   isPrimary: true,
@@ -11,6 +11,8 @@ export const defaultDetailAddress = {
   cityList: [],
   postalCode: ''
 };
+
+export const defaultImage = { id: '', selectedFile: null, isChange: false };
 
 export const defaultStaffForm = {
   firstName: '',
@@ -34,7 +36,7 @@ export const defaultStaffForm = {
 
   typeId: '', // tipe kartu identitas
   identificationNumber: '',
-  image: { id: '', selectedFile: null, label: '', status: '' }, // upload one image
+  image: defaultImage, // upload one image
   imagePath: '',
   additionalInfo: '',
 

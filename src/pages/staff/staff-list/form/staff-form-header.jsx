@@ -47,7 +47,12 @@ const StaffFormHeader = (props) => {
           if (res && res.status === 200) nextProcessSuccess(message);
         };
         const image = getAllState().image;
-        await uploadImageStaff({ image, id }).then(thenUpload).catch(responseError);
+
+        if (image.isChange) {
+          await uploadImageStaff({ image, id }).then(thenUpload).catch(responseError);
+        } else {
+          nextProcessSuccess(message);
+        }
       } else {
         nextProcessSuccess(message);
       }

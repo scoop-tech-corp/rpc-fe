@@ -3,7 +3,7 @@ import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextFie
 import { getDataStaticLocation } from 'pages/location/location-list/detail/service';
 import { jsonCentralized } from 'utils/func';
 import { useStaffFormStore } from '../staff-form-store';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useState } from 'react';
 
 import IconButton from 'components/@extended/IconButton';
@@ -18,6 +18,7 @@ const TabContacts = () => {
   const usageList = useStaffFormStore((state) => state.usageList);
   const phoneTypeList = useStaffFormStore((state) => state.telephoneType);
   const messengerTypeList = useStaffFormStore((state) => state.messengerType);
+  const intl = useIntl();
 
   let phone = [];
   let email = [];
@@ -278,7 +279,7 @@ const TabContacts = () => {
                     id="phoneNumber"
                     name="phoneNumber"
                     type="number"
-                    placeholder="Enter nomor"
+                    placeholder={intl.formatMessage({ id: 'enter-nomor' })}
                     value={dt.phoneNumber}
                     onChange={(event) => onFieldHandler(event, i, 'telephone')}
                   />

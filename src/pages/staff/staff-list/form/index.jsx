@@ -2,7 +2,7 @@ import { Box, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router';
-import { defaultStaffForm, useStaffFormStore } from './staff-form-store';
+import { defaultImage, defaultStaffForm, useStaffFormStore } from './staff-form-store';
 import { jsonCentralized } from 'utils/func';
 import { getLocationList } from 'service/service-global';
 import { getJobTitleList, getPayPeriodList, getRolesIdList, getStaffDetail, getTypeIdList } from '../service';
@@ -87,7 +87,7 @@ const StaffForm = () => {
 
       typeId: +getData.typeId, // tipe kartu identitas
       identificationNumber: getData.identificationNumber,
-      image: getData.images[0],
+      image: jsonCentralized(defaultImage),
       imagePath: getData.images[0] ? `${configGlobal.apiUrl}${getData.images[0].imagePath}` : '',
       additionalInfo: getData.additionalInfo,
 
