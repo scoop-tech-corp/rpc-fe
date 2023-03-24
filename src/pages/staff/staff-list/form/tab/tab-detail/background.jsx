@@ -108,14 +108,7 @@ const Background = () => {
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="identification">{<FormattedMessage id="identification" />}</InputLabel>
-              <TextField
-                id="identification"
-                name="identificationNumber"
-                fullWidth
-                type="number"
-                value={identificationNumber}
-                onChange={onFieldHandler}
-              />
+              <TextField id="identification" name="identificationNumber" fullWidth value={identificationNumber} onChange={onFieldHandler} />
             </Stack>
           </Grid>
           <Grid item xs={12} sm={4}>
