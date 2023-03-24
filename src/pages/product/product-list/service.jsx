@@ -1,4 +1,5 @@
 import { setFormDataImage } from 'service/service-global';
+import { formateDateYYYMMDD } from 'utils/func';
 import axios from 'utils/axios';
 
 export const getCustomerGroupList = async () => {
@@ -99,7 +100,7 @@ export const uploadImageProduct = async (property, procedure) => {
 const generateParamSaved = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
-  const expiredDate = property.expiredDate ? new Date(property.expiredDate).toISOString().slice(0, 10) : '';
+  const expiredDate = property.expiredDate ? formateDateYYYMMDD(new Date(property.expiredDate)) : '';
 
   const fd = new FormData();
   fd.append('fullName', property.fullName);
@@ -149,7 +150,7 @@ const generateParamSaved = (property, procedure = '') => {
 const generateParamUpdate = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
-  const expiredDate = property.expiredDate ? new Date(property.expiredDate).toLocaleDateString('en-CA') : '';
+  const expiredDate = property.expiredDate ? formateDateYYYMMDD(new Date(property.expiredDate)) : '';
 
   let finalParam = {
     id: property.id,

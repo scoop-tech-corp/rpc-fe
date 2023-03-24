@@ -40,6 +40,7 @@ const Position = () => {
   const locationId = useStaffFormStore((state) => state.locationId);
   const locationList = useStaffFormStore((state) => state.locationList);
   const isTouchForm = useStaffFormStore((state) => state.staffFormTouch);
+  const staffFormError = useStaffFormStore((state) => state.staffFormError);
   const locationValue = locationList.find((val) => val.value === locationId) || null;
 
   const [positionErr, setPositonErr] = useState(configCoreErr);
@@ -118,7 +119,7 @@ const Position = () => {
     if (isTouchForm) {
       onCheckValidation();
     }
-  }, [isTouchForm]);
+  }, [isTouchForm, staffFormError]);
 
   return (
     <>

@@ -68,8 +68,8 @@ export const staffLeaveApprovedRejected = async (property) => {
 };
 
 export const createStaffLeave = async (property) => {
-  const fromDate = property.fromDate ? new Date(property.fromDate).toISOString().slice(0, 10) : '';
-  const toDate = property.toDate ? new Date(property.toDate).toISOString().slice(0, 10) : '';
+  const fromDate = property.fromDate ? formateDateYYYMMDD(new Date(property.fromDate)) : '';
+  const toDate = property.toDate ? formateDateYYYMMDD(new Date(property.toDate)) : '';
   const workingDays = property.workingDays.map((dt) => ({ name: dt.value }));
 
   const fd = new FormData();

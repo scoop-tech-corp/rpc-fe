@@ -1,4 +1,4 @@
-import { jsonCentralized } from 'utils/func';
+import { formateDateYYYMMDD, jsonCentralized } from 'utils/func';
 import { getCityList } from 'pages/location/location-list/detail/service';
 import axios from 'utils/axios';
 
@@ -24,8 +24,8 @@ export const deleteStaffList = async (id) => {
 };
 
 export const createStaff = async (property) => {
-  const startDate = property.startDate ? new Date(property.startDate).toISOString().slice(0, 10) : '';
-  const endDate = property.endDate ? new Date(property.endDate).toISOString().slice(0, 10) : '';
+  const startDate = property.startDate ? formateDateYYYMMDD(new Date(property.startDate)) : '';
+  const endDate = property.endDate ? formateDateYYYMMDD(new Date(property.endDate)) : '';
   const param = new FormData();
 
   let detailAddress = jsonCentralized(property.detailAddress);
@@ -83,8 +83,8 @@ export const createStaff = async (property) => {
 };
 
 export const updateStaff = async (property) => {
-  const startDate = property.startDate ? new Date(property.startDate).toISOString().slice(0, 10) : '';
-  const endDate = property.endDate ? new Date(property.endDate).toISOString().slice(0, 10) : '';
+  const startDate = property.startDate ? formateDateYYYMMDD(new Date(property.startDate)) : '';
+  const endDate = property.endDate ? formateDateYYYMMDD(new Date(property.endDate)) : '';
 
   let detailAddress = jsonCentralized(property.detailAddress);
   detailAddress = detailAddress.map((da) => {

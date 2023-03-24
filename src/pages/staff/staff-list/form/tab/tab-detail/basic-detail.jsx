@@ -169,10 +169,16 @@ const BasicDetail = () => {
               <FormControl sx={{ m: 1, minWidth: 120 }}>
                 <Select id="status" name="status" value={status} onChange={onFieldHandler} placeholder="Select status">
                   <MenuItem value="">
-                    <em>Select status</em>
+                    <em>
+                      <FormattedMessage id="select-status" />
+                    </em>
                   </MenuItem>
-                  <MenuItem value={'1'}>Active</MenuItem>
-                  <MenuItem value={'0'}>Non Active</MenuItem>
+                  <MenuItem value={'1'}>
+                    <FormattedMessage id="active" />
+                  </MenuItem>
+                  <MenuItem value={'0'}>
+                    <FormattedMessage id="inactive" />
+                  </MenuItem>
                 </Select>
                 {basicDetailErr.statusErr.length > 0 && <FormHelperText error> {basicDetailErr.statusErr} </FormHelperText>}
               </FormControl>

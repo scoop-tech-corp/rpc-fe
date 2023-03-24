@@ -19,6 +19,7 @@ import { DeleteFilled, PlusCircleFilled, PlusOutlined } from '@ant-design/icons'
 import { ReactTable } from 'components/third-party/ReactTable';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { formateDateYYYMMDD } from 'utils/func';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -133,7 +134,7 @@ const FormProductInventory = () => {
       productName: getData.productName.label,
       usageId: getData.productUsage.value,
       usageName: getData.productUsage.label,
-      dateCondition: new Date(getData.dateCondition).toLocaleDateString('en-CA'),
+      dateCondition: formateDateYYYMMDD(new Date(getData.dateCondition)),
       itemCondition: getData.itemCondition,
       imagePath: getData.imagePath,
       isAnyImage: getData.imagePath ? 1 : 0,
