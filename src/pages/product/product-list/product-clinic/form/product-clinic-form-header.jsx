@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { createProductClinic, updateProductClinic } from '../../service';
+import { createProductClinic, updateProductClinic, uploadImageProduct } from '../../service';
 import { getAllState, useProductClinicFormStore } from './product-clinic-form-store';
 import { createMessageBackend } from 'service/service-global';
 

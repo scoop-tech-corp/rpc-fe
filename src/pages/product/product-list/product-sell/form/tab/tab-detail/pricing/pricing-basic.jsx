@@ -1,6 +1,7 @@
 import { Grid, Stack, InputLabel, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useProductSellFormStore } from '../../../product-sell-form-store';
+import { formateNumber } from 'utils/func';
 
 import NumberFormatCustom from 'utils/number-format';
 
@@ -10,7 +11,7 @@ const PricingBasic = () => {
   const price = useProductSellFormStore((state) => state.price);
 
   const onFieldHandler = (e) => {
-    const getValue = e.target.value ? +e.target.value.replace(',', '') : '';
+    const getValue = formateNumber(e.target.value);
 
     useProductSellFormStore.setState({ [e.target.name]: getValue, productSellFormTouch: true });
   };

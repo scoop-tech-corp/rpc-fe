@@ -2,6 +2,7 @@ import { Button, Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { useProductClinicFormStore } from '../../../product-clinic-form-store';
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { formateNumber } from 'utils/func';
 
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
@@ -79,7 +80,7 @@ const PricingQuantity = () => {
   };
 
   const onFieldChange = (e, i, procedure) => {
-    const getValue = +e.target.value;
+    const getValue = procedure === 'price' ? formateNumber(e.target.value) : +e.target.value;
     processFrom(procedure, getValue, i);
   };
 

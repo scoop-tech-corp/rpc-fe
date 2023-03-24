@@ -2,6 +2,7 @@ import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextFie
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useProductSellFormStore } from '../../../product-sell-form-store';
+import { formateNumber } from 'utils/func';
 
 import IconButton from 'components/@extended/IconButton';
 import NumberFormatCustom from 'utils/number-format';
@@ -24,7 +25,7 @@ const PricingCustomer = () => {
   };
 
   const onPrice = (event, i) => {
-    const getPrice = +event.target.value.replace(',', '');
+    const getPrice = formateNumber(event.target.value);
 
     useProductSellFormStore.setState((prevState) => {
       const getCustomGroup = [...prevState.customerGroups];

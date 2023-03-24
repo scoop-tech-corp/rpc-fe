@@ -25,3 +25,5 @@ export const formateDateYYYMMDD = (date) => {
   // Generate yyyy-mm-dd date string
   return year + '-' + month + '-' + day;
 };
+
+export const formateNumber = (string) => (string ? +string.replaceAll(',', '') : '');

@@ -1,4 +1,4 @@
-import { formateDateYYYMMDD, jsonCentralized } from 'utils/func';
+import { formateDateYYYMMDD, formateNumber, jsonCentralized } from 'utils/func';
 import { getCityList } from 'pages/location/location-list/detail/service';
 import axios from 'utils/axios';
 
@@ -58,7 +58,7 @@ export const createStaff = async (property) => {
   param.append('annualSickAllowance', property.annualSickAllowance);
   param.append('annualLeaveAllowance', property.annualLeaveAllowance);
   param.append('payPeriodId', property.payPeriodId);
-  param.append('payAmount', property.payAmount);
+  param.append('payAmount', formateNumber(property.payAmount));
 
   param.append('typeId', property.typeId);
   param.append('identificationNumber', property.identificationNumber);
@@ -118,7 +118,7 @@ export const updateStaff = async (property) => {
     annualSickAllowance: property.annualSickAllowance,
     annualLeaveAllowance: property.annualLeaveAllowance,
     payPeriodId: property.payPeriodId,
-    payAmount: property.payAmount,
+    payAmount: formateNumber(property.payAmount),
 
     typeId: property.typeId,
     identificationNumber: property.identificationNumber,
