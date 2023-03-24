@@ -91,7 +91,7 @@ const StaffForm = () => {
       imagePath: getData.images[0] ? `${configGlobal.apiUrl}${getData.images[0].imagePath}` : '',
       additionalInfo: getData.additionalInfo,
 
-      generalCustomerCanSchedule: +getData.generalAllowMemberToLogUsingEmail ? true : false,
+      generalCustomerCanSchedule: +getData.generalCustomerCanSchedule ? true : false,
       generalCustomerReceiveDailyEmail: +getData.generalCustomerReceiveDailyEmail ? true : false,
       generalAllowMemberToLogUsingEmail: +getData.generalAllowMemberToLogUsingEmail ? true : false,
       reminderEmail: +getData.reminderEmail ? true : false,
