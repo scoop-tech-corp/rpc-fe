@@ -101,6 +101,13 @@ const generateParamSaved = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
   const expiredDate = property.expiredDate ? formateDateYYYMMDD(new Date(property.expiredDate)) : '';
+  const categories = property.categories.map((dt) => {
+    if ('label' in dt) {
+      return { id: dt.value, categoryName: dt.label };
+    } else {
+      return dt;
+    }
+  });
 
   const fd = new FormData();
   fd.append('fullName', property.fullName);
@@ -139,7 +146,7 @@ const generateParamSaved = (property, procedure = '') => {
   fd.append('customerGroups', JSON.stringify(property.customerGroups));
   fd.append('priceLocations', JSON.stringify(property.priceLocations));
   fd.append('quantities', JSON.stringify(property.quantities));
-  fd.append('categories', JSON.stringify(property.categories));
+  fd.append('categories', JSON.stringify(categories));
   fd.append('reminders', JSON.stringify(property.reminders));
 
   setFormDataImage(property.photos, fd, 'save');
@@ -151,6 +158,13 @@ const generateParamUpdate = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';
   const expiredDate = property.expiredDate ? formateDateYYYMMDD(new Date(property.expiredDate)) : '';
+  const categories = property.categories.map((dt) => {
+    if ('label' in dt) {
+      return { id: dt.value, categoryName: dt.label };
+    } else {
+      return dt;
+    }
+  });
 
   let finalParam = {
     id: property.id,
@@ -183,7 +197,7 @@ const generateParamUpdate = (property, procedure = '') => {
     customerGroups: property.customerGroups,
     priceLocations: property.priceLocations,
     quantities: property.quantities,
-    categories: property.categories,
+    categories: categories,
     reminders: property.reminders
   };
 

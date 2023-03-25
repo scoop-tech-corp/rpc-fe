@@ -12,8 +12,7 @@ const TabCategories = () => {
     if (categoriesStore.length) {
       const newCategory = [];
       categoriesStore.map((gc) => {
-        const getId = typeof gc === 'object' ? +gc.id : +gc;
-        const findPc = productCategoryList.find((pcl) => +pcl.value === getId);
+        const findPc = productCategoryList.find((pcl) => +pcl.value === +gc.id);
         if (findPc) newCategory.push(findPc);
       });
       setCategories(newCategory);
@@ -22,10 +21,8 @@ const TabCategories = () => {
   }, []);
 
   const onSelectedCategory = (_, val) => {
-    let setNewData = val.map((dt) => dt.value);
     setCategories(val);
-
-    useProductSellFormStore.setState({ categories: setNewData, productSellFormTouch: true });
+    useProductSellFormStore.setState({ categories: val, productSellFormTouch: true });
   };
 
   return (
