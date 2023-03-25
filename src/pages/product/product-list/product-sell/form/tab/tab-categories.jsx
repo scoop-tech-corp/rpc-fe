@@ -9,13 +9,15 @@ const TabCategories = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    if (categoriesStore.length) {
+    if (categoriesStore.length && 'id' in categoriesStore[0]) {
       const newCategory = [];
       categoriesStore.map((gc) => {
         const findPc = productCategoryList.find((pcl) => +pcl.value === +gc.id);
         if (findPc) newCategory.push(findPc);
       });
       setCategories(newCategory);
+    } else {
+      setCategories(categoriesStore);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
