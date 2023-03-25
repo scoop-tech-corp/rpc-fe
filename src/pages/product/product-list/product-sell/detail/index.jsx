@@ -9,8 +9,8 @@ import ProductSellDetailOverview from './overview';
 const ProductSellDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
 
-  const onCancel = () => {
-    props.onClose(true);
+  const onCancel = (isRefreshIndex) => {
+    props.onClose({ isOpen: true, isRefreshIndex: typeof isRefreshIndex === 'string' ? +isRefreshIndex : false });
     setTabSelected(0);
   };
 
@@ -32,7 +32,7 @@ const ProductSellDetail = (props) => {
   const onChangeTab = (value) => setTabSelected(value);
 
   const outputOverviewHandler = (event) => {
-    if (event === 'closeOverview') onCancel();
+    if (event === 'closeOverview') onCancel('1');
   };
 
   return (

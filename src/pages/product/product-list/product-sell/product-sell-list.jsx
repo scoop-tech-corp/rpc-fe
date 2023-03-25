@@ -335,7 +335,10 @@ const ProductSellList = () => {
         title={openDetail.name}
         open={openDetail.isOpen}
         data={openDetail.detailData}
-        onClose={(e) => setOpenDetail({ isOpen: !e, name: '', detailData: null })}
+        onClose={(e) => {
+          setOpenDetail({ isOpen: !e.isOpen, name: '', detailData: null });
+          if (e.isRefreshIndex) fetchData();
+        }}
       />
     </>
   );
