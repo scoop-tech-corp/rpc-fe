@@ -64,7 +64,7 @@ const ProductClinicForm = () => {
 
       const dosage = data.dosages.map((dt) => {
         return {
-          id: '',
+          id: dt.id,
           from: dt.fromWeight,
           to: dt.toWeight,
           dosage: dt.dosage,
