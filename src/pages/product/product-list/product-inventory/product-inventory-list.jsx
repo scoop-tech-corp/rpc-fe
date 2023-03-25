@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Stack, useMediaQuery, Button, Link } from '@mui/material'; //Chip
+import { Stack, useMediaQuery, Button, Link } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -54,8 +54,8 @@ const ProductInventoryList = () => {
         Header: <FormattedMessage id="requirement-name" />,
         accessor: 'requirementName',
         Cell: (data) => {
-          const getId = data.row.original.id;
-          return <Link href={`/product/product-list/inventory/${getId}`}>{data.value}</Link>;
+          // const getId = data.row.original.id;
+          return <Link href="javascript: void(0)">{data.value}</Link>; // href={`/product/product-list/inventory/${getId}`}
         }
       },
       { Header: <FormattedMessage id="total-product" />, accessor: 'totalItem' },
