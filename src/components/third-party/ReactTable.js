@@ -35,6 +35,7 @@ import {
 
 // assets
 import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } from '@ant-design/icons';
+import { FormattedMessage } from 'react-intl';
 
 // ==============================|| TABLE CORE ||============================== //
 // const StyleTable = styled.div`
@@ -156,7 +157,9 @@ export const ReactTable = ({
           })}
           {!rows.length && (
             <TableRow>
-              <TableCell colSpan={10}>No Data Found...</TableCell>
+              <TableCell colSpan={10}>
+                <FormattedMessage id="no-data-found" />
+              </TableCell>
             </TableRow>
           )}
           {extensionRow}

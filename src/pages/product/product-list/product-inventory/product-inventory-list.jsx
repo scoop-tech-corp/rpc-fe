@@ -14,6 +14,8 @@ import { createMessageBackend } from 'service/service-global';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import IconButton from 'components/@extended/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 let paramProductInventoryList = {};
 
@@ -181,9 +183,14 @@ const ProductInventoryList = () => {
                 )}
               </Stack>
 
-              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                <FormattedMessage id="add-product-inventory" />
-              </Button>
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
+                  <RefreshIcon />
+                </IconButton>
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="add-product-inventory" />
+                </Button>
+              </Stack>
             </Stack>
             <ReactTable
               columns={columns}

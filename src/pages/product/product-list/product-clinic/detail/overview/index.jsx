@@ -32,9 +32,6 @@ const ProductClinicDetailOverview = (props) => {
         <Stack direction="row" justifyContent="flex-end" sx={{ width: 1 }}>
           <Stack direction="row" spacing={1} style={{ overflowX: 'auto' }}>
             <Button color="primary" size="medium">
-              <FormattedMessage id="split" />
-            </Button>
-            <Button color="primary" size="medium">
               <FormattedMessage id="adjust" />
             </Button>
             <Button color="primary" size="medium">

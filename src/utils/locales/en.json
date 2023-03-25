@@ -236,6 +236,7 @@
   "navigation": "Navigation",
   "nick-name": "Nick Name",
   "no": "No",
+  "no-data-found": "No data found...",
   "notes": "Notes",
   "only-items-that-already-reach-stock-limit": "Only items that already reach stock limit",
   "operating-hour": "Operating Hours",

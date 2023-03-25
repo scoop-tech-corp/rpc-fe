@@ -18,6 +18,8 @@ import ConfirmationC from 'components/ConfirmationC';
 import ModalExport from '../components/ModalExport';
 import ProductSellDetail from './detail';
 import DownloadIcon from '@mui/icons-material/Download';
+import IconButton from 'components/@extended/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 let paramProductSellList = {};
 
@@ -150,7 +152,7 @@ const ProductSellList = () => {
           }
         }
       },
-      { Header: <FormattedMessage id="location-name" />, accessor: 'locationName' },
+      { Header: <FormattedMessage id="location" />, accessor: 'locationName' },
       {
         Header: 'Status',
         accessor: 'status',
@@ -295,6 +297,9 @@ const ProductSellList = () => {
                 )}
               </Stack>
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
+                  <RefreshIcon />
+                </IconButton>
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
                   <FormattedMessage id="export" />
                 </Button>
