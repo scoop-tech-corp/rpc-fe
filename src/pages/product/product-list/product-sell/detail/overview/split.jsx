@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { Grid, InputLabel, Stack, TextField } from '@mui/material';
+import { Grid, InputLabel, Stack, TextField, Radio, RadioGroup, FormControlLabel, Autocomplete } from '@mui/material';
 import { createMessageBackend } from 'service/service-global';
 import { splitProductSell } from 'pages/product/product-list/service';
 
@@ -12,6 +12,8 @@ import ModalC from 'components/ModalC';
 const FormSplit = (props) => {
   const [fromProduct] = useState(props.data.fullName);
   const [toProduct, setToProduct] = useState('');
+  const [toProductType, setToProductType] = useState('new');
+  const [toProductExisting, setToProductExisting] = useState(null);
   const [qtyIncrease, setQtyIncrease] = useState('');
   const [qtyReduction, setQtyReduction] = useState('');
   const [isDisabledSplit, setIsDisabledSplit] = useState(true);
@@ -19,11 +21,13 @@ const FormSplit = (props) => {
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
+    const productSellId = toProductExisting ? toProductExisting.value : '';
     const parameter = {
       id: props.data.id,
       fullName: toProduct,
       qtyReduction: qtyReduction,
-      qtyIncrease: qtyIncrease
+      qtyIncrease: qtyIncrease,
+      productSellId
     };
     await splitProductSell(parameter)
       .then((resp) => {
@@ -39,6 +43,8 @@ const FormSplit = (props) => {
 
   const clearForm = () => {
     setToProduct('');
+    setToProductExisting(null);
+    setToProductType('new');
     setQtyIncrease('');
     setQtyReduction('');
     setIsDisabledSplit(true);
@@ -101,8 +107,38 @@ const FormSplit = (props) => {
         </Grid>
         <Grid item xs={12} sm={7}>
           <Stack spacing={1}>
-            <InputLabel htmlFor="to-product">{<FormattedMessage id="to-product" />}</InputLabel>
-            <TextField fullWidth id="toProduct" name="toProduct" value={toProduct} onChange={(e) => setToProduct(e.target.value)} />
+            <Stack spacing={1} flexDirection="row" alignItems="center">
+              <InputLabel htmlFor="to-product">{<FormattedMessage id="to-product" />}</InputLabel>
+              <RadioGroup
+                name="roleId"
+                value={toProductType}
+                style={{ flexDirection: 'row', height: '20px', marginLeft: '16px', marginTop: '0px' }}
+                onChange={(e) => {
+                  setToProductType(e.target.value);
+                  setToProduct('');
+                }}
+              >
+                <FormControlLabel value="new" control={<Radio />} label={<FormattedMessage id="new" />} style={{ height: '20px' }} />
+                <FormControlLabel
+                  value="existing"
+                  control={<Radio />}
+                  label={<FormattedMessage id="existing-product" />}
+                  style={{ height: '20px' }}
+                />
+              </RadioGroup>
+            </Stack>
+            {toProductType === 'new' ? (
+              <TextField fullWidth id="toProduct" name="toProduct" value={toProduct} onChange={(e) => setToProduct(e.target.value)} />
+            ) : (
+              <Autocomplete
+                id="existing-toproduct"
+                options={props.data.sellSplitList}
+                value={toProductExisting}
+                isOptionEqualToValue={(option, val) => val === '' || +option.value === +val.value}
+                onChange={(_, selected) => setToProductExisting(selected)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            )}
           </Stack>
         </Grid>
         <Grid item xs={12} sm={5}>

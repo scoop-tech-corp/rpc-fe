@@ -2,7 +2,8 @@ import { Button, CardActions, Chip, Divider, Grid, Stack, Typography } from '@mu
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getProductSellSplitDropdown } from 'pages/product/product-list/service';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -16,6 +17,7 @@ import FormSplit from './split';
 const ProductSellDetailOverview = (props) => {
   const { data } = props;
   const [openFormSplit, setOpenFormSplit] = useState(false);
+  const [productSellSplitList, setProductSellSplitList] = useState([]);
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -25,6 +27,16 @@ const ProductSellDetailOverview = (props) => {
       props.output('closeOverview');
     }
   };
+
+  const getProductSellSplit = async () => {
+    const getResp = await getProductSellSplitDropdown(data.location.id, data.id);
+    setProductSellSplitList(getResp);
+  };
+
+  useEffect(() => {
+    getProductSellSplit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -109,7 +121,7 @@ const ProductSellDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
-      <FormSplit data={data} open={openFormSplit} onClose={onCloseFormSplit} />
+      <FormSplit data={{ ...data, sellSplitList: productSellSplitList }} open={openFormSplit} onClose={onCloseFormSplit} />
     </>
   );
 };

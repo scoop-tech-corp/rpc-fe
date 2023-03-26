@@ -106,6 +106,9 @@ const ProductSellList = () => {
                     stock: resp.data.location.inStock,
                     status: resp.data.location.status.toLowerCase()
                   },
+                  location: {
+                    id: resp.data.location.locationId
+                  },
                   pricing: {
                     price: `Rp ${formatThousandSeparator(resp.data.price)}`,
                     pricingStatus: resp.data.pricingStatus,

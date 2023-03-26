@@ -47,6 +47,16 @@ export const getProductSellDropdown = async (productLocationId, productBrandId =
   });
 };
 
+export const getProductSellSplitDropdown = async (locationId, productSellId) => {
+  const getResp = await axios.get('product/sell/dropdown/split', {
+    params: { locationId, productSellId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+
 export const getProductClinicDropdown = async (productLocationId, productBrandId = '') => {
   const getResp = await axios.get('product/clinic/dropdown', {
     params: {
@@ -267,6 +277,7 @@ export const splitProductSell = async (property) => {
   fd.append('fullName', property.fullName);
   fd.append('qtyReduction', property.qtyReduction);
   fd.append('qtyIncrease', property.qtyIncrease);
+  fd.append('productSellId', property.productSellId);
 
   return await axios.post(productSellUrl + '/split', fd);
 };
