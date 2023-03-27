@@ -113,9 +113,7 @@ const ProductSellDetailOverview = (props) => {
         </Grid>
       </Grid>
       {openFormSplit && <FormSplit data={data} open={openFormSplit} onClose={onCloseForm} />}
-      {openFormTransfer && (
-        <FormTransfer data={{ ...data, productCategory: 'productSell' }} open={openFormTransfer} onClose={onCloseForm} />
-      )}
+      {openFormTransfer && <FormTransfer data={{ ...data, productType: 'productSell' }} open={openFormTransfer} onClose={onCloseForm} />}
     </>
   );
 };

@@ -34,9 +34,9 @@ export const getProductCategoryList = async () => {
   });
 };
 
-export const getLocationProductTransferDropdown = async (locationId) => {
+export const getLocationProductTransferDropdown = async (property) => {
   const getResp = await axios.get('location/product/transfer', {
-    params: { locationId }
+    params: { locationId: property.locationId, productName: property.productName, productType: property.productType }
   });
 
   return getResp.data.map((dt) => {
@@ -138,7 +138,7 @@ export const createProductTransfer = async (property) => {
 
   parameter.append('userIdReceiver', property.userIdReceiver);
   parameter.append('productId', property.productId);
-  parameter.append('productCategory', property.productCategory); //productSell or productClinic
+  parameter.append('productType', property.productType); //productSell or productClinic
 
   parameter.append('additionalCost', property.additionalCost);
   parameter.append('remark', property.remark);

@@ -40,7 +40,7 @@ const FormTransfer = (props) => {
       totalItem: totalItem,
       userIdReceiver: receiver ? receiver.value : '',
       productId: props.data.id,
-      productCategory: props.data.productCategory, //productSell or productClinic
+      productType: props.data.productType, //productSell or productClinic
       additionalCost: additionalCost,
       remark: remark
     };
@@ -85,25 +85,38 @@ const FormTransfer = (props) => {
     onValidation(e);
   };
 
+  const onChangeBranchDestination = (_, selected) => {
+    setBranchDestination(selected);
+
+    setReceiver(null);
+    setReceiverList([]);
+    if (selected) {
+      getStaffProductTransfer(selected.value);
+    }
+  };
+
   const getProductTransferNo = async () => {
     const resp = await getProductTransferNumber();
     setTransferNo(resp.data);
   };
 
   const getLocationProductTransfer = async () => {
-    const resp = await getLocationProductTransferDropdown(props.data.location.id);
+    const resp = await getLocationProductTransferDropdown({
+      locationId: props.data.location.id,
+      productName: props.data.fullName,
+      productType: props.data.productType
+    });
     setBranchDestinationList(resp);
   };
 
-  const getStaffProductTransfer = async () => {
-    const resp = await getStaffProductTransferDropdown(props.data.location.id);
+  const getStaffProductTransfer = async (locationId) => {
+    const resp = await getStaffProductTransferDropdown(locationId);
     setReceiverList(resp);
   };
 
   useEffect(() => {
     getProductTransferNo();
     getLocationProductTransfer();
-    getStaffProductTransfer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -147,7 +160,7 @@ const FormTransfer = (props) => {
               options={branchDestinationList}
               value={branchDestination}
               isOptionEqualToValue={(option, val) => val === '' || +option.value === +val.value}
-              onChange={(_, selected) => setBranchDestination(selected)}
+              onChange={onChangeBranchDestination}
               renderInput={(params) => <TextField {...params} />}
             />
           </Stack>
@@ -176,7 +189,7 @@ const FormTransfer = (props) => {
               id="receiver"
               options={receiverList}
               value={receiver}
-              isOptionEqualToValue={(option, val) => val === '' || +option.value === +val.value}
+              isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
               onChange={(_, selected) => setReceiver(selected)}
               renderInput={(params) => <TextField {...params} />}
             />

@@ -36,7 +36,7 @@ ModalC.propTypes = {
   open: PropTypes.bool,
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   children: PropTypes.node,
-  okText: PropTypes.string,
+  okText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   cancelText: PropTypes.string,
   onOk: PropTypes.func,
   onCancel: PropTypes.func,

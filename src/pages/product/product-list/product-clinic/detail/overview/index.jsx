@@ -115,9 +115,7 @@ const ProductClinicDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
-      {openFormTransfer && (
-        <FormTransfer data={{ ...data, productCategory: 'productClinic' }} open={openFormTransfer} onClose={onCloseForm} />
-      )}
+      {openFormTransfer && <FormTransfer data={{ ...data, productType: 'productClinic' }} open={openFormTransfer} onClose={onCloseForm} />}
     </>
   );
 };
