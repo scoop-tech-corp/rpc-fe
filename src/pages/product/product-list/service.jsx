@@ -34,6 +34,26 @@ export const getProductCategoryList = async () => {
   });
 };
 
+export const getLocationProductTransferDropdown = async (locationId) => {
+  const getResp = await axios.get('location/product/transfer', {
+    params: { locationId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.locationName, value: +dt.id };
+  });
+};
+
+export const getStaffProductTransferDropdown = async (locationId) => {
+  const getResp = await axios.get('staff/product/transfer', {
+    params: { locationId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: +dt.id };
+  });
+};
+
 export const getProductSellDropdown = async (productLocationId, productBrandId = '') => {
   const getResp = await axios.get('product/sell/dropdown', {
     params: {
@@ -105,6 +125,25 @@ export const uploadImageProduct = async (property, procedure) => {
   setFormDataImage(property.photos, fd);
 
   return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const getProductTransferNumber = async () => await axios.get('product/transfernumber');
+
+export const createProductTransfer = async (property) => {
+  const parameter = new FormData();
+  parameter.append('transferNumber', property.transferNumber);
+  parameter.append('transferName', property.transferName);
+  parameter.append('locationId', property.locationId);
+  parameter.append('totalItem', property.totalItem);
+
+  parameter.append('userIdReceiver', property.userIdReceiver);
+  parameter.append('productId', property.productId);
+  parameter.append('productCategory', property.productCategory); //productSell or productClinic
+
+  parameter.append('additionalCost', property.additionalCost);
+  parameter.append('remark', property.remark);
+
+  return await axios.post('product/transfer', parameter);
 };
 
 const generateParamSaved = (property, procedure = '') => {

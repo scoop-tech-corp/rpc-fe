@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField, Radio, RadioGroup, FormControlLabel, Autocomplete } from '@mui/material';
 import { createMessageBackend } from 'service/service-global';
-import { splitProductSell } from 'pages/product/product-list/service';
+import { getProductSellSplitDropdown, splitProductSell } from 'pages/product/product-list/service';
 
 import PropTypes from 'prop-types';
 import ModalC from 'components/ModalC';
@@ -17,6 +17,7 @@ const FormSplit = (props) => {
   const [qtyIncrease, setQtyIncrease] = useState('');
   const [qtyReduction, setQtyReduction] = useState('');
   const [isDisabledSplit, setIsDisabledSplit] = useState(true);
+  const [sellSplitList, setSellSplitList] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -61,6 +62,16 @@ const FormSplit = (props) => {
     setQtyReduction(e.target.value);
     onCheckValidation(e);
   };
+
+  const getProductSellSplit = async () => {
+    const getResp = await getProductSellSplitDropdown(props.data.location.id, props.data.id);
+    setSellSplitList(getResp);
+  };
+
+  useEffect(() => {
+    getProductSellSplit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <ModalC
@@ -132,7 +143,7 @@ const FormSplit = (props) => {
             ) : (
               <Autocomplete
                 id="existing-toproduct"
-                options={props.data.sellSplitList}
+                options={sellSplitList}
                 value={toProductExisting}
                 isOptionEqualToValue={(option, val) => val === '' || +option.value === +val.value}
                 onChange={(_, selected) => setToProductExisting(selected)}

@@ -4,6 +4,7 @@ import { Box, Tab, Tabs } from '@mui/material';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
+import TabPanel from 'components/TabPanelC';
 import ProductSellDetailOverview from './overview';
 
 const ProductSellDetail = (props) => {
@@ -12,21 +13,6 @@ const ProductSellDetail = (props) => {
   const onCancel = (isRefreshIndex) => {
     props.onClose({ isOpen: true, isRefreshIndex: typeof isRefreshIndex === 'string' ? +isRefreshIndex : false });
     setTabSelected(0);
-  };
-
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`product-sell-detail-tabpanel-${value}`} aria-labelledby={`product-sell-detail-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    value: PropTypes.number,
-    index: PropTypes.number
   };
 
   const onChangeTab = (value) => setTabSelected(value);
@@ -61,11 +47,11 @@ const ProductSellDetail = (props) => {
       <Box sx={{ mt: 1.25 }}>
         {props.open && (
           <>
-            <TabPanel value={tabSelected} index={0}>
+            <TabPanel value={tabSelected} index={0} name="product-sell-detail">
               <ProductSellDetailOverview data={props.data} output={(e) => outputOverviewHandler(e)} />
             </TabPanel>
-            <TabPanel value={tabSelected} index={1}></TabPanel>
-            <TabPanel value={tabSelected} index={2}></TabPanel>
+            <TabPanel value={tabSelected} index={1} name="product-sell-detail"></TabPanel>
+            <TabPanel value={tabSelected} index={2} name="product-sell-detail"></TabPanel>
           </>
         )}
       </Box>

@@ -81,6 +81,7 @@ const ProductClinicList = () => {
 
                 const detailData = {
                   id: getId,
+                  fullName: resp.data.fullName,
                   dosages: resp.data.dosages,
                   details: {
                     sku: resp.data.details.sku,
@@ -105,6 +106,9 @@ const ProductClinicList = () => {
                     locationName: resp.data.location.locationName,
                     stock: resp.data.location.inStock,
                     status: resp.data.location.status.toLowerCase()
+                  },
+                  location: {
+                    id: resp.data.location.locationId
                   },
                   pricing: {
                     price: `Rp ${formatThousandSeparator(resp.data.price)}`,
@@ -342,7 +346,10 @@ const ProductClinicList = () => {
         title={openDetail.name}
         open={openDetail.isOpen}
         data={openDetail.detailData}
-        onClose={(e) => setOpenDetail({ isOpen: !e, name: '', detailData: null })}
+        onClose={(e) => {
+          setOpenDetail({ isOpen: !e.isOpen, name: '', detailData: null });
+          if (e.isRefreshIndex) fetchData();
+        }}
       />
     </>
   );

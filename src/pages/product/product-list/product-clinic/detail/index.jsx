@@ -4,32 +4,22 @@ import { Box, Tab, Tabs } from '@mui/material';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
+import TabPanel from 'components/TabPanelC';
 import ProductClinicDetailOverview from './overview';
 
 const ProductClinicDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
 
-  const onCancel = () => {
-    props.onClose(true);
+  const onCancel = (isRefreshIndex) => {
+    props.onClose({ isOpen: true, isRefreshIndex: typeof isRefreshIndex === 'string' ? +isRefreshIndex : false });
     setTabSelected(0);
   };
 
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`product-clinic-detail-tabpanel-${value}`} aria-labelledby={`product-clinic-detail-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    value: PropTypes.number,
-    index: PropTypes.number
-  };
-
   const onChangeTab = (value) => setTabSelected(value);
+
+  const outputOverviewHandler = (event) => {
+    if (event === 'closeOverview') onCancel('1');
+  };
 
   return (
     <ModalC title={props.title} open={props.open} onCancel={onCancel} isModalAction={false} fullWidth maxWidth="lg">
@@ -61,11 +51,11 @@ const ProductClinicDetail = (props) => {
       <Box sx={{ mt: 1.25 }}>
         {props.open && (
           <>
-            <TabPanel value={tabSelected} index={0}>
-              <ProductClinicDetailOverview data={props.data} />
+            <TabPanel value={tabSelected} index={0} name="product-clinic-detail">
+              <ProductClinicDetailOverview data={props.data} output={(e) => outputOverviewHandler(e)} />
             </TabPanel>
-            <TabPanel value={tabSelected} index={1}></TabPanel>
-            <TabPanel value={tabSelected} index={2}></TabPanel>
+            <TabPanel value={tabSelected} index={1} name="product-clinic-detail"></TabPanel>
+            <TabPanel value={tabSelected} index={2} name="product-clinic-detail"></TabPanel>
           </>
         )}
       </Box>

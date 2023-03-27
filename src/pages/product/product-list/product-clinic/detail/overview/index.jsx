@@ -2,6 +2,7 @@ import { Button, CardActions, Chip, Divider, Grid, Stack, Typography } from '@mu
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
+import { useState } from 'react';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -11,11 +12,21 @@ import ProductClinicDetailOverviewShipping from './shipping';
 import ProductClinicDetailOverviewDescription from './description';
 import ProductClinicDetailOverviewPricing from './pricing';
 import ProductClinicDetailOverviewDosage from './dosage';
+import FormTransfer from 'pages/product/product-list/components/FormTransfer';
 
 const ProductClinicDetailOverview = (props) => {
   const { data } = props;
+  const [openFormTransfer, setOpenFormTransfer] = useState(false);
+
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const onCloseForm = (val) => {
+    setOpenFormTransfer(false);
+    if (val) {
+      props.output('closeOverview');
+    }
+  };
 
   return (
     <>
@@ -34,7 +45,7 @@ const ProductClinicDetailOverview = (props) => {
             <Button color="primary" size="medium">
               <FormattedMessage id="adjust" />
             </Button>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormTransfer(true)}>
               <FormattedMessage id="transfer" />
             </Button>
             <Button color="primary" size="medium">
@@ -104,12 +115,16 @@ const ProductClinicDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
+      {openFormTransfer && (
+        <FormTransfer data={{ ...data, productCategory: 'productClinic' }} open={openFormTransfer} onClose={onCloseForm} />
+      )}
     </>
   );
 };
 
 ProductClinicDetailOverview.propTypes = {
-  data: PropTypes.object
+  data: PropTypes.object,
+  output: PropTypes.func
 };
 
 export default ProductClinicDetailOverview;

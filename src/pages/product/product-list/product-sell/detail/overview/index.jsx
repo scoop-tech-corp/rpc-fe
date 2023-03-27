@@ -2,8 +2,7 @@ import { Button, CardActions, Chip, Divider, Grid, Stack, Typography } from '@mu
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
-import { useEffect, useState } from 'react';
-import { getProductSellSplitDropdown } from 'pages/product/product-list/service';
+import { useState } from 'react';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -13,30 +12,22 @@ import ProductSellDetailOverviewShipping from './shipping';
 import ProductSellDetailOverviewDescription from './description';
 import ProductSellDetailOverviewPricing from './pricing';
 import FormSplit from './split';
+import FormTransfer from 'pages/product/product-list/components/FormTransfer';
 
 const ProductSellDetailOverview = (props) => {
   const { data } = props;
   const [openFormSplit, setOpenFormSplit] = useState(false);
-  const [productSellSplitList, setProductSellSplitList] = useState([]);
+  const [openFormTransfer, setOpenFormTransfer] = useState(false);
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const onCloseFormSplit = (val) => {
+  const onCloseForm = (val) => {
     setOpenFormSplit(false);
+    setOpenFormTransfer(false);
     if (val) {
       props.output('closeOverview');
     }
   };
-
-  const getProductSellSplit = async () => {
-    const getResp = await getProductSellSplitDropdown(data.location.id, data.id);
-    setProductSellSplitList(getResp);
-  };
-
-  useEffect(() => {
-    getProductSellSplit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>
@@ -58,7 +49,7 @@ const ProductSellDetailOverview = (props) => {
             <Button color="primary" size="medium">
               <FormattedMessage id="adjust" />
             </Button>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormTransfer(true)}>
               <FormattedMessage id="transfer" />
             </Button>
             <Button color="primary" size="medium">
@@ -121,7 +112,10 @@ const ProductSellDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
-      <FormSplit data={{ ...data, sellSplitList: productSellSplitList }} open={openFormSplit} onClose={onCloseFormSplit} />
+      {openFormSplit && <FormSplit data={data} open={openFormSplit} onClose={onCloseForm} />}
+      {openFormTransfer && (
+        <FormTransfer data={{ ...data, productCategory: 'productSell' }} open={openFormTransfer} onClose={onCloseForm} />
+      )}
     </>
   );
 };
