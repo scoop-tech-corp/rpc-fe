@@ -101,6 +101,9 @@ const QuickMenu = (props) => {
                     <ListItemButton style={subListItemStyle}>
                       <ListItemText primary={<Typography color="textPrimary">Restock Approval</Typography>} />
                     </ListItemButton>
+                    <ListItemButton style={subListItemStyle} onClick={() => props.onQuickMenuOpen({ menuType: 'TA', isOpen: true })}>
+                      <ListItemText primary={<Typography color="textPrimary">Transfer Approval</Typography>} />
+                    </ListItemButton>
                   </List>
                 </ClickAwayListener>
               </Paper>

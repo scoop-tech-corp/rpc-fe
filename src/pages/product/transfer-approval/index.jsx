@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
 import { Box, Tab, Tabs } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
 import { getLocationList } from 'service/service-global';
+import { useEffect, useState } from 'react';
 
-import PropTypes from 'prop-types';
 import TabPanel from 'components/TabPanelC';
+import PropTypes from 'prop-types';
 import ModalC from 'components/ModalC';
-import RequestProduct from './request';
-import History from './history';
+import TransferProduct from './transfer-product';
+import HistoryTransferProduct from './history';
 
-const ProductInventoryApproval = (props) => {
+const ProductTransferApproval = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
   const [filterLocationList, setFilterLocationList] = useState([]);
 
@@ -32,7 +32,7 @@ const ProductInventoryApproval = (props) => {
 
   return (
     <ModalC
-      title={<FormattedMessage id="list-request-product-inventory" />}
+      title={<FormattedMessage id="list-product-transfer" />}
       open={props.open}
       onCancel={onCancel}
       isModalAction={false}
@@ -45,28 +45,28 @@ const ProductInventoryApproval = (props) => {
           onChange={(_, value) => onChangeTab(value)}
           variant="scrollable"
           scrollButtons="auto"
-          aria-label="product list tab"
+          aria-label="product transfer list tab"
         >
           <Tab
-            label={<FormattedMessage id="request-product" />}
-            id="approval-inventory-list-tab-0"
-            aria-controls="approval-inventory-list-tabpanel-0"
+            label={<FormattedMessage id="transfer-product" />}
+            id="approval-product-transfer-list-tab-0"
+            aria-controls="approval-product-transfer-list-tabpanel-0"
           />
           <Tab
             label={<FormattedMessage id="history" />}
-            id="approval-inventory-list-tab-1"
-            aria-controls="approval-inventory-list-tabpanel-1"
+            id="approval-product-transfer-list-tab-1"
+            aria-controls="approval-product-transfer-list-tabpanel-1"
           />
         </Tabs>
       </Box>
       <Box sx={{ mt: 2.5 }}>
         {props.open && (
           <>
-            <TabPanel value={tabSelected} index={0} name="approval-inventory-list">
-              <RequestProduct filterLocationList={filterLocationList} />
+            <TabPanel value={tabSelected} index={0} name="approval-product-transfer-list">
+              <TransferProduct filterLocationList={filterLocationList} />
             </TabPanel>
-            <TabPanel value={tabSelected} index={1} name="approval-inventory-list">
-              <History filterLocationList={filterLocationList} />
+            <TabPanel value={tabSelected} index={1} name="approval-product-transfer-list">
+              <HistoryTransferProduct filterLocationList={filterLocationList} />
             </TabPanel>
           </>
         )}
@@ -75,9 +75,9 @@ const ProductInventoryApproval = (props) => {
   );
 };
 
-ProductInventoryApproval.propTypes = {
+ProductTransferApproval.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func
 };
 
-export default ProductInventoryApproval;
+export default ProductTransferApproval;
