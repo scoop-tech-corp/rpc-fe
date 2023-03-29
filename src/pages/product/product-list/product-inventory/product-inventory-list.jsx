@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Stack, useMediaQuery, Button, Link } from '@mui/material';
+import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -8,18 +8,20 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { getProductInventory, deleteProductInventory } from '../service';
+import { getProductInventory, deleteProductInventory, exportProductInventory } from '../service';
 import { createMessageBackend } from 'service/service-global';
 
+import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import IconButton from 'components/@extended/IconButton';
+import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 let paramProductInventoryList = {};
 
-const ProductInventoryList = () => {
+const ProductInventoryList = (props) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ const ProductInventoryList = () => {
   const [productInventoryData, setProductInventoryData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
+  const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
@@ -59,7 +62,9 @@ const ProductInventoryList = () => {
         }
       },
       { Header: <FormattedMessage id="total-product" />, accessor: 'totalItem' },
-      { Header: <FormattedMessage id="location-product" />, accessor: 'locationName' }
+      { Header: <FormattedMessage id="location-product" />, accessor: 'locationName' },
+      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
+      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
       // {
       //   Header: <FormattedMessage id="status-approval-office" />,
       //   accessor: 'isApprovedOffice',
@@ -119,6 +124,12 @@ const ProductInventoryList = () => {
     fetchData();
   };
 
+  const onFilterLocation = (selected) => {
+    paramProductInventoryList.locationId = selected.map((dt) => dt.value);
+    setFilterLocation(selected);
+    fetchData();
+  };
+
   const onClickAdd = () => {
     navigate('/product/product-list/inventory/add', { replace: true });
   };
@@ -129,7 +140,7 @@ const ProductInventoryList = () => {
   }
 
   const clearParamFetchData = () => {
-    paramProductInventoryList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+    paramProductInventoryList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
     setKeywordSearch('');
   };
 
@@ -150,6 +161,26 @@ const ProductInventoryList = () => {
     } else {
       setDialog(false);
     }
+  };
+
+  const onExport = async () => {
+    await exportProductInventory(paramProductInventoryList)
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
   };
 
   useEffect(() => {
@@ -174,7 +205,17 @@ const ProductInventoryList = () => {
                   placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
-                  style={{ height: '36.5px' }}
+                  style={{ height: '41.3px' }}
+                />
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  options={props.facilityLocationList}
+                  value={selectedFilterLocation}
+                  sx={{ width: 300 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterLocation(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
                 />
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
@@ -187,6 +228,9 @@ const ProductInventoryList = () => {
                 <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
                   <RefreshIcon />
                 </IconButton>
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                  <FormattedMessage id="export" />
+                </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                   <FormattedMessage id="add-product-inventory" />
                 </Button>
@@ -216,6 +260,10 @@ const ProductInventoryList = () => {
       />
     </>
   );
+};
+
+ProductInventoryList.propTypes = {
+  facilityLocationList: PropTypes.array
 };
 
 export default ProductInventoryList;

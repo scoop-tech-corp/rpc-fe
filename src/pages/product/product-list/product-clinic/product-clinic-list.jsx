@@ -9,9 +9,10 @@ import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { deleteProductClinic, exportProductClinic, getProductClinic, getProductClinicDetail } from '../service';
-import { createMessageBackend, getLocationList } from 'service/service-global';
+import { createMessageBackend } from 'service/service-global';
 import { formatThousandSeparator } from 'utils/func';
 
+import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
@@ -23,7 +24,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 let paramProductClinicList = {};
 
-const ProductClinicList = () => {
+const ProductClinicList = (props) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -34,7 +35,6 @@ const ProductClinicList = () => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
-  const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [isModalExport, setModalExport] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, name: '', detailData: null });
@@ -217,11 +217,6 @@ const ProductClinicList = () => {
     setKeywordSearch('');
   };
 
-  const getDataFacilityLocation = async () => {
-    const data = await getLocationList();
-    setFacilityLocationList(data);
-  };
-
   const onConfirm = async (value) => {
     if (value) {
       await deleteProductClinic(selectedRow).then((resp) => {
@@ -259,7 +254,6 @@ const ProductClinicList = () => {
   };
 
   useEffect(() => {
-    getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -286,7 +280,7 @@ const ProductClinicList = () => {
                 <Autocomplete
                   id="filterLocation"
                   multiple
-                  options={facilityLocationList}
+                  options={props.facilityLocationList}
                   value={selectedFilterLocation}
                   sx={{ width: 300 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
@@ -353,6 +347,10 @@ const ProductClinicList = () => {
       />
     </>
   );
+};
+
+ProductClinicList.propTypes = {
+  facilityLocationList: PropTypes.array
 };
 
 export default ProductClinicList;

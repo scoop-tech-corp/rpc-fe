@@ -387,11 +387,24 @@ export const getProductInventory = async (property) => {
       goToPage: property.goToPage,
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      search: property.keyword
+      search: property.keyword,
+      locationId: property.locationId
     }
   });
 
   return getResp;
+};
+
+export const exportProductInventory = async (property) => {
+  return await axios.get(productInventoryUrl + '/export', {
+    responseType: 'blob',
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId.length ? property.locationId : ['']
+    }
+  });
 };
 
 export const getProductInventoryApproval = async (property) => {

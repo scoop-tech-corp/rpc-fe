@@ -9,9 +9,10 @@ import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { getProductSell, deleteProductSell, exportProductSell, getProductSellDetail } from '../service';
-import { createMessageBackend, getLocationList } from 'service/service-global';
+import { createMessageBackend } from 'service/service-global';
 import { formatThousandSeparator } from 'utils/func';
 
+import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
@@ -23,7 +24,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 let paramProductSellList = {};
 
-const ProductSellList = () => {
+const ProductSellList = (props) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -34,7 +35,6 @@ const ProductSellList = () => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
-  const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [isModalExport, setModalExport] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, name: '', detailData: null });
@@ -216,11 +216,6 @@ const ProductSellList = () => {
     setKeywordSearch('');
   };
 
-  const getDataFacilityLocation = async () => {
-    const data = await getLocationList();
-    setFacilityLocationList(data);
-  };
-
   const onConfirm = async (value) => {
     if (value) {
       await deleteProductSell(selectedRow).then((resp) => {
@@ -259,7 +254,6 @@ const ProductSellList = () => {
   };
 
   useEffect(() => {
-    getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -286,7 +280,7 @@ const ProductSellList = () => {
                 <Autocomplete
                   id="filterLocation"
                   multiple
-                  options={facilityLocationList}
+                  options={props.facilityLocationList}
                   value={selectedFilterLocation}
                   sx={{ width: 300 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
@@ -345,6 +339,10 @@ const ProductSellList = () => {
       />
     </>
   );
+};
+
+ProductSellList.propTypes = {
+  facilityLocationList: PropTypes.array
 };
 
 export default ProductSellList;
