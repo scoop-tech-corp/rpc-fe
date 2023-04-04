@@ -78,12 +78,15 @@ const FormProductInventory = () => {
       useProductInventoryDetailStore.setState({ productType: '', productName: null, productNameList: [], productBrand: null });
     }
 
-    if (procedure === 'productBrand' && newValue) {
+    if (procedure === 'productBrand' || procedure === 'productLocation') {
       if (productType === 'productClinic') {
-        const getList = await getProductClinicDropdown(productLocation.value, newValue.value); // productBrand.value
+        const getList = await getProductClinicDropdown(
+          productLocation.value,
+          procedure === 'productBrand' && newValue ? newValue.value : ''
+        ); // productBrand.value
         useProductInventoryDetailStore.setState({ productNameList: getList });
       } else if (productType === 'productSell') {
-        const getList = await getProductSellDropdown(productLocation.value, newValue.value); // productBrand.value
+        const getList = await getProductSellDropdown(productLocation.value, procedure === 'productBrand' && newValue ? newValue.value : ''); // productBrand.value
         useProductInventoryDetailStore.setState({ productNameList: getList });
       }
     }
@@ -91,7 +94,15 @@ const FormProductInventory = () => {
 
   const onProductType = async (event) => {
     const getValue = event.target.value;
-    useProductInventoryDetailStore.setState({ productType: getValue, productBrand: null, productInventoryDetailTouch: true });
+    useProductInventoryDetailStore.setState({ productType: getValue, productInventoryDetailTouch: true });
+
+    if (getValue === 'productClinic') {
+      const getList = await getProductClinicDropdown(productLocation.value, productBrand ? productBrand.value : '');
+      useProductInventoryDetailStore.setState({ productNameList: getList });
+    } else if (getValue === 'productSell') {
+      const getList = await getProductSellDropdown(productLocation.value, productBrand ? productBrand.value : '');
+      useProductInventoryDetailStore.setState({ productNameList: getList });
+    }
   };
 
   const onAddUsage = () => setModalUsage(true);
@@ -250,6 +261,7 @@ const FormProductInventory = () => {
                   disablePortal
                   options={productLocationList}
                   value={productLocation}
+                  disabled={Boolean(listProduct.length)}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onSelectDropdown(value, 'productLocation')}
                   renderInput={(params) => <TextField {...params} />}
