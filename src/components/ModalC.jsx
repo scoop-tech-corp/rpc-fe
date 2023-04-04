@@ -1,6 +1,8 @@
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Slide, Stack } from '@mui/material';
-import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
+import { FormattedMessage } from 'react-intl';
+
+import PropTypes from 'prop-types';
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -21,7 +23,7 @@ const ModalC = (props) => {
       {isModalAction && (
         <DialogActions>
           <Button variant="outlined" color="error" onClick={onCancel}>
-            {cancelText}
+            {cancelText || <FormattedMessage id="cancel" />}
           </Button>
           <Button variant="contained" onClick={onOk} disabled={disabledOk}>
             {okText}

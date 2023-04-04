@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { exportHistoryTransferProduct, getHistoryTransferProduct } from './service';
+import { exportHistoryTransferProduct, getDetailTransferProduct, getTransferProduct } from './service';
 import { EyeOutlined } from '@ant-design/icons';
 import { useTheme } from '@mui/material/styles';
 
@@ -24,7 +24,7 @@ const HistoryTransferProduct = (props) => {
   const [historyTransferProductData, setHistoryTransferProductData] = useState({ data: [], totalPagination: 0 });
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
-  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenDetail, setIsOpenDetail] = useState({ isOpen: false, data: null });
 
   const { user } = useAuth();
   const dispatch = useDispatch();
@@ -32,58 +32,81 @@ const HistoryTransferProduct = (props) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const actionColumn =
-    user.role === 'administrator' || user.role === 'office'
-      ? [
-          {
-            Header: <FormattedMessage id="action" />,
-            accessor: 'action',
-            isNotSorting: true,
-            style: { textAlign: 'center' },
-            Cell: () => {
-              // data
-              // const getId = data.row.original.id;
+  // const actionColumn =
+  //   user.role === 'administrator' || user.role === 'office'
+  //     ? [
+  //         {
+  //           Header: <FormattedMessage id="action" />,
+  //           accessor: 'action',
+  //           isNotSorting: true,
+  //           style: { textAlign: 'center' },
+  //           Cell: () => {
+  //             // data
+  //             // const getId = data.row.original.id;
 
-              return (
-                <Stack spacing={0.1} direction={'row'} justifyContent="center">
-                  <IconButton size="large" color="info" onClick={() => setIsOpenDetail(true)}>
-                    <EyeOutlined />
-                  </IconButton>
-                </Stack>
-              );
-            }
-          }
-        ]
-      : [];
+  //             return (
+  //               <Stack spacing={0.1} direction={'row'} justifyContent="center">
+  //                 <IconButton size="large" color="info" onClick={() => setIsOpenDetail(true)}>
+  //                   <EyeOutlined />
+  //                 </IconButton>
+  //               </Stack>
+  //             );
+  //           }
+  //         }
+  //       ]
+  //     : [];
 
   const columns = useMemo(
     () => [
-      { Header: <FormattedMessage id="product-name" />, accessor: 'productName' },
-      { Header: <FormattedMessage id="category" />, accessor: 'categoryName' },
+      { Header: <FormattedMessage id="no-transfer" />, accessor: 'transferNumber' },
+      { Header: <FormattedMessage id="transfer-name" />, accessor: 'transferName' },
       { Header: <FormattedMessage id="from" />, accessor: 'from' },
       { Header: <FormattedMessage id="to" />, accessor: 'to' },
-      { Header: <FormattedMessage id="quantity" />, accessor: 'quantity' },
+      { Header: <FormattedMessage id="product-type" />, accessor: 'productType' },
+      { Header: <FormattedMessage id="product-name" />, accessor: 'productName' },
+      { Header: <FormattedMessage id="total-item" />, accessor: 'totalItem' },
       {
         Header: 'Status',
         accessor: 'status',
         Cell: (data) => {
           switch (+data.value) {
+            case 2:
+              return <Chip color="error" label={<FormattedMessage id="reject" />} size="small" variant="light" />;
+            case 3:
+              return <Chip color="success" label={<FormattedMessage id="received" />} size="small" variant="light" />;
             case 0:
-              return <Chip color="warning" label={<FormattedMessage id="waiting-for-approval" />} size="small" variant="light" />;
-            case 1:
-              return <Chip color="success" label="Accept" size="small" variant="light" />;
+              return '-';
           }
         }
       },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
       { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
-      { Header: <FormattedMessage id="approved-by" />, accessor: 'approvedBy' },
-      { Header: <FormattedMessage id="approved-at" />, accessor: 'approvedAt' },
-      ...actionColumn
+      {
+        Header: <FormattedMessage id="action" />,
+        accessor: 'action',
+        isNotSorting: true,
+        style: { textAlign: 'center' },
+        Cell: (data) => {
+          const getId = data.row.original.id;
+
+          return (
+            <Stack spacing={0.1} direction={'row'} justifyContent="center">
+              <IconButton size="large" color="info" onClick={() => onClickDetail(getId)}>
+                <EyeOutlined />
+              </IconButton>
+            </Stack>
+          );
+        }
+      }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  const onClickDetail = async (id) => {
+    const resp = await getDetailTransferProduct(id);
+    setIsOpenDetail({ isOpen: true, data: resp.data });
+  };
 
   const onOrderingChange = (event) => {
     paramHistoryTransferProductList.orderValue = event.order;
@@ -115,12 +138,20 @@ const HistoryTransferProduct = (props) => {
   };
 
   const clearParamFetchData = () => {
-    paramHistoryTransferProductList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
+    paramHistoryTransferProductList = {
+      rowPerPage: 5,
+      goToPage: 1,
+      orderValue: '',
+      orderColumn: '',
+      keyword: '',
+      locationId: [],
+      type: 'history'
+    };
     setKeywordSearch('');
   };
 
   async function fetchData() {
-    const resp = await getHistoryTransferProduct(paramHistoryTransferProductList);
+    const resp = await getTransferProduct(paramHistoryTransferProductList);
     setHistoryTransferProductData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
   }
 
@@ -161,26 +192,30 @@ const HistoryTransferProduct = (props) => {
                 setGlobalFilter={onSearch}
                 style={{ height: '41.3px' }}
               />
-              <Autocomplete
-                id="filterLocation"
-                multiple
-                limitTags={1}
-                options={props.filterLocationList || []}
-                value={selectedFilterLocation}
-                sx={{ width: 300 }}
-                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                onChange={(_, value) => onFilterLocation(value)}
-                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-              />
+              {(user.role === 'administrator' || user.role === 'office') && (
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  limitTags={1}
+                  options={props.filterLocationList || []}
+                  value={selectedFilterLocation}
+                  sx={{ width: 300 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterLocation(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                />
+              )}
             </Stack>
 
             <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
               <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
                 <RefreshIcon />
               </IconButton>
-              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                <FormattedMessage id="export" />
-              </Button>
+              {(user.role === 'administrator' || user.role === 'office') && (
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                  <FormattedMessage id="export" />
+                </Button>
+              )}
             </Stack>
           </Stack>
           <ReactTable
@@ -188,6 +223,7 @@ const HistoryTransferProduct = (props) => {
             data={historyTransferProductData.data}
             totalPagination={historyTransferProductData.totalPagination}
             setPageNumber={paramHistoryTransferProductList.goToPage}
+            colSpanPagination={11}
             onOrder={onOrderingChange}
             onGotoPage={onGotoPageChange}
             onPageSize={onPageSizeChange}
@@ -195,7 +231,13 @@ const HistoryTransferProduct = (props) => {
         </Stack>
       </ScrollX>
 
-      {isOpenDetail && <DetailTransferProduct open={isOpenDetail} onClose={(e) => setIsOpenDetail(!e)} />}
+      {isOpenDetail.isOpen && (
+        <DetailTransferProduct
+          open={isOpenDetail.isOpen}
+          data={isOpenDetail.data}
+          onClose={(e) => setIsOpenDetail({ isOpen: !e, data: null })}
+        />
+      )}
     </>
   );
 };

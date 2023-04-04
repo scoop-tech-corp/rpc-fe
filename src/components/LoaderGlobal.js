@@ -6,6 +6,43 @@ import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
 
 const subject = new BehaviorSubject();
+let loaderStatus = false;
+let loaderBatch = [];
+
+export class LoaderService {
+  constructor() {}
+
+  startLoader() {
+    if (loaderBatch.length === 0) {
+      this.showLoader();
+    }
+    loaderBatch.push(true);
+  }
+
+  showLoader() {
+    if (!loaderStatus) {
+      loaderGlobalConfig.setLoader(true);
+    } else {
+      loaderGlobalConfig.setLoader(false);
+    }
+  }
+
+  hideLoader() {
+    loaderGlobalConfig.setLoader(false);
+  }
+
+  checkLoader() {
+    if (loaderBatch.length > 0) {
+      loaderBatch.pop();
+
+      if (loaderBatch.length === 0) {
+        return this.hideLoader();
+      }
+    } else {
+      return this.hideLoader();
+    }
+  }
+}
 
 export const loaderGlobalConfig = {
   setLoader: (isLoader) => subject.next({ isLoader }),

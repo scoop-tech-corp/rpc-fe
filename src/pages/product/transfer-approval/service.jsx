@@ -1,76 +1,42 @@
-// import axios from 'axios';
+import axios from 'utils/axios';
 
-export const getTransferProduct = async () => {
-  //property
-  return {
-    data: {
-      data: [
-        {
-          id: 1,
-          productName: 'test 1',
-          categoryName: 'category test',
-          from: 'jogjes',
-          to: 'paraingan',
-          quantity: 'goks',
-          status: 0,
-          createdBy: 'Ajeng tirtalisa',
-          receivedBy: 'siboss onta',
-          createdAt: '21/01/2023'
-        }
-      ],
-      pagination: 1
+export const getTransferProduct = async (property) => {
+  return await axios.get('product/transfer', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId.length ? property.locationId : null,
+      type: property.type
     }
-  };
-
-  // return await axios.get('product/transfer', {
-  //   params: {
-  //     rowPerPage: property.rowPerPage,
-  //     goToPage: property.goToPage,
-  //     orderValue: property.orderValue,
-  //     orderColumn: property.orderColumn,
-  //     search: property.keyword,
-  //     locationId: property.locationId.length ? property.locationId : ['']
-  //   }
-  // });
+  });
 };
 
-export const getHistoryTransferProduct = async () => {
-  //property
-  return {
-    data: {
-      data: [
-        {
-          id: 1,
-          productName: 'test 1',
-          categoryName: 'category test',
-          from: 'jogjes',
-          to: 'paraingan',
-          quantity: 'goks',
-          status: 0,
-          createdBy: 'Ajeng tirtalisa',
-          createdAt: '21/01/2023',
-          approvedBy: 'siboss onta',
-          approvedAt: '21/01/2023'
-        }
-      ],
-      pagination: 1
-    }
-  };
+export const getDetailTransferProduct = async (id) => {
+  return await axios.get('product/transfer/detail', {
+    params: { id }
+  });
+};
 
-  // return await axios.get('product/transfer', {
-  //   params: {
-  //     rowPerPage: property.rowPerPage,
-  //     goToPage: property.goToPage,
-  //     orderValue: property.orderValue,
-  //     orderColumn: property.orderColumn,
-  //     search: property.keyword,
-  //     locationId: property.locationId.length ? property.locationId : ['']
-  //   }
-  // });
+export const receiveTransferProduct = async (property) => {
+  const fd = new FormData();
+  fd.append('id', +property.id);
+  fd.append('reference', property.reference);
+  fd.append('image', property.image.selectedFile);
+
+  return await axios.post('product/transfer/receive', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateTransferProductApproval = async (property) => {
+  const parameter = { id: property.id, status: property.status, reason: property.reason };
+
+  return await axios.put('product/transfer/approval', parameter);
 };
 
 export const exportHistoryTransferProduct = async (param) => {
-  return await axios.get('product/transfer/history/export', {
+  return await axios.get('product/transfer/export', {
     responseType: 'blob',
     params: {
       orderValue: param.orderValue,
