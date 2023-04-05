@@ -87,21 +87,26 @@ const TransferProduct = (props) => {
         style: { textAlign: 'center' },
         Cell: (data) => {
           const getId = data.row.original.id;
+          const status = data.row.original.status;
 
           return (
             <Stack spacing={0.1} direction={'row'} justifyContent="center">
               {user.role === 'administrator' || user.role === 'office' ? (
                 <>
-                  <Tooltip title={<FormattedMessage id="approved" />} arrow>
-                    <IconButton size="large" color="primary" onClick={() => onClickApproval(data.row.original)}>
-                      <CheckCircleOutlined />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title={<FormattedMessage id="reject" />} arrow>
-                    <IconButton size="large" color="error" onClick={() => onClickReject(data.row.original)}>
-                      <CloseCircleOutlined />
-                    </IconButton>
-                  </Tooltip>
+                  {status && +status === 0 && (
+                    <>
+                      <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                        <IconButton size="large" color="primary" onClick={() => onClickApproval(data.row.original)}>
+                          <CheckCircleOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title={<FormattedMessage id="reject" />} arrow>
+                        <IconButton size="large" color="error" onClick={() => onClickReject(data.row.original)}>
+                          <CloseCircleOutlined />
+                        </IconButton>
+                      </Tooltip>
+                    </>
+                  )}
                   <Tooltip title={<FormattedMessage id="details" />} arrow>
                     <IconButton size="large" color="info" onClick={() => onClickDetail(getId)}>
                       <EyeOutlined />
