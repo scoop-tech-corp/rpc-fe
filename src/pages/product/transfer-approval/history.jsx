@@ -1,4 +1,4 @@
-import { Autocomplete, Button, Chip, Stack, TextField, useMediaQuery, FormControl, Select, MenuItem } from '@mui/material';
+import { Autocomplete, Button, Chip, Stack, TextField, useMediaQuery, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
@@ -25,7 +25,7 @@ const HistoryTransferProduct = (props) => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [isOpenDetail, setIsOpenDetail] = useState({ isOpen: false, data: null });
-  const [locationType, setLocationType] = useState('from');
+  const [locationType, setLocationType] = useState('');
 
   const { user } = useAuth();
   const dispatch = useDispatch();
@@ -152,7 +152,7 @@ const HistoryTransferProduct = (props) => {
       orderColumn: '',
       keyword: '',
       locationId: [],
-      locationType: user.role === 'administrator' || user.role === 'office' ? 'from' : undefined,
+      locationType: '',
       type: 'history'
     };
     setKeywordSearch('');
@@ -202,16 +202,11 @@ const HistoryTransferProduct = (props) => {
               />
               {(user.role === 'administrator' || user.role === 'office') && (
                 <>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id="location-type"
-                      name="location-type"
-                      value={locationType}
-                      onChange={onLocationType}
-                      placeholder="Select type"
-                    >
+                  <FormControl sx={{ m: 1, minWidth: 200 }}>
+                    <InputLabel>{<FormattedMessage id="select-location-type" />}</InputLabel>
+                    <Select id="location-type" name="location-type" value={locationType} onChange={onLocationType}>
                       <MenuItem value="">
-                        <em>Select location type</em>
+                        <em>{<FormattedMessage id="select-location-type" />}</em>
                       </MenuItem>
                       <MenuItem value={'from'}>
                         <FormattedMessage id="from" />

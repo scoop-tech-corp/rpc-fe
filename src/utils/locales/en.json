@@ -347,6 +347,7 @@
   "select": "Select",
   "select-all": "Select All",
   "select-status": "Select status",
+  "select-location-type": "Select location type",
   "selling-location": "Selling Location",
   "selling-location-is-required": "Selling location is required",
   "service": "Service",

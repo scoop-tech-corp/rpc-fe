@@ -27,9 +27,16 @@ const ReceiverConfirmation = (props) => {
         if (err) dispatch(snackbarError(createMessageBackend(err, true, true)));
       });
   };
-  const onCancel = () => props.onClose(false);
+  const onCancel = () => {
+    props.onClose(false);
+    setReference('');
+    clearImage();
+  };
 
-  const clearImage = () => (document.getElementById('importImage').value = '');
+  const clearImage = () => {
+    document.getElementById('importImage').value = '';
+    setSelectedImage({ imagePath: '', selectedFile: '' });
+  };
 
   const onSelectedImage = (e) => {
     const getFile = e.target.files[0];

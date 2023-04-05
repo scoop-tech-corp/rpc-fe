@@ -1,4 +1,16 @@
-import { Autocomplete, Button, Chip, Stack, TextField, Tooltip, useMediaQuery, FormControl, Select, MenuItem } from '@mui/material';
+import {
+  Autocomplete,
+  Button,
+  Chip,
+  Stack,
+  TextField,
+  Tooltip,
+  useMediaQuery,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel
+} from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
@@ -29,7 +41,7 @@ const TransferProduct = (props) => {
   const [isOpenDetail, setIsOpenDetail] = useState({ isOpen: false, data: null });
   const [isOpenAcceptProduct, setIsOpenAcceptProduct] = useState({ isOpen: false, id: null });
   const [dialogConfirmation, setDialogConfirmation] = useState({ isApproval: false, isReject: false, data: { id: null, status: null } });
-  const [locationType, setLocationType] = useState('from');
+  const [locationType, setLocationType] = useState('');
 
   const { user } = useAuth();
   const dispatch = useDispatch();
@@ -205,7 +217,7 @@ const TransferProduct = (props) => {
       orderColumn: '',
       keyword: '',
       locationId: [],
-      locationType: user.role === 'administrator' || user.role === 'office' ? 'from' : undefined,
+      locationType: '',
       type: 'product'
     };
     setKeywordSearch('');
@@ -241,16 +253,11 @@ const TransferProduct = (props) => {
               />
               {(user.role === 'administrator' || user.role === 'office') && (
                 <>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id="location-type"
-                      name="location-type"
-                      value={locationType}
-                      onChange={onLocationType}
-                      placeholder="Select type"
-                    >
+                  <FormControl sx={{ m: 1, minWidth: 200 }} style={{ height: '41.3px' }}>
+                    <InputLabel>{<FormattedMessage id="select-location-type" />}</InputLabel>
+                    <Select id="location-type" name="location-type" value={locationType} onChange={onLocationType}>
                       <MenuItem value="">
-                        <em>Select location type</em>
+                        <em>{<FormattedMessage id="select-location-type" />}</em>
                       </MenuItem>
                       <MenuItem value={'from'}>
                         <FormattedMessage id="from" />
@@ -267,6 +274,7 @@ const TransferProduct = (props) => {
                     options={props.filterLocationList || []}
                     value={selectedFilterLocation}
                     sx={{ width: 300 }}
+                    style={{ height: '41.3px' }}
                     isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                     onChange={(_, value) => onFilterLocation(value)}
                     renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
