@@ -78,6 +78,10 @@ const FormProductInventory = () => {
       useProductInventoryDetailStore.setState({ productType: '', productName: null, productNameList: [], productBrand: null });
     }
 
+    if (procedure === 'productBrand') {
+      useProductInventoryDetailStore.setState({ productName: null, productNameList: [] });
+    }
+
     if (procedure === 'productBrand' || procedure === 'productLocation') {
       if (productType === 'productClinic') {
         const getList = await getProductClinicDropdown(
