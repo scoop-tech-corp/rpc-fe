@@ -1,4 +1,4 @@
-import { Autocomplete, Button, Chip, Stack, TextField, Tooltip, useMediaQuery } from '@mui/material';
+import { Autocomplete, Button, Chip, Stack, TextField, Tooltip, useMediaQuery, FormControl, Select, MenuItem } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
@@ -29,6 +29,7 @@ const TransferProduct = (props) => {
   const [isOpenDetail, setIsOpenDetail] = useState({ isOpen: false, data: null });
   const [isOpenAcceptProduct, setIsOpenAcceptProduct] = useState({ isOpen: false, id: null });
   const [dialogConfirmation, setDialogConfirmation] = useState({ isApproval: false, isReject: false, data: { id: null, status: null } });
+  const [locationType, setLocationType] = useState('from');
 
   const { user } = useAuth();
   const dispatch = useDispatch();
@@ -107,6 +108,12 @@ const TransferProduct = (props) => {
     ],
     [columnReceivedBy, user.role]
   );
+
+  const onLocationType = (event) => {
+    setLocationType(event.target.value);
+    paramTransferProductList.locationType = event.target.value;
+    fetchData();
+  };
 
   const onClickDetail = async (id) => {
     const resp = await getDetailTransferProduct(id);
@@ -198,6 +205,7 @@ const TransferProduct = (props) => {
       orderColumn: '',
       keyword: '',
       locationId: [],
+      locationType: user.role === 'administrator' || user.role === 'office' ? 'from' : undefined,
       type: 'product'
     };
     setKeywordSearch('');
@@ -232,17 +240,38 @@ const TransferProduct = (props) => {
                 style={{ height: '41.3px' }}
               />
               {(user.role === 'administrator' || user.role === 'office') && (
-                <Autocomplete
-                  id="filterLocation"
-                  multiple
-                  limitTags={1}
-                  options={props.filterLocationList || []}
-                  value={selectedFilterLocation}
-                  sx={{ width: 300 }}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, value) => onFilterLocation(value)}
-                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                />
+                <>
+                  <FormControl sx={{ m: 1, minWidth: 120 }}>
+                    <Select
+                      id="location-type"
+                      name="location-type"
+                      value={locationType}
+                      onChange={onLocationType}
+                      placeholder="Select type"
+                    >
+                      <MenuItem value="">
+                        <em>Select location type</em>
+                      </MenuItem>
+                      <MenuItem value={'from'}>
+                        <FormattedMessage id="from" />
+                      </MenuItem>
+                      <MenuItem value={'to'}>
+                        <FormattedMessage id="to" />
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Autocomplete
+                    id="filterLocation"
+                    multiple
+                    limitTags={1}
+                    options={props.filterLocationList || []}
+                    value={selectedFilterLocation}
+                    sx={{ width: 300 }}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, value) => onFilterLocation(value)}
+                    renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                  />
+                </>
               )}
             </Stack>
             <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>

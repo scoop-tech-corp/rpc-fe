@@ -9,6 +9,7 @@ export const getTransferProduct = async (property) => {
       orderColumn: property.orderColumn,
       search: property.keyword,
       locationId: property.locationId.length ? property.locationId : null,
+      locationType: property.locationType ? property.locationType : undefined,
       type: property.type
     }
   });
