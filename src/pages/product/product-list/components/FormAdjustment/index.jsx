@@ -53,34 +53,39 @@ const FormAdjustment = (props) => {
   };
 
   const onChangeAdjustment = (e) => {
-    setTotalAdjustment('');
+    if (!e.target.value) {
+      setTotalAdjustment('');
+      setTotalAfterAdjustment('');
+    } else {
+      calculateTotalAdjustment({ valueAdjustment: e.target.value });
+    }
+
     setSelectAdjustment(e.target.value);
-    calculateTotalAdjustment({ valueAdjustment: e.target.value });
   };
 
-  const onChangeTotalAfterAdjustment = (e) => {
-    setTotalAfterAdjustment(e.target.value);
-    calculateTotalAdjustment({ valueTotalAfterAdjustment: e.target.value });
+  const onChangeTotalAdjustment = (e) => {
+    setTotalAdjustment(e.target.value);
+    calculateTotalAdjustment({ valueTotalAdjustment: e.target.value });
   };
 
   const calculateTotalAdjustment = (property) => {
-    const getTotalAfterAdjustment = property.valueTotalAfterAdjustment ? property.valueTotalAfterAdjustment : totalAfterAdjustment;
-    const getAdjustment = property.valueAdjustment ? property.valueAdjustment : selectAdjustment;
+    const getAdjustment = property.valueAdjustment || selectAdjustment;
+    const getTotalAdjustment = !isNaN(property.valueTotalAdjustment) ? property.valueTotalAdjustment : totalAdjustment;
     let result = '';
 
-    if (getAdjustment && getTotalAfterAdjustment) {
+    if (getAdjustment && getTotalAdjustment) {
       if (getAdjustment === 'increase') {
-        result = +currentStock + +getTotalAfterAdjustment;
+        result = +currentStock + +getTotalAdjustment;
       } else if (getAdjustment === 'decrease') {
-        result = +currentStock - +getTotalAfterAdjustment;
+        result = +currentStock - +getTotalAdjustment;
       }
     }
 
-    setTotalAdjustment(result);
+    setTotalAfterAdjustment(result);
   };
 
   const isDisabled = () => {
-    return !totalAdjustment || !totalAdjustment;
+    return !selectAdjustment || !totalAdjustment || !remark;
   };
 
   return (
@@ -90,7 +95,6 @@ const FormAdjustment = (props) => {
       cancelText={<FormattedMessage id="cancel" />}
       open={props.open}
       onOk={onSubmit}
-      // disabledOk={isDisabledSave}
       disabledOk={isDisabled()}
       onCancel={onCancel}
       sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 435 } }}
@@ -139,15 +143,21 @@ const FormAdjustment = (props) => {
               id="totalAdjustment"
               name="totalAdjustment"
               value={totalAdjustment}
-              inputProps={{ readOnly: true }}
-              onChange={(e) => setTotalAdjustment(e.target.value)}
+              onChange={onChangeTotalAdjustment}
             />
           </Stack>
         </Grid>
         <Grid item xs={12} sm={7}>
           <Stack spacing={1}>
             <InputLabel htmlFor="remark">{<FormattedMessage id="remark" />}</InputLabel>
-            <TextField fullWidth id="remark" name="remark" value={remark} onChange={(e) => setRemark(e.target.value)} />
+            <TextField
+              fullWidth
+              id="remark"
+              name="remark"
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+              inputProps={{ maxLength: 255 }}
+            />
           </Stack>
         </Grid>
         <Grid item xs={12} sm={5}>
@@ -159,7 +169,7 @@ const FormAdjustment = (props) => {
               id="totalAfterAdjustment"
               name="totalAfterAdjustment"
               value={totalAfterAdjustment}
-              onChange={onChangeTotalAfterAdjustment}
+              inputProps={{ readOnly: true }}
             />
           </Stack>
         </Grid>
