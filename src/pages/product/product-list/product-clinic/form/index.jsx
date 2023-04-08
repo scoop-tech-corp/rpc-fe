@@ -7,7 +7,7 @@ import { getCustomerGroupList, getBrandList, getSupplierList, getProductCategory
 import { getLocationList } from 'service/service-global';
 import { defaultProductClinicForm, useProductClinicFormStore } from './product-clinic-form-store';
 import { jsonCentralized } from 'utils/func';
-import configGlobal from '../../../../../config';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 
 import PropTypes from 'prop-types';
 import ProductClinicFormHeader from './product-clinic-form-header';
@@ -17,6 +17,7 @@ import TabDescription from './tab/tab-description';
 import TabCategories from './tab/tab-categories';
 import TabReminders from './tab/tab-reminders';
 import TabPhoto from './tab/tab-photo';
+import configGlobal from '../../../../../config';
 
 const ProductClinicForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -130,8 +131,14 @@ const ProductClinicForm = () => {
   };
 
   const getData = async () => {
+    loaderService.setManualLoader(true);
+    loaderGlobalConfig.setLoader(true);
+
     await getDropdownData();
-    if (id) getDetail();
+    if (id) await getDetail();
+
+    loaderGlobalConfig.setLoader(false);
+    loaderService.setManualLoader(false);
   };
 
   const TabPanel = (props) => {

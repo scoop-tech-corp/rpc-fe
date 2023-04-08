@@ -2,12 +2,11 @@ import { Box, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-
 import { getCustomerGroupList, getBrandList, getSupplierList, getProductCategoryList, getProductSellDetail } from '../../service';
 import { getLocationList } from 'service/service-global';
 import { defaultProductSellForm, useProductSellFormStore } from './product-sell-form-store';
 import { jsonCentralized } from 'utils/func';
-import configGlobal from '../../../../../config';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 
 import PropTypes from 'prop-types';
 import ProductSellFormHeader from './product-sell-form-header';
@@ -17,6 +16,7 @@ import TabDescription from './tab/tab-description';
 import TabCategories from './tab/tab-categories';
 import TabReminders from './tab/tab-reminders';
 import TabPhoto from './tab/tab-photo';
+import configGlobal from '../../../../../config';
 
 const ProductSellForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -118,8 +118,14 @@ const ProductSellForm = () => {
   };
 
   const getData = async () => {
+    loaderService.setManualLoader(true);
+    loaderGlobalConfig.setLoader(true);
+
     await getDropdownData();
-    if (id) getDetail();
+    if (id) await getDetail();
+
+    loaderGlobalConfig.setLoader(false);
+    loaderService.setManualLoader(false);
   };
 
   const TabPanel = (props) => {
