@@ -146,6 +146,17 @@ export const createProductTransfer = async (property) => {
   return await axios.post('product/transfer', parameter);
 };
 
+export const createProductAdjustment = async (property) => {
+  const fd = new FormData();
+  fd.append('productId', property.productId);
+  fd.append('productType', property.productType); //productSell or productClinic
+  fd.append('adjustment', property.adjustment);
+  fd.append('totalAdjustment', property.totalAdjustment);
+  fd.append('remark', property.remark);
+
+  return await axios.post('product/adjust', fd);
+};
+
 const generateParamSaved = (property, procedure = '') => {
   const productBrandId = property.productBrand ? +property.productBrand.value : '';
   const productSupplierId = property.productSupplier ? +property.productSupplier.value : '';

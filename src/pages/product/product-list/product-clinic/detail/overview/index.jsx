@@ -13,15 +13,18 @@ import ProductClinicDetailOverviewDescription from './description';
 import ProductClinicDetailOverviewPricing from './pricing';
 import ProductClinicDetailOverviewDosage from './dosage';
 import FormTransfer from 'pages/product/product-list/components/FormTransfer';
+import FormAdjustment from 'pages/product/product-list/components/FormAdjustment';
 
 const ProductClinicDetailOverview = (props) => {
   const { data } = props;
   const [openFormTransfer, setOpenFormTransfer] = useState(false);
+  const [openFormAdjustment, setOpenFormAdjustment] = useState(false);
 
   const theme = useTheme();
   const navigate = useNavigate();
 
   const onCloseForm = (val) => {
+    setOpenFormAdjustment(false);
     setOpenFormTransfer(false);
     if (val) {
       props.output('closeOverview');
@@ -42,7 +45,7 @@ const ProductClinicDetailOverview = (props) => {
       >
         <Stack direction="row" justifyContent="flex-end" sx={{ width: 1 }}>
           <Stack direction="row" spacing={1} style={{ overflowX: 'auto' }}>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormAdjustment(true)}>
               <FormattedMessage id="adjust" />
             </Button>
             <Button color="primary" size="medium" onClick={() => setOpenFormTransfer(true)}>
@@ -115,6 +118,9 @@ const ProductClinicDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
+      {openFormAdjustment && (
+        <FormAdjustment data={{ ...data, productType: 'productClinic' }} open={openFormAdjustment} onClose={onCloseForm} />
+      )}
       {openFormTransfer && <FormTransfer data={{ ...data, productType: 'productClinic' }} open={openFormTransfer} onClose={onCloseForm} />}
     </>
   );

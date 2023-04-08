@@ -13,16 +13,19 @@ import ProductSellDetailOverviewDescription from './description';
 import ProductSellDetailOverviewPricing from './pricing';
 import FormSplit from './split';
 import FormTransfer from 'pages/product/product-list/components/FormTransfer';
+import FormAdjustment from 'pages/product/product-list/components/FormAdjustment';
 
 const ProductSellDetailOverview = (props) => {
   const { data } = props;
   const [openFormSplit, setOpenFormSplit] = useState(false);
+  const [openFormAdjustment, setOpenFormAdjustment] = useState(false);
   const [openFormTransfer, setOpenFormTransfer] = useState(false);
   const theme = useTheme();
   const navigate = useNavigate();
 
   const onCloseForm = (val) => {
     setOpenFormSplit(false);
+    setOpenFormAdjustment(false);
     setOpenFormTransfer(false);
     if (val) {
       props.output('closeOverview');
@@ -46,7 +49,7 @@ const ProductSellDetailOverview = (props) => {
             <Button color="primary" size="medium" onClick={() => setOpenFormSplit(true)}>
               <FormattedMessage id="split" />
             </Button>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormAdjustment(true)}>
               <FormattedMessage id="adjust" />
             </Button>
             <Button color="primary" size="medium" onClick={() => setOpenFormTransfer(true)}>
@@ -113,6 +116,9 @@ const ProductSellDetailOverview = (props) => {
         </Grid>
       </Grid>
       {openFormSplit && <FormSplit data={data} open={openFormSplit} onClose={onCloseForm} />}
+      {openFormAdjustment && (
+        <FormAdjustment data={{ ...data, productType: 'productSell' }} open={openFormAdjustment} onClose={onCloseForm} />
+      )}
       {openFormTransfer && <FormTransfer data={{ ...data, productType: 'productSell' }} open={openFormTransfer} onClose={onCloseForm} />}
     </>
   );
