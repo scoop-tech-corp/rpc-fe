@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { getProductLogTransaction, getProductTransaction } from '../../service';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
-// import { getStaffList } from 'pages/staff/staff-list/service';
+import { getStaff } from 'pages/staff/staff-list/service';
 
 import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
@@ -23,7 +23,7 @@ const ProductLogTransaction = (props) => {
   const [logData, setLogData] = useState({ data: [], totalPagination: 0 });
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
   const [selectedFilterStaff, setSelectedFilterStaff] = useState([]);
-  const [listStaff] = useState([]); // setListStaff
+  const [listStaff, setListStaff] = useState([]);
 
   const [selectedFilterTransaction, setSelectedFilterTransaction] = useState(null);
   const [listTransaction, setListTransaction] = useState([]);
@@ -39,7 +39,12 @@ const ProductLogTransaction = (props) => {
     fetchData();
   };
 
-  const onFilterStaff = () => {};
+  const onFilterStaff = (selected) => {
+    paramProductLogList.staffId = selected.map((dt) => dt.value);
+
+    setSelectedFilterStaff(selected ? selected : null);
+    fetchData();
+  };
 
   const onResetFilter = () => {
     resetData();
@@ -121,9 +126,10 @@ const ProductLogTransaction = (props) => {
   const getDropdownData = () => {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      // const getStaff = await getStaffList();
+      const getResp = await getStaff();
       const getTransaction = await getProductTransaction();
       setListTransaction(getTransaction);
+      setListStaff(getResp);
 
       resolve(true);
     });

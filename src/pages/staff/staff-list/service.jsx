@@ -200,6 +200,13 @@ export const getStaffDetail = async (id) => {
   return { ...getResp, data };
 };
 
+export const getStaff = async () => {
+  const getResp = await axios.get('staff/list');
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName ?? '-', value: +dt.id };
+  });
+};
+
 export const getTypeIdList = async () => {
   const getResp = await axios.get('staff/typeid');
 
