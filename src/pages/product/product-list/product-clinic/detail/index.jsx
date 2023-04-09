@@ -6,6 +6,7 @@ import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 import TabPanel from 'components/TabPanelC';
 import ProductClinicDetailOverview from './overview';
+import ProductLogTransaction from '../../components/LogTransaction';
 
 const ProductClinicDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -55,7 +56,9 @@ const ProductClinicDetail = (props) => {
               <ProductClinicDetailOverview data={props.data} output={(e) => outputOverviewHandler(e)} />
             </TabPanel>
             <TabPanel value={tabSelected} index={1} name="product-clinic-detail"></TabPanel>
-            <TabPanel value={tabSelected} index={2} name="product-clinic-detail"></TabPanel>
+            <TabPanel value={tabSelected} index={2} name="product-clinic-detail">
+              <ProductLogTransaction data={{ ...props.data, productType: 'productClinic' }} />
+            </TabPanel>
           </>
         )}
       </Box>

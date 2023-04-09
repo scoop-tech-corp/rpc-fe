@@ -97,6 +97,14 @@ export const getProductUsage = async () => {
   });
 };
 
+export const getProductTransaction = async () => {
+  const getResp = await axios.get('product/transaction');
+
+  return getResp.data.data.map((dt) => {
+    return { label: dt, value: dt };
+  });
+};
+
 export const createPrductUsage = async (usageName) => {
   const parameter = new FormData();
   parameter.append('usage', usageName);
@@ -155,6 +163,27 @@ export const createProductAdjustment = async (property) => {
   fd.append('remark', property.remark);
 
   return await axios.post('product/adjust', fd);
+};
+
+export const getProductLogTransaction = async (property) => {
+  const dateFrom = property.dateRange ? formateDateYYYMMDD(property.dateRange[0]) : '';
+  const dateTo = property.dateRange ? formateDateYYYMMDD(property.dateRange[1]) : '';
+
+  return await axios.get('product/log', {
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      goToPage: property.goToPage,
+      rowPerPage: property.rowPerPage,
+      productId: property.productId,
+      locationId: property.locationId,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      staffId: property.staffId,
+      transaction: property.transaction,
+      productType: property.productType
+    }
+  });
 };
 
 const generateParamSaved = (property, procedure = '') => {
