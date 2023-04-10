@@ -104,6 +104,7 @@ const ProductSellList = (props) => {
                   inventory: {
                     locationName: resp.data.location.locationName,
                     stock: resp.data.location.inStock,
+                    lowStock: resp.data.location.lowStock,
                     status: resp.data.location.status.toLowerCase()
                   },
                   location: {

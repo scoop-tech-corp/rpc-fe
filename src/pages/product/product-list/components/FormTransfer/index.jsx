@@ -19,10 +19,12 @@ const FormTransfer = (props) => {
   const [transferNo, setTransferNo] = useState('');
   const [transferDate] = useState(formateDateDDMMYYY(new Date(), true));
   const [transferName, setTransferName] = useState('');
+  const [branchOrigin] = useState(props.data.inventory.locationName);
   const [branchDestination, setBranchDestination] = useState(null);
   const [branchDestinationList, setBranchDestinationList] = useState([]);
   const [receiver, setReceiver] = useState(null);
   const [receiverList, setReceiverList] = useState([]);
+  const [currentStock] = useState(props.data.inventory.stock);
 
   const [productName] = useState(props.data.fullName);
   const [additionalCost, setAdditionalCost] = useState('');
@@ -62,12 +64,12 @@ const FormTransfer = (props) => {
 
   const onValidation = (e) => {
     const getTransferName = e.target.value || transferName;
-    const getTotalItem = +e.target.value || totalItem;
+    const getTotalItem = !isNaN(e.target.value) ? +e.target.value : totalItem;
     let isError = false;
 
     if (!getTransferName) {
       isError = true;
-    } else if (getTotalItem > +props.data.inventory.stock || !getTotalItem) {
+    } else if (!getTotalItem || +props.data.inventory.stock - getTotalItem > +props.data.inventory.lowStock) {
       isError = true;
     }
 
@@ -152,6 +154,40 @@ const FormTransfer = (props) => {
           </Stack>
         </Grid>
 
+        <Grid item xs={12}>
+          <Stack spacing={1}>
+            <InputLabel htmlFor="product-name">{<FormattedMessage id="product-name" />}</InputLabel>
+            <TextField fullWidth id="productName" name="productName" value={productName} inputProps={{ readOnly: true }} />
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Stack spacing={1}>
+            <InputLabel htmlFor="branch-origin">{<FormattedMessage id="branch-origin" />}</InputLabel>
+            <TextField fullWidth id="branchOrigin" name="branchOrigin" value={branchOrigin} inputProps={{ readOnly: true }} />
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Stack spacing={1}>
+            <InputLabel htmlFor="current-stock">{<FormattedMessage id="current-stock" />}</InputLabel>
+            <Stack spacing={1} flexDirection="row" alignItems={'center'}>
+              <TextField
+                fullWidth
+                type="number"
+                id="currentStock"
+                name="currentStock"
+                value={currentStock}
+                inputProps={{ readOnly: true }}
+                style={{ flexBasis: '40%' }}
+              />
+              <span style={{ flexBasis: '60%', marginLeft: '10px', marginTop: 'unset' }}>
+                <b>{props.data.inventory.lowStock}</b> <FormattedMessage id="limit-stock-in-this-location" />
+              </span>
+            </Stack>
+          </Stack>
+        </Grid>
+
         <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="branch-destination">{<FormattedMessage id="branch-destination" />}</InputLabel>
@@ -168,7 +204,7 @@ const FormTransfer = (props) => {
         <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="total-item">{<FormattedMessage id="total-item" />}</InputLabel>
-            <Stack spacing={1} flexDirection="row">
+            <Stack spacing={1}>
               <TextField
                 fullWidth
                 type="number"
@@ -178,11 +214,10 @@ const FormTransfer = (props) => {
                 onChange={onChangeTotalItem}
                 style={{ flexBasis: '60%' }}
               />
-              <span style={{ flexBasis: '40%', marginLeft: '10px' }}>{props.data.inventory.stock} unites in stock</span>
             </Stack>
           </Stack>
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12}>
           <Stack spacing={1}>
             <InputLabel htmlFor="receiver">{<FormattedMessage id="receiver" />}</InputLabel>
             <Autocomplete
@@ -198,12 +233,6 @@ const FormTransfer = (props) => {
 
         <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
-            <InputLabel htmlFor="product-name">{<FormattedMessage id="product-name" />}</InputLabel>
-            <TextField fullWidth id="productName" name="productName" value={productName} inputProps={{ readOnly: true }} />
-          </Stack>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Stack spacing={1}>
             <InputLabel htmlFor="additional-cost">{<FormattedMessage id="additional-cost" />}</InputLabel>
             <TextField
               fullWidth
@@ -216,7 +245,7 @@ const FormTransfer = (props) => {
           </Stack>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="remark">{<FormattedMessage id="remark" />}</InputLabel>
             <TextField fullWidth id="remark" name="remark" value={remark} onChange={(e) => setRemark(e.target.value)} />
