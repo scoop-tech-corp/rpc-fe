@@ -69,7 +69,7 @@ const FormTransfer = (props) => {
 
     if (!getTransferName) {
       isError = true;
-    } else if (!getTotalItem || +props.data.inventory.stock - getTotalItem > +props.data.inventory.lowStock) {
+    } else if (!getTotalItem || +props.data.inventory.stock - getTotalItem < +props.data.inventory.lowStock) {
       isError = true;
     }
 
