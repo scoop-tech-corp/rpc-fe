@@ -142,7 +142,6 @@ const ProductClinicList = (props) => {
           return <Link onClick={() => onClickDetail()}>{data.value}</Link>; // href={`/product/product-list/sell/${getId}`}
         }
       },
-      { Header: 'Sku', accessor: 'sku' },
       { Header: <FormattedMessage id="brand" />, accessor: 'brandName' },
       { Header: <FormattedMessage id="price" />, accessor: 'price' },
       {
@@ -169,6 +168,14 @@ const ProductClinicList = (props) => {
               return <Chip color="error" label="Not Active" size="small" variant="light" />;
           }
         }
+      },
+      {
+        Header: <FormattedMessage id="created-at" />,
+        accessor: 'createdAt'
+      },
+      {
+        Header: <FormattedMessage id="created-by" />,
+        accessor: 'createdBy'
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -313,6 +320,7 @@ const ProductClinicList = (props) => {
               totalPagination={getProductClinicData.totalPagination}
               setPageNumber={paramProductClinicList.goToPage}
               setPageRow={paramProductClinicList.rowPerPage}
+              colSpanPagination={9}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}

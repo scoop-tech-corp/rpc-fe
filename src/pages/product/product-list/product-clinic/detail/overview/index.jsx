@@ -52,7 +52,7 @@ const ProductClinicDetailOverview = (props) => {
               <FormattedMessage id="transfer" />
             </Button>
             <Button color="primary" size="medium">
-              <FormattedMessage id="buy" />
+              <FormattedMessage id="restock" />
             </Button>
             <Button
               color="warning"

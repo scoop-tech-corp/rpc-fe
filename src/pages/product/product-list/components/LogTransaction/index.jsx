@@ -77,11 +77,11 @@ const ProductLogTransaction = (props) => {
         accessor: 'quantity'
       },
       {
-        Header: <FormattedMessage id="balance" />,
+        Header: <FormattedMessage id="balance-product" />,
         accessor: 'balance'
       },
       {
-        Header: <FormattedMessage id="staff" />,
+        Header: <FormattedMessage id="created-by" />,
         accessor: 'fullName'
       }
     ],

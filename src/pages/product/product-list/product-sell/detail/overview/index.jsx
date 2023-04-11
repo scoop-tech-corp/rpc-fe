@@ -56,7 +56,7 @@ const ProductSellDetailOverview = (props) => {
               <FormattedMessage id="transfer" />
             </Button>
             <Button color="primary" size="medium">
-              <FormattedMessage id="buy" />
+              <FormattedMessage id="restock" />
             </Button>
             <Button color="warning" size="medium" onClick={() => navigate(`/product/product-list/sell/form/${data.id}`, { replace: true })}>
               <FormattedMessage id="edit" />
