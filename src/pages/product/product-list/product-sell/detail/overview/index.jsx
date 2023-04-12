@@ -11,15 +11,19 @@ import ProductSellDetailOverviewSettings from './settings';
 import ProductSellDetailOverviewShipping from './shipping';
 import ProductSellDetailOverviewDescription from './description';
 import ProductSellDetailOverviewPricing from './pricing';
+
 import FormSplit from './split';
 import FormTransfer from 'pages/product/product-list/components/FormTransfer';
 import FormAdjustment from 'pages/product/product-list/components/FormAdjustment';
+import FormRestock from 'pages/product/product-list/components/FormRestock';
 
 const ProductSellDetailOverview = (props) => {
   const { data } = props;
   const [openFormSplit, setOpenFormSplit] = useState(false);
   const [openFormAdjustment, setOpenFormAdjustment] = useState(false);
   const [openFormTransfer, setOpenFormTransfer] = useState(false);
+  const [openFormRestock, setOpenFormRestock] = useState(false);
+
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -27,6 +31,7 @@ const ProductSellDetailOverview = (props) => {
     setOpenFormSplit(false);
     setOpenFormAdjustment(false);
     setOpenFormTransfer(false);
+    setOpenFormRestock(false);
     if (val) {
       props.output('closeOverview');
     }
@@ -55,7 +60,7 @@ const ProductSellDetailOverview = (props) => {
             <Button color="primary" size="medium" onClick={() => setOpenFormTransfer(true)}>
               <FormattedMessage id="transfer" />
             </Button>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormRestock(true)}>
               <FormattedMessage id="restock" />
             </Button>
             <Button color="warning" size="medium" onClick={() => navigate(`/product/product-list/sell/form/${data.id}`, { replace: true })}>
@@ -120,6 +125,7 @@ const ProductSellDetailOverview = (props) => {
         <FormAdjustment data={{ ...data, productType: 'productSell' }} open={openFormAdjustment} onClose={onCloseForm} />
       )}
       {openFormTransfer && <FormTransfer data={{ ...data, productType: 'productSell' }} open={openFormTransfer} onClose={onCloseForm} />}
+      {openFormRestock && <FormRestock data={{ ...data, productType: 'productSell' }} open={openFormRestock} onClose={onCloseForm} />}
     </>
   );
 };

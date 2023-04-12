@@ -85,6 +85,7 @@ const ProductSellList = (props) => {
                   details: {
                     sku: resp.data.details.sku,
                     status: +resp.data.details.status,
+                    supplierId: +resp.data.details.productSupplierId,
                     supplierName: resp.data.details.supplierName,
                     brandName: resp.data.details.brandName,
                     categories,

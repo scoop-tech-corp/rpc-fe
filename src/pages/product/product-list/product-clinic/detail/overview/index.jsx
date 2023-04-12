@@ -12,13 +12,16 @@ import ProductClinicDetailOverviewShipping from './shipping';
 import ProductClinicDetailOverviewDescription from './description';
 import ProductClinicDetailOverviewPricing from './pricing';
 import ProductClinicDetailOverviewDosage from './dosage';
+
 import FormTransfer from 'pages/product/product-list/components/FormTransfer';
 import FormAdjustment from 'pages/product/product-list/components/FormAdjustment';
+import FormRestock from 'pages/product/product-list/components/FormRestock';
 
 const ProductClinicDetailOverview = (props) => {
   const { data } = props;
   const [openFormTransfer, setOpenFormTransfer] = useState(false);
   const [openFormAdjustment, setOpenFormAdjustment] = useState(false);
+  const [openFormRestock, setOpenFormRestock] = useState(false);
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -26,6 +29,8 @@ const ProductClinicDetailOverview = (props) => {
   const onCloseForm = (val) => {
     setOpenFormAdjustment(false);
     setOpenFormTransfer(false);
+    setOpenFormRestock(false);
+
     if (val) {
       props.output('closeOverview');
     }
@@ -51,7 +56,7 @@ const ProductClinicDetailOverview = (props) => {
             <Button color="primary" size="medium" onClick={() => setOpenFormTransfer(true)}>
               <FormattedMessage id="transfer" />
             </Button>
-            <Button color="primary" size="medium">
+            <Button color="primary" size="medium" onClick={() => setOpenFormRestock(true)}>
               <FormattedMessage id="restock" />
             </Button>
             <Button
@@ -122,6 +127,7 @@ const ProductClinicDetailOverview = (props) => {
         <FormAdjustment data={{ ...data, productType: 'productClinic' }} open={openFormAdjustment} onClose={onCloseForm} />
       )}
       {openFormTransfer && <FormTransfer data={{ ...data, productType: 'productClinic' }} open={openFormTransfer} onClose={onCloseForm} />}
+      {openFormRestock && <FormRestock data={{ ...data, productType: 'productClinic' }} open={openFormRestock} onClose={onCloseForm} />}
     </>
   );
 };
