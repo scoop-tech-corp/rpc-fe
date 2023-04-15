@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
-// import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-// import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField, Autocomplete, Chip } from '@mui/material';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import { createMessageBackend } from 'service/service-global';
-// import { createProductAdjustment } from 'pages/product/product-list/service';
+import { createMessageBackend } from 'service/service-global';
+import { createProductRestock, getSupplierList } from '../../service';
 
 import PropTypes from 'prop-types';
 import ModalC from 'components/ModalC';
 import PhotoC from 'components/PhotoC';
-import { getSupplierList } from '../../service';
 
 const FormRestock = (props) => {
   const [productName] = useState(props.data.fullName);
@@ -34,26 +33,31 @@ const FormRestock = (props) => {
     }
   ]);
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const onSubmit = async () => {
     const parameter = {
       productId: props.data.id,
       productType: props.data.productType,
-      remark
+      supplierId: selectedSupplier.value,
+      requireDate: date,
+      reStockQuantity: restockQuantity,
+      costPerItem: costPerItem,
+      total: total,
+      remark: remark,
+      photos
     };
-    props.onClose(true);
-    return parameter;
-    // await createProductAdjustment(parameter)
-    //   .then((resp) => {
-    //     if (resp && resp.status === 200) {
-    //       dispatch(snackbarSuccess(`adjustment stock product successfully`));
-    //       props.onClose(true);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     if (err) dispatch(snackbarError(createMessageBackend(err, true, true)));
-    //   });
+
+    await createProductRestock(parameter)
+      .then((resp) => {
+        if (resp && resp.status === 200) {
+          dispatch(snackbarSuccess(`adjustment stock product successfully`));
+          props.onClose(true);
+        }
+      })
+      .catch((err) => {
+        if (err) dispatch(snackbarError(createMessageBackend(err, true, true)));
+      });
   };
 
   const clearForm = () => {
@@ -194,13 +198,22 @@ const FormRestock = (props) => {
               name="restock-quantity"
               value={restockQuantity}
               onChange={onChangeRestockQuantity}
+              inputProps={{ min: 0 }}
             />
           </Stack>
         </Grid>
         <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="cost-per-item">{<FormattedMessage id="cost-per-item" />}</InputLabel>
-            <TextField fullWidth type="number" id="cost-per-item" name="cost-per-item" value={costPerItem} onChange={onChangeCostPerItem} />
+            <TextField
+              fullWidth
+              type="number"
+              id="cost-per-item"
+              name="cost-per-item"
+              value={costPerItem}
+              onChange={onChangeCostPerItem}
+              inputProps={{ min: 0 }}
+            />
           </Stack>
         </Grid>
         <Grid item xs={12}>

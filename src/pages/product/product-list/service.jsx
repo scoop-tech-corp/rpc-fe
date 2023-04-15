@@ -165,6 +165,24 @@ export const createProductAdjustment = async (property) => {
   return await axios.post('product/adjust', fd);
 };
 
+export const createProductRestock = async (property) => {
+  const requireDate = property.requireDate ? formateDateYYYMMDD(new Date(property.requireDate)) : '';
+
+  const fd = new FormData();
+  fd.append('productId', property.productId);
+  fd.append('productType', property.productType); //productSell or productClinic
+  fd.append('supplierId', property.supplierId);
+  fd.append('requireDate', requireDate);
+  fd.append('reStockQuantity', property.reStockQuantity);
+
+  fd.append('costPerItem', property.costPerItem);
+  fd.append('total', property.total);
+  fd.append('remark', property.remark);
+  setFormDataImage(property.photos, fd, 'save');
+
+  return await axios.post('product/restock', fd);
+};
+
 export const getProductLogTransaction = async (property) => {
   const dateFrom = property.dateRange ? formateDateYYYMMDD(property.dateRange[0]) : '';
   const dateTo = property.dateRange ? formateDateYYYMMDD(property.dateRange[1]) : '';
