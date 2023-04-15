@@ -14,7 +14,7 @@ const Message = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Customer
 const CustomerDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const CustomerList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));

@@ -3,16 +3,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
-import { FormattedMessage } from 'react-intl'; // useIntl
+import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
-import { createMessageBackend, getLocationList } from 'service/service-global';
-import { deleteStaffList, exportStaff, getStaffList } from './service';
+import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-// import { GlobalFilter } from 'utils/react-table';
+import { GlobalFilter } from 'utils/react-table';
+import { getCustomerList, deleteCustomerList, exportCustomer } from '../service';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -22,22 +22,25 @@ import iconWhatsapp from '../../../../src/assets/images/ico-whatsapp.png';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import useAuth from 'hooks/useAuth';
 
-let paramStaffList = {};
+let paramCustomerList = {};
 
-const StaffList = () => {
+const CustomerList = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const intl = useIntl();
+  const intl = useIntl();
+  const roleCanExport = ['administrator', 'office'];
 
-  const [getStaffListData, setStaffListData] = useState({ data: [], totalPagination: 0 });
+  const [getCustomerListData, setCustomerListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  // const [keywordSearch, setKeywordSearch] = useState('');
+  const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const { user } = useAuth();
 
   const columns = useMemo(
     () => [
@@ -59,20 +62,21 @@ const StaffList = () => {
         }
       },
       {
-        Header: <FormattedMessage id="name" />,
-        accessor: 'name',
+        Header: <FormattedMessage id="customer-name" />,
+        accessor: 'customerName',
         Cell: (data) => {
-          const getId = data.row.original.id;
-          return <Link href={`/staff/list/form/${getId}`}>{data.value}</Link>;
+          // const getId = data.row.original.id;
+          // return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
+          return <Link href="#">{data.value}</Link>;
         }
       },
       {
-        Header: <FormattedMessage id="position" />,
-        accessor: 'jobTitle'
+        Header: <FormattedMessage id="total-pet" />,
+        accessor: 'totalPet'
       },
       {
-        Header: <FormattedMessage id="email-address" />,
-        accessor: 'emailAddress'
+        Header: <FormattedMessage id="location" />,
+        accessor: 'location'
       },
       {
         Header: <FormattedMessage id="phone-number" />,
@@ -90,20 +94,8 @@ const StaffList = () => {
         }
       },
       {
-        Header: 'Status',
-        accessor: 'status',
-        Cell: (data) => {
-          switch (data.value.toLowerCase()) {
-            case 'active':
-              return <Chip color="success" label="Active" size="small" variant="light" />;
-            default:
-              return <Chip color="error" label="Non Active" size="small" variant="light" />;
-          }
-        }
-      },
-      {
-        Header: <FormattedMessage id="location" />,
-        accessor: 'location'
+        Header: 'Email',
+        accessor: 'emailAddress'
       },
       {
         Header: <FormattedMessage id="created-by" />,
@@ -114,56 +106,46 @@ const StaffList = () => {
         accessor: 'createdAt'
       }
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
   const onOrderingChange = (event) => {
-    paramStaffList.orderValue = event.order;
-    paramStaffList.orderColumn = event.column;
+    paramCustomerList.orderValue = event.order;
+    paramCustomerList.orderColumn = event.column;
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    paramStaffList.goToPage = event;
+    paramCustomerList.goToPage = event;
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    paramStaffList.rowPerPage = event;
+    paramCustomerList.rowPerPage = event;
     fetchData();
   };
 
   const onFilterLocation = (selected) => {
-    paramStaffList.locationId = selected.map((dt) => dt.value);
+    paramCustomerList.locationId = selected.map((dt) => dt.value);
     setFilterLocation(selected);
     fetchData();
   };
 
-  // const onSearch = (event) => {
-  //   paramStaffList.keyword = event;
-  //   setKeywordSearch(event);
+  const onSearch = (event) => {
+    paramCustomerList.keyword = event;
+    setKeywordSearch(event);
 
-  //   fetchData();
-  // };
+    fetchData();
+  };
 
   const onClickAdd = () => {
-    navigate('/staff/list/form', { replace: true });
+    // navigate('/customer/list/form', { replace: true });
+    navigate('#', { replace: true });
   };
 
   const onExport = async () => {
-    await exportStaff(paramStaffList)
-      .then((resp) => {
-        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-        let downloadUrl = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
-
-        a.href = downloadUrl;
-        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
-        document.body.appendChild(a);
-        a.click();
-      })
+    await exportCustomer(paramCustomerList)
+      .then(processDownloadExcel)
       .catch((err) => {
         if (err) {
           dispatch(snackbarError(createMessageBackend(err)));
@@ -172,12 +154,19 @@ const StaffList = () => {
   };
 
   const fetchData = async () => {
-    const getData = await getStaffList(paramStaffList);
-    setStaffListData({ data: getData.data.data, totalPagination: getData.data.totalPagination });
+    await getCustomerList(paramCustomerList)
+      .then((resp) => {
+        setCustomerListData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
   };
 
   const clearParamFetchData = () => {
-    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] }; // keyword: ''
+    paramCustomerList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
   };
 
   const getDataFacilityLocation = async () => {
@@ -187,11 +176,11 @@ const StaffList = () => {
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteStaffList(selectedRow)
+      await deleteCustomerList(selectedRow)
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
-            dispatch(snackbarSuccess('Success Delete staff'));
+            dispatch(snackbarSuccess('Success Delete Customer'));
             clearParamFetchData();
             fetchData();
           }
@@ -212,11 +201,12 @@ const StaffList = () => {
     getDataFacilityLocation();
     clearParamFetchData();
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="staff-list" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="customer-list" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
@@ -228,12 +218,12 @@ const StaffList = () => {
               sx={{ p: 3, pb: 0 }}
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                {/* <GlobalFilter
+                <GlobalFilter
                   placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
                   style={{ height: '41.3px' }}
-                /> */}
+                />
                 <Autocomplete
                   id="filterLocation"
                   multiple
@@ -254,24 +244,26 @@ const StaffList = () => {
                 <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
                   <RefreshIcon />
                 </IconButton>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
-                </Button>
+                {roleCanExport.includes(user?.role) && (
+                  <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                    <FormattedMessage id="export" />
+                  </Button>
+                )}
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="staff" />
+                  <FormattedMessage id="new" />
                 </Button>
               </Stack>
             </Stack>
             <ReactTable
               columns={columns}
-              data={getStaffListData.data}
-              totalPagination={getStaffListData.totalPagination}
-              setPageNumber={paramStaffList.goToPage}
-              setPageRow={paramStaffList.rowPerPage}
+              data={getCustomerListData.data}
+              totalPagination={getCustomerListData.totalPagination}
+              setPageNumber={paramCustomerList.goToPage}
+              setPageRow={paramCustomerList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
-              colSpanPagination={9}
+              colSpanPagination={8}
             />
           </Stack>
         </ScrollX>
@@ -288,4 +280,4 @@ const StaffList = () => {
   );
 };
 
-export default StaffList;
+export default CustomerList;
