@@ -3,23 +3,23 @@ import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { createTypeId } from 'pages/staff/staff-list/service';
 import { createMessageBackend } from 'service/service-global';
+import { createCustomerGroup } from 'pages/customer/service';
 
-import ModalC from './ModalC';
+import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 
-const FormTypeId = (props) => {
-  const [typeId, setTypeId] = useState('');
+const FormCustomerGroup = (props) => {
+  const [name, setName] = useState('');
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    await createTypeId(typeId)
+    await createCustomerGroup(name)
       .then((resp) => {
         if (resp && resp.status === 200) {
-          setTypeId('');
-          dispatch(snackbarSuccess(`${typeId} has been created successfully`));
+          dispatch(snackbarSuccess(`${name} has been created successfully`));
           props.onClose(true);
+          setName('');
         }
       })
       .catch((err) => {
@@ -28,13 +28,13 @@ const FormTypeId = (props) => {
   };
 
   const onCancel = () => {
-    setTypeId('');
     props.onClose(false);
+    setName('');
   };
 
   return (
     <ModalC
-      title={<FormattedMessage id="add-type-id" />}
+      title={<FormattedMessage id="add-customer-group" />}
       okText="Save"
       cancelText="Cancel"
       open={props.open}
@@ -47,7 +47,13 @@ const FormTypeId = (props) => {
         <Grid item xs={12} sm={12}>
           <Stack spacing={1}>
             <InputLabel htmlFor="name">{<FormattedMessage id="name" />}</InputLabel>
-            <TextField fullWidth id="typeId" name="typeId" value={typeId} onChange={(event) => setTypeId(event.target.value)} />
+            <TextField
+              fullWidth
+              id="customer-group-name"
+              name="customer-group-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
           </Stack>
         </Grid>
       </Grid>
@@ -55,9 +61,9 @@ const FormTypeId = (props) => {
   );
 };
 
-FormTypeId.propTypes = {
+FormCustomerGroup.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func
 };
 
-export default FormTypeId;
+export default FormCustomerGroup;

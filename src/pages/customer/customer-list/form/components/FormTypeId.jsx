@@ -3,22 +3,21 @@ import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { createTypeId } from 'pages/staff/staff-list/service';
 import { createMessageBackend } from 'service/service-global';
+import { createTypeId } from 'pages/customer/service';
 
-import ModalC from './ModalC';
+import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 
 const FormTypeId = (props) => {
-  const [typeId, setTypeId] = useState('');
+  const [type, setType] = useState('');
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    await createTypeId(typeId)
+    await createTypeId(type)
       .then((resp) => {
         if (resp && resp.status === 200) {
-          setTypeId('');
-          dispatch(snackbarSuccess(`${typeId} has been created successfully`));
+          dispatch(snackbarSuccess(`${type} has been created successfully`));
           props.onClose(true);
         }
       })
@@ -27,14 +26,11 @@ const FormTypeId = (props) => {
       });
   };
 
-  const onCancel = () => {
-    setTypeId('');
-    props.onClose(false);
-  };
+  const onCancel = () => props.onClose(true);
 
   return (
     <ModalC
-      title={<FormattedMessage id="add-type-id" />}
+      title={<FormattedMessage id="add-id-type" />}
       okText="Save"
       cancelText="Cancel"
       open={props.open}
@@ -46,8 +42,8 @@ const FormTypeId = (props) => {
       <Grid container spacing={3}>
         <Grid item xs={12} sm={12}>
           <Stack spacing={1}>
-            <InputLabel htmlFor="name">{<FormattedMessage id="name" />}</InputLabel>
-            <TextField fullWidth id="typeId" name="typeId" value={typeId} onChange={(event) => setTypeId(event.target.value)} />
+            <InputLabel htmlFor="id-type">{<FormattedMessage id="id-type" />}</InputLabel>
+            <TextField fullWidth id="id-type" name="id-type" value={type} onChange={(event) => setType(event.target.value)} />
           </Stack>
         </Grid>
       </Grid>

@@ -2,7 +2,7 @@ import { Box, Tab, Tabs } from '@mui/material';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import PropTypes from 'prop-types';
+import TabPanel from 'components/TabPanelC';
 import MainCard from 'components/MainCard';
 import TabDetail from './tab-detail/tab-detail';
 import TabDescription from './tab-description';
@@ -10,21 +10,6 @@ import TabPhoto from './tab-photo';
 
 const FacilityDetailTab = () => {
   const [tabSelected, setTabSelected] = useState(0);
-
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`facility-tabpanel-${value}`} aria-labelledby={`facility-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    value: PropTypes.number,
-    index: PropTypes.number
-  };
 
   const onChangeTab = (value) => setTabSelected(value);
 
@@ -44,13 +29,13 @@ const FacilityDetailTab = () => {
         </Tabs>
       </Box>
       <Box sx={{ mt: 2.5 }}>
-        <TabPanel value={tabSelected} index={0}>
+        <TabPanel value={tabSelected} index={0} name="facility">
           <TabDetail />
         </TabPanel>
-        <TabPanel value={tabSelected} index={1}>
+        <TabPanel value={tabSelected} index={1} name="facility">
           <TabDescription />
         </TabPanel>
-        <TabPanel value={tabSelected} index={2}>
+        <TabPanel value={tabSelected} index={2} name="facility">
           <TabPhoto />
         </TabPanel>
       </Box>

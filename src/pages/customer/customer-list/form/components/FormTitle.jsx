@@ -3,23 +3,23 @@ import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { createTypeId } from 'pages/staff/staff-list/service';
 import { createMessageBackend } from 'service/service-global';
+import { createTitleCustomer } from 'pages/customer/service';
 
-import ModalC from './ModalC';
+import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 
-const FormTypeId = (props) => {
-  const [typeId, setTypeId] = useState('');
+const FormTitle = (props) => {
+  const [title, setTitle] = useState('');
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    await createTypeId(typeId)
+    await createTitleCustomer(title)
       .then((resp) => {
         if (resp && resp.status === 200) {
-          setTypeId('');
-          dispatch(snackbarSuccess(`${typeId} has been created successfully`));
+          dispatch(snackbarSuccess(`${title} has been created successfully`));
           props.onClose(true);
+          setTitle('');
         }
       })
       .catch((err) => {
@@ -28,13 +28,13 @@ const FormTypeId = (props) => {
   };
 
   const onCancel = () => {
-    setTypeId('');
     props.onClose(false);
+    setTitle('');
   };
 
   return (
     <ModalC
-      title={<FormattedMessage id="add-type-id" />}
+      title={<FormattedMessage id="add-title" />}
       okText="Save"
       cancelText="Cancel"
       open={props.open}
@@ -46,8 +46,8 @@ const FormTypeId = (props) => {
       <Grid container spacing={3}>
         <Grid item xs={12} sm={12}>
           <Stack spacing={1}>
-            <InputLabel htmlFor="name">{<FormattedMessage id="name" />}</InputLabel>
-            <TextField fullWidth id="typeId" name="typeId" value={typeId} onChange={(event) => setTypeId(event.target.value)} />
+            <InputLabel htmlFor="title">{<FormattedMessage id="title" />}</InputLabel>
+            <TextField fullWidth id="title" name="title" value={title} onChange={(event) => setTitle(event.target.value)} />
           </Stack>
         </Grid>
       </Grid>
@@ -55,9 +55,9 @@ const FormTypeId = (props) => {
   );
 };
 
-FormTypeId.propTypes = {
+FormTitle.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func
 };
 
-export default FormTypeId;
+export default FormTitle;

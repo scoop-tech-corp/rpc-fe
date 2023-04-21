@@ -7,10 +7,11 @@ import { jsonCentralized } from 'utils/func';
 import { getLocationList } from 'service/service-global';
 import { getJobTitleList, getPayPeriodList, getRolesIdList, getStaffDetail, getTypeIdList } from '../service';
 import { getDataStaticLocation, getProvinceLocation } from 'pages/location/location-list/detail/service';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 
-import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import StaffFormHeader from './staff-form-header';
+import TabPanel from 'components/TabPanelC';
 import TabDetail from './tab/tab-detail';
 import TabSettings from './tab/tab-settings';
 import TabAddress from './tab/tab-address';
@@ -21,17 +22,6 @@ const StaffForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
   const [staffName, setStaffName] = useState('');
   let { id } = useParams();
-
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`staff-form-tabpanel-${value}`} aria-labelledby={`staff-form-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = { children: PropTypes.node, value: PropTypes.number, index: PropTypes.number };
 
   const onChangeTab = (_, value) => setTabSelected(value);
 
@@ -106,8 +96,14 @@ const StaffForm = () => {
   };
 
   const getData = async () => {
+    loaderService.setManualLoader(true);
+    loaderGlobalConfig.setLoader(true);
+
     await getDropdownData();
     if (id) getDetail();
+
+    loaderGlobalConfig.setLoader(false);
+    loaderService.setManualLoader(false);
   };
 
   useEffect(() => {
@@ -132,16 +128,16 @@ const StaffForm = () => {
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>
-          <TabPanel value={tabSelected} index={0}>
+          <TabPanel value={tabSelected} index={0} name="staff-form">
             <TabDetail />
           </TabPanel>
-          <TabPanel value={tabSelected} index={1}>
+          <TabPanel value={tabSelected} index={1} name="staff-form">
             <TabSettings />
           </TabPanel>
-          <TabPanel value={tabSelected} index={2}>
+          <TabPanel value={tabSelected} index={2} name="staff-form">
             <TabAddress />
           </TabPanel>
-          <TabPanel value={tabSelected} index={3}>
+          <TabPanel value={tabSelected} index={3} name="staff-form">
             <TabContacts />
           </TabPanel>
         </Box>

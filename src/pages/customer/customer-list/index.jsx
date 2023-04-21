@@ -139,8 +139,7 @@ const CustomerList = () => {
   };
 
   const onClickAdd = () => {
-    // navigate('/customer/list/form', { replace: true });
-    navigate('#', { replace: true });
+    navigate('/customer/list/form', { replace: true });
   };
 
   const onExport = async () => {

@@ -5,11 +5,11 @@ import { getAllState, useStaffFormStore } from '../../staff-form-store';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useState } from 'react';
+import { getJobTitleList } from 'pages/staff/staff-list/service';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import FormJobTitle from 'components/FormJobTitle';
-import { getJobTitleList } from 'pages/staff/staff-list/service';
 
 const coreValidation = [
   { code: 0, message: 'Job title is required' },

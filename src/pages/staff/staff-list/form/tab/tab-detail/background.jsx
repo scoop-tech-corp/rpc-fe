@@ -26,10 +26,10 @@ const Background = () => {
 
   const onCloseFormTypeId = async (val) => {
     if (val) {
-      setOpenFormTypeId(false);
       const getTypeId = await getTypeIdList();
       useStaffFormStore.setState({ typeIdList: getTypeId });
     }
+    setOpenFormTypeId(false);
   };
 
   const onFieldHandler = (event) => {

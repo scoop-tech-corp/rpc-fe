@@ -15,6 +15,7 @@ const Message = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 // Customer
 const CustomerDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
+const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -98,6 +99,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <CustomerDashboard /> },
             { path: 'list', element: <CustomerList /> },
+            { path: 'list/form', element: <CustomerForm /> },
+            { path: 'list/form/:id', element: <CustomerForm /> },
             { path: 'template', element: <CustomerTemplate /> },
             { path: 'merge', element: <CustomerMerge /> },
             { path: 'static-data', element: <CustomerStaticData /> },
