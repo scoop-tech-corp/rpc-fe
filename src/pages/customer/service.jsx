@@ -20,7 +20,7 @@ export const createCustomer = async (property) => {
   const birthDate = property.birthDate ? formateDateYYYMMDD(new Date(property.birthDate)) : '';
   const customerPets = jsonCentralized(property.customerPets).map((cp) => {
     cp.dateOfBirth = cp.dateOfBirth ? formateDateYYYMMDD(new Date(cp.dateOfBirth)) : '';
-    cp.isSteril = +cp.isSteril;
+    cp.isSteril = cp.isSteril ? +cp.isSteril : '';
     cp.petCategoryId = cp.petCategoryId ? cp.petCategoryId.value : '';
 
     return cp;
