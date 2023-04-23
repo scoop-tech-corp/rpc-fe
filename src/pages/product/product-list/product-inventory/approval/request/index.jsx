@@ -14,12 +14,14 @@ const RequestProduct = (props) => {
   return (
     <>
       <ListRequest filterLocationList={props.filterLocationList} onClickDetail={onClickDetail} />
-      <ProductInventoryApprovalDetail
-        open={dialog.view}
-        id={dialog.data.id}
-        parentProcedure="list-request"
-        onClose={(e) => setDialog((prevState) => ({ ...prevState, view: !e }))}
-      />
+      {dialog.view && (
+        <ProductInventoryApprovalDetail
+          open={dialog.view}
+          id={dialog.data.id}
+          parentProcedure="list-request"
+          onClose={(e) => setDialog((prevState) => ({ ...prevState, view: !e }))}
+        />
+      )}
     </>
   );
 };

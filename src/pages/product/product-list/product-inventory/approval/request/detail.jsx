@@ -146,8 +146,8 @@ const ProductInventoryApprovalDetail = (props) => {
 
   const fetchData = async () => {
     if (props.id) {
-      const getDetail = await getProductInventoryDetail(props.id);
-      setDetailData(getDetail.data);
+      const getResp = await getProductInventoryDetail(props.id);
+      setDetailData(getResp.data.data);
     }
   };
 
