@@ -58,20 +58,20 @@ export const createCustomer = async (property) => {
   param.append('middleName', property.middleName);
   param.append('lastName', property.lastName);
   param.append('nickName', property.nickName);
-  param.append('titleCustomerId', property.titleCustomerId);
-  param.append('customerGroupId', property.customerGroupId);
+  param.append('titleCustomerId', property.titleCustomerId ? +property.titleCustomerId : '');
+  param.append('customerGroupId', property.customerGroupId ? +property.customerGroupId : '');
 
   param.append('locationId', property.locationId);
   param.append('notes', property.notes);
 
   param.append('joinDate', joinDate);
-  param.append('typeId', property.typeId);
+  param.append('typeId', property.typeId ? +property.typeId : '');
   param.append('numberId', property.numberId);
   param.append('gender', property.gender);
-  param.append('occupationId', property.occupationId);
+  param.append('occupationId', property.occupationId ? +property.occupationId : '');
 
   param.append('birthDate', birthDate);
-  param.append('referenceCustomerId', property.referenceCustomerId);
+  param.append('referenceCustomerId', property.referenceCustomerId ? +property.referenceCustomerId : '');
   param.append('customerPets', JSON.stringify(customerPets));
 
   param.append('isReminderBooking', property.isReminderBooking ? 1 : 0);

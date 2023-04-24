@@ -55,8 +55,6 @@ const CustomerFormHeader = (props) => {
   };
 
   const onSubmit = async () => {
-    console.log('all form customer', getAllState());
-
     if (customerFormError) return;
 
     if (id) {
