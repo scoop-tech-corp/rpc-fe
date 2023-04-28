@@ -98,7 +98,12 @@ const FormProductInventory = () => {
 
   const onProductType = async (event) => {
     const getValue = event.target.value;
-    useProductInventoryDetailStore.setState({ productType: getValue, productInventoryDetailTouch: true });
+    useProductInventoryDetailStore.setState({
+      productType: getValue,
+      productName: null,
+      productBrand: null,
+      productInventoryDetailTouch: true
+    });
 
     if (getValue === 'productClinic') {
       const getList = await getProductClinicDropdown(productLocation.value, productBrand ? productBrand.value : '');
