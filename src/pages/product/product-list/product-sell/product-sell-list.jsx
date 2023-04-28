@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
+import {
+  Chip,
+  Stack,
+  useMediaQuery,
+  Button,
+  Link,
+  Autocomplete,
+  TextField,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel
+} from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -8,7 +20,7 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { getProductSell, deleteProductSell, exportProductSell, getProductSellDetail } from '../service';
+import { getProductSell, deleteProductSell, exportProductSell, getProductSellDetail, getProductCategoryList } from '../service';
 import { createMessageBackend } from 'service/service-global';
 import { formatThousandSeparator } from 'utils/func';
 
@@ -35,6 +47,10 @@ const ProductSellList = (props) => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
+  const [selectedStock, setStock] = useState('');
+  const [selectedFilterCategory, setFilterCategory] = useState([]);
+  const [filterCategoryList, setFilterCategoryList] = useState([]);
+
   const [dialog, setDialog] = useState(false);
   const [isModalExport, setModalExport] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, name: '', detailData: null });
@@ -204,9 +220,22 @@ const ProductSellList = (props) => {
     fetchData();
   };
 
+  const onFilterCategory = (selected) => {
+    paramProductSellList.category = selected.map((dt) => dt.value);
+    setFilterCategory(selected);
+    fetchData();
+  };
+
   const onSearch = (event) => {
     paramProductSellList.keyword = event;
     setKeywordSearch(event);
+
+    fetchData();
+  };
+
+  const onSelectedStock = (event) => {
+    paramProductSellList.stock = event.target.value;
+    setStock(event.target.value);
 
     fetchData();
   };
@@ -221,7 +250,16 @@ const ProductSellList = (props) => {
   };
 
   const clearParamFetchData = () => {
-    paramProductSellList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
+    paramProductSellList = {
+      rowPerPage: 5,
+      goToPage: 1,
+      orderValue: '',
+      orderColumn: '',
+      keyword: '',
+      locationId: [],
+      stock: '',
+      category: []
+    };
     setKeywordSearch('');
   };
 
@@ -262,7 +300,13 @@ const ProductSellList = (props) => {
     setModalExport(false);
   };
 
+  const getCategoryProduct = async () => {
+    const getCategory = await getProductCategoryList();
+    setFilterCategoryList(getCategory);
+  };
+
   useEffect(() => {
+    getCategoryProduct();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -289,12 +333,42 @@ const ProductSellList = (props) => {
                 <Autocomplete
                   id="filterLocation"
                   multiple
+                  limitTags={1}
                   options={props.facilityLocationList}
                   value={selectedFilterLocation}
                   sx={{ width: 300 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onFilterLocation(value)}
                   renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                />
+                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                  <InputLabel htmlFor="stock">
+                    <FormattedMessage id="stock" />
+                  </InputLabel>
+                  <Select id="stock" name="stock" value={selectedStock} onChange={onSelectedStock}>
+                    <MenuItem value="">
+                      <em>
+                        <FormattedMessage id="select-stock" />
+                      </em>
+                    </MenuItem>
+                    <MenuItem value={'lowStock'}>
+                      <FormattedMessage id="low-stock" />
+                    </MenuItem>
+                    <MenuItem value={'highStock'}>
+                      <FormattedMessage id="high-stock" />
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                <Autocomplete
+                  id="filterCategory"
+                  multiple
+                  limitTags={1}
+                  options={filterCategoryList}
+                  value={selectedFilterCategory}
+                  sx={{ width: 300 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterCategory(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-category" />} />}
                 />
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>

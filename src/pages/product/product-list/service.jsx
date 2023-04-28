@@ -355,7 +355,9 @@ export const getProductSell = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      locationId: property.locationId
+      locationId: property.locationId,
+      stock: property.stock,
+      category: property.category
     }
   });
 
