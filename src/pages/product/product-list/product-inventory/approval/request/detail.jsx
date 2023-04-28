@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Chip, Grid, Stack } from '@mui/material';
-import { ReactTable } from 'components/third-party/ReactTable';
+import { Chip, Grid, Stack, Tooltip, Button } from '@mui/material';
+import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { getProductInventoryDetail, updateProductInventoryApproval } from 'pages/product/product-list/service';
@@ -15,14 +15,16 @@ import IconButton from 'components/@extended/IconButton';
 import useAuth from 'hooks/useAuth';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import configGlobal from '../../../../../../../src/config';
 
 const ProductInventoryApprovalDetail = (props) => {
   const [detailData, setDetailData] = useState([]);
   const [dialog, setDialog] = useState({ approval: false, reject: false, data: { id: '', status: '' } });
+  const [selectedRow, setSelectedRow] = useState([]);
   const { user } = useAuth();
   const dispatch = useDispatch();
-
+  console.log('selectedRow', selectedRow);
   const columnOffice = [
     {
       Header: <FormattedMessage id="licensing-status" />,
@@ -47,7 +49,7 @@ const ProductInventoryApprovalDetail = (props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columnAdmin = [
     {
-      Header: <FormattedMessage id="licensing-status-admin" />,
+      Header: <FormattedMessage id="approval-admin" />,
       isNotSorting: true,
       accessor: 'isApprovedAdmin',
       Cell: (data) => {
@@ -97,9 +99,15 @@ const ProductInventoryApprovalDetail = (props) => {
       },
       Cell: (data) => {
         return (
-          <a href={`${configGlobal.apiUrl}${data.value}`} target="_blank" rel="noreferrer">
-            <img src={`${configGlobal.apiUrl}${data.value}`} width="80%" />
-          </a>
+          <>
+            {data.value ? (
+              <a href={`${configGlobal.apiUrl}${data.value}`} target="_blank" rel="noreferrer">
+                <img src={`${configGlobal.apiUrl}${data.value}`} width="80%" />
+              </a>
+            ) : (
+              '-'
+            )}
+          </>
         );
       }
     }
@@ -119,16 +127,41 @@ const ProductInventoryApprovalDetail = (props) => {
             textAlign: 'center'
           },
           Cell: (data) => {
-            return (
-              <Stack spacing={0.1} direction={'row'} justifyContent="center">
-                <IconButton size="large" color="primary" onClick={() => onClickApproval(data.row.original)}>
-                  <CheckCircleOutlined />
-                </IconButton>
-                <IconButton size="large" color="error" onClick={() => onClickReject(data.row.original)}>
-                  <CloseCircleOutlined />
-                </IconButton>
-              </Stack>
-            );
+            const getId = user.role === 'administrator' ? data.row.original.isApprovedAdmin : data.row.original.isApprovedOffice;
+
+            const showAction = () => {
+              switch (+getId) {
+                case 0:
+                  return (
+                    <Stack spacing={0.1} direction={'row'} justifyContent="center">
+                      <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                        <IconButton size="large" color="primary" onClick={() => onClickApproval(data.row.original)}>
+                          <CheckCircleOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title={<FormattedMessage id="reject" />} arrow>
+                        <IconButton size="large" color="error" onClick={() => onClickReject(data.row.original)}>
+                          <CloseCircleOutlined />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  );
+                case 2:
+                  return (
+                    <Stack spacing={0.1} direction={'row'} justifyContent="center">
+                      <Tooltip title={'Recall'} arrow>
+                        <IconButton size="large" color="success">
+                          <RefreshIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  );
+                default:
+                  return '';
+              }
+            };
+
+            return showAction();
           }
         }
       ];
@@ -137,9 +170,32 @@ const ProductInventoryApprovalDetail = (props) => {
     return finalColumn;
   };
 
+  const columnChecboxAll =
+    user.role === 'administrator'
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const newRow = header.selectedFlatRows.filter(({ original }) => +original.isApprovedAdmin !== 1);
+                const selectRows = newRow.map(({ original }) => original.id);
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => {
+              return +cell.row.original.isApprovedAdmin !== 1 ? <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} /> : '';
+            },
+            disableSortBy: true
+          }
+        ]
+      : [];
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = useMemo(
-    () => [...columnDefault, ...columnDynamic()],
+    () => [...columnChecboxAll, ...columnDefault, ...columnDynamic()],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
@@ -214,6 +270,20 @@ const ProductInventoryApprovalDetail = (props) => {
         isModalAction={false}
         fullWidth
         maxWidth="xl"
+        action={{
+          element: selectedRow.length > 0 && (
+            <Stack spacing={0.1} direction={'row'} justifyContent="center" gap={'10px'} marginLeft={'10px'}>
+              <Button variant="contained" color="primary">
+                <FormattedMessage id="approved" />
+              </Button>
+              <Button variant="contained" color="error">
+                <FormattedMessage id="reject" />
+              </Button>
+            </Stack>
+          ),
+          justifyContent: 'flex-start',
+          alignItems: 'center'
+        }}
       >
         <Grid container spacing={3}>
           <Grid item xs={12}>
