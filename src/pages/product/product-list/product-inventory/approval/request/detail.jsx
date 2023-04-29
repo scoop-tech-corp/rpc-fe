@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Chip, Grid, Stack, Tooltip, Button } from '@mui/material';
+import { Chip, Grid, Stack, Tooltip, Button, InputLabel } from '@mui/material';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -20,6 +20,7 @@ import configGlobal from '../../../../../../../src/config';
 
 const ProductInventoryApprovalDetail = (props) => {
   const [detailData, setDetailData] = useState([]);
+  const [detailHeaderData, setDetailHeaderData] = useState({});
   const [dialog, setDialog] = useState({ approval: false, reject: false, data: { id: '', status: '' } });
   const [selectedRow, setSelectedRow] = useState([]);
   const { user } = useAuth();
@@ -204,6 +205,7 @@ const ProductInventoryApprovalDetail = (props) => {
     if (props.id) {
       const getResp = await getProductInventoryDetail(props.id);
       setDetailData(getResp.data.data);
+      setDetailHeaderData(getResp.data.header);
     }
   };
 
@@ -286,6 +288,34 @@ const ProductInventoryApprovalDetail = (props) => {
         }}
       >
         <Grid container spacing={3}>
+          <Grid item xs={8}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <InputLabel>{<FormattedMessage id="request-name" />}</InputLabel>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                {detailHeaderData.requirementName}
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <InputLabel>{<FormattedMessage id="product-location" />}</InputLabel>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                {detailHeaderData.locationName}
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <InputLabel>{<FormattedMessage id="created-by" />}</InputLabel>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                {detailHeaderData.createdBy}
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <InputLabel>{<FormattedMessage id="created-at" />}</InputLabel>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                {detailHeaderData.createdAt}
+              </Grid>
+            </Grid>
+          </Grid>
           <Grid item xs={12}>
             <ReactTable columns={columns} data={detailData} />
           </Grid>
