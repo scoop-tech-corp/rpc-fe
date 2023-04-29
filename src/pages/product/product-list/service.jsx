@@ -347,6 +347,17 @@ export const exportProductSell = async (property) => {
   });
 };
 
+export const downloadTemplateProductSell = async () => {
+  return await axios.get(productSellUrl + '/template', { responseType: 'blob' });
+};
+
+export const importProductSell = async (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  return await axios.post(productSellUrl + '/import', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 export const getProductSell = async (property) => {
   const getResp = await axios.get(productSellUrl, {
     params: {
@@ -415,6 +426,17 @@ export const exportProductClinic = async (property) => {
   });
 };
 
+export const downloadTemplateProductClinic = async () => {
+  return await axios.get(productClinicUrl + '/template', { responseType: 'blob' });
+};
+
+export const importProductClinic = async (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  return await axios.post(productClinicUrl + '/import', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 export const getProductClinic = async (property) => {
   const getResp = await axios.get(productClinicUrl, {
     params: {
@@ -423,7 +445,9 @@ export const getProductClinic = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      locationId: property.locationId
+      locationId: property.locationId,
+      stock: property.stock,
+      category: property.category
     }
   });
 

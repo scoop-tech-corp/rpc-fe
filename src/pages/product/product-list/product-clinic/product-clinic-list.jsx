@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link, TextField, Autocomplete } from '@mui/material';
+import {
+  Chip,
+  Stack,
+  useMediaQuery,
+  Button,
+  Link,
+  TextField,
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -8,7 +20,15 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { deleteProductClinic, exportProductClinic, getProductClinic, getProductClinicDetail } from '../service';
+import {
+  deleteProductClinic,
+  downloadTemplateProductClinic,
+  exportProductClinic,
+  getProductCategoryList,
+  getProductClinic,
+  getProductClinicDetail,
+  importProductClinic
+} from '../service';
 import { createMessageBackend } from 'service/service-global';
 import { formatThousandSeparator } from 'utils/func';
 
@@ -19,8 +39,10 @@ import ConfirmationC from 'components/ConfirmationC';
 import ModalExport from '../components/ModalExport';
 import ProductClinicDetail from './detail';
 import DownloadIcon from '@mui/icons-material/Download';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ModalImport from '../components/ModalImport';
 
 let paramProductClinicList = {};
 
@@ -35,8 +57,13 @@ const ProductClinicList = (props) => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
+  const [selectedStock, setStock] = useState('');
+  const [selectedFilterCategory, setFilterCategory] = useState([]);
+  const [filterCategoryList, setFilterCategoryList] = useState([]);
+
   const [dialog, setDialog] = useState(false);
   const [isModalExport, setModalExport] = useState(false);
+  const [isModalImport, setModalImport] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, name: '', detailData: null });
 
   const columns = useMemo(
@@ -205,9 +232,22 @@ const ProductClinicList = (props) => {
     fetchData();
   };
 
+  const onFilterCategory = (selected) => {
+    paramProductClinicList.category = selected.map((dt) => dt.value);
+    setFilterCategory(selected);
+    fetchData();
+  };
+
   const onSearch = (event) => {
     paramProductClinicList.keyword = event;
     setKeywordSearch(event);
+
+    fetchData();
+  };
+
+  const onSelectedStock = (event) => {
+    paramProductClinicList.stock = event.target.value;
+    setStock(event.target.value);
 
     fetchData();
   };
@@ -222,7 +262,16 @@ const ProductClinicList = (props) => {
   };
 
   const clearParamFetchData = () => {
-    paramProductClinicList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
+    paramProductClinicList = {
+      rowPerPage: 5,
+      goToPage: 1,
+      orderValue: '',
+      orderColumn: '',
+      keyword: '',
+      locationId: [],
+      stock: '',
+      category: []
+    };
     setKeywordSearch('');
   };
 
@@ -262,13 +311,73 @@ const ProductClinicList = (props) => {
       });
   };
 
+  const onDownloadTemplate = async () => {
+    await downloadTemplateProductClinic()
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const onImportFile = async (file) => {
+    await importProductClinic(file)
+      .then((resp) => {
+        if (resp.status === 200) {
+          dispatch(snackbarSuccess('Success import file'));
+          setModalImport(false);
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const getCategoryProduct = async () => {
+    const getCategory = await getProductCategoryList();
+    setFilterCategoryList(getCategory);
+  };
+
   useEffect(() => {
+    getCategoryProduct();
     clearParamFetchData();
     fetchData();
   }, []);
 
   return (
     <>
+      <Stack
+        spacing={1}
+        direction={matchDownSM ? 'column' : 'row'}
+        style={{ width: matchDownSM ? '100%' : '', marginBottom: '24px' }}
+        justifyContent={'flex-end'}
+      >
+        <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
+          <RefreshIcon />
+        </IconButton>
+        <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
+          <FormattedMessage id="export" />
+        </Button>
+        <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)}>
+          <FormattedMessage id="import" />
+        </Button>
+        <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+          <FormattedMessage id="add-product-clinic" />
+        </Button>
+      </Stack>
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
@@ -289,30 +398,48 @@ const ProductClinicList = (props) => {
                 <Autocomplete
                   id="filterLocation"
                   multiple
+                  limitTags={1}
                   options={props.facilityLocationList}
                   value={selectedFilterLocation}
-                  sx={{ width: 300 }}
+                  sx={{ width: 220 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onFilterLocation(value)}
                   renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                />
+                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                  <InputLabel htmlFor="stock">
+                    <FormattedMessage id="stock" />
+                  </InputLabel>
+                  <Select id="stock" name="stock" value={selectedStock} onChange={onSelectedStock}>
+                    <MenuItem value="">
+                      <em>
+                        <FormattedMessage id="select-stock" />
+                      </em>
+                    </MenuItem>
+                    <MenuItem value={'lowStock'}>
+                      <FormattedMessage id="low-stock" />
+                    </MenuItem>
+                    <MenuItem value={'highStock'}>
+                      <FormattedMessage id="high-stock" />
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                <Autocomplete
+                  id="filterCategory"
+                  multiple
+                  limitTags={1}
+                  options={filterCategoryList}
+                  value={selectedFilterCategory}
+                  sx={{ width: 220 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterCategory(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-category" />} />}
                 />
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
                     <FormattedMessage id="delete" />
                   </Button>
                 )}
-              </Stack>
-
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
-                  <RefreshIcon />
-                </IconButton>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
-                  <FormattedMessage id="export" />
-                </Button>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="add-product-clinic" />
-                </Button>
               </Stack>
             </Stack>
             <ReactTable
@@ -346,6 +473,14 @@ const ProductClinicList = (props) => {
         btnFalseText="Cancel"
       />
       <ModalExport isModalExport={isModalExport} onExport={(e) => onExport(e)} onClose={(e) => setModalExport(!e)} />
+      {isModalImport && (
+        <ModalImport
+          open={isModalImport}
+          onTemplate={onDownloadTemplate}
+          onImport={(e) => onImportFile(e)}
+          onClose={(e) => setModalImport(!e)}
+        />
+      )}
       <ProductClinicDetail
         title={openDetail.name}
         open={openDetail.isOpen}
