@@ -337,6 +337,7 @@ const ProductSellList = (props) => {
         if (resp.status === 200) {
           dispatch(snackbarSuccess('Success import file'));
           setModalImport(false);
+          fetchData();
         }
       })
       .catch((err) => {
