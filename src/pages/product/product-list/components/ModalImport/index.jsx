@@ -32,9 +32,8 @@ const ModalImport = (props) => {
 
   return (
     <ModalC
-      title={<FormattedMessage id="import-product" />}
-      okText="Import"
-      cancelText="Cancel"
+      title={<FormattedMessage id="import-data" />}
+      okText={<FormattedMessage id="import" />}
       open={props.open}
       onOk={handleOnOk}
       onCancel={handleOnCancel}
@@ -42,12 +41,18 @@ const ModalImport = (props) => {
       sm={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 600 } }}
       maxWidth="sm"
     >
+      <p>
+        <b>
+          <FormattedMessage id="notes" />
+        </b>
+        : <FormattedMessage id="before-you-import-the-data-you-must-download-the-template-first" />
+      </p>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={3}>
           <InputLabel htmlFor="template">{<FormattedMessage id="template" />}</InputLabel>
         </Grid>
         <Grid item xs={12} sm={9}>
-          <Button variant="contained" startIcon={<DownloadIcon />} onClick={props.onTemplate} color="success">
+          <Button variant="contained" startIcon={<DownloadIcon />} onClick={props.onTemplate}>
             <FormattedMessage id="download" />
           </Button>
         </Grid>
