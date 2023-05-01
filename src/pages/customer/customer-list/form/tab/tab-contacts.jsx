@@ -1,10 +1,10 @@
 import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu, FormHelperText } from '@mui/material';
 import { getDataStaticLocation } from 'pages/location/location-list/detail/service';
 import { jsonCentralized } from 'utils/func';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useCustomerFormStore } from '../customer-form-store';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import IconButton from 'components/@extended/IconButton';
 import FormDataStatic from 'components/FormDataStatic';
@@ -18,7 +18,10 @@ const TabContacts = () => {
   const usageList = useCustomerFormStore((state) => state.usageList);
   const phoneTypeList = useCustomerFormStore((state) => state.telephoneType);
   const messengerTypeList = useCustomerFormStore((state) => state.messengerType);
+
   const intl = useIntl();
+  const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
+  const customerFormError = useCustomerFormStore((state) => state.customerFormError);
 
   let phone = [];
   let email = [];
@@ -27,7 +30,7 @@ const TabContacts = () => {
   if (locationTelephone.length) {
     const getDetailTelephone = jsonCentralized(locationTelephone);
     const newTelephone = getDetailTelephone.map((tp) => {
-      return { phoneUsage: tp.usage || '', phoneNumber: tp.phoneNumber, phoneType: tp.type || '' };
+      return { phoneUsage: tp.usage || '', phoneNumber: tp.phoneNumber, phoneType: tp.type || '', error: tp.error };
     });
     phone = newTelephone;
   }
@@ -35,7 +38,7 @@ const TabContacts = () => {
   if (locationEmail.length) {
     const getDetailEmail = jsonCentralized(locationEmail);
     const newEmail = getDetailEmail.map((em) => {
-      return { emailUsage: em.usage || '', emailAddress: em.email };
+      return { emailUsage: em.usage || '', emailAddress: em.email, error: em.error };
     });
     email = newEmail;
   }
@@ -43,10 +46,108 @@ const TabContacts = () => {
   if (locationMessenger.length) {
     const getDetailMessenger = jsonCentralized(locationMessenger);
     const newMessenger = getDetailMessenger.map((ms) => {
-      return { messengerUsage: ms.usage || '', messengerUsageName: ms.messengerNumber, messengerType: ms.type || '' };
+      return { messengerUsage: ms.usage || '', messengerUsageName: ms.messengerNumber, messengerType: ms.type || '', error: ms.error };
     });
     messenger = newMessenger;
   }
+
+  const onCheckValidation = (coreData, procedure, rowIdx) => {
+    const loopTelephone = (arr) => {
+      arr.forEach((dt) => {
+        dt.error.phoneUsageErr = !dt.phoneUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+        dt.error.phoneNumberErr = !dt.phoneNumber ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+        dt.error.phoneTypeErr = !dt.phoneType ? intl.formatMessage({ id: 'type-is-required' }) : '';
+      });
+    };
+
+    const loopEmail = (arr) => {
+      arr.forEach((dt) => {
+        dt.error.emailUsageErr = !dt.emailUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+        dt.error.emailAddressErr = !dt.emailAddress ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+      });
+    };
+
+    const loopMessanger = (arr) => {
+      arr.forEach((dt) => {
+        dt.error.messengerUsageErr = !dt.messengerUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+        dt.error.messengerUsageNameErr = !dt.messengerUsageName ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+        dt.error.messengerTypeErr = !dt.messengerType ? intl.formatMessage({ id: 'type-is-required' }) : '';
+      });
+    };
+
+    if (coreData) {
+      let newData = [...coreData];
+
+      switch (procedure) {
+        case 'telephones':
+          if (isNaN(rowIdx)) {
+            loopTelephone(newData);
+            // newData.forEach((dt) => {
+            //   dt.error.phoneUsageErr = !dt.phoneUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+            //   dt.error.phoneNumberErr = !dt.phoneNumber ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+            //   dt.error.phoneTypeErr = !dt.phoneType ? intl.formatMessage({ id: 'type-is-required' }) : '';
+            // });
+          } else {
+            newData[rowIdx].error.phoneUsageErr = !newData[rowIdx].phoneUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+            newData[rowIdx].error.phoneNumberErr = !newData[rowIdx].phoneNumber ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+            newData[rowIdx].error.phoneTypeErr = !newData[rowIdx].phoneType ? intl.formatMessage({ id: 'type-is-required' }) : '';
+          }
+          phone = newData;
+          break;
+        case 'emails':
+          if (isNaN(rowIdx)) {
+            loopEmail(newData);
+            // newData.forEach((dt) => {
+            //   dt.error.emailUsageErr = !dt.emailUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+            //   dt.error.emailAddressErr = !dt.emailAddress ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+            // });
+          } else {
+            newData[rowIdx].error.emailUsageErr = !newData[rowIdx].emailUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+            newData[rowIdx].error.emailAddressErr = !newData[rowIdx].emailAddress ? intl.formatMessage({ id: 'address-is-required' }) : '';
+          }
+          email = newData;
+          break;
+        case 'messengers':
+          if (isNaN(rowIdx)) {
+            loopMessanger(newData);
+            // newData.forEach((dt) => {
+            //   dt.error.messengerUsageErr = !dt.messengerUsage ? intl.formatMessage({ id: 'usage-is-required' }) : '';
+            //   dt.error.messengerUsageNameErr = !dt.messengerUsageName ? intl.formatMessage({ id: 'nomor-is-required' }) : '';
+            //   dt.error.messengerTypeErr = !dt.messengerType ? intl.formatMessage({ id: 'type-is-required' }) : '';
+            // });
+          } else {
+            newData[rowIdx].error.messengerUsageErr = !newData[rowIdx].messengerUsage
+              ? intl.formatMessage({ id: 'usage-is-required' })
+              : '';
+            newData[rowIdx].error.messengerUsageNameErr = !newData[rowIdx].messengerUsageName
+              ? intl.formatMessage({ id: 'usage-name-is-required' })
+              : '';
+            newData[rowIdx].error.messengerTypeErr = !newData[rowIdx].messengerType ? intl.formatMessage({ id: 'type-is-required' }) : '';
+          }
+          messenger = newData;
+          break;
+      }
+    } else {
+      let newTele = [...phone];
+      let newEmail = [...email];
+      let newMessage = [...messenger];
+
+      loopTelephone(newTele);
+      loopEmail(newEmail);
+      loopMessanger(newMessage);
+
+      let isFormErr = false;
+      for (let combineArr of [newTele, newEmail, newMessage]) {
+        const isDetect = Boolean(combineArr.filter((dt) => Object.values(dt.error).join('') !== '').length);
+        if (isDetect) {
+          isFormErr = isDetect;
+          break;
+        }
+      }
+
+      useCustomerFormStore.setState({ customerFormError: isFormErr });
+    }
+  };
 
   const onSetCustomerDetail = (data, procedure) => {
     let newData = [...data];
@@ -63,11 +164,13 @@ const TabContacts = () => {
           usage: dt.messengerUsage
         };
       }
+      setObj = { ...setObj, error: dt.error };
 
       return setObj;
     });
 
-    const assignObject = { [procedure]: newData, customerFormTouch: true };
+    let isFormErr = Boolean(newData.filter((dt) => Object.values(dt.error).join('') !== '').length);
+    const assignObject = { [procedure]: newData, customerFormTouch: true, customerFormError: isFormErr };
 
     useCustomerFormStore.setState({ ...assignObject });
   };
@@ -89,7 +192,7 @@ const TabContacts = () => {
         data[idx].messengerUsage = event.target.value;
         break;
     }
-
+    onCheckValidation(data, procedure);
     onSetCustomerDetail(data, procedure);
   };
 
@@ -110,7 +213,7 @@ const TabContacts = () => {
         data[idx].messengerUsageName = event.target.value;
         break;
     }
-
+    onCheckValidation(data, procedure, idx);
     onSetCustomerDetail(data, procedure);
   };
 
@@ -128,12 +231,18 @@ const TabContacts = () => {
         break;
     }
 
+    onCheckValidation(data, procedure, idx);
     onSetCustomerDetail(data, procedure);
   };
 
   // Start Phone
   const onAddPhone = () => {
-    const setNewData = [...phone, { phoneUsage: '', phoneNumber: '', phoneType: '' }];
+    const setNewData = [
+      ...phone,
+      { phoneUsage: '', phoneNumber: '', phoneType: '', error: { phoneUsageErr: '', phoneNumberErr: '', phoneTypeErr: '' } }
+    ];
+
+    onCheckValidation(setNewData, 'telephones');
     onSetCustomerDetail(setNewData, 'telephones');
   };
 
@@ -141,13 +250,16 @@ const TabContacts = () => {
     let getPhone = [...phone];
     getPhone.splice(i, 1);
 
+    onCheckValidation(getPhone, 'telephones');
     onSetCustomerDetail(getPhone, 'telephones');
   };
   // End Phone
 
   // Start Email
   const onAddEmail = () => {
-    const setNewData = [...email, { emailUsage: '', emailAddress: '' }];
+    const setNewData = [...email, { emailUsage: '', emailAddress: '', error: { emailUsageErr: '', emailAddressErr: '' } }];
+
+    onCheckValidation(setNewData, 'emails');
     onSetCustomerDetail(setNewData, 'emails');
   };
 
@@ -155,13 +267,24 @@ const TabContacts = () => {
     let getEmails = [...email];
     getEmails.splice(i, 1);
 
+    onCheckValidation(getEmails, 'emails');
     onSetCustomerDetail(getEmails, 'emails');
   };
   // End Email
 
   // Start Messenger
   const onAddMessenger = () => {
-    const setNewData = [...messenger, { messengerUsage: '', messengerUsageName: '', messengerType: '' }];
+    const setNewData = [
+      ...messenger,
+      {
+        messengerUsage: '',
+        messengerUsageName: '',
+        messengerType: '',
+        error: { messengerUsageErr: '', messengerUsageNameErr: '', messengerTypeErr: '' }
+      }
+    ];
+
+    onCheckValidation(setNewData, 'messengers');
     onSetCustomerDetail(setNewData, 'messengers');
   };
 
@@ -169,6 +292,7 @@ const TabContacts = () => {
     let getMessengers = [...messenger];
     getMessengers.splice(i, 1);
 
+    onCheckValidation(getMessengers, 'messengers');
     onSetCustomerDetail(getMessengers, 'messengers');
   };
   // End Messenger
@@ -241,6 +365,13 @@ const TabContacts = () => {
     );
   };
 
+  useEffect(() => {
+    if (isTouchForm) {
+      onCheckValidation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTouchForm, customerFormError, intl]);
+
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} sm={6}>
@@ -268,6 +399,7 @@ const TabContacts = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {dt.error.phoneUsageErr.length > 0 && <FormHelperText error> {dt.error.phoneUsageErr} </FormHelperText>}
                   </FormControl>
                 </Stack>
               </Grid>
@@ -282,6 +414,8 @@ const TabContacts = () => {
                     placeholder={intl.formatMessage({ id: 'enter-nomor' })}
                     value={dt.phoneNumber}
                     onChange={(event) => onFieldHandler(event, i, 'telephones')}
+                    error={Boolean(dt.error.phoneNumberErr && dt.error.phoneNumberErr.length > 0)}
+                    helperText={dt.error.phoneNumberErr}
                   />
                 </Stack>
               </Grid>
@@ -307,6 +441,7 @@ const TabContacts = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {dt.error.phoneTypeErr.length > 0 && <FormHelperText error> {dt.error.phoneTypeErr} </FormHelperText>}
                   </FormControl>
                 </Stack>
               </Grid>
@@ -352,6 +487,7 @@ const TabContacts = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {dt.error.emailUsageErr.length > 0 && <FormHelperText error> {dt.error.emailUsageErr} </FormHelperText>}
                   </FormControl>
                 </Stack>
               </Grid>
@@ -366,6 +502,8 @@ const TabContacts = () => {
                     name="emailAddress"
                     value={dt.emailAddress}
                     onChange={(event) => onFieldHandler(event, i, 'emails')}
+                    error={Boolean(dt.error.emailAddressErr && dt.error.emailAddressErr.length > 0)}
+                    helperText={dt.error.emailAddressErr}
                   />
                 </Stack>
               </Grid>
@@ -411,6 +549,7 @@ const TabContacts = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {dt.error.messengerUsageErr.length > 0 && <FormHelperText error> {dt.error.messengerUsageErr} </FormHelperText>}
                   </FormControl>
                 </Stack>
               </Grid>
@@ -425,6 +564,8 @@ const TabContacts = () => {
                     name={`messengerUsageName${i}`}
                     value={dt.messengerUsageName}
                     onChange={(event) => onFieldHandler(event, i, 'messengers')}
+                    error={Boolean(dt.error.messengerUsageNameErr && dt.error.messengerUsageNameErr.length > 0)}
+                    helperText={dt.error.messengerUsageNameErr}
                   />
                 </Stack>
               </Grid>
@@ -447,6 +588,7 @@ const TabContacts = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {dt.error.messengerTypeErr.length > 0 && <FormHelperText error> {dt.error.messengerTypeErr} </FormHelperText>}
                   </FormControl>
                 </Stack>
               </Grid>

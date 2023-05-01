@@ -34,7 +34,6 @@ const Background = () => {
 
   const [backgroundErr, setBackgroundErr] = useState(configCoreErr);
   const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
-  const customerFormError = useCustomerFormStore((state) => state.customerFormError);
   const intl = useIntl();
 
   const onCheckValidation = () => {
@@ -50,10 +49,8 @@ const Background = () => {
       setBackgroundErr({
         nomorIdErr: getNumberIdError ? getNumberIdError : ''
       });
-      useCustomerFormStore.setState({ customerFormError: true });
     } else {
       setBackgroundErr(configCoreErr);
-      useCustomerFormStore.setState({ customerFormError: false });
     }
   };
 
@@ -97,7 +94,7 @@ const Background = () => {
       onCheckValidation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isTouchForm, customerFormError, intl]);
+  }, [isTouchForm, intl]);
 
   return (
     <>

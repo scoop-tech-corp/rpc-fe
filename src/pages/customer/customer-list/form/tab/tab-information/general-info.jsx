@@ -39,7 +39,6 @@ const GeneralInfo = () => {
   const [openFormCustomerGroup, setOpenFormCustomerGroup] = useState(false);
 
   const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
-  const customerFormError = useCustomerFormStore((state) => state.customerFormError);
   const intl = useIntl();
 
   const onCheckValidation = () => {
@@ -62,10 +61,8 @@ const GeneralInfo = () => {
         firstNameErr: getFirstNameError ? getFirstNameError : '',
         branchErr: getLocationError ? getLocationError : ''
       });
-      useCustomerFormStore.setState({ customerFormError: true });
     } else {
       setGeneralInfoErr(configCoreErr);
-      useCustomerFormStore.setState({ customerFormError: false });
     }
   };
 
@@ -104,7 +101,7 @@ const GeneralInfo = () => {
       onCheckValidation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isTouchForm, customerFormError, intl]);
+  }, [isTouchForm, intl]);
 
   return (
     <>

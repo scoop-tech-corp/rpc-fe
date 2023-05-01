@@ -1,5 +1,5 @@
 import { getAllState, useCustomerFormStore } from './customer-form-store';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
@@ -14,8 +14,11 @@ import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 
 const CustomerFormHeader = (props) => {
+  const allState = useCustomerFormStore((state) => state);
   const customerFormError = useCustomerFormStore((state) => state.customerFormError);
   const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
+  const [formError, setFormError] = useState(false);
+
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
 
@@ -74,9 +77,11 @@ const CustomerFormHeader = (props) => {
     let getNumberId = getAllState().numberId;
 
     if (!getFirstName || !getLocation || !getNumberId) {
-      useCustomerFormStore.setState({ customerFormError: true });
+      setFormError(true);
+    } else {
+      setFormError(false);
     }
-  }, [isTouchForm]);
+  }, [allState]);
 
   return (
     <>
@@ -84,7 +89,12 @@ const CustomerFormHeader = (props) => {
         title={setTitlePage}
         locationBackConfig={{ setLocationBack: true, customUrl: '/customer/list' }}
         action={
-          <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={!isTouchForm || customerFormError}>
+          <Button
+            variant="contained"
+            startIcon={<PlusOutlined />}
+            onClick={onSubmit}
+            disabled={!isTouchForm || formError || customerFormError}
+          >
             <FormattedMessage id="save" />
           </Button>
         }

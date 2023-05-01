@@ -55,6 +55,7 @@ export const defaultCustomerForm = {
   photos: [defaultPhotos],
 
   customerFormError: false,
+  customerFormCoreError: false,
   customerFormTouch: false,
 
   titleCustomerList: [], // dropdown

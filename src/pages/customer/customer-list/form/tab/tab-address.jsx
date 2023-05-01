@@ -49,8 +49,7 @@ const TabAddress = () => {
   }
 
   const onCheckValidation = (coreData, rowIdx) => {
-    let detailAddress = coreData;
-    let newData = [...detailAddress];
+    let newData = [...coreData];
 
     if (isNaN(rowIdx)) {
       newData.forEach((dt) => {
