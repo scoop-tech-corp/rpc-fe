@@ -9,7 +9,8 @@ export const defaultDetailAddress = {
   province: '',
   city: '',
   cityList: [],
-  postalCode: ''
+  postalCode: '',
+  error: { streetAddressErr: '', countryErr: '', provinceErr: '', cityErr: '' }
 };
 
 const defaultPhotos = {

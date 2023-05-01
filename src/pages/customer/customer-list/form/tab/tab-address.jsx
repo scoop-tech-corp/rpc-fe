@@ -48,6 +48,29 @@ const TabAddress = () => {
     address = newAddress;
   }
 
+  const onCheckValidation = (coreData, rowIdx) => {
+    let detailAddress = coreData;
+    let newData = [...detailAddress];
+
+    if (isNaN(rowIdx)) {
+      newData.forEach((dt) => {
+        dt.error.streetAddressErr = !dt.streetAddress ? intl.formatMessage({ id: 'street-address-is-required' }) : '';
+        dt.error.countryErr = !dt.country ? intl.formatMessage({ id: 'country-is-required' }) : '';
+        dt.error.provinceErr = !dt.province ? intl.formatMessage({ id: 'province-is-required' }) : '';
+        dt.error.cityErr = !dt.city ? intl.formatMessage({ id: 'city-is-required' }) : '';
+      });
+    } else {
+      newData[rowIdx].error.streetAddressErr = !newData[rowIdx].streetAddress
+        ? intl.formatMessage({ id: 'street-address-is-required' })
+        : '';
+      newData[rowIdx].error.countryErr = !newData[rowIdx].country ? intl.formatMessage({ id: 'country-is-required' }) : '';
+      newData[rowIdx].error.provinceErr = !newData[rowIdx].province ? intl.formatMessage({ id: 'province-is-required' }) : '';
+      newData[rowIdx].error.cityErr = !newData[rowIdx].city ? intl.formatMessage({ id: 'city-is-required' }) : '';
+    }
+
+    address = newData;
+  };
+
   const onSetLocationDetail = (data) => {
     let newData = [...data];
     newData = newData.map((dt) => {
@@ -59,10 +82,14 @@ const TabAddress = () => {
         province: dt.province?.value,
         city: dt.city?.value,
         postalCode: dt.postalCode,
-        cityList: dt.cityList
+        cityList: dt.cityList,
+        error: dt.error
       };
     });
-    useCustomerFormStore.setState({ detailAddresses: newData, customerFormTouch: true });
+
+    let isFormErr = Boolean(newData.filter((dt) => Object.values(dt.error).join('') !== '').length);
+
+    useCustomerFormStore.setState({ detailAddresses: newData, customerFormTouch: true, customerFormError: isFormErr });
   };
 
   const onAddAddress = () => {
@@ -73,10 +100,12 @@ const TabAddress = () => {
       province: provinceList.find((cl) => cl.value === newObj.province) || null,
       city: null,
       cityList: [],
-      isPrimary: false
+      isPrimary: false,
+      error: { streetAddressErr: '', countryErr: '', provinceErr: '', cityErr: '' }
     };
 
-    const setNewData = [...address, initialFormAddress];
+    let setNewData = [...address, initialFormAddress];
+    onCheckValidation(setNewData);
     onSetLocationDetail(setNewData);
   };
 
@@ -84,6 +113,7 @@ const TabAddress = () => {
     let getAddress = [...address];
     getAddress.splice(i, 1);
 
+    onCheckValidation(getAddress);
     onSetLocationDetail(getAddress);
   };
 
@@ -94,12 +124,15 @@ const TabAddress = () => {
       return dt;
     });
 
+    onCheckValidation(getAddress, indexSelected);
     onSetLocationDetail(getAddress);
   };
 
   const onTextField = (event, idx, procedure) => {
     const getAddress = [...address];
     getAddress[idx][procedure] = event.target.value;
+
+    onCheckValidation(getAddress, idx);
     onSetLocationDetail(getAddress);
   };
 
@@ -116,6 +149,7 @@ const TabAddress = () => {
       newAddress[idx].cityList = getCity;
     }
 
+    onCheckValidation(newAddress, idx);
     onSetLocationDetail(newAddress);
   };
 
@@ -163,6 +197,8 @@ const TabAddress = () => {
                       placeholder={intl.formatMessage({ id: 'street-address' })}
                       value={dt.streetAddress}
                       onChange={(event) => onTextField(event, i, 'streetAddress')}
+                      error={Boolean(dt.error.streetAddressErr && dt.error.streetAddressErr.length > 0)}
+                      helperText={dt.error.streetAddressErr}
                     />
                   </Stack>
                 </Grid>
@@ -195,7 +231,14 @@ const TabAddress = () => {
                       value={dt.country}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, value) => onActionRegion(value, 'country', i)}
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
+                          helperText={dt.error.countryErr}
+                          variant="outlined"
+                        />
+                      )}
                     />
                   </Stack>
                 </Grid>
@@ -211,7 +254,14 @@ const TabAddress = () => {
                       value={dt.province}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, value) => onActionRegion(value, 'province', i)}
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={Boolean(dt.error.provinceErr && dt.error.provinceErr.length > 0)}
+                          helperText={dt.error.provinceErr}
+                          variant="outlined"
+                        />
+                      )}
                     />
                   </Stack>
                 </Grid>
@@ -227,7 +277,14 @@ const TabAddress = () => {
                       value={dt.city}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, value) => onActionRegion(value, 'city', i)}
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={Boolean(dt.error.cityErr && dt.error.cityErr.length > 0)}
+                          helperText={dt.error.cityErr}
+                          variant="outlined"
+                        />
+                      )}
                     />
                   </Stack>
                 </Grid>
