@@ -117,7 +117,12 @@ const FormRestock = (props) => {
   const getData = async () => {
     const getSupplier = await getSupplierList();
     setSupplierList(getSupplier);
-    setSelectedSupplier(getSupplier && getSupplier.length ? getSupplier.find((s) => s.value === props.data.details.supplierId) : null);
+
+    if (getSupplier && getSupplier.length) {
+      const findSupplier = getSupplier.find((s) => s.value === props.data.details.supplierId);
+
+      setSelectedSupplier(findSupplier ? findSupplier : null);
+    }
   };
 
   useEffect(() => {
