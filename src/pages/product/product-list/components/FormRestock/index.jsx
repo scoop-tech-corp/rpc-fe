@@ -175,7 +175,7 @@ const FormRestock = (props) => {
                 ) : props.data.inventory.status === 'low stock' ? (
                   <Chip color="warning" label="Low Stock" size="small" variant="light" />
                 ) : (
-                  <Chip color="default" label="-" size="small" variant="light" />
+                  ''
                 )}
               </Stack>
             </Stack>
