@@ -3,6 +3,9 @@ import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
+import { deleteProductClinic } from 'pages/product/product-list/service';
+import { useDispatch } from 'react-redux';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -16,15 +19,18 @@ import ProductClinicDetailOverviewDosage from './dosage';
 import FormTransfer from 'pages/product/product-list/components/FormTransfer';
 import FormAdjustment from 'pages/product/product-list/components/FormAdjustment';
 import FormRestock from 'pages/product/product-list/components/FormRestock';
+import ConfirmationC from 'components/ConfirmationC';
 
 const ProductClinicDetailOverview = (props) => {
   const { data } = props;
+  const [dialog, setDialog] = useState(false);
   const [openFormTransfer, setOpenFormTransfer] = useState(false);
   const [openFormAdjustment, setOpenFormAdjustment] = useState(false);
   const [openFormRestock, setOpenFormRestock] = useState(false);
 
   const theme = useTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onCloseForm = (val) => {
     setOpenFormAdjustment(false);
@@ -33,6 +39,20 @@ const ProductClinicDetailOverview = (props) => {
 
     if (val) {
       props.output('closeOverview');
+    }
+  };
+
+  const onConfirm = async (value) => {
+    if (value) {
+      await deleteProductClinic([data.id]).then((resp) => {
+        if (resp.status === 200) {
+          setDialog(false);
+          dispatch(snackbarSuccess('Success Delete product clinic'));
+          onCloseForm(true);
+        }
+      });
+    } else {
+      setDialog(false);
     }
   };
 
@@ -66,7 +86,7 @@ const ProductClinicDetailOverview = (props) => {
             >
               <FormattedMessage id="edit" />
             </Button>
-            <Button color="error" size="medium">
+            <Button color="error" size="medium" onClick={() => setDialog(true)}>
               <FormattedMessage id="delete" />
             </Button>
           </Stack>
@@ -123,6 +143,15 @@ const ProductClinicDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
+      <ConfirmationC
+        open={dialog}
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+        onClose={(response) => onConfirm(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
+
       {openFormAdjustment && (
         <FormAdjustment data={{ ...data, productType: 'productClinic' }} open={openFormAdjustment} onClose={onCloseForm} />
       )}

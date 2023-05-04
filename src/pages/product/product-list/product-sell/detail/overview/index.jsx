@@ -3,6 +3,9 @@ import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
+import { deleteProductSell } from 'pages/product/product-list/service';
+import { useDispatch } from 'react-redux';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
@@ -16,9 +19,11 @@ import FormSplit from './split';
 import FormTransfer from 'pages/product/product-list/components/FormTransfer';
 import FormAdjustment from 'pages/product/product-list/components/FormAdjustment';
 import FormRestock from 'pages/product/product-list/components/FormRestock';
+import ConfirmationC from 'components/ConfirmationC';
 
 const ProductSellDetailOverview = (props) => {
   const { data } = props;
+  const [dialog, setDialog] = useState(false);
   const [openFormSplit, setOpenFormSplit] = useState(false);
   const [openFormAdjustment, setOpenFormAdjustment] = useState(false);
   const [openFormTransfer, setOpenFormTransfer] = useState(false);
@@ -26,6 +31,7 @@ const ProductSellDetailOverview = (props) => {
 
   const theme = useTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onCloseForm = (val) => {
     setOpenFormSplit(false);
@@ -34,6 +40,20 @@ const ProductSellDetailOverview = (props) => {
     setOpenFormRestock(false);
     if (val) {
       props.output('closeOverview');
+    }
+  };
+
+  const onConfirm = async (value) => {
+    if (value) {
+      await deleteProductSell([data.id]).then((resp) => {
+        if (resp.status === 200) {
+          setDialog(false);
+          dispatch(snackbarSuccess('Success Delete product sell'));
+          onCloseForm(true);
+        }
+      });
+    } else {
+      setDialog(false);
     }
   };
 
@@ -66,7 +86,7 @@ const ProductSellDetailOverview = (props) => {
             <Button color="warning" size="medium" onClick={() => navigate(`/product/product-list/sell/form/${data.id}`, { replace: true })}>
               <FormattedMessage id="edit" />
             </Button>
-            <Button color="error" size="medium">
+            <Button color="error" size="medium" onClick={() => setDialog(true)}>
               <FormattedMessage id="delete" />
             </Button>
           </Stack>
@@ -120,6 +140,15 @@ const ProductSellDetailOverview = (props) => {
           </Grid>
         </Grid>
       </Grid>
+      <ConfirmationC
+        open={dialog}
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+        onClose={(response) => onConfirm(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
+
       {openFormSplit && <FormSplit data={data} open={openFormSplit} onClose={onCloseForm} />}
       {openFormAdjustment && (
         <FormAdjustment data={{ ...data, productType: 'productSell' }} open={openFormAdjustment} onClose={onCloseForm} />
