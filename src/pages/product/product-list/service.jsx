@@ -577,4 +577,15 @@ export const updateProductInventoryApproval = async (property) => {
   return await axios.put(productInventoryUrl + '/approval', parameter);
 };
 
+export const downloadTemplateProductInventory = async () => {
+  return await axios.get(productInventoryUrl + '/template', { responseType: 'blob' });
+};
+
+export const importProductInventory = async (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  return await axios.post(productInventoryUrl + '/import', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 // ============= END PRODUCT INVENTORY ============= //

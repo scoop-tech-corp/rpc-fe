@@ -8,7 +8,13 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { getProductInventory, deleteProductInventory, exportProductInventory } from '../service';
+import {
+  getProductInventory,
+  deleteProductInventory,
+  exportProductInventory,
+  downloadTemplateProductInventory,
+  importProductInventory
+} from '../service';
 import { createMessageBackend } from 'service/service-global';
 
 import PropTypes from 'prop-types';
@@ -17,7 +23,9 @@ import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import IconButton from 'components/@extended/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ModalImport from '../components/ModalImport';
 
 let paramProductInventoryList = {};
 
@@ -33,6 +41,7 @@ const ProductInventoryList = (props) => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const [isModalImport, setModalImport] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -183,6 +192,42 @@ const ProductInventoryList = (props) => {
       });
   };
 
+  const onDownloadTemplate = async () => {
+    await downloadTemplateProductInventory()
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const onImportFile = async (file) => {
+    await importProductInventory(file)
+      .then((resp) => {
+        if (resp.status === 200) {
+          dispatch(snackbarSuccess('Success import file'));
+          setModalImport(false);
+          fetchData();
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
   useEffect(() => {
     clearParamFetchData();
     fetchData();
@@ -231,6 +276,9 @@ const ProductInventoryList = (props) => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
+                <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)}>
+                  <FormattedMessage id="import" />
+                </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                   <FormattedMessage id="add-product-inventory" />
                 </Button>
@@ -258,6 +306,14 @@ const ProductInventoryList = (props) => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+      {isModalImport && (
+        <ModalImport
+          open={isModalImport}
+          onTemplate={onDownloadTemplate}
+          onImport={(e) => onImportFile(e)}
+          onClose={(e) => setModalImport(!e)}
+        />
+      )}
     </>
   );
 };
