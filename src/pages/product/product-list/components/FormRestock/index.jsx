@@ -26,7 +26,7 @@ const FormRestock = (props) => {
 
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [supplierList, setSupplierList] = useState([]);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(null);
   const [photos, setPhotos] = useState([
     {
       id: null,
