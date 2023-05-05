@@ -40,8 +40,8 @@ export const defaultCustomerForm = {
   referenceCustomerId: null,
   customerPets: [],
 
-  isReminderBooking: false,
-  isReminderPayment: false,
+  isReminderBooking: true,
+  isReminderPayment: true,
 
   reminderBooking: [],
   reminderPayment: [],
