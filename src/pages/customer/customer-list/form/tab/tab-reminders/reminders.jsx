@@ -115,8 +115,8 @@ const Reminders = (props) => {
             </Grid>
             <Grid item xs={12} sm={3}>
               <Stack spacing={1}>
-                <InputLabel htmlFor="timing">
-                  <FormattedMessage id="timing" />
+                <InputLabel htmlFor="time">
+                  <FormattedMessage id="time" />
                 </InputLabel>
                 <FormControl sx={{ m: 1, minWidth: 120 }}>
                   <Select
