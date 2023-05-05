@@ -25,7 +25,7 @@ const ProductInventoryApprovalDetail = (props) => {
   const [selectedRow, setSelectedRow] = useState([]);
   const { user } = useAuth();
   const dispatch = useDispatch();
-  console.log('selectedRow', selectedRow);
+
   const columnOffice = [
     {
       Header: <FormattedMessage id="licensing-status" />,

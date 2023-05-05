@@ -26,6 +26,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ModalImport from '../components/ModalImport';
+import ModalDetailProductInventoryList from './detail/components/ModalDetailProductInventoryList';
 
 let paramProductInventoryList = {};
 
@@ -42,6 +43,7 @@ const ProductInventoryList = (props) => {
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [isModalImport, setModalImport] = useState(false);
+  const [isModalDetail, setModalDetail] = useState({ isOpen: false, id: null });
 
   const columns = useMemo(
     () => [
@@ -66,8 +68,8 @@ const ProductInventoryList = (props) => {
         Header: <FormattedMessage id="requirement-name" />,
         accessor: 'requirementName',
         Cell: (data) => {
-          // const getId = data.row.original.id;
-          return <Link href="javascript: void(0)">{data.value}</Link>; // href={`/product/product-list/inventory/${getId}`}
+          const getId = data.row.original.id;
+          return <Link onClick={() => setModalDetail({ isOpen: true, id: getId })}>{data.value}</Link>;
         }
       },
       { Header: <FormattedMessage id="total-product" />, accessor: 'totalItem' },
@@ -313,6 +315,9 @@ const ProductInventoryList = (props) => {
           onImport={(e) => onImportFile(e)}
           onClose={(e) => setModalImport(!e)}
         />
+      )}
+      {isModalDetail.isOpen && (
+        <ModalDetailProductInventoryList open={isModalDetail.isOpen} id={isModalDetail.id} onClose={(e) => setModalDetail(!e)} />
       )}
     </>
   );
