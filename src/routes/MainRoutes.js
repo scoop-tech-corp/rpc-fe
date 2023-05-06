@@ -53,7 +53,7 @@ const ProductClinicForm = Loadable(lazy(() => import('pages/product/product-list
 const ProductInventoryDetail = Loadable(lazy(() => import('pages/product/product-list/product-inventory/detail')));
 const ProductBundle = Loadable(lazy(() => import('pages/product/bundle')));
 const ProductBundleForm = Loadable(lazy(() => import('pages/product/bundle/form')));
-const ProductCategory = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductCategory = Loadable(lazy(() => import('pages/product/category')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductRestocks = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
