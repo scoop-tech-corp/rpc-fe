@@ -16,6 +16,24 @@ export const getProductCategory = async (property) => {
   return getResp;
 };
 
+export const createProductCategory = async (property) => {
+  const param = new FormData();
+  param.append('categoryName', property.categoryName);
+  param.append('expiredDay', property.expiredDay);
+
+  return await axios.post(productCategoryUrl, param, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateProductCategory = async (property) => {
+  const parameter = {
+    id: property.id,
+    categoryName: property.categoryName,
+    expiredDay: property.expiredDay
+  };
+
+  return await axios.put(productCategoryUrl, parameter);
+};
+
 export const deleteProductCategory = async (id) => {
   return await axios.delete(productCategoryUrl, {
     data: { id }

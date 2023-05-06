@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { exportProductCategory, getProductCategory } from './service';
+import { deleteProductCategory, exportProductCategory, getProductCategory } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { GlobalFilter } from 'utils/react-table';
@@ -15,13 +15,14 @@ import ScrollX from 'components/ScrollX';
 import IconButton from 'components/@extended/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import ConfirmationC from 'components/ConfirmationC';
+import FormProductCategory from './form-category';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 let paramProductCategoryList = {};
 
 const ProductCategory = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  // const navigate = useNavigate();
   const dispatch = useDispatch();
   const intl = useIntl();
 
@@ -29,6 +30,7 @@ const ProductCategory = () => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
+  const [openFormCategory, setOpenFormCategory] = useState({ isOpen: false, id: '', categoryName: '', expiredDay: '' });
 
   const columns = useMemo(
     () => [
@@ -59,8 +61,8 @@ const ProductCategory = () => {
         }
       },
       {
-        Header: <FormattedMessage id="expired-date" />,
-        accessor: 'expiredDate'
+        Header: <FormattedMessage id="expired-days" />,
+        accessor: 'expiredDay'
       },
       {
         Header: <FormattedMessage id="total-product" />,
@@ -73,9 +75,16 @@ const ProductCategory = () => {
         accessor: 'action',
         isNotSorting: true,
         Cell: (data) => {
-          // const getId = data.row.original.id;
+          const getId = data.row.original.id;
+          const getCateName = data.row.original.categoryName;
+          const getExpiredDay = data.row.original.expiredDay;
+
+          const onEdit = () => {
+            setOpenFormCategory({ isOpen: true, id: getId, categoryName: getCateName, expiredDay: getExpiredDay });
+          };
+
           return (
-            <IconButton size="large" color="warning" onClick={() => onEdit(data.row)}>
+            <IconButton size="large" color="warning" onClick={() => onEdit()}>
               <EditOutlined />
             </IconButton>
           );
@@ -84,11 +93,6 @@ const ProductCategory = () => {
     ],
     []
   );
-
-  const onEdit = () => {};
-  const onClickAdd = () => {
-    // navigate('/product/category/form', { replace: true });
-  };
 
   const onOrderingChange = (event) => {
     paramProductCategoryList.orderValue = event.order;
@@ -121,6 +125,14 @@ const ProductCategory = () => {
   const clearParamFetchData = () => {
     paramProductCategoryList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
     setKeywordSearch('');
+  };
+
+  const onCloseForm = (e) => {
+    setOpenFormCategory({ isOpen: false, id: '', categoryName: '', expiredDay: '' });
+
+    if (e) {
+      fetchData();
+    }
   };
 
   const onExport = async () => {
@@ -172,6 +184,7 @@ const ProductCategory = () => {
 
   return (
     <>
+      <HeaderPageCustom title={<FormattedMessage id="product-category" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
@@ -200,7 +213,11 @@ const ProductCategory = () => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                <Button
+                  variant="contained"
+                  startIcon={<PlusOutlined />}
+                  onClick={() => setOpenFormCategory({ isOpen: true, id: '', categoryName: '', expiredDay: '' })}
+                >
                   <FormattedMessage id="new" />
                 </Button>
               </Stack>
@@ -227,6 +244,10 @@ const ProductCategory = () => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+
+      {openFormCategory.isOpen && (
+        <FormProductCategory open={openFormCategory.isOpen} data={{ ...openFormCategory }} onClose={onCloseForm} />
+      )}
     </>
   );
 };
