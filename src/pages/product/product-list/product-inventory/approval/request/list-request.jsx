@@ -22,10 +22,10 @@ const ListRequest = (props) => {
   const [requestProductData, setRequestProductData] = useState({ data: [], totalPagination: 0 });
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
+  const { user } = useAuth();
 
   const dispatch = useDispatch();
   const intl = useIntl();
-  const { user } = useAuth();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
