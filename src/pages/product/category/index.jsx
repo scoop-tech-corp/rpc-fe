@@ -1,4 +1,4 @@
-import { Button, Stack, useMediaQuery } from '@mui/material'; //Link
+import { Button, Stack, useMediaQuery, Link } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -17,6 +17,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ConfirmationC from 'components/ConfirmationC';
 import FormProductCategory from './form-category';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import ProductCategoryDetail from './detail';
 
 let paramProductCategoryList = {};
 
@@ -31,6 +32,7 @@ const ProductCategory = () => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
   const [openFormCategory, setOpenFormCategory] = useState({ isOpen: false, id: '', categoryName: '', expiredDay: '' });
+  const [openDetail, setOpenDetail] = useState({ isOpen: false, id: '', categoryName: '', expiredDay: '' });
 
   const columns = useMemo(
     () => [
@@ -55,9 +57,13 @@ const ProductCategory = () => {
         Header: <FormattedMessage id="category-name" />,
         accessor: 'categoryName',
         Cell: (data) => {
-          // const getId = data.row.original.id;
-          // return <Link>{data.value}</Link>;
-          return data.value;
+          const getId = data.row.original.id;
+          const getCateName = data.row.original.categoryName;
+          const getExpiredDay = data.row.original.expiredDay;
+
+          const onDetail = () => setOpenDetail({ isOpen: true, id: getId, categoryName: getCateName, expiredDay: getExpiredDay });
+
+          return <Link onClick={onDetail}>{data.value}</Link>;
         }
       },
       {
@@ -244,9 +250,15 @@ const ProductCategory = () => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
-
       {openFormCategory.isOpen && (
         <FormProductCategory open={openFormCategory.isOpen} data={{ ...openFormCategory }} onClose={onCloseForm} />
+      )}
+      {openDetail.isOpen && (
+        <ProductCategoryDetail
+          open={openDetail.isOpen}
+          data={{ ...openDetail }}
+          onClose={() => setOpenDetail({ isOpen: false, id: '', categoryName: '', expiredDay: '' })}
+        />
       )}
     </>
   );

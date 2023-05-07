@@ -50,3 +50,35 @@ export const exportProductCategory = async (property) => {
     }
   });
 };
+
+export const getProductCategoryDetailSell = async (property) => {
+  const getResp = await axios.get(productCategoryUrl + '/detail/sell', {
+    params: {
+      id: property.id,
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId
+    }
+  });
+
+  return getResp;
+};
+
+export const getProductCategoryDetailClinic = async (property) => {
+  const getResp = await axios.get(productCategoryUrl + '/detail/clinic', {
+    params: {
+      id: property.id,
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId
+    }
+  });
+
+  return getResp;
+};
