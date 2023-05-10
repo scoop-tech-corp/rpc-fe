@@ -26,12 +26,16 @@ export const getSupplierList = async () => {
   });
 };
 
-export const getProductCategoryList = async () => {
+export const getProductCategoryList = async (customLabel = '') => {
   const getResp = await axios.get('product/category');
-
-  return getResp.data.map((dt) => {
-    return { label: dt.categoryName, value: +dt.id };
-  });
+  const catchResp = (dt) => {
+    if (!customLabel) {
+      return { label: dt.categoryName, value: +dt.id };
+    } else if (customLabel == 'categoryName-expiredDay') {
+      return { label: `${dt.categoryName} - ${dt.expiredDay} hari`, value: +dt.id };
+    }
+  };
+  return getResp.data.map(catchResp);
 };
 
 export const getLocationProductTransferDropdown = async (property) => {

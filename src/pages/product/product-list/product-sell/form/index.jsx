@@ -30,7 +30,7 @@ const ProductSellForm = () => {
       const getLoc = await getLocationList();
       const getBrand = await getBrandList();
       const getSupplier = await getSupplierList();
-      const getCategory = await getProductCategoryList();
+      const getCategory = await getProductCategoryList('categoryName-expiredDay');
 
       useProductSellFormStore.setState((prevState) => {
         return {

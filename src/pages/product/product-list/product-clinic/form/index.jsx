@@ -31,7 +31,7 @@ const ProductClinicForm = () => {
       const getLoc = await getLocationList();
       const getBrand = await getBrandList();
       const getSupplier = await getSupplierList();
-      const getCategory = await getProductCategoryList();
+      const getCategory = await getProductCategoryList('categoryName-expiredDay');
 
       useProductClinicFormStore.setState((prevState) => {
         return {
