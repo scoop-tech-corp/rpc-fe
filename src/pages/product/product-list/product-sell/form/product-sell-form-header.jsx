@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
@@ -14,8 +14,10 @@ import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 
 const ProductSellFormHeader = (props) => {
+  const allState = useProductSellFormStore((state) => state);
   const productSellFormError = useProductSellFormStore((state) => state.productSellFormError);
   const isTouchForm = useProductSellFormStore((state) => state.productSellFormTouch);
+  const [formError, setFormError] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
 
@@ -68,13 +70,29 @@ const ProductSellFormHeader = (props) => {
     }
   };
 
+  useEffect(() => {
+    let getCate = getAllState().categories;
+    const isValidCate = getCate && getCate.length;
+
+    if (!isValidCate) {
+      setFormError(true);
+    } else {
+      setFormError(false);
+    }
+  }, [allState]);
+
   return (
     <>
       <HeaderPageCustom
         title={setTitlePage}
         locationBackConfig={{ setLocationBack: true, customUrl: '/product/product-list' }}
         action={
-          <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={!isTouchForm || productSellFormError}>
+          <Button
+            variant="contained"
+            startIcon={<PlusOutlined />}
+            onClick={onSubmit}
+            disabled={!isTouchForm || formError || productSellFormError}
+          >
             <FormattedMessage id="save" />
           </Button>
         }

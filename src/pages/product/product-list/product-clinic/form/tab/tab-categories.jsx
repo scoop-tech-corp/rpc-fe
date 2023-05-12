@@ -1,12 +1,29 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useProductClinicFormStore } from '../product-clinic-form-store';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { getAllState, useProductClinicFormStore } from '../product-clinic-form-store';
 
 const TabCategories = () => {
   const productCategoryList = useProductClinicFormStore((state) => state.dataSupport.productCategoryList);
   const categoriesStore = useProductClinicFormStore((state) => state.categories);
+  const isTouchForm = useProductClinicFormStore((state) => state.productClinicFormTouch);
+  const intl = useIntl();
+
   const [categories, setCategories] = useState([]);
+  const [error, setError] = useState('');
+
+  const onSelectedCategory = (_, val) => {
+    setCategories(val);
+    useProductClinicFormStore.setState({ categories: val, productClinicFormTouch: true });
+    onCheckValidation();
+  };
+
+  const onCheckValidation = () => {
+    let getCate = getAllState().categories;
+    const isValidCate = getCate && getCate.length;
+
+    setError(!isValidCate ? intl.formatMessage({ id: 'category-is-required' }) : '');
+  };
 
   useEffect(() => {
     if (categoriesStore.length && 'id' in categoriesStore[0]) {
@@ -22,10 +39,12 @@ const TabCategories = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSelectedCategory = (_, val) => {
-    setCategories(val);
-    useProductClinicFormStore.setState({ categories: val, productClinicFormTouch: true });
-  };
+  useEffect(() => {
+    if (isTouchForm) {
+      onCheckValidation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTouchForm, intl]);
 
   return (
     <Grid container spacing={3}>
@@ -42,7 +61,9 @@ const TabCategories = () => {
             value={categories}
             isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
             onChange={onSelectedCategory}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField {...params} error={Boolean(error && error.length > 0)} helperText={error} variant="outlined" />
+            )}
           />
         </Stack>
       </Grid>
