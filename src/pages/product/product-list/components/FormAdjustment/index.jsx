@@ -84,7 +84,7 @@ const FormAdjustment = (props) => {
       maxWidth="sm"
     >
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={7}>
+        <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="product-name">{<FormattedMessage id="product-name" />}</InputLabel>
             <TextField
@@ -97,13 +97,13 @@ const FormAdjustment = (props) => {
             />
           </Stack>
         </Grid>
-        <Grid item xs={12} sm={5}>
+        <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="currentStock">{<FormattedMessage id="current-stock" />}</InputLabel>
             <TextField fullWidth type="number" id="currentStock" name="currentStock" value={currentStock} inputProps={{ readOnly: true }} />
           </Stack>
         </Grid>
-        <Grid item xs={12} sm={7}>
+        <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="total-adjusment">{<FormattedMessage id="total-adjusment" />}</InputLabel>
             <TextField
@@ -116,7 +116,7 @@ const FormAdjustment = (props) => {
             />
           </Stack>
         </Grid>
-        <Grid item xs={12} sm={5}>
+        <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel htmlFor="different">{<FormattedMessage id="different" />}</InputLabel>
             <TextField fullWidth type="number" id="different" name="different" value={different} inputProps={{ readOnly: true }} />
