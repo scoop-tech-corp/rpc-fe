@@ -162,7 +162,7 @@ export const createProductAdjustment = async (property) => {
   const fd = new FormData();
   fd.append('productId', property.productId);
   fd.append('productType', property.productType); //productSell or productClinic
-  fd.append('adjustment', property.adjustment);
+  fd.append('different', property.different);
   fd.append('totalAdjustment', property.totalAdjustment);
   fd.append('remark', property.remark);
 
