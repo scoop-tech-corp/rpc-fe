@@ -120,7 +120,7 @@ const FacilityList = () => {
   const onConfirm = async (value) => {
     if (value) {
       await axios
-        .delete('facility', {
+        .delete('location/facility', {
           data: { locationId: selectedRow }
         })
         .then((resp) => {
