@@ -55,7 +55,8 @@ const ProductBundle = Loadable(lazy(() => import('pages/product/bundle')));
 const ProductBundleForm = Loadable(lazy(() => import('pages/product/bundle/form')));
 const ProductCategory = Loadable(lazy(() => import('pages/product/category')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ProductRestocks = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
+const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
@@ -156,7 +157,9 @@ const MainRoutes = {
             { path: 'bundle/form/:id', element: <ProductBundleForm /> },
             { path: 'category', element: <ProductCategory /> },
             { path: 'policies', element: <ProductPolicies /> },
-            { path: 'restocks', element: <ProductRestocks /> },
+            { path: 'restock', element: <ProductRestock /> },
+            { path: 'restock/form', element: <ProductRestockForm /> },
+            { path: 'restock/form/:id', element: <ProductRestockForm /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
             { path: 'static-data', element: <ProductStaticData /> }
           ]
