@@ -1,4 +1,6 @@
+import { setFormDataImage } from 'service/service-global';
 import axios from 'utils/axios';
+import { formateDateYYYMMDD } from 'utils/func';
 
 const productRestockUrl = 'product/restock';
 
@@ -31,4 +33,32 @@ export const exportProductRestock = async (property) => {
       search: property.keyword
     }
   });
+};
+
+export const createProductRestock = async (property) => {
+  const requireDate = property.requireDate ? formateDateYYYMMDD(new Date(property.requireDate)) : '';
+
+  const fd = new FormData();
+  fd.append('productId', property.productId);
+  fd.append('productType', property.productType);
+  fd.append('supplierId', property.supplierId);
+  fd.append('requireDate', requireDate);
+  fd.append('reStockQuantity', property.reStockQuantity);
+  fd.append('costPerItem', property.costPerItem);
+  fd.append('total', property.total);
+  fd.append('remark', property.remark);
+
+  setFormDataImage(property.images, fd, 'save');
+
+  return await axios.post(productRestockUrl, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const createProductRestockMultiple = async (property) => {
+  const fd = new FormData();
+  fd.append('status', property.status);
+  fd.append('locationId', property.productLocation);
+  fd.append('productList', JSON.stringify(property.productList));
+  setFormDataImage(property.images, fd, 'save');
+
+  return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

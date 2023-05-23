@@ -67,7 +67,7 @@ export const getProductSellDropdown = async (productLocationId, productBrandId =
   });
 
   return getResp.data.map((dt) => {
-    return { label: dt.fullName, value: +dt.id };
+    return { label: dt.fullName, value: +dt.id, data: { ...dt } };
   });
 };
 
