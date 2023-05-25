@@ -54,10 +54,22 @@ export const createProductRestock = async (property) => {
 };
 
 export const createProductRestockMultiple = async (property) => {
+  console.log('property', property);
+  // const newProductList = property.productList.map((dt) => {
+  //   dt.images = JSON.stringify(dt.images);
+  //   return dt;
+  // });
+
+  // console.log('newProductList', newProductList);
   const fd = new FormData();
   fd.append('status', property.status);
   fd.append('locationId', property.productLocation);
-  fd.append('productList', JSON.stringify(property.productList));
+  // fd.append('productList', JSON.stringify(newProductList));
+
+  property.productList.forEach((dt) => {
+    fd.append('productList[]', dt);
+  });
+
   setFormDataImage(property.images, fd, 'save');
 
   return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
