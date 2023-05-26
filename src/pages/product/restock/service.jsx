@@ -66,8 +66,41 @@ export const createProductRestockMultiple = async (property) => {
   fd.append('locationId', property.productLocation);
   // fd.append('productList', JSON.stringify(newProductList));
 
-  property.productList.forEach((dt) => {
-    fd.append('productList[]', dt);
+  // productId: productId.value,
+  // productType: productType,
+  // productName: productId.label,
+  // supplier: supplierId.label,
+  // supplierId: supplierId.value,
+  // requireDate: newRequireDate,
+  // currentStock: currentStock,
+  // restockQuantity: restockQuantity,
+  // costPerItem: costPerItem,
+  // total: total,
+  // remark: remark,
+  // images: images,
+  // totalImage: images.filter((dt) => dt.status !== 'del').length
+
+  property.productList.forEach((dt, i) => {
+    fd.append(`productList[${i}].productId`, dt.productId);
+    fd.append(`productList[${i}].productType`, dt.productType);
+    fd.append(`productList[${i}].productName`, dt.productName);
+    fd.append(`productList[${i}].supplier`, dt.supplier);
+    fd.append(`productList[${i}].supplierId`, dt.supplierId);
+    fd.append(`productList[${i}].requireDate`, dt.requireDate);
+    fd.append(`productList[${i}].currentStock`, dt.currentStock);
+    fd.append(`productList[${i}].restockQuantity`, dt.restockQuantity);
+    fd.append(`productList[${i}].costPerItem`, dt.costPerItem);
+    fd.append(`productList[${i}].total`, dt.total);
+    fd.append(`productList[${i}].remark`, dt.remark);
+    fd.append(`productList[${i}].totalImage`, dt.totalImage);
+
+    dt.images.forEach((img, imgIdx) => {
+      fd.append(`productList[${i}].images[${imgIdx}].id`, img.id);
+      fd.append(`productList[${i}].images[${imgIdx}].label`, img.label);
+      fd.append(`productList[${i}].images[${imgIdx}].imagePath`, img.imagePath);
+      fd.append(`productList[${i}].images[${imgIdx}].status`, img.status);
+      fd.append(`productList[${i}].images[${imgIdx}].selectedFile`, img.selectedFile);
+    });
   });
 
   setFormDataImage(property.images, fd, 'save');
