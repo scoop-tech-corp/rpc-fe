@@ -34,6 +34,7 @@ const defaultPhotos = {
   label: '',
   imagePath: '',
   status: '',
+  originalName: '',
   selectedFile: null
 };
 

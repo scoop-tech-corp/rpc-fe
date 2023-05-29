@@ -9,7 +9,7 @@ const PhotoC = (props) => {
   const { photoValue, photoOutput } = props;
 
   const onAddPhotos = () => {
-    photoOutput([...photoValue, { id: null, label: '', imagePath: '', status: '', selectedFile: null }]);
+    photoOutput([...photoValue, { id: null, label: '', imagePath: '', status: '', originalName: '', selectedFile: null }]);
   };
 
   const onDeletePhoto = (i) => {
@@ -30,7 +30,7 @@ const PhotoC = (props) => {
       const reader = new FileReader();
       reader.onload = function () {
         const getPhoto = [...photoValue];
-
+        getPhoto[idx].originalName = getFile.name;
         getPhoto[idx].selectedFile = getFile;
         getPhoto[idx].imagePath = this.result;
         photoOutput(getPhoto);

@@ -19,6 +19,7 @@ export const defaultFormRestock = {
       label: '',
       imagePath: '',
       status: '',
+      originalName: '',
       selectedFile: null
     }
   ],
