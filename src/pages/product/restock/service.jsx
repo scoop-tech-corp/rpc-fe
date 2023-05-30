@@ -57,10 +57,11 @@ export const createProductRestockMultiple = async (property) => {
   const fd = new FormData();
   fd.append('status', property.status);
   fd.append('locationId', property.productLocation);
+  fd.append('productList', JSON.stringify(property.productList));
 
-  property.productList.forEach((dt) => {
-    fd.append(`productList[]`, JSON.stringify(dt));
-  });
+  // property.productList.forEach((dt) => {
+  //   fd.append(`productList[]`, JSON.stringify(dt));
+  // });
 
   return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
