@@ -13,7 +13,8 @@ const UnitsAvailable = () => {
       detailUnitAvailable: [
         ...s.detailUnitAvailable,
         { id: '', unitName: '', status: '', capacity: '', amount: '', notes: '', command: '' }
-      ]
+      ],
+      facilityDetailTouch: true
     }));
   };
 
@@ -22,7 +23,7 @@ const UnitsAvailable = () => {
       let newData = [...state.detailUnitAvailable];
       newData[i] = unit;
 
-      return { detailUnitAvailable: newData };
+      return { detailUnitAvailable: newData, facilityDetailTouch: true };
     });
   };
 
@@ -30,7 +31,7 @@ const UnitsAvailable = () => {
     useFacilityDetailStore.setState((state) => {
       const getUnits = [...state.detailUnitAvailable];
       getUnits[i] = unit;
-      return { detailUnitAvailable: getUnits };
+      return { detailUnitAvailable: getUnits, facilityDetailTouch: true };
     });
   };
 

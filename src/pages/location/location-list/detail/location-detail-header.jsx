@@ -6,11 +6,12 @@ import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { getAllState, useLocationDetailStore } from './location-detail-store';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { breakdownDetailMessageBackend } from 'service/service-global';
+import { createMessageBackend } from 'service/service-global';
 import { saveLocation, updateLocation, uploadImageLocation } from './service';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+
 import PropTypes from 'prop-types';
 import ErrorContainer from 'components/@extended/ErrorContainer';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 const LocationDetailHeader = (props) => {
   const locationDetailError = useLocationDetailStore((state) => state.locationDetailError);
@@ -26,11 +27,11 @@ const LocationDetailHeader = (props) => {
   const setTitlePage = () => (code ? props.locationName : <FormattedMessage id="add-location" />);
 
   const responseError = (err) => {
-    const detailErr = breakdownDetailMessageBackend(err.errors);
+    const message = createMessageBackend(err, true);
     setIsError(true);
     useLocationDetailStore.setState({ locataionTouch: false });
 
-    setErrContent({ title: err.message, detail: detailErr });
+    setErrContent({ title: message.msg, detail: message.detail });
   };
 
   const nextProcessSuccess = (message) => {
@@ -43,7 +44,7 @@ const LocationDetailHeader = (props) => {
       const message = `Success ${code ? 'update' : 'create'} data`;
 
       if (code) {
-        const respUpload = await uploadImageLocation(locationDetail, code);
+        const respUpload = await uploadImageLocation(getAllState(), code);
         if (respUpload.status === 200 && respUpload.data.result === 'success') {
           nextProcessSuccess(message);
         }

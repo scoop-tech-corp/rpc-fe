@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import axios from 'utils/axios';
 import { useTheme } from '@mui/material/styles';
 import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList } from 'service/service-global';
+import { exportFacility, getFacility } from './detail/service';
 
+import DownloadIcon from '@mui/icons-material/Download';
+import axios from 'utils/axios';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
@@ -26,7 +28,7 @@ const FacilityList = () => {
   const [getFacilityData, setFacilityData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
-  const [selectedFilterLocation, setFilterLocation] = useState(null);
+  const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
@@ -105,10 +107,9 @@ const FacilityList = () => {
     fetchData();
   };
 
-  const onFilterLocation = (e, val) => {
-    const getValue = val ? val.value : null;
-    paramFacilityList.search = getValue;
-    setFilterLocation(facilityLocationList.find((dt) => dt.value === getValue) || null);
+  const onFilterLocation = (selected) => {
+    paramFacilityList.locationId = selected.map((dt) => dt.value);
+    setFilterLocation(selected);
     fetchData();
   };
 
@@ -119,7 +120,7 @@ const FacilityList = () => {
   const onConfirm = async (value) => {
     if (value) {
       await axios
-        .delete('facility', {
+        .delete('location/facility', {
           data: { locationId: selectedRow }
         })
         .then((resp) => {
@@ -141,37 +142,34 @@ const FacilityList = () => {
   };
 
   const onExport = async () => {
-    const resp = await axios.get('facilityexport', {
-      responseType: 'blob'
-    });
+    await exportFacility(paramFacilityList)
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
 
-    let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-    let downloadUrl = URL.createObjectURL(blob);
-    let a = document.createElement('a');
-
-    a.href = downloadUrl;
-    a.download = 'facility';
-    document.body.appendChild(a);
-    a.click();
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
   };
 
   async function fetchData() {
-    const getResp = await axios.get('facility', {
-      params: {
-        rowPerPage: paramFacilityList.rowPerPage,
-        goToPage: paramFacilityList.goToPage,
-        orderValue: paramFacilityList.orderValue,
-        orderColumn: paramFacilityList.orderColumn,
-        search: paramFacilityList.search
-      }
-    });
+    const getResp = await getFacility(paramFacilityList);
 
     setFacilityData({ data: getResp.data.data, totalPagination: getResp.data.totalPagination });
   }
 
   const clearParamFetchData = () => {
-    paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', search: '' };
-    setFilterLocation(null);
+    paramFacilityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] };
+    setFilterLocation([]);
   };
 
   const getDataFacilityLocation = async () => {
@@ -206,12 +204,14 @@ const FacilityList = () => {
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <Autocomplete
                   id="filterLocation"
+                  multiple
+                  limitTags={1}
                   options={facilityLocationList}
                   value={selectedFilterLocation}
-                  sx={{ width: 300 }}
+                  sx={{ width: 350 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(event, value) => onFilterLocation(event, value)}
-                  renderInput={(params) => <TextField {...params} label="Filter location" />}
+                  onChange={(_, value) => onFilterLocation(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
                 />
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
@@ -221,7 +221,7 @@ const FacilityList = () => {
               </Stack>
 
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'}>
-                <Button variant="contained" startIcon={<VerticalAlignTopOutlined />} onClick={onExport} color="success">
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
@@ -233,6 +233,8 @@ const FacilityList = () => {
               columns={columns}
               data={getFacilityData.data}
               totalPagination={getFacilityData.totalPagination}
+              setPageNumber={paramFacilityList.goToPage}
+              setPageRow={paramFacilityList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
@@ -242,8 +244,8 @@ const FacilityList = () => {
       </MainCard>
       <ConfirmationC
         open={dialog}
-        title="Delete"
-        content="Are you sure you want to delete this data ?"
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"

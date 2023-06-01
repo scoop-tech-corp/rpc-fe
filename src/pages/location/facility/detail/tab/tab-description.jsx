@@ -20,8 +20,8 @@ const TabDescription = () => {
               fullWidth
               id="introduction"
               name="introduction"
-              value={introduction}
-              onChange={(event) => useFacilityDetailStore.setState({ introduction: event.target.value })}
+              value={introduction || ''}
+              onChange={(event) => useFacilityDetailStore.setState({ introduction: event.target.value, facilityDetailTouch: true })}
             />
           </Stack>
         </Grid>
@@ -35,8 +35,8 @@ const TabDescription = () => {
               fullWidth
               id="description"
               name="description"
-              value={description}
-              onChange={(event) => useFacilityDetailStore.setState({ description: event.target.value })}
+              value={description || ''}
+              onChange={(event) => useFacilityDetailStore.setState({ description: event.target.value, facilityDetailTouch: true })}
             />
           </Stack>
         </Grid>

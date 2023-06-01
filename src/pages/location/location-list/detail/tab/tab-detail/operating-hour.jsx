@@ -9,16 +9,64 @@ import MainCard from 'components/MainCard';
 import { useLocationDetailStore } from '../../location-detail-store';
 
 const OperatingHour = () => {
-  // const [allDay, setAllDay] = useState(false);
   const locationOperationalHour = useLocationDetailStore((state) => state.operationalHour);
   const [operatingHours, setOperatingHours] = useState([
-    { selectedDay: false, dayName: 'Monday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
-    { selectedDay: false, dayName: 'Tuesday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
-    { selectedDay: false, dayName: 'Wednesday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
-    { selectedDay: false, dayName: 'Thursday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
-    { selectedDay: false, dayName: 'Friday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
-    { selectedDay: false, dayName: 'Saturday', fromTime: dayjs(), toTime: dayjs(), allDay: false },
-    { selectedDay: false, dayName: 'Sunday', fromTime: dayjs(), toTime: dayjs(), allDay: false }
+    {
+      selectedDay: false,
+      dayName: 'Monday',
+      displayDay: <FormattedMessage id="monday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    },
+    {
+      selectedDay: false,
+      dayName: 'Tuesday',
+      displayDay: <FormattedMessage id="tuesday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    },
+    {
+      selectedDay: false,
+      dayName: 'Wednesday',
+      displayDay: <FormattedMessage id="wednesday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    },
+    {
+      selectedDay: false,
+      dayName: 'Thursday',
+      displayDay: <FormattedMessage id="thursday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    },
+    {
+      selectedDay: false,
+      dayName: 'Friday',
+      displayDay: <FormattedMessage id="friday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    },
+    {
+      selectedDay: false,
+      dayName: 'Saturday',
+      displayDay: <FormattedMessage id="saturday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    },
+    {
+      selectedDay: false,
+      dayName: 'Sunday',
+      displayDay: <FormattedMessage id="sunday" />,
+      fromTime: dayjs(),
+      toTime: dayjs(),
+      allDay: false
+    }
   ]);
 
   useEffect(() => {
@@ -30,6 +78,7 @@ const OperatingHour = () => {
         setOperatingHour.push({
           selectedDay: findDaySelected ? true : false,
           dayName: findDaySelected ? findDaySelected.dayName : hour.dayName,
+          displayDay: hour.displayDay,
           fromTime: findDaySelected ? dayjs(`${getDateNow}T${findDaySelected.fromTime}`) : dayjs(),
           toTime: findDaySelected ? dayjs(`${getDateNow}T${findDaySelected.toTime}`) : dayjs(),
           allDay: findDaySelected ? findDaySelected.allDay : false
@@ -39,10 +88,11 @@ const OperatingHour = () => {
       setOperatingHours(setOperatingHour);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locationOperationalHour]);
+  }, []);
 
   const setOperationalHourToDetail = (dtOperationalHour = null) => {
     let data = dtOperationalHour ? [...dtOperationalHour] : [...operatingHours];
+
     data = data
       .filter((dt) => dt.selectedDay === true)
       .map((dt) => {
@@ -57,7 +107,6 @@ const OperatingHour = () => {
           toTime: dt.toTime ? `${setTime(dt.toTime.$H)}:${setTime(dt.toTime.$m)}` : ''
         };
       });
-
     useLocationDetailStore.setState({ operationalHour: data, locataionTouch: true });
   };
 
@@ -68,7 +117,8 @@ const OperatingHour = () => {
     setOperatingHours((value) => {
       let getOperationHour = [...value];
       getOperationHour = getOperationHour.map((dt) => {
-        dt.selectedDay = indeterminateToggleAll ? false : checked;
+        // dt.selectedDay = indeterminateToggleAll ? false : checked;
+        dt.selectedDay = checked;
         return dt;
       });
       setOperationalHourToDetail(getOperationHour);
@@ -84,7 +134,8 @@ const OperatingHour = () => {
     setOperatingHours((value) => {
       let getOperationHour = [...value];
       getOperationHour = getOperationHour.map((dt) => {
-        dt.allDay = indeterminateAllDay ? false : checked;
+        // dt.allDay = indeterminateAllDay ? false : checked;
+        dt.allDay = checked;
         return dt;
       });
       setOperationalHourToDetail(getOperationHour);
@@ -145,17 +196,23 @@ const OperatingHour = () => {
               size="small"
               indeterminate={indeterminateToggleAll}
             />
-            <Typography color="primary">Toggle all</Typography>
+            <Typography color="primary">
+              <FormattedMessage id="select-all" />
+            </Typography>
           </Stack>
         </Grid>
         <Grid item xs={3}>
           <Stack direction="row" alignItems="center" spacing={2} justifyContent="center">
-            <Typography color="primary">From</Typography>
+            <Typography color="primary">
+              <FormattedMessage id="from" />
+            </Typography>
           </Stack>
         </Grid>
         <Grid item xs={3}>
           <Stack direction="row" alignItems="center" spacing={2} justifyContent="center">
-            <Typography color="primary">To</Typography>
+            <Typography color="primary">
+              <FormattedMessage id="to" />
+            </Typography>
           </Stack>
         </Grid>
         <Grid item xs={3}>
@@ -168,7 +225,9 @@ const OperatingHour = () => {
               size="small"
               indeterminate={indeterminateAllDay}
             />
-            <Typography color="primary">All day</Typography>
+            <Typography color="primary">
+              <FormattedMessage id="all-day" />
+            </Typography>
           </Stack>
         </Grid>
       </Grid>
@@ -184,7 +243,7 @@ const OperatingHour = () => {
                   color="primary"
                   size="small"
                 />
-                <Typography color="primary">{dt.dayName}</Typography>
+                <Typography color="primary">{dt.displayDay}</Typography>
               </Stack>
             </Grid>
             <Grid item xs={3} marginTop="10px">
@@ -212,7 +271,9 @@ const OperatingHour = () => {
                   color="primary"
                   size="small"
                 />
-                <Typography color="primary">All day</Typography>
+                <Typography color="primary">
+                  <FormattedMessage id="all-day" />
+                </Typography>
               </Stack>
             </Grid>
           </Grid>

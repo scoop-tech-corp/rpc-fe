@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { getAllState, useProductBundleFormStore } from './bundle-form-store';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createProductBundle, updateProductBundle } from '../service';
-import { breakdownDetailMessageBackend } from 'service/service-global';
+import { createMessageBackend } from 'service/service-global';
 
 import PropTypes from 'prop-types';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -26,11 +26,11 @@ const ProductBundleFormHeader = (props) => {
   const setTitlePage = () => (id ? props.bundleName : <FormattedMessage id="add-product-bundle" />);
 
   const responseError = (err) => {
-    const detailErr = breakdownDetailMessageBackend(err.errors);
+    const message = createMessageBackend(err, true);
     setIsError(true);
     useProductBundleFormStore.setState({ bundleFormTouch: false });
 
-    setErrContent({ title: err.message, detail: detailErr });
+    setErrContent({ title: message.msg, detail: message.detail });
   };
 
   const nextProcessSuccess = (message) => {

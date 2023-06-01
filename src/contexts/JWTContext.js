@@ -108,7 +108,6 @@ export const JWTProvider = ({ children }) => {
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
 
-          console.log('userLogin', userLogin);
           const setUser = {
             id: userLogin.id,
             email: userLogin.email,
@@ -131,14 +130,14 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, userEmail, userId, userName } = response.data;
+    const { token, emailAddress, usersId, userName, role } = response.data;
     setSession(token);
 
     const setUser = {
-      id: +userId,
-      email: userEmail,
+      id: +usersId,
+      email: emailAddress,
       name: userName,
-      role: 'Front End Developer'
+      role: role.toLowerCase()
     };
 
     dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });

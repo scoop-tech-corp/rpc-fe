@@ -39,7 +39,7 @@ const LocationDetailTab = () => {
           scrollButtons="auto"
           aria-label="location detail tab"
         >
-          <Tab label="Details" id="location-tab-0" aria-controls="location-tabpanel-0" />
+          <Tab label={<FormattedMessage id="details" />} id="location-tab-0" aria-controls="location-tabpanel-0" />
           <Tab label={<FormattedMessage id="description" />} id="location-tab-1" aria-controls="location-tabpanel-1" />
           <Tab label={<FormattedMessage id="addresses" />} id="location-tab-2" aria-controls="location-tabpanel-2" />
           <Tab label={<FormattedMessage id="contacts" />} id="location-tab-3" aria-controls="location-tabpanel-3" />

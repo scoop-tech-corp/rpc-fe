@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { loaderGlobalConfig } from 'components/LoaderGlobal';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import configGlobal from '../../src/config';
 
 const axiosServices = axios.create({
@@ -10,7 +10,11 @@ const axiosServices = axios.create({
 
 axiosServices.interceptors.request.use(
   (config) => {
-    loaderGlobalConfig.setLoader(true);
+    const isManualLoader = loaderService.manualLoader;
+
+    if (!isManualLoader) {
+      loaderGlobalConfig.setLoader(true);
+    }
     return config;
   },
   (error) => {
@@ -20,11 +24,19 @@ axiosServices.interceptors.request.use(
 
 axiosServices.interceptors.response.use(
   (response) => {
-    loaderGlobalConfig.setLoader(false);
+    const isManualLoader = loaderService.manualLoader;
+    if (!isManualLoader) {
+      loaderGlobalConfig.setLoader(false);
+    }
+
     return response;
   },
   (error) => {
-    loaderGlobalConfig.setLoader(false);
+    const isManualLoader = loaderService.manualLoader;
+    if (!isManualLoader) {
+      loaderGlobalConfig.setLoader(false);
+    }
+
     if (error.response.status === 401 && error.response?.data.status === 'Token is Expired') {
       window.location.href = `/login?islogout=1`;
       return true;

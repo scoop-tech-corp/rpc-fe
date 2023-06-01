@@ -1,38 +1,31 @@
-import MainCard from 'components/MainCard';
 import { Box, Tab, Tabs } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSearchParams } from 'react-router-dom';
+import { getLocationList } from 'service/service-global';
 
+import MainCard from 'components/MainCard';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ProductSell from './product-sell/product-sell-list';
 import ProductClinic from './product-clinic/product-clinic-list';
 import ProductInventory from './product-inventory/product-inventory-list';
+import TabPanel from 'components/TabPanelC';
 
 const ProductList = () => {
   const [tabSelected, setTabSelected] = useState(0);
+  const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [searchParams] = useSearchParams();
-
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`product-list-tabpanel-${value}`} aria-labelledby={`product-list-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    value: PropTypes.number,
-    index: PropTypes.number
-  };
 
   const onChangeTab = (value) => setTabSelected(value);
 
+  const getDataFacilityLocation = async () => {
+    const data = await getLocationList();
+    setFacilityLocationList(data);
+  };
+
   useEffect(() => {
     const getTab = +searchParams.get('tab');
+    getDataFacilityLocation();
     if (getTab) {
       setTabSelected(getTab);
       window.history.pushState({ path: '/product/product-list' }, '', '/product/product-list');
@@ -59,14 +52,14 @@ const ProductList = () => {
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>
-          <TabPanel value={tabSelected} index={0}>
-            <ProductSell />
+          <TabPanel value={tabSelected} index={0} name="product-list">
+            <ProductSell facilityLocationList={facilityLocationList} />
           </TabPanel>
-          <TabPanel value={tabSelected} index={1}>
-            <ProductClinic />
+          <TabPanel value={tabSelected} index={1} name="product-list">
+            <ProductClinic facilityLocationList={facilityLocationList} />
           </TabPanel>
-          <TabPanel value={tabSelected} index={2}>
-            <ProductInventory />
+          <TabPanel value={tabSelected} index={2} name="product-list">
+            <ProductInventory facilityLocationList={facilityLocationList} />
           </TabPanel>
         </Box>
       </MainCard>

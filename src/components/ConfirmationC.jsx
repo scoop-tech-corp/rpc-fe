@@ -38,7 +38,7 @@ const ConfirmationC = (props) => {
 ConfirmationC.propTypes = {
   open: PropTypes.bool,
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  content: PropTypes.string,
+  content: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   btnTrueText: PropTypes.string,
   btnFalseText: PropTypes.string,
   onClose: PropTypes.func

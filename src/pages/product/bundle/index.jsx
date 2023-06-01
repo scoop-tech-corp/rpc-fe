@@ -3,17 +3,17 @@ import { useTheme } from '@mui/material/styles';
 import { Stack, useMediaQuery, Button, Link, Chip } from '@mui/material';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { deleteProductBundle, getProductBundle } from './service';
+import { createMessageBackend } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
-import { getProductBundle } from './service';
-import { createMessageBackend } from 'service/service-global';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ProductBundleDetail from './detail';
@@ -25,6 +25,7 @@ const ProductBundle = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [productBundleData, setProductBundleData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -147,7 +148,7 @@ const ProductBundle = () => {
         .catch((err) => {
           if (err) {
             setDialog(false);
-            dispatch(snackbarError(createMessageBackend(err)));
+            dispatch(snackbarError(createMessageBackend(err, true, true)));
           }
         });
     } else {
@@ -175,7 +176,7 @@ const ProductBundle = () => {
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
-                  placeHolder={'Search...'}
+                  placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
                   style={{ height: '36.5px' }}
@@ -196,6 +197,7 @@ const ProductBundle = () => {
               data={productBundleData.data}
               totalPagination={productBundleData.totalPagination}
               setPageNumber={paramProductBundleList.goToPage}
+              setPageRow={paramProductBundleList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
@@ -205,8 +207,8 @@ const ProductBundle = () => {
       </MainCard>
       <ConfirmationC
         open={dialog}
-        title="Delete"
-        content="Are you sure you want to delete this data ?"
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
@@ -214,6 +216,9 @@ const ProductBundle = () => {
       <ProductBundleDetail
         open={openDetail.isOpen}
         id={openDetail.id}
+        onRefreshIndex={(e) => {
+          if (e) fetchData();
+        }}
         onClose={(e) => {
           setOpenDetail({ isOpen: !e.isClose, id: null });
           if (e.isCloseWithHitIndex) {

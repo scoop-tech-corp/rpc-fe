@@ -13,14 +13,16 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { jsonCentralized } from 'utils/func';
 import { getCityList } from '../service';
 import { defaultDetailAddress, useLocationDetailStore } from '../location-detail-store';
+
 import IconButton from 'components/@extended/IconButton';
 import MainCard from 'components/MainCard';
 
 const TabAddresses = () => {
+  const intl = useIntl();
   const detailAddress = useLocationDetailStore((state) => state.detailAddress);
   const provinceList = useLocationDetailStore((state) => state.provinceList);
   let address = [];
@@ -73,12 +75,6 @@ const TabAddresses = () => {
   };
 
   const onTextField = (event, idx, procedure) => {
-    // setAddress((value) => {
-    //   const getAddress = [...value];
-    //   getAddress[idx][procedure] = event.target.value;
-
-    //   return getAddress;
-    // });
     const getAddress = [...address];
     getAddress[idx][procedure] = event.target.value;
     onSetLocationDetail(getAddress);
@@ -89,36 +85,15 @@ const TabAddresses = () => {
     if (action === 'province' && newValue) {
       getCity = await getCityList(newValue.value);
     }
-
-    // const getAddress = [...value];
     const newAddress = jsonCentralized(address);
 
-    // getAddress[idx][action] = newValue;
     newAddress[idx][action] = newValue ? newValue : '';
 
     if (action === 'province') {
-      // getAddress[idx].cityList = getCity;
       newAddress[idx].cityList = getCity;
     }
 
     onSetLocationDetail(newAddress);
-
-    // setAddress((value) => {
-    //   const getAddress = [...value];
-    //   const newAddress = jsonCentralized(value);
-
-    //   getAddress[idx][action] = newValue;
-    //   newAddress[idx][action] = newValue ? newValue : '';
-
-    //   if (action === 'province') {
-    //     getAddress[idx].cityList = getCity;
-    //     newAddress[idx].cityList = getCity;
-    //   }
-
-    //   onSetLocationDetail(newAddress);
-
-    //   return getAddress;
-    // });
   };
 
   const onAddAddress = () => {
@@ -135,13 +110,6 @@ const TabAddresses = () => {
 
     const setNewData = [...address, initialFormAddress];
     onSetLocationDetail(setNewData);
-
-    // setAddress((value) => {
-    //   const setNewData = [...value, initialFormAddress];
-
-    //   onSetLocationDetail(setNewData);
-    //   return setNewData;
-    // });
   };
 
   const onDeleteAddress = (i) => {
@@ -149,14 +117,6 @@ const TabAddresses = () => {
     getAddress.splice(i, 1);
 
     onSetLocationDetail(getAddress);
-
-    // setAddress((value) => {
-    //   let getAddress = [...value];
-    //   getAddress.splice(i, 1);
-
-    //   onSetLocationDetail(getAddress);
-    //   return [...getAddress];
-    // });
   };
 
   const theme = useTheme();
@@ -202,7 +162,7 @@ const TabAddresses = () => {
                       fullWidth
                       id="streetAddress"
                       name="streetAddress"
-                      placeholder="Enter street address"
+                      placeholder={intl.formatMessage({ id: 'street-address' })}
                       value={dt.streetAddress}
                       onChange={(event) => onTextField(event, i, 'streetAddress')}
                     />
@@ -218,7 +178,7 @@ const TabAddresses = () => {
                       fullWidth
                       id="additionalInfo"
                       name="additionalInfo"
-                      placeholder="Enter additional info"
+                      placeholder={intl.formatMessage({ id: 'additional-info' })}
                       value={dt.additionalInfo}
                       onChange={(event) => onTextField(event, i, 'additionalInfo')}
                     />

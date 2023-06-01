@@ -6,10 +6,11 @@ import { useDrop, useDrag, useDragLayer } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 
 // material-ui
-import { styled, useTheme, alpha } from '@mui/material/styles';
+import { styled as styledMaterial, useTheme, alpha } from '@mui/material/styles';
 
 // react-table
 import { useTable, useRowSelect } from 'react-table';
+// import styled from 'styled-components';
 
 import {
   Box,
@@ -34,13 +35,35 @@ import {
 
 // assets
 import { CaretUpOutlined, CaretDownOutlined, CloseSquareFilled, DragOutlined } from '@ant-design/icons';
+import { FormattedMessage } from 'react-intl';
 
 // ==============================|| TABLE CORE ||============================== //
+// const StyleTable = styled.div`
+//   /* This is required to make the table full-width */
+//   display: block;
+//   max-width: 100%;
+
+//   /* This will make the table scrollable when it gets too small */
+//   .tableWrap {
+//     display: block;
+//     max-width: 100%;
+//     overflow-x: scroll;
+//     overflow-y: hidden;
+//   }
+
+//   table {
+//     /* Make sure the inner table is always as wide as needed */
+//     width: 100%;
+//     border-spacing: 0;
+//   }
+// `;
+
 export const ReactTable = ({
   columns,
   data,
   totalPagination,
   setPageNumber,
+  setPageRow,
   onOrder,
   onGotoPage,
   onPageSize,
@@ -49,6 +72,11 @@ export const ReactTable = ({
 }) => {
   const theme = useTheme();
 
+  const [selectedOrder, setOrder] = useState({
+    column: '',
+    order: ''
+  });
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
@@ -56,11 +84,6 @@ export const ReactTable = ({
     },
     useRowSelect
   );
-
-  const [selectedOrder, setOrder] = useState({
-    column: '',
-    order: ''
-  });
 
   const clickHeader = (column) => {
     if (column.id === 'selection' || column.isNotSorting) return;
@@ -90,8 +113,12 @@ export const ReactTable = ({
     onPageSize(event);
   };
 
+  useEffect(() => () => {});
+
   return (
     <>
+      {/* <StyleTable> */}
+      {/* <div className="tableWrap"> */}
       <Table {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup, i) => (
@@ -130,7 +157,9 @@ export const ReactTable = ({
           })}
           {!rows.length && (
             <TableRow>
-              <TableCell colSpan={10}>No Data Found...</TableCell>
+              <TableCell colSpan={10}>
+                <FormattedMessage id="no-data-found" />
+              </TableCell>
             </TableRow>
           )}
           {extensionRow}
@@ -144,6 +173,7 @@ export const ReactTable = ({
                   totalPagination={totalPagination}
                   pageIndex={0}
                   setPageNumber={setPageNumber}
+                  setPageRow={setPageRow}
                   // pageSize={pageSizeChange}
                 />
               </TableCell>
@@ -151,6 +181,8 @@ export const ReactTable = ({
           )}
         </TableBody>
       </Table>
+      {/* </div> */}
+      {/* // </StyleTable> */}
     </>
   );
 };
@@ -160,6 +192,7 @@ ReactTable.propTypes = {
   data: PropTypes.array,
   totalPagination: PropTypes.number,
   setPageNumber: PropTypes.number,
+  setPageRow: PropTypes.number,
   onOrder: PropTypes.func,
   onGotoPage: PropTypes.func,
   onPageSize: PropTypes.func,
@@ -199,7 +232,7 @@ HeaderSort.propTypes = { column: PropTypes.any, selectedOrder: PropTypes.any };
 
 // ==============================|| TABLE PAGINATION ||============================== //
 
-export const TablePagination = ({ gotoPage, totalPagination, changePageSize, setPageNumber }) => {
+export const TablePagination = ({ gotoPage, totalPagination, changePageSize, setPageNumber, setPageRow }) => {
   const [open, setOpen] = useState(false);
   const [pageSize, setPageSize] = useState(5);
   const [pageIndex, setPageIndex] = useState(1);
@@ -209,6 +242,12 @@ export const TablePagination = ({ gotoPage, totalPagination, changePageSize, set
       setPageIndex(setPageNumber);
     }
   }, [setPageNumber]);
+
+  useEffect(() => {
+    if (setPageRow) {
+      setPageSize(setPageRow);
+    }
+  }, [setPageRow]);
 
   const handleClose = () => {
     setOpen(false);
@@ -293,7 +332,8 @@ TablePagination.propTypes = {
   gotoPage: PropTypes.func,
   totalPagination: PropTypes.number,
   changePageSize: PropTypes.func,
-  setPageNumber: PropTypes.number
+  setPageNumber: PropTypes.number,
+  setPageRow: PropTypes.number
 };
 
 // ==============================|| SELECTION - PREVIEW ||============================== //
@@ -393,7 +433,7 @@ DraggableHeader.propTypes = {
 
 // ==============================|| DRAG & DROP - DRAG PREVIEW ||============================== //
 
-const DragHeader = styled('div')(({ theme, x, y }) => ({
+const DragHeader = styledMaterial('div')(({ theme, x, y }) => ({
   color: theme.palette.text.secondary,
   position: 'fixed',
   pointerEvents: 'none',

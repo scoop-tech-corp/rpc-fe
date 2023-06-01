@@ -14,7 +14,8 @@ const Message = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Customer
 const CustomerDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const CustomerList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
+const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -22,8 +23,9 @@ const CustomerImport = Loadable(lazy(() => import('pages/extra-pages/sample-page
 
 // Staff
 const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const StaffList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const StaffLeaveApproval = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const StaffList = Loadable(lazy(() => import('pages/staff/staff-list')));
+const StaffForm = Loadable(lazy(() => import('pages/staff/staff-list/form')));
+const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
 const StaffAccessControl = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -46,14 +48,15 @@ const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page'
 // Product
 const ProductDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductList = Loadable(lazy(() => import('pages/product/product-list/product-list')));
-const ProductSellDetail = Loadable(lazy(() => import('pages/product/product-list/product-sell/detail')));
-const ProductClinicDetail = Loadable(lazy(() => import('pages/product/product-list/product-clinic/detail')));
+const ProductSellForm = Loadable(lazy(() => import('pages/product/product-list/product-sell/form')));
+const ProductClinicForm = Loadable(lazy(() => import('pages/product/product-list/product-clinic/form')));
 const ProductInventoryDetail = Loadable(lazy(() => import('pages/product/product-list/product-inventory/detail')));
 const ProductBundle = Loadable(lazy(() => import('pages/product/bundle')));
 const ProductBundleForm = Loadable(lazy(() => import('pages/product/bundle/form')));
-const ProductCategory = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductCategory = Loadable(lazy(() => import('pages/product/category')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ProductRestocks = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
+const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
@@ -97,6 +100,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <CustomerDashboard /> },
             { path: 'list', element: <CustomerList /> },
+            { path: 'list/form', element: <CustomerForm /> },
+            { path: 'list/form/:id', element: <CustomerForm /> },
             { path: 'template', element: <CustomerTemplate /> },
             { path: 'merge', element: <CustomerMerge /> },
             { path: 'static-data', element: <CustomerStaticData /> },
@@ -108,6 +113,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <StaffDashboard /> },
             { path: 'list', element: <StaffList /> },
+            { path: 'list/form', element: <StaffForm /> },
+            { path: 'list/form/:id', element: <StaffForm /> },
             { path: 'leave-approval', element: <StaffLeaveApproval /> },
             { path: 'access-control', element: <StaffAccessControl /> },
             { path: 'security-group', element: <StaffSecurityGroup /> },
@@ -140,15 +147,19 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <ProductDashboard /> },
             { path: 'product-list', element: <ProductList /> },
-            { path: 'product-list/sell/add', element: <ProductSellDetail /> },
-            { path: 'product-list/clinic/add', element: <ProductClinicDetail /> },
+            { path: 'product-list/sell/form', element: <ProductSellForm /> },
+            { path: 'product-list/sell/form/:id', element: <ProductSellForm /> },
+            { path: 'product-list/clinic/add', element: <ProductClinicForm /> },
+            { path: 'product-list/clinic/form/:id', element: <ProductClinicForm /> },
             { path: 'product-list/inventory/add', element: <ProductInventoryDetail /> },
             { path: 'bundle', element: <ProductBundle /> },
             { path: 'bundle/form', element: <ProductBundleForm /> },
             { path: 'bundle/form/:id', element: <ProductBundleForm /> },
             { path: 'category', element: <ProductCategory /> },
             { path: 'policies', element: <ProductPolicies /> },
-            { path: 'restocks', element: <ProductRestocks /> },
+            { path: 'restock', element: <ProductRestock /> },
+            { path: 'restock/form', element: <ProductRestockForm /> },
+            { path: 'restock/form/:id', element: <ProductRestockForm /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
             { path: 'static-data', element: <ProductStaticData /> }
           ]
