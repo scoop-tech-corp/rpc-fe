@@ -7,6 +7,56 @@ import { BehaviorSubject } from 'rxjs';
 
 const subject = new BehaviorSubject();
 
+export class LoaderService {
+  // loaderStatus = false;
+  // loaderBatch = [];
+
+  // constructor() {}
+
+  // startLoader() {
+  //   if (loaderBatch.length === 0) {
+  //     this.showLoader();
+  //   }
+  //   loaderBatch.push(true);
+  // }
+
+  // showLoader() {
+  //   if (!loaderStatus) {
+  //     loaderGlobalConfig.setLoader(true);
+  //   } else {
+  //     loaderGlobalConfig.setLoader(false);
+  //   }
+  // }
+
+  // hideLoader() {
+  //   loaderGlobalConfig.setLoader(false);
+  // }
+
+  // checkLoader() {
+  //   if (loaderBatch.length > 0) {
+  //     loaderBatch.pop();
+
+  //     if (loaderBatch.length === 0) {
+  //       return this.hideLoader();
+  //     }
+  //   } else {
+  //     return this.hideLoader();
+  //   }
+  // }
+
+  isManualLoader = false;
+
+  setManualLoader(value) {
+    this.isManualLoader = value;
+  }
+
+  get manualLoader() {
+    return this.isManualLoader;
+  }
+}
+
+export const loaderService = new LoaderService();
+
 export const loaderGlobalConfig = {
   setLoader: (isLoader) => subject.next({ isLoader }),
   getLoaderStatus: () => subject.asObservable()

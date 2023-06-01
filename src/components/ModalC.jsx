@@ -1,13 +1,28 @@
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Slide, Stack } from '@mui/material';
-import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
+import { FormattedMessage } from 'react-intl';
+
+import PropTypes from 'prop-types';
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
 const ModalC = (props) => {
-  const { open, title, children, okText, cancelText, onOk, onCancel, action, isModalAction = true, ...other } = props;
+  const {
+    open,
+    title,
+    children,
+    okText,
+    cancelText,
+    onOk,
+    onCancel,
+    action,
+    otherDialogAction,
+    disabledOk = false,
+    isModalAction = true,
+    ...other
+  } = props;
 
   return (
     <Dialog onClose={onCancel} open={open} TransitionComponent={Transition} {...other}>
@@ -20,11 +35,12 @@ const ModalC = (props) => {
       <DialogContent dividers={false}>{children}</DialogContent>
       {isModalAction && (
         <DialogActions>
-          <Button variant="outlined" color="error" onClick={onCancel}>
-            {cancelText}
+          {otherDialogAction}
+          <Button variant="contained" color="error" onClick={onCancel}>
+            {cancelText || <FormattedMessage id="cancel" />}
           </Button>
-          <Button variant="contained" onClick={onOk}>
-            {okText}
+          <Button variant="contained" onClick={onOk} disabled={disabledOk}>
+            {okText || <FormattedMessage id="submit" />}
           </Button>
         </DialogActions>
       )}
@@ -36,11 +52,13 @@ ModalC.propTypes = {
   open: PropTypes.bool,
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   children: PropTypes.node,
-  okText: PropTypes.string,
-  cancelText: PropTypes.string,
+  okText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  cancelText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   onOk: PropTypes.func,
   onCancel: PropTypes.func,
+  disabledOk: PropTypes.bool,
   action: PropTypes.shape({ element: PropTypes.node, justifyContent: PropTypes.string, alignItems: PropTypes.string }),
+  otherDialogAction: PropTypes.node,
   isModalAction: PropTypes.bool,
   other: PropTypes.any
 };

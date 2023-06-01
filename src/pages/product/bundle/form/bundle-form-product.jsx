@@ -69,7 +69,7 @@ const Product = () => {
       newProduct[findIdx].quantity = +e.target.value;
       newProduct[findIdx].total = +e.target.value * getRowPrice;
 
-      return { products: newProduct };
+      return { products: newProduct, bundleFormTouch: true };
     });
   };
 

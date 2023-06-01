@@ -17,6 +17,7 @@ import SettingTab from './SettingTab';
 // assets
 import avatar1 from 'assets/images/users/avatar-1.png';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { uppercaseWord } from 'utils/func';
 
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
@@ -141,7 +142,7 @@ const Profile = () => {
                             <Stack>
                               <Typography variant="h6">{user?.name}</Typography>
                               <Typography variant="body2" color="textSecondary">
-                                {user?.role}
+                                {uppercaseWord(user?.role)}
                               </Typography>
                             </Stack>
                           </Stack>

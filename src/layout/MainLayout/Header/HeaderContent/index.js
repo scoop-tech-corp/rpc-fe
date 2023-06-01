@@ -10,7 +10,9 @@ import Profile from './Profile';
 import Localization from './Localization';
 import MobileSection from './MobileSection';
 import QuickMenu from './quick-menu';
+
 import ProductInventoryApproval from 'pages/product/product-list/product-inventory/approval';
+import ProductTransferApproval from 'pages/product/transfer-approval';
 
 // import Message from './Message';
 // import Notification from './Notification';
@@ -26,11 +28,13 @@ const HeaderContent = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const localization = useMemo(() => <Localization />, [i18n]);
   const [openModalInvenApproval, setOpenModalInvenApproval] = useState(false);
+  const [openModalTransferApproval, setOpenModalTransferApproval] = useState(false);
 
   // const megaMenu = useMemo(() => <MegaMenuSection />, []);
 
   const responseQuckMenu = (event) => {
     if (event.menuType === 'IA') setOpenModalInvenApproval(event.isOpen);
+    if (event.menuType === 'TA') setOpenModalTransferApproval(event.isOpen);
   };
 
   return (
@@ -45,7 +49,10 @@ const HeaderContent = () => {
       {!matchesXs && <Profile />}
       {matchesXs && <MobileSection />}
 
-      <ProductInventoryApproval open={openModalInvenApproval} onClose={(e) => setOpenModalInvenApproval(!e)} />
+      {openModalInvenApproval && <ProductInventoryApproval open={openModalInvenApproval} onClose={(e) => setOpenModalInvenApproval(!e)} />}
+      {openModalTransferApproval && (
+        <ProductTransferApproval open={openModalTransferApproval} onClose={(e) => setOpenModalTransferApproval(!e)} />
+      )}
     </>
   );
 };

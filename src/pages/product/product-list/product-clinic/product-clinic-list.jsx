@@ -1,31 +1,70 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Chip, Stack, useMediaQuery, Button, Link } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import {
+  Chip,
+  Stack,
+  useMediaQuery,
+  Button,
+  Link,
+  TextField,
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@mui/material';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
-import { openSnackbar } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { deleteProductClinic, getProductClinic } from '../service';
+import {
+  deleteProductClinic,
+  downloadTemplateProductClinic,
+  exportProductClinic,
+  getProductCategoryList,
+  getProductClinic,
+  getProductClinicDetail,
+  importProductClinic
+} from '../service';
+import { createMessageBackend } from 'service/service-global';
+import { formatThousandSeparator } from 'utils/func';
 
+import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import ModalExport from '../components/ModalExport';
+import ProductClinicDetail from './detail';
+import DownloadIcon from '@mui/icons-material/Download';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import IconButton from 'components/@extended/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import ModalImport from '../components/ModalImport';
 
 let paramProductClinicList = {};
 
-const ProductClinicList = () => {
+const ProductClinicList = (props) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [getProductClinicData, setProductClinicData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
+  const [selectedFilterLocation, setFilterLocation] = useState([]);
+  const [selectedStock, setStock] = useState('');
+  const [selectedFilterCategory, setFilterCategory] = useState([]);
+  const [filterCategoryList, setFilterCategoryList] = useState([]);
+
   const [dialog, setDialog] = useState(false);
+  const [isModalExport, setModalExport] = useState(false);
+  const [isModalImport, setModalImport] = useState(false);
+  const [openDetail, setOpenDetail] = useState({ isOpen: false, name: '', detailData: null });
 
   const columns = useMemo(
     () => [
@@ -48,10 +87,89 @@ const ProductClinicList = () => {
         accessor: 'fullName',
         Cell: (data) => {
           const getId = data.row.original.id;
-          return <Link href={`/product/product-list/clinic/${getId}`}>{data.value}</Link>;
+          const getName = data.row.original.fullName;
+
+          const onClickDetail = async () => {
+            await getProductClinicDetail(getId)
+              .then((resp) => {
+                let categories = '';
+                if (resp.data.details.categories.length) {
+                  resp.data.details.categories.map((dt, idx) => {
+                    categories += dt.categoryName + (idx + 1 !== resp.data.details.categories.length ? ',' : '');
+                  });
+                }
+
+                let reminders = '';
+                if (resp.data.reminders.length) {
+                  resp.data.reminders.map((dt, idx) => {
+                    reminders += dt.timing + `(${dt.unit})` + (idx + 1 !== resp.data.reminders.length ? ',' : '');
+                  });
+                }
+
+                const detailData = {
+                  id: getId,
+                  fullName: resp.data.fullName,
+                  dosages: resp.data.dosages,
+                  details: {
+                    sku: resp.data.details.sku,
+                    status: +resp.data.details.status,
+                    supplierId: +resp.data.details.productSupplierId,
+                    supplierName: resp.data.details.supplierName,
+                    brandName: resp.data.details.brandName,
+                    categories,
+                    reminders
+                  },
+                  shipping: {
+                    isShipped: +resp.data.isShipped,
+                    length: resp.data.length,
+                    height: resp.data.height,
+                    width: resp.data.width,
+                    weight: resp.data.weight
+                  },
+                  description: {
+                    introduction: resp.data.introduction,
+                    description: resp.data.description
+                  },
+                  inventory: {
+                    locationName: resp.data.location.locationName,
+                    stock: resp.data.location.inStock,
+                    lowStock: resp.data.location.lowStock,
+                    status: resp.data.location.status.toLowerCase()
+                  },
+                  location: {
+                    id: resp.data.location.locationId
+                  },
+                  pricing: {
+                    price: `Rp ${formatThousandSeparator(resp.data.price)}`,
+                    pricingStatus: resp.data.pricingStatus,
+                    marketPrice: resp.data.marketPrice,
+                    priceLocations: resp.data.priceLocations,
+                    customerGroups: resp.data.customerGroups,
+                    quantities: resp.data.quantities
+                  },
+                  settings: {
+                    isCustomerPurchase: +resp.data.setting.isCustomerPurchase ? true : false,
+                    isCustomerPurchaseOnline: +resp.data.setting.isCustomerPurchaseOnline ? true : false,
+                    isCustomerPurchaseOutStock: +resp.data.setting.isCustomerPurchaseOutStock ? true : false,
+                    isStockLevelCheck: +resp.data.setting.isStockLevelCheck ? true : false,
+                    isNonChargeable: +resp.data.setting.isNonChargeable ? true : false,
+                    isOfficeApproval: +resp.data.setting.isOfficeApproval ? true : false,
+                    isAdminApproval: +resp.data.setting.isAdminApproval ? true : false
+                  }
+                };
+
+                setOpenDetail({ isOpen: true, name: getName, detailData });
+              })
+              .catch((err) => {
+                if (err) {
+                  dispatch(snackbarError(createMessageBackend(err)));
+                }
+              });
+          };
+
+          return <Link onClick={() => onClickDetail()}>{data.value}</Link>; // href={`/product/product-list/sell/${getId}`}
         }
       },
-      { Header: 'Sku', accessor: 'sku' },
       { Header: <FormattedMessage id="brand" />, accessor: 'brandName' },
       { Header: <FormattedMessage id="price" />, accessor: 'price' },
       {
@@ -66,6 +184,7 @@ const ProductClinicList = () => {
           }
         }
       },
+      { Header: <FormattedMessage id="location" />, accessor: 'locationName' },
       {
         Header: 'Status',
         accessor: 'status',
@@ -77,8 +196,17 @@ const ProductClinicList = () => {
               return <Chip color="error" label="Not Active" size="small" variant="light" />;
           }
         }
+      },
+      {
+        Header: <FormattedMessage id="created-at" />,
+        accessor: 'createdAt'
+      },
+      {
+        Header: <FormattedMessage id="created-by" />,
+        accessor: 'createdBy'
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -98,9 +226,28 @@ const ProductClinicList = () => {
     fetchData();
   };
 
+  const onFilterLocation = (selected) => {
+    paramProductClinicList.locationId = selected.map((dt) => dt.value);
+    setFilterLocation(selected);
+    fetchData();
+  };
+
+  const onFilterCategory = (selected) => {
+    paramProductClinicList.category = selected.map((dt) => dt.value);
+    setFilterCategory(selected);
+    fetchData();
+  };
+
   const onSearch = (event) => {
     paramProductClinicList.keyword = event;
     setKeywordSearch(event);
+
+    fetchData();
+  };
+
+  const onSelectedStock = (event) => {
+    paramProductClinicList.stock = event.target.value;
+    setStock(event.target.value);
 
     fetchData();
   };
@@ -115,7 +262,16 @@ const ProductClinicList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramProductClinicList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+    paramProductClinicList = {
+      rowPerPage: 5,
+      goToPage: 1,
+      orderValue: '',
+      orderColumn: '',
+      keyword: '',
+      locationId: [],
+      stock: '',
+      category: []
+    };
     setKeywordSearch('');
   };
 
@@ -125,16 +281,7 @@ const ProductClinicList = () => {
         if (resp.status === 200) {
           setDialog(false);
 
-          dispatch(
-            openSnackbar({
-              open: true,
-              message: 'Success Delete product clinic',
-              variant: 'alert',
-              alert: { color: 'success' },
-              duration: 2000,
-              close: true
-            })
-          );
+          dispatch(snackbarSuccess('Success Delete product clinic'));
           clearParamFetchData();
           fetchData();
         }
@@ -144,13 +291,94 @@ const ProductClinicList = () => {
     }
   };
 
+  const onExport = async (event) => {
+    await exportProductClinic({ ...paramProductClinicList, allData: event.allData, onlyItem: event.onlyItem })
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const onDownloadTemplate = async () => {
+    await downloadTemplateProductClinic()
+      .then((resp) => {
+        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+        let downloadUrl = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+        a.href = downloadUrl;
+        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        document.body.appendChild(a);
+        a.click();
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const onImportFile = async (file) => {
+    await importProductClinic(file)
+      .then((resp) => {
+        if (resp.status === 200) {
+          dispatch(snackbarSuccess('Success import file'));
+          setModalImport(false);
+          fetchData();
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const getCategoryProduct = async () => {
+    const getCategory = await getProductCategoryList();
+    setFilterCategoryList(getCategory);
+  };
+
   useEffect(() => {
+    getCategoryProduct();
     clearParamFetchData();
     fetchData();
   }, []);
 
   return (
     <>
+      <Stack
+        spacing={1}
+        direction={matchDownSM ? 'column' : 'row'}
+        style={{ width: matchDownSM ? '100%' : '', marginBottom: '24px' }}
+        justifyContent={'flex-end'}
+      >
+        <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
+          <RefreshIcon />
+        </IconButton>
+        <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalExport(true)} color="success">
+          <FormattedMessage id="export" />
+        </Button>
+        <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)}>
+          <FormattedMessage id="import" />
+        </Button>
+        <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+          <FormattedMessage id="add-product-clinic" />
+        </Button>
+      </Stack>
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
@@ -161,17 +389,67 @@ const ProductClinicList = () => {
               spacing={1}
               sx={{ p: 3, pb: 0 }}
             >
-              <GlobalFilter placeHolder={'Search...'} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
-
-              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                <FormattedMessage id="add-product-clinic" />
-              </Button>
+              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+                <GlobalFilter
+                  placeHolder={intl.formatMessage({ id: 'search' })}
+                  globalFilter={keywordSearch}
+                  setGlobalFilter={onSearch}
+                  style={{ height: '41.3px' }}
+                />
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  limitTags={1}
+                  options={props.facilityLocationList}
+                  value={selectedFilterLocation}
+                  sx={{ width: 220 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterLocation(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                />
+                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                  <InputLabel htmlFor="stock">
+                    <FormattedMessage id="stock" />
+                  </InputLabel>
+                  <Select id="stock" name="stock" value={selectedStock} onChange={onSelectedStock}>
+                    <MenuItem value="">
+                      <em>
+                        <FormattedMessage id="select-stock" />
+                      </em>
+                    </MenuItem>
+                    <MenuItem value={'lowStock'}>
+                      <FormattedMessage id="low-stock" />
+                    </MenuItem>
+                    <MenuItem value={'highStock'}>
+                      <FormattedMessage id="high-stock" />
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                <Autocomplete
+                  id="filterCategory"
+                  multiple
+                  limitTags={1}
+                  options={filterCategoryList}
+                  value={selectedFilterCategory}
+                  sx={{ width: 220 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterCategory(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-category" />} />}
+                />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
+              </Stack>
             </Stack>
             <ReactTable
               columns={columns}
               data={getProductClinicData.data}
               totalPagination={getProductClinicData.totalPagination}
-              setPageNumber={getProductClinicData.goToPage}
+              setPageNumber={paramProductClinicList.goToPage}
+              setPageRow={paramProductClinicList.rowPerPage}
+              colSpanPagination={9}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
@@ -189,14 +467,36 @@ const ProductClinicList = () => {
       </MainCard>
       <ConfirmationC
         open={dialog}
-        title="Delete"
-        content="Are you sure you want to delete this data ?"
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+      <ModalExport isModalExport={isModalExport} onExport={(e) => onExport(e)} onClose={(e) => setModalExport(!e)} />
+      {isModalImport && (
+        <ModalImport
+          open={isModalImport}
+          onTemplate={onDownloadTemplate}
+          onImport={(e) => onImportFile(e)}
+          onClose={(e) => setModalImport(!e)}
+        />
+      )}
+      <ProductClinicDetail
+        title={openDetail.name}
+        open={openDetail.isOpen}
+        data={openDetail.detailData}
+        onClose={(e) => {
+          setOpenDetail({ isOpen: !e.isOpen, name: '', detailData: null });
+          if (e.isRefreshIndex) fetchData();
+        }}
+      />
     </>
   );
+};
+
+ProductClinicList.propTypes = {
+  facilityLocationList: PropTypes.array
 };
 
 export default ProductClinicList;

@@ -3,7 +3,7 @@ import axios from 'utils/axios';
 
 export const getFacilityLocationList = () => {
   return new Promise((resolve) => {
-    const getResp = axios.get('facilitylocation', { params: {} });
+    const getResp = axios.get('location/facility/facilitylocation', { params: {} });
     getResp.then((resp) => {
       let getData = [...resp.data];
 
@@ -17,7 +17,7 @@ export const getFacilityLocationList = () => {
 };
 
 export const getFacilityLocationDetail = async (id) => {
-  const getResp = await axios.get('facilitydetail', { params: { locationId: id } });
+  const getResp = await axios.get('location/facility/facilitydetail', { params: { locationId: id } });
 
   return getResp.data;
 };
@@ -31,7 +31,7 @@ export const createFacilityLocation = async (property) => {
 
   setFormDataImage(property.photos, fd, 'save');
 
-  return await axios.post('facility', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('location/facility', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const updateFacilityLocation = async (property) => {
@@ -42,7 +42,19 @@ export const updateFacilityLocation = async (property) => {
     unit: property.detailUnitAvailable
   };
 
-  return await axios.put('facility', parameter);
+  return await axios.put('location/facility', parameter);
+};
+
+export const getFacility = async (property) => {
+  return axios.get('location/facility', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      locationId: property.locationId
+    }
+  });
 };
 
 export const uploadImageFacility = async (property) => {
@@ -50,5 +62,16 @@ export const uploadImageFacility = async (property) => {
   fd.append('locationId', property.locationId);
   setFormDataImage(property.photos, fd);
 
-  return await axios.post('imagelocation', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('location/facility/imagefacility', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const exportFacility = async (property) => {
+  return axios.get('location/facility/facilityexport', {
+    responseType: 'blob',
+    params: {
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      locationId: property.locationId.length ? property.locationId : ['']
+    }
+  });
 };

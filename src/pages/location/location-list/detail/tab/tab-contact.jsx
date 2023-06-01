@@ -1,13 +1,14 @@
 import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
 import { useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { jsonCentralized } from 'utils/func';
 import { useLocationDetailStore } from '../location-detail-store';
-import IconButton from 'components/@extended/IconButton';
-import FormDataStatic from 'components/FormDataStatic';
-import MainCard from 'components/MainCard';
 import { getDataStaticLocation } from '../service';
+
+import IconButton from 'components/@extended/IconButton';
+import FormDataStatic from '../../../../../components/FormDataStatic';
+import MainCard from 'components/MainCard';
 
 const TabContact = () => {
   const locationEmail = useLocationDetailStore((state) => state.email);
@@ -17,6 +18,7 @@ const TabContact = () => {
   const usageList = useLocationDetailStore((state) => state.usageList);
   const phoneTypeList = useLocationDetailStore((state) => state.telephoneType);
   const messengerTypeList = useLocationDetailStore((state) => state.messengerType);
+  const intl = useIntl();
 
   let phone = [];
   let email = [];
@@ -277,7 +279,7 @@ const TabContact = () => {
                     id="phoneNumber"
                     name="phoneNumber"
                     type="number"
-                    placeholder="Enter nomor"
+                    placeholder={intl.formatMessage({ id: 'enter-nomor' })}
                     value={dt.phoneNumber}
                     onChange={(event) => onFieldHandler(event, i, 'telephone')}
                   />

@@ -5,7 +5,7 @@ import { setFormDataImage } from 'service/service-global';
 
 export const getCityList = (provinceCode) => {
   return new Promise((resolve) => {
-    const getResp = axios.get('kabupatenkotalocation', { params: { provinceCode } });
+    const getResp = axios.get('location/kabupatenkotalocation', { params: { provinceCode } });
     getResp.then((resp) => {
       let getData = [...resp.data];
 
@@ -19,7 +19,7 @@ export const getCityList = (provinceCode) => {
 };
 
 export const getDataStaticLocation = async () => {
-  const getResp = await axios.get('datastaticlocation');
+  const getResp = await axios.get('location/datastaticlocation');
   const getData = getResp.data;
 
   const mapper = (dt) => {
@@ -34,7 +34,7 @@ export const getDataStaticLocation = async () => {
 };
 
 export const getProvinceLocation = async () => {
-  const getResp = await axios.get('provinsilocation');
+  const getResp = await axios.get('location/provinsilocation');
 
   return getResp.data.map((dt) => {
     return {
@@ -45,7 +45,7 @@ export const getProvinceLocation = async () => {
 };
 
 export const getDetailLocation = async (code) => {
-  const getResp = await axios.get('detaillocation', { params: { codeLocation: code } });
+  const getResp = await axios.get('location/detaillocation', { params: { codeLocation: code } });
   const getData = getResp.data;
 
   const locationName = getData.locationName;
@@ -184,7 +184,19 @@ export const saveDataStaticLocation = async (data) => {
   fd.append('keyword', data.keyword); // Usage, Telephone, Messenger
   fd.append('name', data.name);
 
-  return await axios.post('datastatic', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('location/datastatic', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const getLocation = async (property) => {
+  return await axios.get('location', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword
+    }
+  });
 };
 
 export const uploadImageLocation = async (property, code) => {
@@ -192,5 +204,9 @@ export const uploadImageLocation = async (property, code) => {
   fd.append('codeLocation', code);
   setFormDataImage(property.photos, fd);
 
-  return await axios.post('imagelocation', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('location/imagelocation', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const exportLocation = async () => {
+  return axios.get('location/exportlocation', { responseType: 'blob' });
 };

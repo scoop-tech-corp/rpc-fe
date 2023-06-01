@@ -3,10 +3,12 @@ import { FormattedMessage } from 'react-intl';
 
 // assets
 import { TeamOutlined } from '@ant-design/icons';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 // icons
 const icons = {
-  TeamOutlined
+  TeamOutlined,
+  Inventory2Icon
 };
 
 // ==============================|| MENU ITEMS - PRODUCT ||============================== //
@@ -19,7 +21,7 @@ const product = {
       id: 'product',
       title: <FormattedMessage id="product" />,
       type: 'collapse',
-      icon: icons.TeamOutlined,
+      icon: icons.Inventory2Icon,
       children: [
         {
           id: 'product-dashboard',
@@ -56,7 +58,7 @@ const product = {
           id: 'product-restocks',
           title: <FormattedMessage id="restocks" />,
           type: 'item',
-          url: '/product/restocks'
+          url: '/product/restock'
         },
         {
           id: 'product-delivery-agent',

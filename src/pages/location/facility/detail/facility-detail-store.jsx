@@ -1,5 +1,5 @@
 import { jsonCentralized } from 'utils/func';
-import create from 'zustand';
+import { create } from 'zustand';
 
 const defaultUnitAvailable = {
   id: '',
@@ -16,6 +16,7 @@ const defaultPhotos = {
   label: '',
   imagePath: '',
   status: '',
+  originalName: '',
   selectedFile: null
 };
 
@@ -25,8 +26,9 @@ export const defaultFacilityDetail = {
   description: '',
   detailUnitAvailable: [defaultUnitAvailable],
   photos: [defaultPhotos],
+  facilityLocationList: [],
   facilityDetailError: false,
-  facilityLocationList: []
+  facilityDetailTouch: false
 };
 
 export const useFacilityDetailStore = create(() => jsonCentralized(defaultFacilityDetail));

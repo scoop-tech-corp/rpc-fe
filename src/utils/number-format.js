@@ -1,22 +1,17 @@
 import { forwardRef } from 'react';
-import NumberFormat from 'react-number-format';
+import NumericFormat from 'react-number-format';
 import PropTypes from 'prop-types';
 
 const NumberFormatCustom = forwardRef(function NumberFormatCustom(props, ref) {
-  const { onChange, ...other } = props;
+  const { ...other } = props;
 
   return (
-    <NumberFormat
+    <NumericFormat
       {...other}
       getInputRef={ref}
-      onValueChange={(values) => {
-        onChange({
-          target: {
-            name: props.name,
-            value: values.value
-          }
-        });
-      }}
+      // onValueChange={(values, sourceInfo) => {
+      //   console.log(values, sourceInfo);
+      // }}
       thousandSeparator
       isNumericString
     />

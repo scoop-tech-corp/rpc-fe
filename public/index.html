@@ -28,6 +28,39 @@
 
     <!-- this is to resolve issue in old safari browser in tablet -->
     <script src="https://cdn.jsdelivr.net/npm/resize-observer-polyfill@1.5.1/dist/ResizeObserver.min.js"></script>
+
+    <!-- add by danny wahyudi -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"> </script>
+
+    <script>
+        // Enable pusher logging - don't include this in production
+        // Pusher.logToConsole = true;
+
+        var pusher = new Pusher('59eb87435404993c44cf', {
+            cluster: 'ap1'
+        });
+
+        var channel = pusher.subscribe('popup-channel');
+        channel.bind('message-popup', function(data) {
+            // info(data);
+
+            // alert("helloworld");
+            // var type = JSON.stringify(data.type);
+
+            if (type = "error") {
+                toastr.info(JSON.stringify(data.message));
+            } else if (type = "warning") {
+                toastr.warning(JSON.stringify(data.message));
+            } else {
+                toastr.success(JSON.stringify(data.message));
+            }
+
+        });
+    </script>
+    <!-- add by danny wahyudi -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

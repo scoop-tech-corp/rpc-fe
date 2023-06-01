@@ -34,14 +34,39 @@ export const breakdownDetailMessageBackend = (arrayMessageErr, isNewLine = false
         message += '<li>' + dt + '</li>';
       }
     });
+    // handle when arrayMessageErr only one string
+  } else if (arrayMessageErr && typeof arrayMessageErr === 'string') {
+    message = '<li>' + arrayMessageErr + '</li>';
   }
 
   return message;
 };
 
-export const createMessageBackend = (errResp, isBreakdownArrErr = false) => {
-  let message = errResp.message ? errResp.message : 'Something when wrong';
-  if (isBreakdownArrErr) message += breakdownDetailMessageBackend(errResp.errors, true);
+export const createMessageBackend = (errResp, isBreakdownArrErr = false, isBreakdownErrOnSnackBar = false) => {
+  let message = errResp.message ? errResp.message : 'Something went wrong';
+  let detail = '';
+
+  if (isBreakdownArrErr) {
+    detail += breakdownDetailMessageBackend(errResp.errors);
+
+    if (isBreakdownErrOnSnackBar) {
+      return `${message}, ${detail ? detail.replaceAll('<li>', '').replaceAll('</li>', '') : ''}`;
+    } else {
+      return { msg: message, detail };
+    }
+  }
 
   return message;
+};
+
+export const processDownloadExcel = (resp) => {
+  let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+  let downloadUrl = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+
+  a.href = downloadUrl;
+  a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+  document.body.appendChild(a);
+  a.click();
 };

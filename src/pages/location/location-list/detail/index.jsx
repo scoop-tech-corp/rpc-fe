@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { getDataStaticLocation, getDetailLocation, getProvinceLocation } from './service';
 import { defaultLocationDetail, useLocationDetailStore } from './location-detail-store';
+
 import LocationDetailTab from './tab/location-detail-tab';
 import Header from './location-detail-header';
 
 const LocationDetailPage = () => {
   const [locationName, setLocationName] = useState('');
+  const [isDoneLoadDetail, setIsDoneLoadDetail] = useState(false);
   let { code } = useParams();
 
   const getDropdownData = async () => {
@@ -35,10 +37,12 @@ const LocationDetailPage = () => {
       email: data.email,
       telephone: data.telephone
     });
+    setIsDoneLoadDetail(true);
   };
 
   useEffect(() => {
     if (code) getDetail();
+    else setIsDoneLoadDetail(true);
 
     getDropdownData();
 
@@ -53,7 +57,7 @@ const LocationDetailPage = () => {
   return (
     <>
       <Header locationName={locationName} />
-      <LocationDetailTab />
+      {isDoneLoadDetail && <LocationDetailTab />}
     </>
   );
 };

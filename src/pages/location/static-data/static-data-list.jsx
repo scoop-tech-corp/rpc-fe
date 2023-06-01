@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import axios from 'utils/axios';
 import { useTheme } from '@mui/material/styles';
 import { Stack, useMediaQuery, Button } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
+
+import axios from 'utils/axios';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
@@ -20,6 +21,7 @@ const StaticDataList = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [staticData, setStaticData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -77,7 +79,7 @@ const StaticDataList = () => {
   const onConfirm = async (value) => {
     if (value) {
       await axios
-        .delete('datastatic', {
+        .delete('location/datastatic', {
           data: { id: selectedRow }
         })
         .then((resp) => {
@@ -99,7 +101,7 @@ const StaticDataList = () => {
   };
 
   async function fetchData() {
-    const resp = await axios.get('datastatic', {
+    const resp = await axios.get('location/datastatic', {
       params: {
         rowPerPage: paramDataStaticList.rowPerPage,
         goToPage: paramDataStaticList.goToPage,
@@ -141,7 +143,7 @@ const StaticDataList = () => {
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
-                  placeHolder={'Search...'}
+                  placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
                   style={{ height: '36.5px' }}
@@ -158,6 +160,7 @@ const StaticDataList = () => {
               data={staticData.data}
               totalPagination={staticData.totalPagination}
               setPageNumber={paramDataStaticList.goToPage}
+              setPageRow={paramDataStaticList.rowPerPage}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
@@ -167,8 +170,8 @@ const StaticDataList = () => {
       </MainCard>
       <ConfirmationC
         open={dialog}
-        title="Delete"
-        content="Are you sure you want to delete this data ?"
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
