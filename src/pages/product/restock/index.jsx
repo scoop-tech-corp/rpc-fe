@@ -19,6 +19,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ProductRestockDetail from './detail';
 
 let paramProductRestockList = {};
 
@@ -39,6 +40,7 @@ const ProductRestock = () => {
 
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
+  const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null });
 
   const columns = useMemo(
     () => [
@@ -63,10 +65,9 @@ const ProductRestock = () => {
         Header: <FormattedMessage id="id-number" />,
         accessor: 'numberId',
         Cell: (data) => {
-          // const getId = data.row.original.id;
-          // const onDetail = () => setOpenDetail({ isOpen: true, id: getId, categoryName: getCateName, expiredDay: getExpiredDay });
+          const getId = data.row.original.id;
 
-          return <Link>{data.value}</Link>;
+          return <Link onClick={() => setOpenDetail({ isOpen: true, id: +getId })}>{data.value}</Link>;
         }
       },
       {
@@ -319,6 +320,15 @@ const ProductRestock = () => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+      {openDetail.isOpen && (
+        <ProductRestockDetail
+          id={openDetail.id}
+          open={openDetail.isOpen}
+          onClose={() => {
+            setOpenDetail({ isOpen: false, id: null });
+          }}
+        />
+      )}
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { setFormDataImage } from 'service/service-global';
-import axios from 'utils/axios';
 import { formateDateYYYMMDD } from 'utils/func';
+import axios from 'utils/axios';
 
 const productRestockUrl = 'product/restock';
 
@@ -59,9 +59,11 @@ export const createProductRestockMultiple = async (property) => {
   fd.append('locationId', property.productLocation);
   fd.append('productList', JSON.stringify(property.productList));
 
-  // property.productList.forEach((dt) => {
-  //   fd.append(`productList[]`, JSON.stringify(dt));
-  // });
-
   return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const getProductRestockDetail = async (id) => {
+  return await axios.get(productRestockUrl + '/detail', {
+    params: { id }
+  });
 };

@@ -552,7 +552,6 @@ const FormRestockBody = () => {
               <PhotoC
                 photoValue={images}
                 photoOutput={(event) => {
-                  console.log('event', event);
                   useFormRestockStore.setState({ images: event, formRestockTouch: true });
                   onCheckValidation();
                 }}
