@@ -26,8 +26,8 @@ let paramProductRestockList = {};
 const ProductRestock = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  const dispatch = useDispatch();
   const intl = useIntl();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [productRestockData, setProductRestockData] = useState({ data: [], totalPagination: 0 });

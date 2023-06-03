@@ -30,7 +30,8 @@ export const exportProductRestock = async (property) => {
     params: {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      search: property.keyword
+      supplierId: property.supplierId,
+      locationId: property.locationId
     }
   });
 };
