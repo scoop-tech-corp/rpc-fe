@@ -80,7 +80,7 @@ const ProductRestock = () => {
       },
       {
         Header: <FormattedMessage id="product" />,
-        accessor: 'product'
+        accessor: 'products'
       },
       {
         Header: <FormattedMessage id="quantity" />,
@@ -112,16 +112,17 @@ const ProductRestock = () => {
         Header: <FormattedMessage id="action" />,
         accessor: 'action',
         isNotSorting: true,
-        Cell: () => {
-          // data
+        Cell: (data) => {
           // const getId = data.row.original.id;
-          // const getCateName = data.row.original.categoryName;
-          // const getExpiredDay = data.row.original.expiredDay;
+          const getStatus = +data.row.original.status;
+          const getNumberId = data.row.original.numberId;
+
+          const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
 
           const onEdit = () => {};
 
           return (
-            <IconButton size="large" color="warning" onClick={() => onEdit()}>
+            <IconButton size="large" color="warning" onClick={() => onEdit()} disabled={isDisabled()}>
               <EditOutlined />
             </IconButton>
           );

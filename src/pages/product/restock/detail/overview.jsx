@@ -52,7 +52,7 @@ const ProductRestockDetailOverview = (props) => {
       },
       {
         Header: <FormattedMessage id="order-quantity" />,
-        accessor: 'orderQty',
+        accessor: 'orderQuantity',
         isNotSorting: true
       },
       {
