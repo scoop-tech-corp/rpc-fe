@@ -36,6 +36,17 @@ export const exportProductRestock = async (property) => {
   });
 };
 
+export const exportProductRestockPdf = async (property) => {
+  return await axios.get(productRestockUrl + '/export/pdf', {
+    responseType: 'blob',
+    params: {
+      id: property.id,
+      isExportAll: property.isExportAll,
+      supplierId: property.supplierId
+    }
+  });
+};
+
 export const createProductRestock = async (property) => {
   const requireDate = property.requireDate ? formateDateYYYMMDD(new Date(property.requireDate)) : '';
 
@@ -66,5 +77,15 @@ export const createProductRestockMultiple = async (property) => {
 export const getProductRestockDetail = async (id) => {
   return await axios.get(productRestockUrl + '/detail', {
     params: { id }
+  });
+};
+
+export const getSupplierProductRestock = async (id) => {
+  const getResp = await axios.get(productRestockUrl + '/detail/supplier', {
+    params: { id }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.supplierName, value: +dt.id };
   });
 };
