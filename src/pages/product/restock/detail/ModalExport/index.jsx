@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Autocomplete, Checkbox, FormControlLabel, FormGroup, TextField } from '@mui/material';
+import { Autocomplete, FormControlLabel, InputLabel, Radio, RadioGroup, Stack, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { getSupplierProductRestock } from '../../service';
 
@@ -7,14 +7,12 @@ import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 
 const ModalExport = (props) => {
-  const [allSupplier, setAllSupplier] = useState(false);
-  const [onlySelectedSupplier, setOnlySelectedSupplier] = useState(false);
+  const [exportType, setExportType] = useState(''); // allSupplier || selectedSupplier
   const [selectedSupplier, setSelectedSupplier] = useState([]);
   const [supplierList, setSupplierList] = useState([]);
 
   const resetField = () => {
-    setAllSupplier(false);
-    setOnlySelectedSupplier(false);
+    setExportType('');
     setSelectedSupplier([]);
     setSupplierList([]);
   };
@@ -25,7 +23,7 @@ const ModalExport = (props) => {
   };
 
   const handleOnOke = () => {
-    props.onExport({ allSupplier, onlySelectedSupplier, selectedSupplier });
+    props.onExport({ exportType, selectedSupplier });
     resetField();
   };
 
@@ -34,13 +32,14 @@ const ModalExport = (props) => {
     setSupplierList(getResp);
   };
 
+  const isDisabled = () => {
+    return !exportType || (exportType === 'selectedSupplier' && !selectedSupplier.length);
+  };
+
   useEffect(() => {
-    if (onlySelectedSupplier) {
-      // hit supplier list
-      getSupplierList();
-    }
+    getSupplierList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onlySelectedSupplier]);
+  }, []);
 
   return (
     <ModalC
@@ -50,25 +49,37 @@ const ModalExport = (props) => {
       open={props.isOpen}
       onOk={handleOnOke}
       onCancel={handleOnCancel}
+      disabledOk={isDisabled()}
       sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 435 } }}
       maxWidth="xs"
     >
-      <FormGroup>
+      <RadioGroup
+        name="exportType"
+        value={exportType}
+        style={{ flexDirection: 'row', height: '20px', margin: '10px 0px' }}
+        onChange={(e) => {
+          setExportType(e.target.value);
+          setSelectedSupplier([]);
+        }}
+      >
         <FormControlLabel
-          control={<Checkbox checked={allSupplier} onChange={(e) => setAllSupplier(e.target.checked)} name="allSupplier" />}
+          value="allSupplier"
+          control={<Radio />}
           label={<FormattedMessage id="all-supplier" />}
+          style={{ height: '20px' }}
         />
         <FormControlLabel
-          control={
-            <Checkbox
-              checked={onlySelectedSupplier}
-              onChange={(e) => setOnlySelectedSupplier(e.target.checked)}
-              name="onlySelectedSupplier"
-            />
-          }
+          value="selectedSupplier"
+          control={<Radio />}
           label={<FormattedMessage id="only-selected-supplier" />}
+          style={{ height: '20px' }}
         />
-        {onlySelectedSupplier && (
+      </RadioGroup>
+      {exportType === 'selectedSupplier' && (
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="supplier" />
+          </InputLabel>
           <Autocomplete
             id="supplier"
             multiple
@@ -78,8 +89,8 @@ const ModalExport = (props) => {
             onChange={(_, value) => setSelectedSupplier(value)}
             renderInput={(params) => <TextField {...params} />}
           />
-        )}
-      </FormGroup>
+        </Stack>
+      )}
     </ModalC>
   );
 };

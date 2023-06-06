@@ -42,16 +42,16 @@ const ProductRestockDetailAction = (props) => {
 
   const onExport = async (event) => {
     const selectedSupplier = event.selectedSupplier.map((dt) => dt.value);
-    await exportProductRestockPdf({ id: props.id, isExportAll: event.allSupplier ? 1 : 0, supplierId: selectedSupplier })
+
+    await exportProductRestockPdf({ id: props.id, isExportAll: event.exportType === 'allSupplier' ? 1 : 0, supplierId: selectedSupplier })
       .then((resp) => {
         let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
         let downloadUrl = URL.createObjectURL(blob);
         let a = document.createElement('a');
         const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
-        console.log('fileName', fileName);
 
         a.href = downloadUrl;
-        // a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
+        a.download = fileName.replace('.zip', '').replaceAll('"', '');
         document.body.appendChild(a);
         a.click();
 
@@ -155,12 +155,14 @@ const ProductRestockDetailAction = (props) => {
           )}
         </Popper>
       </Box>
-      <ModalExport
-        isOpen={isModalExport.isOpen}
-        id={isModalExport.id}
-        onExport={(e) => onExport(e)}
-        onClose={(e) => setModalExport({ isOpen: !e, id: null })}
-      />
+      {isModalExport.isOpen && (
+        <ModalExport
+          isOpen={isModalExport.isOpen}
+          id={isModalExport.id}
+          onExport={(e) => onExport(e)}
+          onClose={(e) => setModalExport({ isOpen: !e, id: null })}
+        />
+      )}
     </>
   );
 };
