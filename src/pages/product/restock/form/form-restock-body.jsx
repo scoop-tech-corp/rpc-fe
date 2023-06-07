@@ -584,7 +584,7 @@ const FormRestockBody = () => {
 
             <Grid item xs={12} md={12}>
               <Stack spacing={1} flexDirection={'row'} justifyContent={'space-between'}>
-                <FormHelperText error> *{productRestockErr.productDetailsErr} </FormHelperText>
+                <FormHelperText error>{productRestockErr.productDetailsErr} </FormHelperText>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onAddProduct} disabled={isDisabledBtnProductList()}>
                   <FormattedMessage id="product" />
                 </Button>
