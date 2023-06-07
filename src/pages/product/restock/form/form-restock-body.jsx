@@ -35,7 +35,8 @@ const configCoreErr = {
   supplierIdErr: '',
   requireDateErr: '',
   restockQuantityErr: '',
-  costPerItemErr: ''
+  costPerItemErr: '',
+  productDetailsErr: ''
 };
 const FormRestockBody = () => {
   const productLocationList = useFormRestockStore((state) => state.locationList);
@@ -74,6 +75,8 @@ const FormRestockBody = () => {
     const getRestockQty = getAllState().reStockQuantity;
     const getCostPerItem = getAllState().costPerItem;
 
+    const getProductDetails = getAllState().productDetails;
+
     let getProductLocErr = '';
     let getProductTypeErr = '';
     let getProductIdErr = '';
@@ -81,6 +84,7 @@ const FormRestockBody = () => {
     let getRequireDateErr = '';
     let getRestockQtyErr = '';
     let getCostPerItemErr = '';
+    let getProductDetailErr = '';
 
     if (!getProductLoc) {
       getProductLocErr = intl.formatMessage({ id: 'product-location-is-required' });
@@ -112,6 +116,10 @@ const FormRestockBody = () => {
       getCostPerItemErr = intl.formatMessage({ id: 'cost-per-item-is-required' });
     }
 
+    if (!getProductDetails.length) {
+      getProductDetailErr = intl.formatMessage({ id: 'product-details-is-required' });
+    }
+
     if (
       getProductLocErr ||
       getProductTypeErr ||
@@ -119,7 +127,8 @@ const FormRestockBody = () => {
       getSupplierIdErr ||
       getRequireDateErr ||
       getRestockQtyErr ||
-      getCostPerItemErr
+      getCostPerItemErr ||
+      getProductDetailErr
     ) {
       setProductRestockErr({
         productLocationErr: getProductLocErr ?? '',
@@ -128,7 +137,8 @@ const FormRestockBody = () => {
         supplierIdErr: getSupplierIdErr ?? '',
         requireDateErr: getRequireDateErr ?? '',
         restockQuantityErr: getRestockQtyErr ?? '',
-        costPerItemErr: getCostPerItemErr ?? ''
+        costPerItemErr: getCostPerItemErr ?? '',
+        productDetailsErr: getProductDetailErr ?? ''
       });
       useFormRestockStore.setState({ formRestockError: true });
     } else {
@@ -254,6 +264,18 @@ const FormRestockBody = () => {
         productDetails: [...prevState.productDetails, tempProductDetail]
       };
     });
+
+    const getProductDetails = getAllState().productDetails;
+    let getProductDetailErr = '';
+
+    if (!getProductDetails.length) {
+      getProductDetailErr = intl.formatMessage({ id: 'product-details-is-required' });
+    }
+
+    setProductRestockErr((prevState) => {
+      return { ...prevState, productDetailsErr: getProductDetailErr ?? '' };
+    });
+    useFormRestockStore.setState({ formRestockError: getProductDetailErr ? true : false });
   };
 
   const columns = useMemo(
@@ -311,6 +333,7 @@ const FormRestockBody = () => {
 
               return { productDetails: newData };
             });
+            onCheckValidation();
           };
           return (
             <IconButton size="large" color="error" onClick={() => onDeleteProductList(data)}>
@@ -320,6 +343,7 @@ const FormRestockBody = () => {
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -559,7 +583,8 @@ const FormRestockBody = () => {
             </Grid>
 
             <Grid item xs={12} md={12}>
-              <Stack spacing={1} alignItems={'flex-end'}>
+              <Stack spacing={1} flexDirection={'row'} justifyContent={'space-between'}>
+                <FormHelperText error> *{productRestockErr.productDetailsErr} </FormHelperText>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onAddProduct} disabled={isDisabledBtnProductList()}>
                   <FormattedMessage id="product" />
                 </Button>
