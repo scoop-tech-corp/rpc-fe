@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import TabPanel from 'components/TabPanelC';
 import ProductRestockDetailAction from './action-detail';
 import ProductRestockDetailOverview from './overview';
+import ProductRestockDetailHistory from './history';
 
 const ProductRestockDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -22,7 +23,13 @@ const ProductRestockDetail = (props) => {
 
   const getDetail = async () => {
     const getResp = await getProductRestockDetail(props.id);
-    setDataDetail(getResp.data);
+    setDataDetail({ id: props.id, ...getResp.data });
+  };
+
+  const catchOutputOverview = (event) => {
+    if (event === 'trigerData') {
+      getDetail();
+    }
   };
 
   useEffect(() => {
@@ -68,9 +75,11 @@ const ProductRestockDetail = (props) => {
         {props.open && (
           <>
             <TabPanel value={tabSelected} index={0} name="product-restock-detail">
-              <ProductRestockDetailOverview data={dataDetail} />
+              <ProductRestockDetailOverview data={dataDetail} output={catchOutputOverview} />
             </TabPanel>
-            <TabPanel value={tabSelected} index={1} name="product-restock-detail"></TabPanel>
+            <TabPanel value={tabSelected} index={1} name="product-restock-detail">
+              <ProductRestockDetailHistory id={props.id} />
+            </TabPanel>
           </>
         )}
       </Box>

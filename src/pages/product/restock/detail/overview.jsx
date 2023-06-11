@@ -1,16 +1,20 @@
-import { Box, Grid, Typography, Accordion, AccordionDetails, AccordionSummary, Stack } from '@mui/material';
+import { Box, Grid, Typography, Accordion, AccordionDetails, AccordionSummary, Stack, Button } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { Fragment, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
+import { PlusOutlined } from '@ant-design/icons';
 
 import MainCard from 'components/MainCard';
 import PropTypes from 'prop-types';
 import ScrollX from 'components/ScrollX';
+import FormTracking from './ModalTracking';
 
 const ProductRestockDetailOverview = (props) => {
   const { data } = props;
   const [expanded, setExpanded] = useState(false);
+  const [openFormTracking, setOpenFormTracking] = useState(false);
+
   const theme = useTheme();
 
   const handleChangeAccordion = (panel) => (_, isExpanded) => {
@@ -110,7 +114,22 @@ const ProductRestockDetailOverview = (props) => {
     return (
       <MainCard title={<FormattedMessage id="tracking" />}>
         <ScrollX>
+          <div style={{ marginBottom: '10px' }}>
+            <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setOpenFormTracking(true)}>
+              <FormattedMessage id="new" />
+            </Button>
+          </div>
           <ReactTable columns={columnTableTracking} data={data?.tracking ?? []} />
+          {openFormTracking && (
+            <FormTracking
+              open={openFormTracking}
+              id={data.id}
+              output={(e) => {
+                setOpenFormTracking(false);
+                props.output(e);
+              }}
+            />
+          )}
         </ScrollX>
       </MainCard>
     );
@@ -178,7 +197,8 @@ const ProductRestockDetailOverview = (props) => {
 };
 
 ProductRestockDetailOverview.propTypes = {
-  data: PropTypes.object
+  data: PropTypes.object,
+  output: PropTypes.func
 };
 
 export default ProductRestockDetailOverview;

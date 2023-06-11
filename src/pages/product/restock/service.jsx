@@ -74,9 +74,29 @@ export const createProductRestockMultiple = async (property) => {
   return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const createProductRestockTracking = async (property) => {
+  const fd = new FormData();
+  fd.append('productRestockId', property.id);
+  fd.append('progress', property.progress);
+
+  return await axios.post(productRestockUrl + '/tracking', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 export const getProductRestockDetail = async (id) => {
   return await axios.get(productRestockUrl + '/detail', {
     params: { id }
+  });
+};
+
+export const getProductRestockDetailHistory = async (property) => {
+  return await axios.get(productRestockUrl + '/detail/history', {
+    params: {
+      id: property.id,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      goToPage: property.goToPage,
+      rowPerPage: property.rowPerPage
+    }
   });
 };
 
