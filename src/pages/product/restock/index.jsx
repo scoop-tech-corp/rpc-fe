@@ -113,22 +113,26 @@ const ProductRestock = () => {
         accessor: 'action',
         isNotSorting: true,
         Cell: (data) => {
-          // const getId = data.row.original.id;
+          const getId = data.row.original.id;
           const getStatus = +data.row.original.status;
           const getNumberId = data.row.original.numberId;
 
           const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
 
-          const onEdit = () => {};
-
           return (
-            <IconButton size="large" color="warning" onClick={() => onEdit()} disabled={isDisabled()}>
+            <IconButton
+              size="large"
+              color="warning"
+              onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
+              disabled={isDisabled()}
+            >
               <EditOutlined />
             </IconButton>
           );
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

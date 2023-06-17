@@ -4,16 +4,15 @@ import { FormattedMessage } from 'react-intl';
 import { useNavigate, useParams } from 'react-router';
 import { getAllState, useFormRestockStore } from './form-restock-store';
 import { createMessageBackend } from 'service/service-global';
-import { createProductRestockMultiple } from '../service';
+import { createProductRestockMultiple, updateProductRestock } from '../service';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 
-import PropTypes from 'prop-types';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 
-const FormRestockHeader = (props) => {
+const FormRestockHeader = () => {
   const formRestockError = useFormRestockStore((state) => state.formRestockError);
   const isTouchForm = useFormRestockStore((state) => state.formRestockTouch);
   const [isError, setIsError] = useState(false);
@@ -23,7 +22,7 @@ const FormRestockHeader = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const setTitlePage = () => (id ? props.productRestockName : <FormattedMessage id="add-product-restock" />);
+  const setTitlePage = () => (id ? <FormattedMessage id="edit-product-restock" /> : <FormattedMessage id="add-product-restock" />);
 
   const responseSuccess = async (resp) => {
     if (resp && resp.status === 200) {
@@ -44,33 +43,17 @@ const FormRestockHeader = (props) => {
   const onSubmit = async (statusValue) => {
     if (formRestockError) return;
 
+    const getFormValue = getAllState();
+    let parameter = {
+      status: statusValue,
+      locationId: getFormValue.productLocation.value,
+      productList: getFormValue.productDetails
+    };
     if (!id) {
-      const getFormValue = getAllState();
-      // const parameter = {
-      //   productId: getFormValue.productId,
-      //   productType: getFormValue.productType,
-      //   supplierId: getFormValue.supplierId.value,
-      //   requireDate: getFormValue.requireDate,
-      //   reStockQuantity: getFormValue.reStockQuantity,
-      //   costPerItem: getFormValue.costPerItem,
-      //   total: getFormValue.total,
-      //   remark: getFormValue.remark,
-      //   photos: getFormValue.images
-      // };
-
-      const newImages = [];
-      getFormValue.productDetails.forEach((dt) => {
-        newImages.push(...dt.images);
-      });
-
-      const parameter = {
-        status: statusValue,
-        productLocation: getFormValue.productLocation.value,
-        productList: getFormValue.productDetails,
-        images: newImages
-      };
-
       await createProductRestockMultiple(parameter).then(responseSuccess).catch(responseError);
+    } else {
+      parameter = { id, ...parameter };
+      await updateProductRestock(parameter).then(responseSuccess).catch(responseError);
     }
   };
 
@@ -103,10 +86,6 @@ const FormRestockHeader = (props) => {
       <ErrorContainer open={!isTouchForm && isError} content={errContent} />
     </>
   );
-};
-
-FormRestockHeader.propTypes = {
-  productRestockName: PropTypes.string
 };
 
 export default FormRestockHeader;

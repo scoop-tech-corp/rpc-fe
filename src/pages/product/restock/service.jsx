@@ -68,10 +68,14 @@ export const createProductRestock = async (property) => {
 export const createProductRestockMultiple = async (property) => {
   const fd = new FormData();
   fd.append('status', property.status);
-  fd.append('locationId', property.productLocation);
+  fd.append('locationId', property.locationId);
   fd.append('productList', JSON.stringify(property.productList));
 
   return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateProductRestock = async (parameter) => {
+  return await axios.put(productRestockUrl, parameter);
 };
 
 export const createProductRestockTracking = async (property) => {
@@ -82,9 +86,9 @@ export const createProductRestockTracking = async (property) => {
   return await axios.post(productRestockUrl + '/tracking', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const getProductRestockDetail = async (id) => {
+export const getProductRestockDetail = async (id, type = '') => {
   return await axios.get(productRestockUrl + '/detail', {
-    params: { id }
+    params: { id, type }
   });
 };
 
