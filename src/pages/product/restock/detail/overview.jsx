@@ -160,11 +160,11 @@ const ProductRestockDetailOverview = (props) => {
         >
           <Fragment>
             {data?.dataSupplier.map((dt, i) => (
-              <Accordion expanded={expanded === 'panel1'} onChange={handleChangeAccordion('panel1')} key={i}>
-                <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+              <Accordion expanded={expanded === `panel${i}`} onChange={handleChangeAccordion(`panel${i}`)} key={i}>
+                <AccordionSummary aria-controls="panel-content" id="panel-header">
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Typography variant="h6">
-                      {dt.supplierName} ({dt.quantity}) {dt.purchaseOrderNumber}
+                      {dt.supplierName} ({dt.quantity}) {dt.purchaseRequestNumber}
                     </Typography>
                   </Stack>
                 </AccordionSummary>

@@ -17,6 +17,7 @@ import { exportProductRestockPdf } from '../service';
 import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
+import { useNavigate } from 'react-router';
 
 import PropTypes from 'prop-types';
 import Transitions from 'components/@extended/Transitions';
@@ -27,6 +28,7 @@ const ProductRestockDetailAction = (props) => {
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
   const anchorRef = useRef(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [isModalExport, setModalExport] = useState({ isOpen: false, id: null });
@@ -122,11 +124,7 @@ const ProductRestockDetailAction = (props) => {
                         }
                       />
                     </ListItemButton>
-                    <ListItemButton
-                      onClick={() => {
-                        return;
-                      }}
-                    >
+                    <ListItemButton onClick={() => navigate(`/product/restock/form/${props.id}`, { replace: true })}>
                       <ListItemText
                         primary={
                           <Typography color="textPrimary">
