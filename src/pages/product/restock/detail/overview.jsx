@@ -116,7 +116,7 @@ const ProductRestockDetailOverview = (props) => {
         <ScrollX>
           <div style={{ marginBottom: '10px' }}>
             <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setOpenFormTracking(true)}>
-              <FormattedMessage id="new" />
+              <FormattedMessage id="add" />
             </Button>
           </div>
           <ReactTable columns={columnTableTracking} data={data?.tracking ?? []} />

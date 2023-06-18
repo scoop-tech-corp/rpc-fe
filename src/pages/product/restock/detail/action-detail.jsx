@@ -20,13 +20,18 @@ import { createMessageBackend } from 'service/service-global';
 import { useNavigate } from 'react-router';
 
 import PropTypes from 'prop-types';
+import useAuth from 'hooks/useAuth';
 import Transitions from 'components/@extended/Transitions';
 import ModalExport from './ModalExport';
 
 const ProductRestockDetailAction = (props) => {
+  const { data } = props;
+  const roleCanApprove = ['administrator'];
+
   const theme = useTheme();
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
   const anchorRef = useRef(null);
+  const { user } = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -45,7 +50,7 @@ const ProductRestockDetailAction = (props) => {
   const onExport = async (event) => {
     const selectedSupplier = event.selectedSupplier.map((dt) => dt.value);
 
-    await exportProductRestockPdf({ id: props.id, isExportAll: event.exportType === 'allSupplier' ? 1 : 0, supplierId: selectedSupplier })
+    await exportProductRestockPdf({ id: data.id, isExportAll: event.exportType === 'allSupplier' ? 1 : 0, supplierId: selectedSupplier })
       .then((resp) => {
         let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
         let downloadUrl = URL.createObjectURL(blob);
@@ -115,7 +120,7 @@ const ProductRestockDetailAction = (props) => {
                       }
                     }}
                   >
-                    <ListItemButton onClick={() => setModalExport({ isOpen: true, id: props.id })}>
+                    <ListItemButton onClick={() => setModalExport({ isOpen: true, id: data.id })}>
                       <ListItemText
                         primary={
                           <Typography color="textPrimary">
@@ -124,28 +129,32 @@ const ProductRestockDetailAction = (props) => {
                         }
                       />
                     </ListItemButton>
-                    <ListItemButton onClick={() => navigate(`/product/restock/form/${props.id}`, { replace: true })}>
-                      <ListItemText
-                        primary={
-                          <Typography color="textPrimary">
-                            <FormattedMessage id="edit" />
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
-                    <ListItemButton
-                      onClick={() => {
-                        return;
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          <Typography color="textPrimary">
-                            <FormattedMessage id="approve" />
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
+                    {data.numberId == 'draft' && (
+                      <ListItemButton onClick={() => navigate(`/product/restock/form/${data.id}`, { replace: true })}>
+                        <ListItemText
+                          primary={
+                            <Typography color="textPrimary">
+                              <FormattedMessage id="edit" />
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+                    )}
+                    {roleCanApprove.includes(user?.role) && (
+                      <ListItemButton
+                        onClick={() => {
+                          return;
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography color="textPrimary">
+                              <FormattedMessage id="approve" />
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+                    )}
                   </List>
                 </ClickAwayListener>
               </Paper>
@@ -166,7 +175,7 @@ const ProductRestockDetailAction = (props) => {
 };
 
 ProductRestockDetailAction.propTypes = {
-  id: PropTypes.number
+  data: PropTypes.object
 };
 
 export default ProductRestockDetailAction;

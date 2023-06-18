@@ -46,7 +46,7 @@ const ProductRestockDetail = (props) => {
       fullWidth
       maxWidth="lg"
       action={{
-        element: <ProductRestockDetailAction id={props.id} />,
+        element: <ProductRestockDetailAction data={dataDetail} />,
         justifyContent: 'flex-start',
         alignItems: 'center'
       }}
