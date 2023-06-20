@@ -49,6 +49,12 @@ const product = {
           url: '/product/category'
         },
         {
+          id: 'product-supplier',
+          title: <FormattedMessage id="supplier" />,
+          type: 'item',
+          url: '/product/supplier'
+        },
+        {
           id: 'product-policies',
           title: <FormattedMessage id="policies" />,
           type: 'item',
