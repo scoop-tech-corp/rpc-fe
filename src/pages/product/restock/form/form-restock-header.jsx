@@ -70,7 +70,7 @@ const FormRestockHeader = () => {
               onClick={() => onSubmit('final')}
               disabled={!isTouchForm || formRestockError}
             >
-              <FormattedMessage id="save" />
+              <FormattedMessage id="submit" />
             </Button>
             <Button
               variant="contained"

@@ -1,7 +1,7 @@
 import { FormattedMessage } from 'react-intl';
 import { FormControl, Grid, InputLabel, Stack, TextField, Select, MenuItem, FormHelperText } from '@mui/material';
 import { getAllState, useStaffFormStore } from '../../staff-form-store';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import MainCard from 'components/MainCard';
 
@@ -28,6 +28,7 @@ const BasicDetail = () => {
   const nickName = useStaffFormStore((state) => state.nickName);
   const gender = useStaffFormStore((state) => state.gender);
   const status = useStaffFormStore((state) => state.status);
+  const isTouchForm = useStaffFormStore((state) => state.staffFormTouch);
 
   const [basicDetailErr, setBasicDetailErr] = useState(configCoreErr);
 
@@ -86,6 +87,13 @@ const BasicDetail = () => {
     useStaffFormStore.setState({ [event.target.name]: event.target.value, staffFormTouch: true });
     onCheckValidation();
   };
+
+  useEffect(() => {
+    if (isTouchForm) {
+      onCheckValidation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTouchForm]);
 
   return (
     <>
