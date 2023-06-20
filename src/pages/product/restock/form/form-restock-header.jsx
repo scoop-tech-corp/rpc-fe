@@ -57,6 +57,15 @@ const FormRestockHeader = () => {
     }
   };
 
+  const onDisabledSubmit = () => {
+    if (id) {
+      if (!isTouchForm) return false;
+      return !isTouchForm || formRestockError;
+    } else {
+      return !isTouchForm || formRestockError;
+    }
+  };
+
   return (
     <>
       <HeaderPageCustom
@@ -64,12 +73,7 @@ const FormRestockHeader = () => {
         locationBackConfig={{ setLocationBack: true, customUrl: '/product/restock' }}
         action={
           <>
-            <Button
-              variant="contained"
-              startIcon={<PlusOutlined />}
-              onClick={() => onSubmit('final')}
-              disabled={!isTouchForm || formRestockError}
-            >
+            <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => onSubmit('final')} disabled={onDisabledSubmit()}>
               <FormattedMessage id="submit" />
             </Button>
             <Button
