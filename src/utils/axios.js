@@ -42,6 +42,21 @@ axiosServices.interceptors.response.use(
       return true;
     }
 
+    if (error.response.status === 500) {
+      const elementSnackbar = document.getElementById('snackbar-500');
+      const title = document.getElementById('snackbar-500__title');
+      const desc = document.getElementById('snackbar-500__desc');
+
+      elementSnackbar.className = 'show';
+      title.innerText = error.message;
+      desc.innerText = error.response?.data.message;
+      setTimeout(() => {
+        elementSnackbar.className = elementSnackbar.className.replace('show', '');
+        title.innerText = '';
+        desc.innerText = '';
+      }, 3000);
+    }
+
     return Promise.reject((error.response && error.response.data) || 'Wrong Services');
   }
 );
