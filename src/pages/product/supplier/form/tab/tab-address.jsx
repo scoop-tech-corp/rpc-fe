@@ -44,7 +44,6 @@ const TabAddress = () => {
 
       return dt;
     });
-
     address = newAddress;
   }
 
@@ -52,6 +51,9 @@ const TabAddress = () => {
     let newData = [...data];
     newData = newData.map((dt) => {
       return {
+        id: dt.id,
+        productSupplierId: dt.productSupplierId,
+        status: dt.status,
         isPrimary: dt.isPrimary,
         streetAddress: dt.streetAddress,
         additionalInfo: dt.additionalInfo,
@@ -82,7 +84,8 @@ const TabAddress = () => {
 
   const onDeleteAddress = (i) => {
     let getAddress = [...address];
-    getAddress.splice(i, 1);
+    getAddress[i].status = 'del';
+    // getAddress.splice(i, 1);
 
     onSetLocationDetail(getAddress);
   };
@@ -136,137 +139,141 @@ const TabAddress = () => {
         </Grid>
       </Grid>
 
-      {address.map((dt, i) => (
-        <Grid item xs={12} sm={12} key={i}>
-          <MainCard
-            title={`Address ${i + 1}`}
-            content={false}
-            secondary={
-              <Stack direction="row" alignItems="center" spacing={1.25}>
-                <IconButton color={dt.isPrimary ? 'primary' : 'secondary'} size="small" onClick={() => onSetPrimary(i)}>
-                  <CheckCircleOutlined style={{ fontSize: '1.15rem' }} />
-                </IconButton>
-              </Stack>
-            }
-          >
-            <CardContent>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="street-address" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="streetAddress"
-                      name="streetAddress"
-                      placeholder={intl.formatMessage({ id: 'street-address' })}
-                      value={dt.streetAddress}
-                      onChange={(event) => onTextField(event, i, 'streetAddress')}
-                    />
+      {address.map((dt, i) => {
+        if (dt.status === '') {
+          return (
+            <Grid item xs={12} sm={12} key={i}>
+              <MainCard
+                title={`Address ${i + 1}`}
+                content={false}
+                secondary={
+                  <Stack direction="row" alignItems="center" spacing={1.25}>
+                    <IconButton color={dt.isPrimary ? 'primary' : 'secondary'} size="small" onClick={() => onSetPrimary(i)}>
+                      <CheckCircleOutlined style={{ fontSize: '1.15rem' }} />
+                    </IconButton>
                   </Stack>
-                </Grid>
+                }
+              >
+                <CardContent>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="street-address" />
+                        </InputLabel>
+                        <TextField
+                          fullWidth
+                          id="streetAddress"
+                          name="streetAddress"
+                          placeholder={intl.formatMessage({ id: 'street-address' })}
+                          value={dt.streetAddress}
+                          onChange={(event) => onTextField(event, i, 'streetAddress')}
+                        />
+                      </Stack>
+                    </Grid>
 
-                <Grid item xs={12}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="additional-info" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="additionalInfo"
-                      name="additionalInfo"
-                      placeholder={intl.formatMessage({ id: 'additional-info' })}
-                      value={dt.additionalInfo}
-                      onChange={(event) => onTextField(event, i, 'additionalInfo')}
-                    />
-                  </Stack>
-                </Grid>
+                    <Grid item xs={12}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="additional-info" />
+                        </InputLabel>
+                        <TextField
+                          fullWidth
+                          id="additionalInfo"
+                          name="additionalInfo"
+                          placeholder={intl.formatMessage({ id: 'additional-info' })}
+                          value={dt.additionalInfo}
+                          onChange={(event) => onTextField(event, i, 'additionalInfo')}
+                        />
+                      </Stack>
+                    </Grid>
 
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="country" />
-                    </InputLabel>
-                    <Autocomplete
-                      id={`country-${i}`}
-                      disablePortal
-                      options={countryList}
-                      value={dt.country}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, value) => onActionRegion(value, 'country', i)}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </Stack>
-                </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="country" />
+                        </InputLabel>
+                        <Autocomplete
+                          id={`country-${i}`}
+                          disablePortal
+                          options={countryList}
+                          value={dt.country}
+                          isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                          onChange={(_, value) => onActionRegion(value, 'country', i)}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </Stack>
+                    </Grid>
 
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="province" />
-                    </InputLabel>
-                    <Autocomplete
-                      id={`province-${i}`}
-                      options={provinceList}
-                      value={dt.province}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, value) => onActionRegion(value, 'province', i)}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </Stack>
-                </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="province" />
+                        </InputLabel>
+                        <Autocomplete
+                          id={`province-${i}`}
+                          options={provinceList}
+                          value={dt.province}
+                          isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                          onChange={(_, value) => onActionRegion(value, 'province', i)}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </Stack>
+                    </Grid>
 
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="city" />
-                    </InputLabel>
-                    <Autocomplete
-                      id={`city-${i}`}
-                      options={dt.cityList}
-                      value={dt.city}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, value) => onActionRegion(value, 'city', i)}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </Stack>
-                </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="city" />
+                        </InputLabel>
+                        <Autocomplete
+                          id={`city-${i}`}
+                          options={dt.cityList}
+                          value={dt.city}
+                          isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                          onChange={(_, value) => onActionRegion(value, 'city', i)}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </Stack>
+                    </Grid>
 
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="postal-code" />
-                    </InputLabel>
-                    <TextField
-                      type="number"
-                      fullWidth
-                      id="postalCode"
-                      name="postalCode"
-                      value={dt.postalCode}
-                      onChange={(event) => onTextField(event, i, 'postalCode')}
-                    />
-                  </Stack>
-                </Grid>
-              </Grid>
-            </CardContent>
+                    <Grid item xs={12} sm={3}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="postal-code" />
+                        </InputLabel>
+                        <TextField
+                          type="number"
+                          fullWidth
+                          id="postalCode"
+                          name="postalCode"
+                          value={dt.postalCode}
+                          onChange={(event) => onTextField(event, i, 'postalCode')}
+                        />
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                </CardContent>
 
-            {address.length > 1 && !dt.isPrimary && (
-              <>
-                <Divider />
-                <CardActions>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: 1 }}>
-                    <Tooltip title={`Address ${i + 1}`} placement="top">
-                      <IconButton size="large" color="error" onClick={() => onDeleteAddress(i)}>
-                        <DeleteFilled />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                </CardActions>
-              </>
-            )}
-          </MainCard>
-        </Grid>
-      ))}
+                {address.length > 1 && !dt.isPrimary && (
+                  <>
+                    <Divider />
+                    <CardActions>
+                      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: 1 }}>
+                        <Tooltip title={`Address ${i + 1}`} placement="top">
+                          <IconButton size="large" color="error" onClick={() => onDeleteAddress(i)}>
+                            <DeleteFilled />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </CardActions>
+                  </>
+                )}
+              </MainCard>
+            </Grid>
+          );
+        }
+      })}
     </Grid>
   );
 };

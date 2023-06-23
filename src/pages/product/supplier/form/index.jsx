@@ -6,7 +6,7 @@ import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { jsonCentralized } from 'utils/func';
 import { useParams } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import { getProductSupplierMessenger, getProductSupplierPhone, getProductSupplierUsage } from '../service';
+import { getProductSupplierDetail, getProductSupplierMessenger, getProductSupplierPhone, getProductSupplierUsage } from '../service';
 
 import ProductSupplierFormHeader from './product-supplier-form-header';
 import MainCard from 'components/MainCard';
@@ -42,7 +42,18 @@ const ProductSupplierForm = () => {
   };
 
   const getDetail = async () => {
-    setProductSupplierName();
+    const getResp = await getProductSupplierDetail(id);
+    const getData = getResp.data;
+
+    setProductSupplierName(getData.supplierName);
+    useProductSupplierFormStore.setState({
+      supplierName: getData.supplierName,
+      pic: getData.pic,
+      detailAddress: getData.addresses,
+      telephone: getData.phones,
+      email: getData.emails,
+      messenger: getData.messengers
+    });
   };
 
   const getData = async () => {

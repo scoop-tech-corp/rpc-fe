@@ -60,9 +60,9 @@ const ProductSupplier = () => {
         Header: <FormattedMessage id="supplier" />,
         accessor: 'supplierName',
         Cell: (data) => {
-          // const getId = data.row.original.id;
+          const getId = +data.row.original.id;
 
-          return <Link>{data.value}</Link>;
+          return <Link onClick={() => navigate(`/product/supplier/form/${getId}`, { replace: true })}>{data.value}</Link>;
         }
       },
       {
@@ -71,24 +71,25 @@ const ProductSupplier = () => {
       },
       {
         Header: <FormattedMessage id="address" />,
-        accessor: 'address'
+        accessor: 'streetAddress'
       },
       {
         Header: <FormattedMessage id="phone-number" />,
         accessor: 'phoneNumber',
         Cell: (data) => {
-          const isWhatsapp = +data.row.original.isWhatsapp;
+          const isWhatsapp = +data.row.original.isWhatsAppActive;
           const onClickWhatsapp = () => window.open(`https://api.whatsapp.com/send?phone=${data.value}&text=%20`, '_blank'); //
 
           return (
             <>
-              <span>{data.value}</span>&nbsp;&nbsp;
+              <span>{data.value ?? '-'}</span>&nbsp;&nbsp;
               {isWhatsapp === 1 && <img src={iconWhatsapp} onClick={() => onClickWhatsapp()} width="15" height="15" alt="icon-whatsapp" />}
             </>
           );
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

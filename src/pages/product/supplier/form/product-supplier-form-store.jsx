@@ -9,7 +9,10 @@ export const defaultDetailAddress = {
   province: '',
   city: '',
   cityList: [],
-  postalCode: ''
+  postalCode: '',
+  id: '',
+  productSupplierId: '',
+  status: ''
 };
 
 export const defaultImage = { id: '', selectedFile: null, isChange: false };

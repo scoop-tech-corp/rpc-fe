@@ -1,4 +1,5 @@
 import { jsonCentralized } from 'utils/func';
+import { getCityList } from 'pages/location/location-list/detail/service';
 import axios from 'utils/axios';
 
 const productSupplierUrl = 'product/supplier';
@@ -34,12 +35,13 @@ export const exportProductSupplier = async (property) => {
   });
 };
 
-export const createProductSupplier = async (property) => {
-  const param = new FormData();
-
+const mappingPropertyDetail = (property) => {
   let detailAddress = jsonCentralized(property.detailAddress);
   detailAddress = detailAddress.map((da) => {
     return {
+      id: +da.id ?? '',
+      productSupplierId: +da.productSupplierId ?? '',
+      status: da.status ?? '',
       streetAddress: da.streetAddress,
       additionalInfo: da.additionalInfo,
       country: da.country,
@@ -53,8 +55,11 @@ export const createProductSupplier = async (property) => {
   let detailTelephone = jsonCentralized(property.telephone);
   detailTelephone = detailTelephone.map((dt) => {
     return {
+      id: +dt.id ?? '',
+      productSupplierId: +dt.productSupplierId ?? '',
+      status: dt.status ?? '',
       usageId: +dt.usage,
-      number: +dt.phoneNumber,
+      number: dt.phoneNumber.toString(),
       typePhoneId: +dt.type
     };
   });
@@ -62,6 +67,9 @@ export const createProductSupplier = async (property) => {
   let detailEmails = jsonCentralized(property.email);
   detailEmails = detailEmails.map((de) => {
     return {
+      id: +de.id ?? '',
+      productSupplierId: +de.productSupplierId ?? '',
+      status: de.status ?? '',
       usageId: +de.usage,
       address: de.email
     };
@@ -70,11 +78,22 @@ export const createProductSupplier = async (property) => {
   let detailMessengers = jsonCentralized(property.messenger);
   detailMessengers = detailMessengers.map((dm) => {
     return {
+      id: +dm.id ?? '',
+      productSupplierId: +dm.productSupplierId ?? '',
+      status: dm.status ?? '',
       usageId: +dm.usage,
       usageName: dm.messengerNumber,
       typeId: +dm.type
     };
   });
+
+  return { detailAddress, detailTelephone, detailEmails, detailMessengers };
+};
+
+export const createProductSupplier = async (property) => {
+  const param = new FormData();
+
+  const { detailAddress, detailTelephone, detailEmails, detailMessengers } = mappingPropertyDetail(property);
 
   param.append('supplierName', property.supplierName);
   param.append('pic', property.pic);
@@ -86,7 +105,69 @@ export const createProductSupplier = async (property) => {
   return await axios.post(productSupplierUrl, param, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const updateProductSupplier = async () => {};
+export const updateProductSupplier = async (property) => {
+  const { detailAddress, detailTelephone, detailEmails, detailMessengers } = mappingPropertyDetail(property);
+
+  return await axios.put(productSupplierUrl, {
+    id: property.id,
+    supplierName: property.supplierName,
+    pic: property.pic,
+    addresses: detailAddress,
+    phones: detailTelephone,
+    emails: detailEmails,
+    messengers: detailMessengers
+  });
+};
+
+export const getProductSupplierDetail = async (id) => {
+  const getResp = await axios.get(productSupplierUrl + '/detail', {
+    params: { id }
+  });
+
+  const data = getResp.data;
+  const detailAddress = [];
+  for (const dt of data.addresses) {
+    const setCityList = dt.province ? await getCityList(dt.province) : [];
+    detailAddress.push({
+      ...dt,
+      isPrimary: +dt.isPrimary ? true : false,
+      cityList: setCityList,
+      status: ''
+    });
+  }
+  data.addresses = detailAddress;
+  data.phones = data.phones.map((dt) => {
+    return {
+      id: +dt.id,
+      productSupplierId: +dt.productSupplierId,
+      usage: +dt.usageId,
+      phoneNumber: +dt.number,
+      type: +dt.typePhoneId,
+      status: ''
+    };
+  });
+  data.emails = data.emails.map((dt) => {
+    return {
+      id: +dt.id,
+      productSupplierId: +dt.productSupplierId,
+      usage: +dt.usageId,
+      email: dt.address,
+      status: ''
+    };
+  });
+  data.messengers = data.messengers.map((dt) => {
+    return {
+      id: +dt.id,
+      productSupplierId: +dt.productSupplierId,
+      usage: +dt.usageId,
+      messengerNumber: dt.usageName,
+      type: +dt.typeId,
+      status: ''
+    };
+  });
+
+  return { ...getResp, data };
+};
 
 export const getProductSupplierUsage = async () => {
   const getResp = await axios.get(productSupplierUrl + '/usage');

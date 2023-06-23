@@ -27,7 +27,14 @@ const TabContacts = () => {
   if (locationTelephone.length) {
     const getDetailTelephone = jsonCentralized(locationTelephone);
     const newTelephone = getDetailTelephone.map((tp) => {
-      return { phoneUsage: tp.usage || '', phoneNumber: tp.phoneNumber, phoneType: tp.type || '' };
+      return {
+        phoneUsage: tp.usage || '',
+        phoneNumber: tp.phoneNumber,
+        phoneType: tp.type || '',
+        id: +tp.id,
+        productSupplierId: +tp.productSupplierId,
+        status: tp.status
+      };
     });
     phone = newTelephone;
   }
@@ -35,7 +42,13 @@ const TabContacts = () => {
   if (locationEmail.length) {
     const getDetailEmail = jsonCentralized(locationEmail);
     const newEmail = getDetailEmail.map((em) => {
-      return { emailUsage: em.usage || '', emailAddress: em.email };
+      return {
+        emailUsage: em.usage || '',
+        emailAddress: em.email,
+        id: +em.id,
+        productSupplierId: +em.productSupplierId,
+        status: em.status
+      };
     });
     email = newEmail;
   }
@@ -43,7 +56,14 @@ const TabContacts = () => {
   if (locationMessenger.length) {
     const getDetailMessenger = jsonCentralized(locationMessenger);
     const newMessenger = getDetailMessenger.map((ms) => {
-      return { messengerUsage: ms.usage || '', messengerUsageName: ms.messengerNumber, messengerType: ms.type || '' };
+      return {
+        messengerUsage: ms.usage || '',
+        messengerUsageName: ms.messengerNumber,
+        messengerType: ms.type || '',
+        id: +ms.id,
+        productSupplierId: +ms.productSupplierId,
+        status: ms.status
+      };
     });
     messenger = newMessenger;
   }
@@ -53,11 +73,21 @@ const TabContacts = () => {
     newData = newData.map((dt) => {
       let setObj = {};
       if (procedure === 'telephone') {
-        setObj = { phoneNumber: dt.phoneNumber, type: dt.phoneType, usage: dt.phoneUsage };
+        setObj = {
+          phoneNumber: dt.phoneNumber,
+          type: dt.phoneType,
+          usage: dt.phoneUsage,
+          id: dt.id,
+          productSupplierId: dt.productSupplierId,
+          status: dt.status
+        };
       } else if (procedure === 'email') {
-        setObj = { email: dt.emailAddress, usage: dt.emailUsage };
+        setObj = { email: dt.emailAddress, usage: dt.emailUsage, id: dt.id, productSupplierId: dt.productSupplierId, status: dt.status };
       } else if (procedure === 'messenger') {
         setObj = {
+          id: dt.id,
+          productSupplierId: dt.productSupplierId,
+          status: dt.status,
           messengerNumber: dt.messengerUsageName,
           type: dt.messengerType,
           usage: dt.messengerUsage
@@ -133,13 +163,14 @@ const TabContacts = () => {
 
   // Start Phone
   const onAddPhone = () => {
-    const setNewData = [...phone, { phoneUsage: '', phoneNumber: '', phoneType: '' }];
+    const setNewData = [...phone, { id: '', productSupplierId: '', status: '', phoneUsage: '', phoneNumber: '', phoneType: '' }];
     onSetContactDetail(setNewData, 'telephone');
   };
 
   const onDeletePhone = (i) => {
     let getPhone = [...phone];
-    getPhone.splice(i, 1);
+    getPhone[i].status = 'del';
+    // getPhone.splice(i, 1);
 
     onSetContactDetail(getPhone, 'telephone');
   };
@@ -147,13 +178,14 @@ const TabContacts = () => {
 
   // Start Email
   const onAddEmail = () => {
-    const setNewData = [...email, { emailUsage: '', emailAddress: '' }];
+    const setNewData = [...email, { id: '', productSupplierId: '', status: '', emailUsage: '', emailAddress: '' }];
     onSetContactDetail(setNewData, 'email');
   };
 
   const onDeleteEmail = (i) => {
     let getEmails = [...email];
-    getEmails.splice(i, 1);
+    getEmails[i].status = 'del';
+    // getEmails.splice(i, 1);
 
     onSetContactDetail(getEmails, 'email');
   };
@@ -161,13 +193,17 @@ const TabContacts = () => {
 
   // Start Messenger
   const onAddMessenger = () => {
-    const setNewData = [...messenger, { messengerUsage: '', messengerUsageName: '', messengerType: '' }];
+    const setNewData = [
+      ...messenger,
+      { id: '', productSupplierId: '', status: '', messengerUsage: '', messengerUsageName: '', messengerType: '' }
+    ];
     onSetContactDetail(setNewData, 'messenger');
   };
 
   const onDeleteMessenger = (i) => {
     let getMessengers = [...messenger];
-    getMessengers.splice(i, 1);
+    getMessengers[i].status = 'del';
+    // getMessengers.splice(i, 1);
 
     onSetContactDetail(getMessengers, 'messenger');
   };
@@ -252,81 +288,85 @@ const TabContacts = () => {
     <Grid container spacing={4}>
       <Grid item xs={12} sm={6}>
         <MainCard title={<FormattedMessage id="phone" />} secondary={renderExtendedMenu('telephone')}>
-          {phone.map((dt, i) => (
-            <Grid container spacing={1} key={i}>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel htmlFor="status">
-                    <FormattedMessage id="usage" />
-                  </InputLabel>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id={`phoneUsage${i}`}
-                      name={`phoneUsage${i}`}
-                      value={dt.phoneUsage}
-                      onChange={(event) => onUsageHandler(event, i, 'telephone')}
-                    >
-                      <MenuItem value="">
-                        <em>Select usage</em>
-                      </MenuItem>
-                      {usageList.map((dt, idxPhoneUsage) => (
-                        <MenuItem value={dt.value} key={idxPhoneUsage}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel>Nomor</InputLabel>
-                  <TextField
-                    fullWidth
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    type="number"
-                    placeholder={intl.formatMessage({ id: 'enter-nomor' })}
-                    value={dt.phoneNumber}
-                    onChange={(event) => onFieldHandler(event, i, 'telephone')}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel htmlFor="type">
-                    <FormattedMessage id="type" />
-                  </InputLabel>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id={`phoneType${i}`}
-                      name={`phoneType${i}`}
-                      defaultValue=""
-                      value={dt.phoneType}
-                      onChange={(event) => onTypeHandler(event, i, 'telephone')}
-                    >
-                      <MenuItem value="">
-                        <em>Select type</em>
-                      </MenuItem>
-                      {phoneTypeList.map((dt, idxPhoneType) => (
-                        <MenuItem value={dt.value} key={idxPhoneType}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
+          {phone.map((dt, i) => {
+            if (dt.status === '') {
+              return (
+                <Grid container spacing={1} key={i}>
+                  <Grid item xs={12} sm={4}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel htmlFor="status">
+                        <FormattedMessage id="usage" />
+                      </InputLabel>
+                      <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          id={`phoneUsage${i}`}
+                          name={`phoneUsage${i}`}
+                          value={dt.phoneUsage}
+                          onChange={(event) => onUsageHandler(event, i, 'telephone')}
+                        >
+                          <MenuItem value="">
+                            <em>Select usage</em>
+                          </MenuItem>
+                          {usageList.map((dt, idxPhoneUsage) => (
+                            <MenuItem value={dt.value} key={idxPhoneUsage}>
+                              {dt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel>Nomor</InputLabel>
+                      <TextField
+                        fullWidth
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        type="number"
+                        placeholder={intl.formatMessage({ id: 'enter-nomor' })}
+                        value={dt.phoneNumber}
+                        onChange={(event) => onFieldHandler(event, i, 'telephone')}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel htmlFor="type">
+                        <FormattedMessage id="type" />
+                      </InputLabel>
+                      <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          id={`phoneType${i}`}
+                          name={`phoneType${i}`}
+                          defaultValue=""
+                          value={dt.phoneType}
+                          onChange={(event) => onTypeHandler(event, i, 'telephone')}
+                        >
+                          <MenuItem value="">
+                            <em>Select type</em>
+                          </MenuItem>
+                          {phoneTypeList.map((dt, idxPhoneType) => (
+                            <MenuItem value={dt.value} key={idxPhoneType}>
+                              {dt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  </Grid>
 
-              {phone.length > 1 && (
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeletePhone(i)}>
-                    <DeleteFilled />
-                  </IconButton>
+                  {phone.length > 1 && (
+                    <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                      <IconButton size="large" color="error" onClick={() => onDeletePhone(i)}>
+                        <DeleteFilled />
+                      </IconButton>
+                    </Grid>
+                  )}
                 </Grid>
-              )}
-            </Grid>
-          ))}
+              );
+            }
+          })}
 
           <Button variant="contained" onClick={onAddPhone} startIcon={<PlusOutlined />} style={{ marginTop: '20px' }}>
             Add
@@ -336,56 +376,60 @@ const TabContacts = () => {
 
       <Grid item xs={12} sm={6}>
         <MainCard title="Email">
-          {email.map((dt, i) => (
-            <Grid container spacing={2} key={i}>
-              <Grid item xs={12} sm={6}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel htmlFor="usage">
-                    <FormattedMessage id="usage" />
-                  </InputLabel>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id={`emailUsage${i}`}
-                      name={`emailUsage${i}`}
-                      value={dt.emailUsage}
-                      onChange={(event) => onUsageHandler(event, i, 'email')}
-                    >
-                      <MenuItem value="">
-                        <em>Select usage</em>
-                      </MenuItem>
-                      {usageList.map((dt, idxEmailUsage) => (
-                        <MenuItem value={dt.value} key={idxEmailUsage}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={5}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel>
-                    <FormattedMessage id="address" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="emailAddress"
-                    name="emailAddress"
-                    value={dt.emailAddress}
-                    onChange={(event) => onFieldHandler(event, i, 'email')}
-                  />
-                </Stack>
-              </Grid>
+          {email.map((dt, i) => {
+            if (dt.status === '') {
+              return (
+                <Grid container spacing={2} key={i}>
+                  <Grid item xs={12} sm={6}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel htmlFor="usage">
+                        <FormattedMessage id="usage" />
+                      </InputLabel>
+                      <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          id={`emailUsage${i}`}
+                          name={`emailUsage${i}`}
+                          value={dt.emailUsage}
+                          onChange={(event) => onUsageHandler(event, i, 'email')}
+                        >
+                          <MenuItem value="">
+                            <em>Select usage</em>
+                          </MenuItem>
+                          {usageList.map((dt, idxEmailUsage) => (
+                            <MenuItem value={dt.value} key={idxEmailUsage}>
+                              {dt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={5}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel>
+                        <FormattedMessage id="address" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        id="emailAddress"
+                        name="emailAddress"
+                        value={dt.emailAddress}
+                        onChange={(event) => onFieldHandler(event, i, 'email')}
+                      />
+                    </Stack>
+                  </Grid>
 
-              {email.length > 1 && (
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeleteEmail(i)}>
-                    <DeleteFilled />
-                  </IconButton>
+                  {email.length > 1 && (
+                    <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                      <IconButton size="large" color="error" onClick={() => onDeleteEmail(i)}>
+                        <DeleteFilled />
+                      </IconButton>
+                    </Grid>
+                  )}
                 </Grid>
-              )}
-            </Grid>
-          ))}
+              );
+            }
+          })}
 
           <Button variant="contained" onClick={onAddEmail} startIcon={<PlusOutlined />} style={{ marginTop: '20px' }}>
             Add
@@ -395,78 +439,82 @@ const TabContacts = () => {
 
       <Grid item xs={12}>
         <MainCard title="Messenger" secondary={renderExtendedMenu('messenger')}>
-          {messenger.map((dt, i) => (
-            <Grid container spacing={2} key={i}>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel>
-                    <FormattedMessage id="usage" />
-                  </InputLabel>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id={`messengerUsage${i}`}
-                      name={`messengerUsage${i}`}
-                      value={dt.messengerUsage}
-                      onChange={(event) => onUsageHandler(event, i, 'messenger')}
-                    >
-                      <MenuItem value="">
-                        <em>Select usage</em>
-                      </MenuItem>
-                      {usageList.map((dt, idxMessengerUsage) => (
-                        <MenuItem value={dt.value} key={idxMessengerUsage}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel>
-                    <FormattedMessage id="usage-name" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id={`messengerUsageName${i}`}
-                    name={`messengerUsageName${i}`}
-                    value={dt.messengerUsageName}
-                    onChange={(event) => onFieldHandler(event, i, 'messenger')}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={1} style={{ marginTop: '10px' }}>
-                  <InputLabel>Type</InputLabel>
-                  <FormControl sx={{ m: 1, minWidth: 120 }}>
-                    <Select
-                      id={`messengerType${i}`}
-                      name={`messengerType${i}`}
-                      value={dt.messengerType}
-                      onChange={(event) => onTypeHandler(event, i, 'messenger')}
-                    >
-                      <MenuItem value="">
-                        <em>Select type</em>
-                      </MenuItem>
-                      {messengerTypeList.map((dt, idxMessengerType) => (
-                        <MenuItem value={dt.value} key={idxMessengerType}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
+          {messenger.map((dt, i) => {
+            if (dt.status === '') {
+              return (
+                <Grid container spacing={2} key={i}>
+                  <Grid item xs={12} sm={4}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel>
+                        <FormattedMessage id="usage" />
+                      </InputLabel>
+                      <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          id={`messengerUsage${i}`}
+                          name={`messengerUsage${i}`}
+                          value={dt.messengerUsage}
+                          onChange={(event) => onUsageHandler(event, i, 'messenger')}
+                        >
+                          <MenuItem value="">
+                            <em>Select usage</em>
+                          </MenuItem>
+                          {usageList.map((dt, idxMessengerUsage) => (
+                            <MenuItem value={dt.value} key={idxMessengerUsage}>
+                              {dt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel>
+                        <FormattedMessage id="usage-name" />
+                      </InputLabel>
+                      <TextField
+                        fullWidth
+                        id={`messengerUsageName${i}`}
+                        name={`messengerUsageName${i}`}
+                        value={dt.messengerUsageName}
+                        onChange={(event) => onFieldHandler(event, i, 'messenger')}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Stack spacing={1} style={{ marginTop: '10px' }}>
+                      <InputLabel>Type</InputLabel>
+                      <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          id={`messengerType${i}`}
+                          name={`messengerType${i}`}
+                          value={dt.messengerType}
+                          onChange={(event) => onTypeHandler(event, i, 'messenger')}
+                        >
+                          <MenuItem value="">
+                            <em>Select type</em>
+                          </MenuItem>
+                          {messengerTypeList.map((dt, idxMessengerType) => (
+                            <MenuItem value={dt.value} key={idxMessengerType}>
+                              {dt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  </Grid>
 
-              {messenger.length > 1 && (
-                <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
-                  <IconButton size="large" color="error" onClick={() => onDeleteMessenger(i)}>
-                    <DeleteFilled />
-                  </IconButton>
+                  {messenger.length > 1 && (
+                    <Grid item xs={12} sm={1} display="flex" alignItems="flex-end">
+                      <IconButton size="large" color="error" onClick={() => onDeleteMessenger(i)}>
+                        <DeleteFilled />
+                      </IconButton>
+                    </Grid>
+                  )}
                 </Grid>
-              )}
-            </Grid>
-          ))}
+              );
+            }
+          })}
 
           <Button variant="contained" onClick={onAddMessenger} startIcon={<PlusOutlined />} style={{ marginTop: '20px' }}>
             Add
