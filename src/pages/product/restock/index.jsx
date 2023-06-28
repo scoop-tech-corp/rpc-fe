@@ -20,6 +20,7 @@ import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ProductRestockDetail from './detail';
+import useAuth from 'hooks/useAuth';
 
 let paramProductRestockList = {};
 
@@ -29,6 +30,7 @@ const ProductRestock = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [productRestockData, setProductRestockData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -41,97 +43,104 @@ const ProductRestock = () => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null });
+  const allColumn = [
+    {
+      Header: <FormattedMessage id="id-number" />,
+      accessor: 'numberId',
+      Cell: (data) => {
+        const getId = data.row.original.id;
 
-  const columns = useMemo(
-    () => [
-      {
-        title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
-
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
-        accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true,
-        style: {
-          width: '10px'
-        }
-      },
-      {
-        Header: <FormattedMessage id="id-number" />,
-        accessor: 'numberId',
-        Cell: (data) => {
-          const getId = data.row.original.id;
-
-          return <Link onClick={() => setOpenDetail({ isOpen: true, id: +getId })}>{data.value}</Link>;
-        }
-      },
-      {
-        Header: <FormattedMessage id="location" />,
-        accessor: 'locationName'
-      },
-      {
-        Header: <FormattedMessage id="supplier" />,
-        accessor: 'supplierName'
-      },
-      {
-        Header: <FormattedMessage id="product" />,
-        accessor: 'products'
-      },
-      {
-        Header: <FormattedMessage id="quantity" />,
-        accessor: 'quantity'
-      },
-      {
-        Header: 'Status',
-        accessor: 'status',
-        Cell: (data) => {
-          switch (+data.value) {
-            case 0:
-              return <Chip color="warning" label={<FormattedMessage id="draft" />} size="small" variant="light" />;
-            case 1:
-              return <Chip color="info" label={<FormattedMessage id="waiting-for-approval" />} size="small" variant="light" />;
-            case 2:
-              return <Chip color="error" label={<FormattedMessage id="reject" />} size="small" variant="light" />;
-            case 3:
-              return <Chip color="success" label={<FormattedMessage id="approved" />} size="small" variant="light" />;
-            case 4:
-              return <Chip color="info" label={<FormattedMessage id="waiting-for-supplier" />} size="small" variant="light" />;
-            case 5:
-              return <Chip color="primary" label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
-          }
-        }
-      },
-      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
-      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
-      {
-        Header: <FormattedMessage id="action" />,
-        accessor: 'action',
-        isNotSorting: true,
-        Cell: (data) => {
-          const getId = data.row.original.id;
-          const getStatus = +data.row.original.status;
-          const getNumberId = data.row.original.numberId;
-
-          const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
-
-          return (
-            <IconButton
-              size="large"
-              color="warning"
-              onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
-              disabled={isDisabled()}
-            >
-              <EditOutlined />
-            </IconButton>
-          );
+        return <Link onClick={() => setOpenDetail({ isOpen: true, id: +getId })}>{data.value}</Link>;
+      }
+    },
+    {
+      Header: <FormattedMessage id="location" />,
+      accessor: 'locationName'
+    },
+    {
+      Header: <FormattedMessage id="supplier" />,
+      accessor: 'supplierName'
+    },
+    {
+      Header: <FormattedMessage id="product" />,
+      accessor: 'products'
+    },
+    {
+      Header: <FormattedMessage id="quantity" />,
+      accessor: 'quantity'
+    },
+    {
+      Header: 'Status',
+      accessor: 'status',
+      Cell: (data) => {
+        switch (+data.value) {
+          case 0:
+            return <Chip color="warning" label={<FormattedMessage id="draft" />} size="small" variant="light" />;
+          case 1:
+            return <Chip color="info" label={<FormattedMessage id="waiting-for-approval" />} size="small" variant="light" />;
+          case 2:
+            return <Chip color="error" label={<FormattedMessage id="reject" />} size="small" variant="light" />;
+          case 3:
+            return <Chip color="success" label={<FormattedMessage id="approved" />} size="small" variant="light" />;
+          case 4:
+            return <Chip color="info" label={<FormattedMessage id="waiting-for-supplier" />} size="small" variant="light" />;
+          case 5:
+            return <Chip label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
         }
       }
-    ],
+    },
+    { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
+    { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
+    {
+      Header: <FormattedMessage id="action" />,
+      accessor: 'action',
+      isNotSorting: true,
+      Cell: (data) => {
+        const getId = data.row.original.id;
+        const getStatus = +data.row.original.status;
+        const getNumberId = data.row.original.numberId;
+
+        const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
+
+        return (
+          <IconButton
+            size="large"
+            color="warning"
+            onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
+            disabled={isDisabled()}
+          >
+            <EditOutlined />
+          </IconButton>
+        );
+      }
+    }
+  ];
+
+  const selectedColumn =
+    user?.role === 'administrator'
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+            disableSortBy: true,
+            style: {
+              width: '10px'
+            }
+          }
+        ]
+      : [];
+
+  const columns = useMemo(
+    () => [...selectedColumn, ...allColumn],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
