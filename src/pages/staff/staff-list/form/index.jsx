@@ -53,12 +53,18 @@ const StaffForm = () => {
   const getDetail = async () => {
     const resp = await getStaffDetail(id);
     const getData = resp.data;
+    const newLocationId = getData.locationId.map((dt) => {
+      return {
+        value: +dt.locationId,
+        label: dt.locationName
+      };
+    });
 
     setStaffName(`${getData.firstName} ${getData.middleName} ${getData.lastName}`);
     useStaffFormStore.setState({
-      firstName: getData.firstName,
-      middleName: getData.middleName,
-      lastName: getData.lastName,
+      firstName: getData.firstName ?? '',
+      middleName: getData.middleName ?? '',
+      lastName: getData.lastName ?? '',
       nickName: getData.nickName,
       gender: getData.gender,
       status: getData.status,
@@ -68,7 +74,7 @@ const StaffForm = () => {
       endDate: getData.endDate,
       registrationNo: getData.registrationNo,
       designation: getData.designation,
-      locationId: +getData.locationId,
+      locationId: newLocationId,
 
       annualSickAllowance: getData.annualSickAllowance,
       annualLeaveAllowance: getData.annualLeaveAllowance ?? '',

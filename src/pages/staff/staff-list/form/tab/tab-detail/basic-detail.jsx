@@ -1,18 +1,11 @@
 import { FormattedMessage } from 'react-intl';
 import { FormControl, Grid, InputLabel, Stack, TextField, Select, MenuItem, FormHelperText } from '@mui/material';
-import { getAllState, useStaffFormStore } from '../../staff-form-store';
+import { useStaffFormStore } from '../../staff-form-store';
 import { useEffect, useState } from 'react';
+import { validationFormStaff } from 'pages/staff/staff-list/service';
 
 import MainCard from 'components/MainCard';
 
-const coreValidation = [
-  { code: 0, message: 'First Name is required' },
-  { code: 1, message: 'Status is required' },
-  { code: 7, message: 'First Name minimum 3 characters and maximum 20 characters' },
-  { code: 8, message: 'Middle Name minimum 3 characters and maximum 20 characters' },
-  { code: 9, message: 'Last Name minimum 3 characters and maximum 20 characters' },
-  { code: 10, message: 'Nick Name minimum 3 characters and maximum 20 characters' }
-];
 const configCoreErr = {
   firstNameErr: '',
   middleNameErr: '',
@@ -33,53 +26,21 @@ const BasicDetail = () => {
   const [basicDetailErr, setBasicDetailErr] = useState(configCoreErr);
 
   const onCheckValidation = () => {
-    let getFirstName = getAllState().firstName;
-    let getMiddleName = getAllState().middleName;
-    let getLastName = getAllState().lastName;
-    let getNickName = getAllState().nickName;
-    let getStatus = getAllState().status;
+    const getRespValidForm = validationFormStaff('basic-detail');
 
-    let getFirstNameError = '';
-    let getMiddleNameError = '';
-    let getLastNameError = '';
-    let getNickNameError = '';
-    let getStatusError = '';
-
-    if (!getFirstName) {
-      getFirstNameError = coreValidation.find((d) => d.code === 0);
-    } else if (getFirstName.length < 3 || getFirstName.length > 20) {
-      getFirstNameError = coreValidation.find((d) => d.code === 7);
-    }
-
-    if (getMiddleName.length < 3 || getMiddleName.length > 20) {
-      getMiddleNameError = coreValidation.find((d) => d.code === 8);
-    }
-
-    if (getLastName.length < 3 || getLastName.length > 20) {
-      getLastNameError = coreValidation.find((d) => d.code === 9);
-    }
-
-    if (getNickName.length < 3 || getNickName.length > 20) {
-      getNickNameError = coreValidation.find((d) => d.code === 10);
-    }
-
-    if (!getStatus) {
-      getStatusError = coreValidation.find((d) => d.code === 1);
-    }
-
-    if (getFirstNameError || getMiddleNameError || getLastNameError || getNickNameError || getStatusError) {
+    if (!getRespValidForm) {
+      setBasicDetailErr(configCoreErr);
+      useStaffFormStore.setState({ staffFormError: false });
+    } else {
       setBasicDetailErr({
-        firstNameErr: getFirstNameError ? getFirstNameError.message : '',
-        middleNameErr: getMiddleNameError ? getMiddleNameError.message : '',
-        lastNameErr: getLastNameError ? getLastNameError.message : '',
-        nickNameErr: getNickNameError ? getNickNameError.message : '',
-        statusErr: getStatusError ? getStatusError.message : ''
+        firstNameErr: getRespValidForm.getFirstNameError ? getRespValidForm.getFirstNameError.message : '',
+        middleNameErr: getRespValidForm.getMiddleNameError ? getRespValidForm.getMiddleNameError.message : '',
+        lastNameErr: getRespValidForm.getLastNameError ? getRespValidForm.getLastNameError.message : '',
+        nickNameErr: getRespValidForm.getNickNameError ? getRespValidForm.getNickNameError.message : '',
+        statusErr: getRespValidForm.getStatusError ? getRespValidForm.getStatusError.message : ''
       });
 
       useStaffFormStore.setState({ staffFormError: true });
-    } else {
-      setBasicDetailErr(configCoreErr);
-      useStaffFormStore.setState({ staffFormError: false });
     }
   };
 
@@ -89,10 +50,7 @@ const BasicDetail = () => {
   };
 
   useEffect(() => {
-    if (isTouchForm) {
-      onCheckValidation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (isTouchForm) onCheckValidation();
   }, [isTouchForm]);
 
   return (

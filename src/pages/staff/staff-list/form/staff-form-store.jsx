@@ -27,7 +27,7 @@ export const defaultStaffForm = {
   endDate: null,
   registrationNo: '',
   designation: '',
-  locationId: '',
+  locationId: [],
 
   annualSickAllowance: '',
   annualLeaveAllowance: '',

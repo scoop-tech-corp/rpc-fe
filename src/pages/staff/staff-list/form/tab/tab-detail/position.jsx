@@ -1,24 +1,16 @@
 import { FormattedMessage } from 'react-intl';
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
-import { getAllState, useStaffFormStore } from '../../staff-form-store';
+import { useStaffFormStore } from '../../staff-form-store';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useState } from 'react';
-import { getJobTitleList } from 'pages/staff/staff-list/service';
+import { getJobTitleList, validationFormStaff } from 'pages/staff/staff-list/service';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import FormJobTitle from 'components/FormJobTitle';
 
-const coreValidation = [
-  { code: 0, message: 'Job title is required' },
-  { code: 1, message: 'Start Date is required' },
-  { code: 2, message: 'End Date is required' },
-  { code: 3, message: 'Location is required' },
-  { code: 4, message: 'Start Date must be smaller then End Date' },
-  { code: 5, message: 'End Date must be greater then Start Date' }
-];
 const configCoreErr = {
   jobTitleErr: '',
   startDateErr: '',
@@ -39,60 +31,32 @@ const Position = () => {
 
   const locationId = useStaffFormStore((state) => state.locationId);
   const locationList = useStaffFormStore((state) => state.locationList);
+
   const isTouchForm = useStaffFormStore((state) => state.staffFormTouch);
-  const staffFormError = useStaffFormStore((state) => state.staffFormError);
-  const locationValue = locationList.find((val) => val.value === locationId) || null;
 
   const [positionErr, setPositonErr] = useState(configCoreErr);
   const [openFormJobTitle, setOpenFormJobTitle] = useState(false);
 
   const onCheckValidation = () => {
-    let getLocation = getAllState().locationId;
-    let getJobTitle = getAllState().jobTitleId;
-    let getStartDate = getAllState().startDate;
-    let getEndDate = getAllState().endDate;
-
-    let getLocationError = '';
-    let getJobTitleError = '';
-    let getStartDateError = '';
-    let getEndDateError = '';
-
-    if (!getJobTitle) {
-      getJobTitleError = coreValidation.find((d) => d.code === 0);
-    }
-
-    if (!getStartDate) {
-      getStartDateError = coreValidation.find((d) => d.code === 1);
-    } else if (new Date(getStartDate).getTime() > new Date(getEndDate).getTime()) {
-      getStartDateError = coreValidation.find((d) => d.code === 4);
-    }
-
-    if (!getEndDate) {
-      getEndDateError = coreValidation.find((d) => d.code === 2);
-    } else if (new Date(getEndDate).getTime() < new Date(getStartDate).getTime()) {
-      getEndDateError = coreValidation.find((d) => d.code === 5);
-    }
-
-    if (!getLocation) {
-      getLocationError = coreValidation.find((d) => d.code === 3);
-    }
-
-    if (getJobTitleError || getStartDateError || getEndDateError || getLocationError) {
-      setPositonErr({
-        jobTitleErr: getJobTitleError ? getJobTitleError.message : '',
-        startDateErr: getStartDateError ? getStartDateError.message : '',
-        endDateErr: getEndDateError ? getEndDateError.message : '',
-        locationErr: getLocationError ? getLocationError.message : ''
-      });
-      useStaffFormStore.setState({ staffFormError: true });
-    } else {
+    const getRespValidForm = validationFormStaff('position');
+    if (!getRespValidForm) {
       setPositonErr(configCoreErr);
       useStaffFormStore.setState({ staffFormError: false });
+    } else {
+      setPositonErr({
+        jobTitleErr: getRespValidForm.getJobTitleError ? getRespValidForm.getJobTitleError.message : '',
+        startDateErr: getRespValidForm.getStartDateError ? getRespValidForm.getStartDateError.message : '',
+        endDateErr: getRespValidForm.getEndDateError ? getRespValidForm.getEndDateError.message : '',
+        locationErr: getRespValidForm.getLocationError ? getRespValidForm.getLocationError.message : ''
+      });
+      useStaffFormStore.setState({ staffFormError: true });
     }
   };
 
   const onDropdownHandler = (selected, procedure) => {
-    useStaffFormStore.setState({ [procedure]: selected ? selected.value : null, staffFormTouch: true });
+    const setValue = procedure === 'locationId' ? (selected.length ? selected : []) : selected ? selected.value : null;
+
+    useStaffFormStore.setState({ [procedure]: setValue, staffFormTouch: true });
     onCheckValidation();
   };
 
@@ -116,10 +80,8 @@ const Position = () => {
   };
 
   useEffect(() => {
-    if (isTouchForm) {
-      onCheckValidation();
-    }
-  }, [isTouchForm, staffFormError]);
+    if (isTouchForm) onCheckValidation();
+  }, [isTouchForm]);
 
   return (
     <>
@@ -223,8 +185,10 @@ const Position = () => {
               </InputLabel>
               <Autocomplete
                 id="location"
+                multiple
+                limitTags={1}
                 options={locationList}
-                value={locationValue}
+                value={locationId}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, value) => onDropdownHandler(value, 'locationId')}
                 renderInput={(params) => (
