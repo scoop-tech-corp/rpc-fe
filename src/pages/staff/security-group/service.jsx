@@ -30,3 +30,9 @@ export const deleteSecurityGroup = async (id) => {
     data: { id }
   });
 };
+
+export const getSecurityGroupUser = async () => {
+  const getResp = await axios.get(url + '/users');
+  console.log('resp user security group', getResp);
+  return getResp;
+};

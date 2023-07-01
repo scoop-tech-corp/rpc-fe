@@ -36,12 +36,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"> </script>
 
     <style>
-      /* Snackbar for 500 custom */
-      #snackbar-500 {
+      /* Snackbar custom */
+      #snackbar-custom {
         visibility: hidden;
         min-width: 250px;
         margin-left: -125px;
-        background-color: #ff4d4f;
         color: #fff;
         text-align: center;
         border-radius: 4px;
@@ -53,11 +52,11 @@
         font-size: 14px;
       }
 
-      #snackbar-500 > #snackbar-500__title {
+      #snackbar-custom > #snackbar-custom__title {
         font-weight: bold;
       }
 
-      #snackbar-500.show {
+      #snackbar-custom.show {
         visibility: visible;
         -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
         animation: fadein 0.5s, fadeout 0.5s 2.5s;
@@ -82,7 +81,7 @@
         from {bottom: 30px; opacity: 1;}
         to {bottom: 0; opacity: 0;}
       }
-      /* End Snackbar for 500 custom */
+      /* End Snackbar custom */
     </style>
 
     <script>
@@ -125,9 +124,9 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <div id="snackbar-500">
-      <div id="snackbar-500__title"></div>
-      <div id="snackbar-500__desc"></div>
+    <div id="snackbar-custom">
+      <div id="snackbar-custom__title"></div>
+      <div id="snackbar-custom__desc"></div>
     </div>
   </body>
 </html>

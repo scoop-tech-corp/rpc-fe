@@ -28,6 +28,7 @@ const StaffForm = Loadable(lazy(() => import('pages/staff/staff-list/form')));
 const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
 const StaffAccessControl = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/staff/security-group')));
+const StaffSecurityGroupForm = Loadable(lazy(() => import('pages/staff/security-group/form')));
 const StaffStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Promotion
@@ -120,6 +121,8 @@ const MainRoutes = {
             { path: 'leave-approval', element: <StaffLeaveApproval /> },
             { path: 'access-control', element: <StaffAccessControl /> },
             { path: 'security-group', element: <StaffSecurityGroup /> },
+            { path: 'security-group/form', element: <StaffSecurityGroupForm /> },
+            { path: 'security-group/form/:id', element: <StaffSecurityGroupForm /> },
             { path: 'static-data', element: <StaffStaticData /> }
           ]
         },
