@@ -2,7 +2,6 @@ import axios from 'utils/axios';
 
 export const getLocationList = async () => {
   const getResp = await axios.get('location/list');
-
   return getResp.data.map((dt) => {
     return { label: dt.locationName, value: +dt.id };
   });

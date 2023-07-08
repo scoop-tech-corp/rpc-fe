@@ -13,7 +13,8 @@ export const getProductRestock = async (property) => {
       orderColumn: property.orderColumn,
       search: property.keyword,
       locationId: property.locationId,
-      supplierId: property.supplierId
+      supplierId: property.supplierId,
+      type: property.type
     }
   });
 };
@@ -112,4 +113,15 @@ export const getSupplierProductRestock = async (id) => {
   return getResp.data.map((dt) => {
     return { label: dt.supplierName, value: +dt.id };
   });
+};
+
+export const productRestockApproval = async (property) => {
+  const fd = new FormData();
+  fd.append('productRestockId', property.id);
+  fd.append('productRestocks', JSON.stringify(property.productRestocks));
+  fd.append('isAcceptedAll', property.isAcceptedAll);
+  fd.append('isRejectedAll', property.isRejectedAll);
+  fd.append('reasonRejectAll', property.reasonRejectAll);
+
+  return await axios.post(productRestockUrl + '/approval', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

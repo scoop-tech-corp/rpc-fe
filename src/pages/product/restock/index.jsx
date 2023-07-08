@@ -19,8 +19,10 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 import ProductRestockDetail from './detail';
 import useAuth from 'hooks/useAuth';
+import ProductRestockApproval from './approval';
 
 let paramProductRestockList = {};
 
@@ -43,6 +45,8 @@ const ProductRestock = () => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null });
+  const [openApprove, setOpenApprove] = useState({ isOpen: false, id: null });
+
   const allColumn = [
     {
       Header: <FormattedMessage id="id-number" />,
@@ -94,23 +98,33 @@ const ProductRestock = () => {
     {
       Header: <FormattedMessage id="action" />,
       accessor: 'action',
+      style: { textAlign: 'center' },
       isNotSorting: true,
       Cell: (data) => {
-        const getId = data.row.original.id;
+        const getId = +data.row.original.id;
         const getStatus = +data.row.original.status;
         const getNumberId = data.row.original.numberId;
 
         const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
 
         return (
-          <IconButton
-            size="large"
-            color="warning"
-            onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
-            disabled={isDisabled()}
-          >
-            <EditOutlined />
-          </IconButton>
+          <>
+            <Stack spacing={1} flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
+              <IconButton
+                size="large"
+                color="warning"
+                onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
+                disabled={isDisabled()}
+              >
+                <EditOutlined />
+              </IconButton>
+              {getStatus == 1 && ['administrator', 'office'].includes(user?.role) && (
+                <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
+                  <ChecklistIcon />
+                </IconButton>
+              )}
+            </Stack>
+          </>
         );
       }
     }
@@ -340,6 +354,16 @@ const ProductRestock = () => {
           open={openDetail.isOpen}
           onClose={() => {
             setOpenDetail({ isOpen: false, id: null });
+          }}
+        />
+      )}
+      {openApprove.isOpen && (
+        <ProductRestockApproval
+          open={openApprove.isOpen}
+          id={openApprove.id}
+          onClose={(resp) => {
+            setOpenApprove({ isOpen: false, id: null });
+            if (resp) fetchData();
           }}
         />
       )}
