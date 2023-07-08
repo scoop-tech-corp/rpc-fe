@@ -60,12 +60,12 @@ const StaffForm = () => {
       };
     });
 
-    setStaffName(`${getData.firstName} ${getData.middleName} ${getData.lastName}`);
+    setStaffName(`${getData.firstName ?? ''} ${getData.middleName ?? ''} ${getData.lastName ?? ''}`);
     useStaffFormStore.setState({
       firstName: getData.firstName ?? '',
       middleName: getData.middleName ?? '',
       lastName: getData.lastName ?? '',
-      nickName: getData.nickName,
+      nickName: getData.nickName ?? '',
       gender: getData.gender,
       status: getData.status,
 

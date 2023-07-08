@@ -313,15 +313,15 @@ export const validationFormStaff = (procedure) => {
       getFirstNameError = coreValidationBasicDetail.find((d) => d.code === 7);
     }
 
-    if (getMiddleName.length < 3 || getMiddleName.length > 20) {
+    if (getMiddleName && (getMiddleName.length < 3 || getMiddleName.length > 20)) {
       getMiddleNameError = coreValidationBasicDetail.find((d) => d.code === 8);
     }
 
-    if (getLastName.length < 3 || getLastName.length > 20) {
+    if (getLastName && (getLastName.length < 3 || getLastName.length > 20)) {
       getLastNameError = coreValidationBasicDetail.find((d) => d.code === 9);
     }
 
-    if (getNickName.length < 3 || getNickName.length > 20) {
+    if (getNickName && (getNickName.length < 3 || getNickName.length > 20)) {
       getNickNameError = coreValidationBasicDetail.find((d) => d.code === 10);
     }
 
