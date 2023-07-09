@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getAllState, useFormSecurityGroupStore } from './form-security-group-store';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
@@ -7,7 +7,7 @@ import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
-import { createSecurityGroup } from '../service';
+import { createSecurityGroup, validationFormSecurityGroup } from '../service';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import PropTypes from 'prop-types';
@@ -16,7 +16,10 @@ import ErrorContainer from 'components/@extended/ErrorContainer';
 const FormSecurityGroupHeader = (props) => {
   const formSecurityGroupError = useFormSecurityGroupStore((state) => state.formSecurityGroupError);
   const isTouchForm = useFormSecurityGroupStore((state) => state.formSecurityGroupTouch);
+  const allState = useFormSecurityGroupStore((state) => state);
+
   const [isError, setIsError] = useState(false);
+  const [formError, setFormError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
   let { id } = useParams();
 
@@ -50,6 +53,11 @@ const FormSecurityGroupHeader = (props) => {
     }
   };
 
+  useEffect(() => {
+    const getRespValidForm = validationFormSecurityGroup();
+    setFormError(Boolean(getRespValidForm));
+  }, [allState]);
+
   return (
     <>
       <HeaderPageCustom
@@ -57,7 +65,12 @@ const FormSecurityGroupHeader = (props) => {
         locationBackConfig={{ setLocationBack: true, customUrl: '/staff/security-group' }}
         action={
           <>
-            <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={!isTouchForm || formSecurityGroupError}>
+            <Button
+              variant="contained"
+              startIcon={<PlusOutlined />}
+              onClick={onSubmit}
+              disabled={!isTouchForm || formError || formSecurityGroupError}
+            >
               <FormattedMessage id="save" />
             </Button>
           </>

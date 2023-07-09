@@ -16,98 +16,88 @@ import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ConfirmationC from 'components/ConfirmationC';
-import useAuth from 'hooks/useAuth';
+// import useAuth from 'hooks/useAuth';
 
 let paramSecurityGroup = {};
 const SecurityGroup = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  const roleHighest = ['administrator'];
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [getSecurityGroupData, setSecurityGroupData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [dialog, setDialog] = useState({ isOpen: false, id: [] });
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
-  const checkboxColumn = roleHighest.includes(user?.role)
-    ? []
-    : [
-        {
-          title: 'Row Selection',
-          Header: (header) => {
-            useEffect(() => {
-              const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
-              setSelectedRow(selectRows);
-            }, [header.selectedFlatRows]);
+  const columns = useMemo(
+    () => [
+      {
+        title: 'Row Selection',
+        Header: (header) => {
+          useEffect(() => {
+            const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
+            setSelectedRow(selectRows);
+          }, [header.selectedFlatRows]);
 
-            return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-          },
-          accessor: 'selection',
-          Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-          disableSortBy: true,
-          style: {
-            width: '10px'
+          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+        },
+        accessor: 'selection',
+        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+        disableSortBy: true,
+        style: {
+          width: '10px'
+        }
+      },
+      {
+        Header: 'Role',
+        accessor: 'roleName',
+        Cell: (data) => {
+          // const getId = data.row.original.id;
+          return <Link>{data.value}</Link>;
+        }
+      },
+      {
+        Header: <FormattedMessage id="total-user" />,
+        accessor: 'totalUser'
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: (data) => {
+          switch (+data.value) {
+            case 1:
+              return <Chip color="success" label={<FormattedMessage id="active" />} size="small" variant="light" />;
+            default:
+              return <Chip color="error" label={<FormattedMessage id="non-active" />} size="small" variant="light" />;
           }
         }
-      ];
+      },
+      {
+        Header: <FormattedMessage id="action" />,
+        accessor: 'action',
+        isNotSorting: true,
+        Cell: (data) => {
+          const getId = +data.row.original.id;
+          const isDeleted = !+data.row.original.isDeleted;
 
-  const allColumn = [
-    {
-      Header: 'Role',
-      accessor: 'roleName',
-      Cell: (data) => {
-        // const getId = data.row.original.id;
-        return <Link>{data.value}</Link>;
-      }
-    },
-    {
-      Header: <FormattedMessage id="total-user" />,
-      accessor: 'totalUser'
-    },
-    {
-      Header: 'Status',
-      accessor: 'status',
-      Cell: (data) => {
-        switch (+data.value) {
-          case 1:
-            return <Chip color="success" label={<FormattedMessage id="active" />} size="small" variant="light" />;
-          default:
-            return <Chip color="error" label={<FormattedMessage id="non-active" />} size="small" variant="light" />;
+          const onEdit = () => {};
+
+          return (
+            <>
+              <IconButton size="large" color="warning" onClick={() => onEdit()}>
+                <EditOutlined />
+              </IconButton>
+              <IconButton size="large" color="error" disabled={isDeleted} onClick={() => setDialog({ isOpen: true, id: [getId] })}>
+                <DeleteFilled />
+              </IconButton>
+            </>
+          );
         }
       }
-    },
-    {
-      Header: <FormattedMessage id="action" />,
-      accessor: 'action',
-      isNotSorting: true,
-      Cell: (data) => {
-        const getId = data.row.original.id;
-
-        const onEdit = () => {};
-
-        return (
-          <>
-            <IconButton size="large" color="warning" onClick={() => onEdit()}>
-              <EditOutlined />
-            </IconButton>
-            <IconButton
-              size="large"
-              color="error"
-              disabled={roleHighest.includes(user?.role)}
-              onClick={() => setDialog({ isOpen: true, id: [getId] })}
-            >
-              <DeleteFilled />
-            </IconButton>
-          </>
-        );
-      }
-    }
-  ];
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const columns = useMemo(() => [...checkboxColumn, ...allColumn], []);
+    ],
+    []
+  );
 
   const onOrderingChange = (event) => {
     paramSecurityGroup.orderValue = event.order;

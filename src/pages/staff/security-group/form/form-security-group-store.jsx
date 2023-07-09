@@ -2,9 +2,9 @@ import { jsonCentralized } from 'utils/func';
 import { create } from 'zustand';
 
 export const defaultFormSecurityGroup = {
-  roleName: '',
-  status: null,
-  roleList: [],
+  role: '',
+  status: '',
+  usersId: [],
   userList: [], //dropdown
   formSecurityGroupError: false,
   formSecurityGroupTouch: false
