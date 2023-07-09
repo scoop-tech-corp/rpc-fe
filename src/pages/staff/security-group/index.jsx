@@ -79,7 +79,7 @@ const SecurityGroup = () => {
         isNotSorting: true,
         Cell: (data) => {
           const getId = +data.row.original.id;
-          const isDeleted = !+data.row.original.isDeleted;
+          const isDeleted = +data.row.original.isDeleted;
 
           const onEdit = () => {};
 
@@ -88,7 +88,7 @@ const SecurityGroup = () => {
               <IconButton size="large" color="warning" onClick={() => onEdit()}>
                 <EditOutlined />
               </IconButton>
-              <IconButton size="large" color="error" disabled={isDeleted} onClick={() => setDialog({ isOpen: true, id: [getId] })}>
+              <IconButton size="large" color="error" disabled={isDeleted === 0} onClick={() => setDialog({ isOpen: true, id: [getId] })}>
                 <DeleteFilled />
               </IconButton>
             </>
