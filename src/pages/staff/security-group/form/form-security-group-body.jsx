@@ -120,10 +120,10 @@ const FormSecurityGroupBody = () => {
                       <FormattedMessage id="select-status" />
                     </em>
                   </MenuItem>
-                  <MenuItem value={'active'}>
+                  <MenuItem value={1}>
                     <FormattedMessage id="active" />
                   </MenuItem>
-                  <MenuItem value={'nonActive'}>
+                  <MenuItem value={0}>
                     <FormattedMessage id="non-active" />
                   </MenuItem>
                 </Select>
