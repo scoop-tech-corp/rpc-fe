@@ -7,6 +7,7 @@ import { getSupplierList } from 'pages/product/product-list/service';
 import ModalC from 'components/ModalC';
 import TabPanel from 'components/TabPanelC';
 import ApprovalRestock from './approval-restock';
+import ApprovalRestockHistory from './approval-restock-history';
 import PropTypes from 'prop-types';
 
 const ProductRestockQuickAccessApproval = (props) => {
@@ -72,7 +73,9 @@ const ProductRestockQuickAccessApproval = (props) => {
             <TabPanel value={tabSelected} index={0} name="approval-restock-list">
               <ApprovalRestock filterLocationList={filterLocationList} filterSupplierList={supplierList} />
             </TabPanel>
-            <TabPanel value={tabSelected} index={1} name="approval-restock-list"></TabPanel>
+            <TabPanel value={tabSelected} index={1} name="approval-restock-list">
+              <ApprovalRestockHistory filterLocationList={filterLocationList} filterSupplierList={supplierList} />
+            </TabPanel>
           </>
         )}
       </Box>
