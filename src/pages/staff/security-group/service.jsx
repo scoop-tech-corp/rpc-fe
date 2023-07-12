@@ -16,15 +16,43 @@ export const getSecurityGroup = async (property) => {
   return getResp;
 };
 
-export const createSecurityGroup = async (property) => {
-  const fd = new FormData();
-  const newUsersId = property.usersId.map((dt) => dt.value);
+export const getSecurityGroupDetail = async (id) => {
+  return await axios.get(url + '/detail', {
+    params: { id }
+  });
+};
 
+export const createSecurityGroup = async (property) => {
+  console.log('property', property);
+  const newUsers = property.selectedUsers.filter((dt) => dt.status !== 'del').map((dt) => dt.usersId);
+
+  const fd = new FormData();
   fd.append('role', property.role);
   fd.append('status', property.status);
-  fd.append('usersId', JSON.stringify(newUsersId));
+  fd.append('usersId', JSON.stringify(newUsers));
+
+  for (let pair of fd.entries()) {
+    console.log(pair[0] + ', ' + pair[1]);
+  }
 
   return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateSecurityGroup = async (property) => {
+  const newUsers = property.selectedUsers.map((dt) => {
+    return {
+      userId: +dt.usersId,
+      status: dt.status
+    };
+  });
+
+  const parameter = {
+    id: +property.id,
+    status: property.status,
+    users: newUsers
+  };
+  console.log('parameter', parameter);
+  return await axios.put(url, parameter);
 };
 
 export const deleteSecurityGroup = async (id) => {
@@ -46,7 +74,7 @@ export const validationFormSecurityGroup = () => {
   let getStatus = getAllState().status;
 
   let getRoleError = !getRole ? 'role-is-required' : '';
-  let getStatusError = !getStatus ? 'status-is-required' : '';
+  let getStatusError = getStatus === '' ? 'status-is-required' : '';
 
   if (getRoleError || getStatusError) {
     return { getRoleError, getStatusError };

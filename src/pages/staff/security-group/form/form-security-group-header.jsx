@@ -7,7 +7,7 @@ import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
-import { createSecurityGroup, validationFormSecurityGroup } from '../service';
+import { createSecurityGroup, updateSecurityGroup, validationFormSecurityGroup } from '../service';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import PropTypes from 'prop-types';
@@ -46,10 +46,14 @@ const FormSecurityGroupHeader = (props) => {
 
   const onSubmit = async () => {
     if (formSecurityGroupError) return;
+    const getFormValue = getAllState();
 
     if (!id) {
-      const getFormValue = getAllState();
       await createSecurityGroup(getFormValue).then(responseSuccess).catch(responseError);
+    } else {
+      await updateSecurityGroup({ id, ...getFormValue })
+        .then(responseSuccess)
+        .catch(responseError);
     }
   };
 

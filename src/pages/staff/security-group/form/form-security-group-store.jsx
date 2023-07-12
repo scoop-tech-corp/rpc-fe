@@ -4,6 +4,7 @@ import { create } from 'zustand';
 export const defaultFormSecurityGroup = {
   role: '',
   status: '',
+  selectedUsers: [],
   usersId: [],
   userList: [], //dropdown
   formSecurityGroupError: false,

@@ -32,7 +32,8 @@ export const exportProductRestock = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       supplierId: property.supplierId,
-      locationId: property.locationId
+      locationId: property.locationId,
+      type: property.type ?? ''
     }
   });
 };

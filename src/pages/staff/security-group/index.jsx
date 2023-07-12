@@ -3,7 +3,7 @@ import { Button, Chip, Link, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { deleteSecurityGroup, getSecurityGroup } from './service';
+import { deleteSecurityGroup, getSecurityGroup, getSecurityGroupDetail } from './service';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
@@ -16,6 +16,7 @@ import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ConfirmationC from 'components/ConfirmationC';
+import SecurityGroupDetail from './detail';
 // import useAuth from 'hooks/useAuth';
 
 let paramSecurityGroup = {};
@@ -28,6 +29,8 @@ const SecurityGroup = () => {
   const [getSecurityGroupData, setSecurityGroupData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [dialog, setDialog] = useState({ isOpen: false, id: [] });
+  const [dialogDetail, setDialogDetail] = useState({ isOpen: false, data: null });
+
   // const { user } = useAuth();
 
   const columns = useMemo(
@@ -53,8 +56,16 @@ const SecurityGroup = () => {
         Header: 'Role',
         accessor: 'roleName',
         Cell: (data) => {
-          // const getId = data.row.original.id;
-          return <Link>{data.value}</Link>;
+          const getId = data.row.original.id;
+          // const getDetail = [];
+          const onDetail = async () => {
+            const resp = await getSecurityGroupDetail(getId);
+            if (resp?.data) {
+              setDialogDetail({ isOpen: true, data: resp.data });
+            }
+          };
+
+          return <Link onClick={onDetail}>{data.value}</Link>;
         }
       },
       {
@@ -81,11 +92,9 @@ const SecurityGroup = () => {
           const getId = +data.row.original.id;
           const isDeleted = +data.row.original.isDeleted;
 
-          const onEdit = () => {};
-
           return (
             <>
-              <IconButton size="large" color="warning" onClick={() => onEdit()}>
+              <IconButton size="large" color="warning" onClick={() => navigate(`/staff/security-group/form/${getId}`, { replace: true })}>
                 <EditOutlined />
               </IconButton>
               <IconButton size="large" color="error" disabled={isDeleted === 0} onClick={() => setDialog({ isOpen: true, id: [getId] })}>
@@ -96,6 +105,7 @@ const SecurityGroup = () => {
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -211,6 +221,13 @@ const SecurityGroup = () => {
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
       />
+      {dialogDetail.isOpen && (
+        <SecurityGroupDetail
+          open={dialogDetail.isOpen}
+          data={dialogDetail.data}
+          onClose={(response) => setDialogDetail({ isOpen: response, data: null })}
+        />
+      )}
     </>
   );
 };

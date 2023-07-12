@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { DeleteFilled } from '@ant-design/icons';
 import { validationFormSecurityGroup } from '../service';
+import { useParams } from 'react-router';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -15,10 +16,12 @@ const configCoreErr = {
 };
 
 const FormSecurityGroupBody = () => {
+  let { id } = useParams();
   const role = useFormSecurityGroupStore((state) => state.role);
   const status = useFormSecurityGroupStore((state) => state.status);
   const userList = useFormSecurityGroupStore((state) => state.userList);
   const usersId = useFormSecurityGroupStore((state) => state.usersId);
+  const selectedUsers = useFormSecurityGroupStore((state) => state.selectedUsers);
   const isTouchForm = useFormSecurityGroupStore((state) => state.formSecurityGroupTouch);
 
   const [securityGroupErr, setSecurityGroupErr] = useState(configCoreErr);
@@ -41,9 +44,9 @@ const FormSecurityGroupBody = () => {
 
   const columns = useMemo(
     () => [
-      { Header: <FormattedMessage id="name" />, accessor: 'data.customerName', isNotSorting: true },
-      { Header: <FormattedMessage id="role" />, accessor: 'data.jobName', isNotSorting: true },
-      { Header: <FormattedMessage id="branch" />, accessor: 'data.locationName', isNotSorting: true },
+      { Header: <FormattedMessage id="name" />, accessor: 'customerName', isNotSorting: true },
+      { Header: <FormattedMessage id="role" />, accessor: 'jobName', isNotSorting: true },
+      { Header: <FormattedMessage id="branch" />, accessor: 'locationName', isNotSorting: true },
       {
         Header: <FormattedMessage id="action" />,
         accessor: 'action',
@@ -51,10 +54,15 @@ const FormSecurityGroupBody = () => {
         Cell: (data) => {
           const onDeleteRoleList = (dt) => {
             useFormSecurityGroupStore.setState((prevState) => {
-              const newData = [...prevState.usersId];
-              newData.splice(dt.row.index, 1);
+              const newData = [...prevState.selectedUsers];
+              const getUsersId = [...prevState.usersId];
+              const getIdxUsersId = getUsersId.findIndex((u) => +u.data.usersId === +dt.row.original.usersId);
+              const getIdxSelectedUsers = newData.findIndex((u) => +u.usersId === +dt.row.original.usersId);
 
-              return { usersId: newData };
+              if (getIdxUsersId > -1) getUsersId.splice(getIdxUsersId, 1);
+              newData[getIdxSelectedUsers].status = 'del';
+
+              return { selectedUsers: newData, usersId: getUsersId, formSecurityGroupTouch: true };
             });
             onCheckValidation();
           };
@@ -93,6 +101,7 @@ const FormSecurityGroupBody = () => {
                   });
                   onCheckValidation();
                 }}
+                inputProps={{ readOnly: Boolean(id) }}
                 error={Boolean(securityGroupErr.roleErr && securityGroupErr.roleErr.length > 0)}
                 helperText={securityGroupErr.roleErr ? intl.formatMessage({ id: securityGroupErr.roleErr }) : ''}
               />
@@ -142,10 +151,34 @@ const FormSecurityGroupBody = () => {
               options={userList}
               value={usersId}
               isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-              onChange={(_, value) => {
-                useFormSecurityGroupStore.setState({
-                  usersId: value,
-                  formSecurityGroupTouch: true
+              onChange={(_, allValue, eventName, selectedValue) => {
+                useFormSecurityGroupStore.setState((prevState) => {
+                  const prevSelectedUsers = prevState.selectedUsers;
+                  const prevUsersId = prevState.usersId;
+                  const newValue = [];
+
+                  allValue.forEach((dt) => {
+                    if (!prevSelectedUsers.find((su) => +su.usersId === +dt.data.usersId)) {
+                      newValue.push({ ...dt.data, status: '' });
+                    }
+                  });
+
+                  const newData = [...prevSelectedUsers, ...newValue];
+                  if (eventName === 'removeOption') {
+                    const findIdx = newData.findIndex((nd) => +nd.usersId === +selectedValue.option.data.usersId);
+                    newData[findIdx].status = 'del';
+                  } else if (eventName === 'clear') {
+                    prevUsersId.forEach((puid) => {
+                      const idx = newData.findIndex((nd) => +nd.usersId === +puid.data.usersId);
+                      newData[idx].status = 'del';
+                    });
+                  }
+
+                  return {
+                    usersId: allValue,
+                    selectedUsers: newData,
+                    formSecurityGroupTouch: true
+                  };
                 });
                 onCheckValidation();
               }}
@@ -161,7 +194,7 @@ const FormSecurityGroupBody = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <ReactTable columns={columns} data={usersId} />
+            <ReactTable columns={columns} data={selectedUsers.filter((dt) => dt.status !== 'del')} />
           </Grid>
         </Grid>
       </Container>
