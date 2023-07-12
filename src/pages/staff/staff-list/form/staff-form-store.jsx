@@ -14,6 +14,23 @@ export const defaultDetailAddress = {
 
 export const defaultImage = { id: '', selectedFile: null, isChange: false };
 
+const defaultDetailTelephone = {
+  phoneNumber: '',
+  type: '',
+  usage: 'Utama'
+};
+
+const defaultDetailEmail = {
+  username: '',
+  usage: 'Utama'
+};
+
+const defaultDetailMessenger = {
+  messengerName: '',
+  type: '',
+  usage: 'Utama'
+};
+
 export const defaultStaffForm = {
   firstName: '',
   middleName: '',
@@ -48,9 +65,9 @@ export const defaultStaffForm = {
   roleId: '',
 
   detailAddress: [defaultDetailAddress],
-  telephone: [],
-  email: [],
-  messenger: [],
+  telephone: [defaultDetailTelephone],
+  email: [defaultDetailEmail],
+  messenger: [defaultDetailMessenger],
 
   staffFormError: false,
   staffFormTouch: false,
