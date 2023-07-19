@@ -134,8 +134,8 @@ const StaffLeave = () => {
   const getData = async () => await getDataAdditional();
 
   useEffect(() => {
-    clearParamFetchData();
     getData();
+    clearParamFetchData();
 
     return () => {
       useStaffLeaveIndexStore.setState(jsonCentralized(defaultIndexParam));
@@ -228,7 +228,14 @@ const StaffLeave = () => {
       </MainCard>
 
       {openFormRequest && tabSelected !== 3 && (
-        <FormRequestLeave open={openFormRequest} onClose={() => setOpenFormRequest(false)} userId={user.id} />
+        <FormRequestLeave
+          open={openFormRequest}
+          userId={user.id}
+          onClose={(event) => {
+            setOpenFormRequest(false);
+            if (event) onRefresh();
+          }}
+        />
       )}
     </>
   );
