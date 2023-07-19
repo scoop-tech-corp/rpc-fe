@@ -24,19 +24,22 @@ const ProductRestockApproval = (props) => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const getDetail = async () => {
     await getProductRestockDetail(props.id, 'approval').then((resp) => {
-      const getData = resp.data.map((dt) => {
-        return {
-          ...dt,
-          productRestockDetailId: dt.id,
-          reStockQuantity: dt.orderQuantity,
-          rejected: 0,
-          errRejected: '',
-          accepted: 0,
-          errAccepted: '',
-          reasonReject: '',
-          errReasonRejected: ''
-        };
-      });
+      const getData =
+        resp && Array.isArray(resp.data)
+          ? resp.data.map((dt) => {
+              return {
+                ...dt,
+                productRestockDetailId: dt.id,
+                reStockQuantity: dt.orderQuantity,
+                rejected: 0,
+                errRejected: '',
+                accepted: 0,
+                errAccepted: '',
+                reasonReject: '',
+                errReasonRejected: ''
+              };
+            })
+          : [];
       setProductRestockApprovalData(getData);
     });
   };
