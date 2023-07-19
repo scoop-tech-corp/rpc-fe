@@ -25,7 +25,12 @@ const StaffAccessControl = () => {
           >
             <Tab label={<FormattedMessage id="security-group" />} id="access-control-tab-0" aria-controls="access-control-tabpanel-0" />
             <Tab label={<FormattedMessage id="all-users" />} id="access-control-tab-1" aria-controls="access-control-tabpanel-1" />
-            <Tab label={<FormattedMessage id="history" />} id="access-control-tab-1" aria-controls="access-control-tabpanel-2" />
+            <Tab
+              label={<FormattedMessage id="history" />}
+              id="access-control-tab-1"
+              aria-controls="access-control-tabpanel-2"
+              style={{ marginLeft: 'auto' }}
+            />
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>
