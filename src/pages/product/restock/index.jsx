@@ -396,8 +396,9 @@ const ProductRestock = () => {
         <ProductRestockDetail
           id={openDetail.id}
           open={openDetail.isOpen}
-          onClose={() => {
+          onClose={(event) => {
             setOpenDetail({ isOpen: false, id: null });
+            if (event === 'trigerIndex') fetchData();
           }}
         />
       )}

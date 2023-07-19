@@ -23,10 +23,11 @@ import PropTypes from 'prop-types';
 import useAuth from 'hooks/useAuth';
 import Transitions from 'components/@extended/Transitions';
 import ModalExport from './ModalExport';
+import ProductRestockApproval from '../approval';
 
 const ProductRestockDetailAction = (props) => {
   const { data } = props;
-  const roleCanApprove = ['administrator'];
+  const roleCanApprove = ['administrator', 'office'];
 
   const theme = useTheme();
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
@@ -37,6 +38,7 @@ const ProductRestockDetailAction = (props) => {
 
   const [open, setOpen] = useState(false);
   const [isModalExport, setModalExport] = useState({ isOpen: false, id: null });
+  const [openApprove, setOpenApprove] = useState({ isOpen: false, id: null });
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -120,7 +122,7 @@ const ProductRestockDetailAction = (props) => {
                       }
                     }}
                   >
-                    <ListItemButton onClick={() => setModalExport({ isOpen: true, id: data.id })}>
+                    <ListItemButton onClick={() => setModalExport({ isOpen: true, id: +data.id })}>
                       <ListItemText
                         primary={
                           <Typography color="textPrimary">
@@ -141,11 +143,7 @@ const ProductRestockDetailAction = (props) => {
                       </ListItemButton>
                     )}
                     {roleCanApprove.includes(user?.role) && (
-                      <ListItemButton
-                        onClick={() => {
-                          return;
-                        }}
-                      >
+                      <ListItemButton onClick={() => setOpenApprove({ isOpen: true, id: +data.id })}>
                         <ListItemText
                           primary={
                             <Typography color="textPrimary">
@@ -170,12 +168,23 @@ const ProductRestockDetailAction = (props) => {
           onClose={(e) => setModalExport({ isOpen: !e, id: null })}
         />
       )}
+      {openApprove.isOpen && (
+        <ProductRestockApproval
+          open={openApprove.isOpen}
+          id={openApprove.id}
+          onClose={(resp) => {
+            setOpenApprove({ isOpen: false, id: null });
+            if (resp) props.output('trigerIndex');
+          }}
+        />
+      )}
     </>
   );
 };
 
 ProductRestockDetailAction.propTypes = {
-  data: PropTypes.object
+  data: PropTypes.object,
+  output: PropTypes.func
 };
 
 export default ProductRestockDetailAction;
