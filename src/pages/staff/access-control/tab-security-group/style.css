@@ -1,0 +1,54 @@
+table {
+  border-collapse: collapse;
+}
+tr {
+  border-bottom: 1px solid #ddd;
+}
+
+tr.last-row {
+  border-bottom: 2px solid #ddd;
+}
+
+.status-full {
+  background-color: #ff4d4f;
+  color: white;
+}
+.status-read {
+  background-color: #1890ff;
+  color: white;
+}
+
+.status-write {
+  background-color: #52C44F;
+  color: white;
+}
+
+.status-none {
+  background-color: #f5f5f5;
+  color: #262626;
+}
+
+.table-container { 
+  overflow-x: scroll;
+}
+table th, table td {
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-family: arial;
+}
+table tr th:first-child, table td:first-child {
+  position: sticky;
+
+  left: 0;
+  z-index: 10;
+  background: white;
+}
+
+table tr th:first-child {
+  font-weight: bold;
+  text-align: left;
+}
+
+table tr th:not(:first-child) {
+  font-weight: normal;
+}
