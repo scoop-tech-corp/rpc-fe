@@ -1,19 +1,21 @@
 import { useTheme } from '@mui/material/styles';
 import { useEffect, useMemo, useState } from 'react';
-import { Autocomplete, Button, Chip, Stack, TextField, useMediaQuery } from '@mui/material';
+import { Autocomplete, Button, Chip, Stack, TextField, Tooltip, useMediaQuery } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { GlobalFilter } from 'utils/react-table';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { createMessageBackend, processDownloadExcel } from 'service/service-global';
-import { snackbarError } from 'store/reducers/snackbar';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { exportProductRestock, getProductRestock } from '../../service';
+import { exportProductRestock, getProductRestock, productRestockSendSupplier } from '../../service';
 
 import PropTypes from 'prop-types';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
 import ChecklistIcon from '@mui/icons-material/Checklist';
+import SendIcon from '@mui/icons-material/Send';
+import ConfirmationC from 'components/ConfirmationC';
 import ProductRestockApproval from '..';
 
 let paramApprovalRestockList = {};
@@ -27,6 +29,7 @@ const ApprovalRestock = (props) => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [openApprove, setOpenApprove] = useState({ isOpen: false, id: null });
+  const [dialogSend, setDialogSend] = useState({ isOpen: false, id: null });
 
   const columns = useMemo(
     () => [
@@ -78,13 +81,22 @@ const ApprovalRestock = (props) => {
         isNotSorting: true,
         Cell: (data) => {
           const getId = +data.row.original.id;
-          // const getStatus = +data.row.original.status;
+          const getStatus = +data.row.original.status;
           // const getNumberId = data.row.original.numberId;
 
           return (
-            <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
-              <ChecklistIcon />
-            </IconButton>
+            <>
+              <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
+                <ChecklistIcon />
+              </IconButton>
+              {getStatus == 3 && (
+                <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                  <IconButton size="large" color="primary" onClick={() => setDialogSend({ isOpen: true, id: getId })}>
+                    <SendIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </>
           );
         }
       }
@@ -93,6 +105,28 @@ const ApprovalRestock = (props) => {
   );
 
   const [selectedFilterSupplier, setFilterSupplier] = useState([]);
+
+  const onConfirmSendSupplier = async (value) => {
+    if (value) {
+      await productRestockSendSupplier(dialogSend.id)
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialogSend({ isOpen: false, id: null });
+            dispatch(snackbarSuccess('Success send supplier'));
+            clearParamFetchData();
+            fetchData();
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialogSend({ isOpen: false, id: null });
+            dispatch(snackbarError(createMessageBackend(err, true, true)));
+          }
+        });
+    } else {
+      setDialogSend({ isOpen: false, id: null });
+    }
+  };
 
   const onOrderingChange = (event) => {
     paramApprovalRestockList.orderValue = event.order;
@@ -226,6 +260,16 @@ const ApprovalRestock = (props) => {
           onPageSize={onPageSizeChange}
         />
       </Stack>
+      {dialogSend.isOpen && (
+        <ConfirmationC
+          open={dialogSend.isOpen}
+          title={<FormattedMessage id="confirmation" />}
+          content={<FormattedMessage id="are-you-sure-you-want-to-send-the-product-to-supplier" />}
+          onClose={(response) => onConfirmSendSupplier(response)}
+          btnTrueText="Ok"
+          btnFalseText="Cancel"
+        />
+      )}
       {openApprove.isOpen && (
         <ProductRestockApproval
           open={openApprove.isOpen}

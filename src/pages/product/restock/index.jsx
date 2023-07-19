@@ -1,11 +1,11 @@
-import { Button, Stack, useMediaQuery, Link, Autocomplete, TextField, Chip } from '@mui/material';
+import { Button, Stack, useMediaQuery, Link, Autocomplete, TextField, Chip, Tooltip } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { deleteProductRestock, exportProductRestock, getProductRestock } from './service';
+import { deleteProductRestock, exportProductRestock, getProductRestock, productRestockSendSupplier } from './service';
 import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
 import { GlobalFilter } from 'utils/react-table';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,7 @@ import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ChecklistIcon from '@mui/icons-material/Checklist';
+import SendIcon from '@mui/icons-material/Send';
 import ProductRestockDetail from './detail';
 import useAuth from 'hooks/useAuth';
 import ProductRestockApproval from './approval';
@@ -46,6 +47,7 @@ const ProductRestock = () => {
   const [dialog, setDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null });
   const [openApprove, setOpenApprove] = useState({ isOpen: false, id: null });
+  const [dialogSend, setDialogSend] = useState({ isOpen: false, id: null });
 
   const allColumn = [
     {
@@ -122,6 +124,13 @@ const ProductRestock = () => {
                 <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
                   <ChecklistIcon />
                 </IconButton>
+              )}
+              {getStatus == 3 && (
+                <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                  <IconButton size="large" color="primary" onClick={() => setDialogSend({ isOpen: true, id: getId })}>
+                    <SendIcon />
+                  </IconButton>
+                </Tooltip>
               )}
             </Stack>
           </>
@@ -236,6 +245,28 @@ const ProductRestock = () => {
     }
   };
 
+  const onConfirmSendSupplier = async (value) => {
+    if (value) {
+      await productRestockSendSupplier(dialogSend.id)
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialogSend({ isOpen: false, id: null });
+            dispatch(snackbarSuccess('Success send supplier'));
+            clearParamFetchData();
+            fetchData();
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialogSend({ isOpen: false, id: null });
+            dispatch(snackbarError(createMessageBackend(err, true, true)));
+          }
+        });
+    } else {
+      setDialogSend({ isOpen: false, id: null });
+    }
+  };
+
   const getDataFacilityLocation = async () => {
     const data = await getLocationList();
     setFacilityLocationList(data);
@@ -340,14 +371,27 @@ const ProductRestock = () => {
           </Stack>
         </ScrollX>
       </MainCard>
-      <ConfirmationC
-        open={dialog}
-        title={<FormattedMessage id="delete" />}
-        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
-        onClose={(response) => onConfirm(response)}
-        btnTrueText="Ok"
-        btnFalseText="Cancel"
-      />
+      {dialog && (
+        <ConfirmationC
+          open={dialog}
+          title={<FormattedMessage id="delete" />}
+          content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+          onClose={(response) => onConfirm(response)}
+          btnTrueText="Ok"
+          btnFalseText="Cancel"
+        />
+      )}
+      {dialogSend.isOpen && (
+        <ConfirmationC
+          open={dialogSend.isOpen}
+          title={<FormattedMessage id="confirmation" />}
+          content={<FormattedMessage id="are-you-sure-you-want-to-send-the-product-to-supplier" />}
+          onClose={(response) => onConfirmSendSupplier(response)}
+          btnTrueText="Ok"
+          btnFalseText="Cancel"
+        />
+      )}
+
       {openDetail.isOpen && (
         <ProductRestockDetail
           id={openDetail.id}

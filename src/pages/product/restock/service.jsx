@@ -126,3 +126,10 @@ export const productRestockApproval = async (property) => {
 
   return await axios.post(productRestockUrl + '/approval', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
+
+export const productRestockSendSupplier = async (productRestockId) => {
+  const fd = new FormData();
+  fd.append('productRestockId', productRestockId);
+
+  return await axios.post(productRestockUrl + '/sentsupplier', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
