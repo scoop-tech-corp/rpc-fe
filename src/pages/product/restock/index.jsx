@@ -89,7 +89,7 @@ const ProductRestock = () => {
           case 3:
             return <Chip color="success" label={<FormattedMessage id="approved" />} size="small" variant="light" />;
           case 4:
-            return <Chip color="info" label={<FormattedMessage id="waiting-for-supplier" />} size="small" variant="light" />;
+            return <Chip color="default" label={<FormattedMessage id="send-to-supplier" />} size="small" variant="light" />;
           case 5:
             return <Chip label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
         }
