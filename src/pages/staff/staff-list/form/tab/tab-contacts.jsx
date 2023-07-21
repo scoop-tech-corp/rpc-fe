@@ -1,6 +1,6 @@
 import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Menu } from '@mui/material';
-import { getDataStaticLocation } from 'pages/location/location-list/detail/service';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 import { jsonCentralized } from 'utils/func';
 import { useStaffFormStore } from '../staff-form-store';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -192,8 +192,15 @@ const TabContacts = () => {
   const onCloseFormDataStatic = async (val) => {
     setValueOpenMenu({ modalUsage: false, modalType: false, typeValue: '' });
     if (val) {
-      const newConstruct = await getDataStaticLocation();
-      useStaffFormStore.setState({ ...newConstruct });
+      const getDataStatic = await getDropdownStaffDataStatic();
+
+      useStaffFormStore.setState({
+        messengerType: getDataStatic.dataStaticMessenger,
+        usageList: getDataStatic.dataStaticUsage,
+        telephoneType: getDataStatic.dataStaticTelephone,
+        typeIdList: getDataStatic.dataStaticTypeId,
+        payPeriodList: getDataStatic.dataStaticPayPeriod
+      });
     }
   };
 
@@ -301,8 +308,8 @@ const TabContacts = () => {
                       <MenuItem value="">
                         <em>Select type</em>
                       </MenuItem>
-                      {phoneTypeList.map((dt, idxPhoneType) => (
-                        <MenuItem value={dt.value} key={idxPhoneType}>
+                      {phoneTypeList.map((dt, i) => (
+                        <MenuItem value={dt.value} key={i}>
                           {dt.label}
                         </MenuItem>
                       ))}
@@ -471,6 +478,7 @@ const TabContacts = () => {
         onClose={onCloseFormDataStatic}
         procedure={valueOpenMenu.modalUsage ? 'usage' : valueOpenMenu.modalType ? 'type' : ''}
         typeValue={valueOpenMenu.typeValue}
+        module="staff"
       />
     </Grid>
   );

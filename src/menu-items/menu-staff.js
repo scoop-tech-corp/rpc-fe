@@ -56,7 +56,7 @@ const staff = {
           id: 'staff-static-data',
           title: <FormattedMessage id="static-data" />,
           type: 'item',
-          url: '/customer/static-data'
+          url: '/staff/static-data'
         }
       ]
     }

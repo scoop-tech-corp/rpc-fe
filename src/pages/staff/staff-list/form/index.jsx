@@ -5,9 +5,10 @@ import { useParams } from 'react-router';
 import { defaultImage, defaultStaffForm, useStaffFormStore } from './staff-form-store';
 import { jsonCentralized } from 'utils/func';
 import { getLocationList } from 'service/service-global';
-import { getJobTitleList, getPayPeriodList, getRolesIdList, getStaffDetail, getTypeIdList } from '../service';
-import { getDataStaticLocation, getProvinceLocation } from 'pages/location/location-list/detail/service';
+import { getJobTitleList, getRolesIdList, getStaffDetail } from '../service';
+import { getProvinceLocation } from 'pages/location/location-list/detail/service';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 
 import MainCard from 'components/MainCard';
 import StaffFormHeader from './staff-form-header';
@@ -28,20 +29,21 @@ const StaffForm = () => {
   const getDropdownData = () => {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const getLoc = await getLocationList();
-      const getTypeId = await getTypeIdList();
-      const getPayPeriod = await getPayPeriodList();
-      const getJobTitle = await getJobTitleList();
-      const newConstruct = await getDataStaticLocation();
       const getProvince = await getProvinceLocation();
+      const getLoc = await getLocationList();
+      const getDataStatic = await getDropdownStaffDataStatic();
+
+      const getJobTitle = await getJobTitleList();
       const getRolesId = await getRolesIdList();
 
       useStaffFormStore.setState({
-        ...newConstruct,
+        messengerType: getDataStatic.dataStaticMessenger,
+        usageList: getDataStatic.dataStaticUsage,
+        telephoneType: getDataStatic.dataStaticTelephone,
+        typeIdList: getDataStatic.dataStaticTypeId,
+        payPeriodList: getDataStatic.dataStaticPayPeriod,
         provinceList: getProvince,
         locationList: getLoc,
-        typeIdList: getTypeId,
-        payPeriodList: getPayPeriod,
         jobTitleList: getJobTitle,
         rolesIdList: getRolesId
       });

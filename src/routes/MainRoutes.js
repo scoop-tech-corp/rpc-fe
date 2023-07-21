@@ -29,7 +29,7 @@ const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
 const StaffAccessControl = Loadable(lazy(() => import('pages/staff/access-control')));
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/staff/security-group')));
 const StaffSecurityGroupForm = Loadable(lazy(() => import('pages/staff/security-group/form')));
-const StaffStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
