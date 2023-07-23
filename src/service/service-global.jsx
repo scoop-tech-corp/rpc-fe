@@ -69,3 +69,9 @@ export const processDownloadExcel = (resp) => {
   document.body.appendChild(a);
   a.click();
 };
+
+export const swapKeysAndValuesForObject = (obj) => {
+  const swapped = Object.entries(obj).map(([key, value]) => [value, key]);
+
+  return Object.fromEntries(swapped);
+};
