@@ -20,13 +20,14 @@ export const getDropdownStaffDataStatic = async () => {
   const { dataStaticMessenger, dataStaticPayPeriod, dataStaticTelephone, dataStaticTypeId, dataStaticUsage } = getResp.data;
 
   const mapping = (dt) => ({ label: dt.name, value: dt.name });
+  const mappingDiffValue = (dt) => ({ label: dt.name, value: +dt.id });
 
   return {
     dataStaticMessenger: dataStaticMessenger.map(mapping),
-    dataStaticPayPeriod: dataStaticPayPeriod.map(mapping),
     dataStaticTelephone: dataStaticTelephone.map(mapping),
-    dataStaticTypeId: dataStaticTypeId.map(mapping),
-    dataStaticUsage: dataStaticUsage.map(mapping)
+    dataStaticUsage: dataStaticUsage.map(mapping),
+    dataStaticPayPeriod: dataStaticPayPeriod.map(mappingDiffValue),
+    dataStaticTypeId: dataStaticTypeId.map(mappingDiffValue)
   };
 };
 
