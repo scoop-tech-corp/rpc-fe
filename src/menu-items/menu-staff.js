@@ -22,13 +22,6 @@ const staff = {
       icon: icons.TeamOutlined,
       children: [
         {
-          id: 'staff-dashboard',
-          title: 'Dashboard',
-          type: 'item',
-          url: '/staff/dashboard',
-          breadcrumbs: false
-        },
-        {
           id: 'staff-list',
           title: <FormattedMessage id="staff-list" />,
           type: 'item',
