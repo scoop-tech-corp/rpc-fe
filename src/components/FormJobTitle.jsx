@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { createJobTitle } from 'pages/staff/staff-list/service';
+import { saveStaffDataStatic } from 'pages/staff/static-data/service';
 import { createMessageBackend } from 'service/service-global';
 
 import ModalC from './ModalC';
@@ -14,7 +14,7 @@ const FormJobTitle = (props) => {
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    await createJobTitle(jobTitle)
+    await saveStaffDataStatic({ keyword: 'Job Title', name: jobTitle })
       .then((resp) => {
         if (resp && resp.status === 200) {
           dispatch(snackbarSuccess(`${jobTitle} has been created successfully`));

@@ -2,9 +2,9 @@ import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material'
 import { FormattedMessage } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useStaffFormStore } from '../../staff-form-store';
-import { getTypeIdList } from 'pages/staff/staff-list/service';
 import { useState } from 'react';
 import { useParams } from 'react-router';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -26,8 +26,8 @@ const Background = () => {
 
   const onCloseFormTypeId = async (val) => {
     if (val) {
-      const getTypeId = await getTypeIdList();
-      useStaffFormStore.setState({ typeIdList: getTypeId });
+      const { dataStaticTypeId } = await getDropdownStaffDataStatic();
+      useStaffFormStore.setState({ typeIdList: dataStaticTypeId });
     }
     setOpenFormTypeId(false);
   };
@@ -138,7 +138,7 @@ const Background = () => {
           </Grid>
         </Grid>
       </MainCard>
-      <FormTypeId open={openFormTypeId} onClose={onCloseFormTypeId} />
+      <FormTypeId open={openFormTypeId} onClose={onCloseFormTypeId} module="staff" />
     </>
   );
 };

@@ -5,7 +5,7 @@ import { useParams } from 'react-router';
 import { defaultImage, defaultStaffForm, useStaffFormStore } from './staff-form-store';
 import { jsonCentralized } from 'utils/func';
 import { getLocationList } from 'service/service-global';
-import { getJobTitleList, getRolesIdList, getStaffDetail } from '../service';
+import { getRolesIdList, getStaffDetail } from '../service';
 import { getProvinceLocation } from 'pages/location/location-list/detail/service';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
@@ -33,19 +33,19 @@ const StaffForm = () => {
       const getLoc = await getLocationList();
       const getDataStatic = await getDropdownStaffDataStatic();
 
-      const getJobTitle = await getJobTitleList();
+      // const getJobTitle = await getJobTitleList();
       const getRolesId = await getRolesIdList();
 
       useStaffFormStore.setState({
         messengerType: getDataStatic.dataStaticMessenger,
         usageList: getDataStatic.dataStaticUsage,
         telephoneType: getDataStatic.dataStaticTelephone,
-        typeIdList: getDataStatic.dataStaticTypeId,
+        jobTitleList: getDataStatic.dataStaticJobTitle,
         payPeriodList: getDataStatic.dataStaticPayPeriod,
+        typeIdList: getDataStatic.dataStaticTypeId,
+        rolesIdList: getRolesId,
         provinceList: getProvince,
-        locationList: getLoc,
-        jobTitleList: getJobTitle,
-        rolesIdList: getRolesId
+        locationList: getLoc
       });
 
       resolve(true);

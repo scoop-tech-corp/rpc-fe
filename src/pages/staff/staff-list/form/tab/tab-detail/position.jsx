@@ -5,7 +5,8 @@ import { useStaffFormStore } from '../../staff-form-store';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useState } from 'react';
-import { getJobTitleList, validationFormStaff } from 'pages/staff/staff-list/service';
+import { validationFormStaff } from 'pages/staff/staff-list/service';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -74,8 +75,8 @@ const Position = () => {
   const onCloseFormJobTitle = async (val) => {
     if (val) {
       setOpenFormJobTitle(false);
-      const getJobTitle = await getJobTitleList();
-      useStaffFormStore.setState({ jobTitleList: getJobTitle });
+      const { dataStaticJobTitle } = await getDropdownStaffDataStatic();
+      useStaffFormStore.setState({ jobTitleList: dataStaticJobTitle });
     }
   };
 

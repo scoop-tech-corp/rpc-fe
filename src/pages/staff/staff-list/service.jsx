@@ -211,22 +211,6 @@ export const getStaff = async () => {
   });
 };
 
-export const getTypeIdList = async () => {
-  const getResp = await axios.get('staff/typeid');
-
-  return getResp.data.map((dt) => {
-    return { label: dt.typeName, value: +dt.typeId };
-  });
-};
-
-export const getPayPeriodList = async () => {
-  const getResp = await axios.get('staff/payperiod');
-
-  return getResp.data.map((dt) => {
-    return { label: dt.periodName, value: +dt.payPeriodId };
-  });
-};
-
 export const getRolesIdList = async () => {
   const getResp = await axios.get('staff/rolesid');
 
@@ -235,26 +219,42 @@ export const getRolesIdList = async () => {
   });
 };
 
-export const getJobTitleList = async () => {
-  const getResp = await axios.get('staff/jobtitle');
+// export const getPayPeriodList = async () => {
+//   const getResp = await axios.get('staff/payperiod');
+
+//   return getResp.data.map((dt) => {
+//     return { label: dt.periodName, value: +dt.payPeriodId };
+//   });
+// };
+
+// export const getJobTitleList = async () => {
+//   const getResp = await axios.get('staff/jobtitle');
+
+//   return getResp.data.map((dt) => {
+//     return { label: dt.jobName, value: +dt.jobTitleid };
+//   });
+// };
+
+// export const createJobTitle = async (jobName) => {
+//   const parameter = new FormData();
+//   parameter.append('jobName', jobName);
+
+//   return await axios.post('staff/jobtitle', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+// };
+
+// export const createPayPeriod = async (periodName) => {
+//   const parameter = new FormData();
+//   parameter.append('periodName', periodName);
+
+//   return await axios.post('staff/payperiod', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+// };
+
+export const getTypeIdList = async () => {
+  const getResp = await axios.get('staff/typeid');
 
   return getResp.data.map((dt) => {
-    return { label: dt.jobName, value: +dt.jobTitleid };
+    return { label: dt.typeName, value: +dt.typeId };
   });
-};
-
-export const createJobTitle = async (jobName) => {
-  const parameter = new FormData();
-  parameter.append('jobName', jobName);
-
-  return await axios.post('staff/jobtitle', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
-};
-
-export const createPayPeriod = async (periodName) => {
-  const parameter = new FormData();
-  parameter.append('periodName', periodName);
-
-  return await axios.post('staff/payperiod', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const createTypeId = async (typeName) => {
