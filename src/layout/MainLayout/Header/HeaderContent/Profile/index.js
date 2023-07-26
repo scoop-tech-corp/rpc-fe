@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Box, ButtonBase, CardContent, ClickAwayListener, Grid, Paper, Popper, Stack, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, ButtonBase, CardContent, ClickAwayListener, Grid, Paper, Popper, Stack, Tooltip, Typography } from '@mui/material'; // Tab, Tabs,
 
 // project import
 import Avatar from 'components/@extended/Avatar';
@@ -12,11 +12,11 @@ import Transitions from 'components/@extended/Transitions';
 import IconButton from 'components/@extended/IconButton';
 import useAuth from 'hooks/useAuth';
 import ProfileTab from './ProfileTab';
-import SettingTab from './SettingTab';
+// import SettingTab from './SettingTab';
 
 // assets
 import avatar1 from 'assets/images/users/avatar-1.png';
-import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { LogoutOutlined } from '@ant-design/icons'; // SettingOutlined, UserOutlined
 import { uppercaseWord } from 'utils/func';
 
 // tab panel wrapper
@@ -34,12 +34,12 @@ TabPanel.propTypes = {
   value: PropTypes.any.isRequired
 };
 
-function a11yProps(index) {
-  return {
-    id: `profile-tab-${index}`,
-    'aria-controls': `profile-tabpanel-${index}`
-  };
-}
+// function a11yProps(index) {
+//   return {
+//     id: `profile-tab-${index}`,
+//     'aria-controls': `profile-tabpanel-${index}`
+//   };
+// }
 
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
@@ -68,11 +68,11 @@ const Profile = () => {
     setOpen(false);
   };
 
-  const [value, setValue] = useState(0);
+  // const [value, setValue] = useState(0);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  // const handleChange = (event, newValue) => {
+  //   setValue(newValue);
+  // };
 
   const iconBackColorOpen = theme.palette.mode === 'dark' ? 'grey.200' : 'grey.300';
 
@@ -159,7 +159,8 @@ const Profile = () => {
                     {open && (
                       <>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                          <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
+                          <ProfileTab handleLogout={handleLogout} />
+                          {/* <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
                             <Tab
                               sx={{
                                 display: 'flex',
@@ -184,14 +185,14 @@ const Profile = () => {
                               label="Setting"
                               {...a11yProps(1)}
                             />
-                          </Tabs>
+                          </Tabs> */}
                         </Box>
-                        <TabPanel value={value} index={0} dir={theme.direction}>
+                        {/* <TabPanel value={value} index={0} dir={theme.direction}>
                           <ProfileTab handleLogout={handleLogout} />
                         </TabPanel>
                         <TabPanel value={value} index={1} dir={theme.direction}>
                           <SettingTab />
-                        </TabPanel>
+                        </TabPanel> */}
                       </>
                     )}
                   </MainCard>
