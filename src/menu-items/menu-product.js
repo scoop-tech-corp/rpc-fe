@@ -67,6 +67,12 @@ const product = {
           url: '/product/restock'
         },
         {
+          id: 'product-transfer',
+          title: <FormattedMessage id="transfer" />,
+          type: 'item',
+          url: '/product/transfer'
+        },
+        {
           id: 'product-delivery-agent',
           title: <FormattedMessage id="delivery-agent" />,
           type: 'item',
