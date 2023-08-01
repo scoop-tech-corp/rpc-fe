@@ -46,6 +46,12 @@ const staff = {
           url: '/staff/security-group'
         },
         {
+          id: 'staff-schedule',
+          title: <FormattedMessage id="schedule" />,
+          type: 'item',
+          url: '/staff/schedule'
+        },
+        {
           id: 'staff-static-data',
           title: <FormattedMessage id="static-data" />,
           type: 'item',
