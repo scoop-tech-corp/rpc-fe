@@ -35,6 +35,8 @@ export const AUTH0_API = {
 // API Development
 const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
 
+// API LOCAL
+// const apiUrl = 'http://localhost:8000';
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {

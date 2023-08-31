@@ -16,10 +16,12 @@ import IconButton from 'components/@extended/IconButton';
 // assets
 import { CloseOutlined, LineOutlined, SearchOutlined } from '@ant-design/icons';
 
-export function GlobalFilter({ placeHolder, globalFilter, setGlobalFilter, ...other }) {
+export function GlobalFilter({ placeHolder, globalFilter, onKeyPressEnter, setGlobalFilter, ...other }) {
   const [value, setValue] = useState('');
   const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
+    if (setGlobalFilter) {
+      setGlobalFilter(value || undefined);
+    }
   }, 200);
 
   useEffect(() => {
@@ -33,6 +35,11 @@ export function GlobalFilter({ placeHolder, globalFilter, setGlobalFilter, ...ot
         setValue(e.target.value);
         onChange(e.target.value);
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          onKeyPressEnter();
+        }
+      }}
       placeholder={placeHolder}
       id="start-adornment-email"
       startAdornment={<SearchOutlined />}
@@ -44,7 +51,9 @@ export function GlobalFilter({ placeHolder, globalFilter, setGlobalFilter, ...ot
 GlobalFilter.propTypes = {
   placeHolder: PropTypes.string,
   globalFilter: PropTypes.string,
-  setGlobalFilter: PropTypes.func
+  setGlobalFilter: PropTypes.func,
+  onChangeKeyword: PropTypes.func,
+  onKeyPressEnter: PropTypes.func
 };
 
 export function DefaultColumnFilter({ column: { filterValue, Header, setFilter } }) {

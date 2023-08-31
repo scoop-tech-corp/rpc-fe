@@ -19,8 +19,10 @@ const ModalC = (props) => {
     onCancel,
     action,
     otherDialogAction,
+    positionButton = 'end',
     disabledOk = false,
     isModalAction = true,
+    styleButtonContainer = {},
     ...other
   } = props;
 
@@ -34,12 +36,18 @@ const ModalC = (props) => {
       </DialogTitle>
       <DialogContent dividers={false}>{children}</DialogContent>
       {isModalAction && (
-        <DialogActions>
+        <DialogActions
+          style={{
+            display: 'flex',
+            justifyContent: positionButton,
+            ...styleButtonContainer
+          }}
+        >
           {otherDialogAction}
-          <Button variant="contained" color="error" onClick={onCancel}>
+          <Button variant="contained" className="button__submit" color="error" type="button" onClick={onCancel}>
             {cancelText || <FormattedMessage id="cancel" />}
           </Button>
-          <Button variant="contained" onClick={onOk} disabled={disabledOk}>
+          <Button variant="contained" className="button__primary button__submit" onClick={onOk} disabled={disabledOk}>
             {okText || <FormattedMessage id="submit" />}
           </Button>
         </DialogActions>
@@ -60,7 +68,9 @@ ModalC.propTypes = {
   action: PropTypes.shape({ element: PropTypes.node, justifyContent: PropTypes.string, alignItems: PropTypes.string }),
   otherDialogAction: PropTypes.node,
   isModalAction: PropTypes.bool,
-  other: PropTypes.any
+  other: PropTypes.any,
+  positionButton: PropTypes.string,
+  styleButtonContainer: PropTypes.object
 };
 
 export default ModalC;
