@@ -9,6 +9,8 @@ export default function (getListFunc, initialParams, searchKey) {
     orderColumn: '',
     ...initialParams
   });
+  const [searchTimeout, setSearchTimeout] = useState(null);
+  const [hasSearch, setHasSearch] = useState(false);
 
   const [listInfo, setListInfo] = useState({
     list: [],
@@ -68,9 +70,31 @@ export default function (getListFunc, initialParams, searchKey) {
       search();
     }
   };
+
   const changeKeyword = (e) => {
     setKeyword(e);
+    setHasSearch(true);
   };
+
+  useEffect(() => {
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (hasSearch) {
+        search();
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [keyword]);
 
   const changeLimit = (e) => {
     setParams((_params) => {
@@ -88,8 +112,8 @@ export default function (getListFunc, initialParams, searchKey) {
     goToPage,
     clear,
     keyword,
-    search,
     onKeyPressEnter,
+    search,
     changeKeyword,
     changeLimit,
     orderingChange

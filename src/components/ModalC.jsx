@@ -38,7 +38,6 @@ const ModalC = (props) => {
       {isModalAction && (
         <DialogActions
           style={{
-            display: 'flex',
             justifyContent: positionButton,
             ...styleButtonContainer
           }}

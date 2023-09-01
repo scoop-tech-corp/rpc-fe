@@ -31,7 +31,7 @@ export default function Index() {
   const intl = useIntl();
   const dispatch = useDispatch();
 
-  const { list, totalPagination, params, goToPage, setParams, orderingChange, search, changeKeyword, changeLimit } = useGetList(
+  const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getProductCategory,
     {},
     'search'
@@ -150,9 +150,8 @@ export default function Index() {
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <GlobalFilter
                   placeHolder={intl.formatMessage({ id: 'search' })}
-                  globalFilter={params.search}
+                  globalFilter={keyword}
                   setGlobalFilter={changeKeyword}
-                  onKeyPressEnter={search}
                   style={{ height: '41.3px' }}
                 />
                 {selectedRow.length > 0 && (
