@@ -33,10 +33,10 @@ export const AUTH0_API = {
 // const apiUrl = 'https://www.rpc.rambadvetclinic.com';
 
 // API Development
-// const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
+const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
 
 // API LOCAL
-const apiUrl = 'http://localhost:8000';
+// const apiUrl = 'http://localhost:8000';
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {
