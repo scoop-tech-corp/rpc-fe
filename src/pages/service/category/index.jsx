@@ -22,8 +22,8 @@ import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 
 // Usable
-import FormProductCategory from './form-category';
-import { getProductCategory, exportServiceCategory, deleteServiceCategory } from './service';
+import FormServiceCategory from './form-category';
+import { getServiceCategory, exportServiceCategory, deleteServiceCategory } from './service';
 
 export default function Index() {
   const theme = useTheme();
@@ -32,7 +32,7 @@ export default function Index() {
   const dispatch = useDispatch();
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
-    getProductCategory,
+    getServiceCategory,
     {},
     'search'
   );
@@ -136,7 +136,7 @@ export default function Index() {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="product-category" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="service-category" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
@@ -196,7 +196,7 @@ export default function Index() {
         btnFalseText="Cancel"
       />
       {openFormCategory.isOpen && (
-        <FormProductCategory
+        <FormServiceCategory
           open={true}
           data={{ ...openFormCategory }}
           onClose={() => {

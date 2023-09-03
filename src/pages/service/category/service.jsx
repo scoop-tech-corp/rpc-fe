@@ -1,9 +1,9 @@
 import axios from 'utils/axios';
 
-const productCategoryUrl = 'service/category';
+const serviceCategoryUrl = 'service/category';
 
-export const getProductCategory = async (params) => {
-  const getResp = await axios.get(productCategoryUrl, {
+export const getServiceCategory = async (params) => {
+  const getResp = await axios.get(serviceCategoryUrl, {
     params
   });
 
@@ -11,31 +11,31 @@ export const getProductCategory = async (params) => {
 };
 
 export const exportServiceCategory = async (params) => {
-  return await axios.get(productCategoryUrl + '/export', {
+  return await axios.get(serviceCategoryUrl + '/export', {
     responseType: 'blob',
     params
   });
 };
 
 export const deleteServiceCategory = async (id) => {
-  return await axios.delete(productCategoryUrl, {
+  return await axios.delete(serviceCategoryUrl, {
     data: { id }
   });
 };
 
-export const createProductCategory = async (property) => {
+export const createServiceCategory = async (property) => {
   const param = new FormData();
   param.append('categoryName', property.categoryName);
 
-  return await axios.post(productCategoryUrl, param, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post(serviceCategoryUrl, param, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const updateProductCategory = async (property) => {
+export const updateServiceCategory = async (property) => {
   const parameter = {
     id: property.id,
     categoryName: property.categoryName,
     expiredDay: property.expiredDay
   };
 
-  return await axios.put(productCategoryUrl, parameter);
+  return await axios.put(serviceCategoryUrl, parameter);
 };

@@ -1,8 +1,8 @@
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Button, Grid, InputLabel, Stack, TextField } from '@mui/material';
+import { Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createProductCategory, updateProductCategory } from './service';
+import { createServiceCategory, updateServiceCategory } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 
@@ -13,7 +13,7 @@ const configCoreErr = {
   categoryNameErr: ''
 };
 
-const FormProductCategory = (props) => {
+const FormServiceCategory = (props) => {
   const [categoryName, setCategoryName] = useState(props.data.id ? props.data.categoryName : '');
   const [formErr, setFormErr] = useState(configCoreErr);
   const [disabledOk, setDisabledOk] = useState(true);
@@ -59,9 +59,9 @@ const FormProductCategory = (props) => {
     };
 
     if (props.data.id) {
-      await updateProductCategory({ id: props.data.id, categoryName }).then(catchSuccess).catch(catchError);
+      await updateServiceCategory({ id: props.data.id, categoryName }).then(catchSuccess).catch(catchError);
     } else {
-      await createProductCategory({ categoryName }).then(catchSuccess).catch(catchError);
+      await createServiceCategory({ categoryName }).then(catchSuccess).catch(catchError);
     }
   };
 
@@ -111,11 +111,11 @@ const FormProductCategory = (props) => {
   );
 };
 
-FormProductCategory.propTypes = {
+FormServiceCategory.propTypes = {
   open: PropTypes.bool,
   data: PropTypes.object,
   onClose: PropTypes.func,
   setParams: PropTypes.func
 };
 
-export default FormProductCategory;
+export default FormServiceCategory;
