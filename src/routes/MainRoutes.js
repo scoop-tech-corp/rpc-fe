@@ -30,6 +30,8 @@ const StaffAccessControl = Loadable(lazy(() => import('pages/staff/access-contro
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/staff/security-group')));
 const StaffSecurityGroupForm = Loadable(lazy(() => import('pages/staff/security-group/form')));
 const StaffSchedule = Loadable(lazy(() => import('pages/staff/schedule')));
+const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view')));
+const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 
 // Promotion
@@ -126,6 +128,8 @@ const MainRoutes = {
             { path: 'security-group/form', element: <StaffSecurityGroupForm /> },
             { path: 'security-group/form/:id', element: <StaffSecurityGroupForm /> },
             { path: 'schedule', element: <StaffSchedule /> },
+            { path: 'profile/view/:id', element: <StaffViewProfile /> },
+            { path: 'profile/edit/:id', element: <StaffEditProfile /> },
             { path: 'static-data', element: <StaffStaticData /> }
           ]
         },
