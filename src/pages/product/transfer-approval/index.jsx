@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import TabPanel from 'components/TabPanelC';
 import PropTypes from 'prop-types';
 import ModalC from 'components/ModalC';
-import TransferProduct from './transfer-product';
-import HistoryTransferProduct from './history';
+import TransferProduct from './tab-transfer-product';
+import HistoryTransferProduct from './tab-history';
 
 const ProductTransferApproval = (props) => {
   const [tabSelected, setTabSelected] = useState(0);

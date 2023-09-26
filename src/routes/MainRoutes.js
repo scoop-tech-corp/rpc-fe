@@ -29,6 +29,9 @@ const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
 const StaffAccessControl = Loadable(lazy(() => import('pages/staff/access-control')));
 const StaffSecurityGroup = Loadable(lazy(() => import('pages/staff/security-group')));
 const StaffSecurityGroupForm = Loadable(lazy(() => import('pages/staff/security-group/form')));
+const StaffSchedule = Loadable(lazy(() => import('pages/staff/schedule')));
+const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view')));
+const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 
 // Promotion
@@ -62,6 +65,7 @@ const ProductSupplierForm = Loadable(lazy(() => import('pages/product/supplier/f
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
 const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
+const ProductTransfer = Loadable(lazy(() => import('pages/product/transfer')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
@@ -125,6 +129,9 @@ const MainRoutes = {
             { path: 'security-group', element: <StaffSecurityGroup /> },
             { path: 'security-group/form', element: <StaffSecurityGroupForm /> },
             { path: 'security-group/form/:id', element: <StaffSecurityGroupForm /> },
+            { path: 'schedule', element: <StaffSchedule /> },
+            { path: 'profile/view/:id', element: <StaffViewProfile /> },
+            { path: 'profile/edit/:id', element: <StaffEditProfile /> },
             { path: 'static-data', element: <StaffStaticData /> }
           ]
         },
@@ -172,6 +179,7 @@ const MainRoutes = {
             { path: 'restock', element: <ProductRestock /> },
             { path: 'restock/form', element: <ProductRestockForm /> },
             { path: 'restock/form/:id', element: <ProductRestockForm /> },
+            { path: 'transfer', element: <ProductTransfer /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
             { path: 'static-data', element: <ProductStaticData /> }
           ]
