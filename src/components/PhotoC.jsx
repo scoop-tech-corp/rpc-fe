@@ -6,7 +6,7 @@ import MainCard from './MainCard';
 import PropTypes from 'prop-types';
 
 const PhotoC = (props) => {
-  const { photoValue, photoOutput } = props;
+  const { photoValue, photoOutput, disabled } = props;
 
   const onAddPhotos = () => {
     photoOutput([...photoValue, { id: null, label: '', imagePath: '', status: '', originalName: '', selectedFile: null }]);
@@ -84,13 +84,17 @@ const PhotoC = (props) => {
                         id={`photo-name-${i}`}
                         name={`photo-name-${i}`}
                         value={ph.label}
+                        disabled={disabled}
+                        inputProps={{ readOnly: disabled }}
                         onChange={(event) => onChangeLabel(event, i)}
                       />
                     </Stack>
                   </Grid>
-                  <Grid item xs={12}>
-                    <DeleteFilled style={{ fontSize: '14px', color: 'red', cursor: 'pointer' }} onClick={() => onDeletePhoto(i)} />
-                  </Grid>
+                  {!disabled && (
+                    <Grid item xs={12}>
+                      <DeleteFilled style={{ fontSize: '14px', color: 'red', cursor: 'pointer' }} onClick={() => onDeletePhoto(i)} />
+                    </Grid>
+                  )}
                 </Grid>
               </MainCard>
             </Grid>

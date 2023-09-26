@@ -1,0 +1,18 @@
+.detailModal input:read-only + fieldset, 
+.detailModal input:read-only,
+.detailModal textarea:read-only,
+.detailModal textarea:read-only + fieldset {
+  padding: 0 !important;
+  border: none !important;
+  color: black !important;
+  -webkit-text-fill-color: #252525!important;
+}
+.detailModal:has(textarea:read-only) .MuiOutlinedInput-root{
+  padding: 0 !important;
+}
+.detailModal .inputWithPrefix input:read-only {
+  margin-left: 5px;
+}
+.detailModal .inputWithPrefix .Mui-disabled{
+  color: #252525 !important;
+}

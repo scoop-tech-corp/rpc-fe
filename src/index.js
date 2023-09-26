@@ -19,6 +19,9 @@ import 'assets/third-party/daterange-picker-custom.css';
 // load mock apis
 import '_api';
 
+// custom css
+import 'assets/style/index.css';
+
 // project import
 import App from './App';
 import { store, persister } from 'store';

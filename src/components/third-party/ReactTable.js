@@ -114,11 +114,8 @@ export const ReactTable = ({
   };
 
   useEffect(() => () => {});
-
   return (
     <>
-      {/* <StyleTable> */}
-      {/* <div className="tableWrap"> */}
       <Table {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup, i) => (
