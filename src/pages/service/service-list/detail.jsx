@@ -19,7 +19,7 @@ import TabFacility from './form/tab/tab-facility';
 import TabPhoto from './form/tab/tab-photo';
 import ServiceListFormHeader from './form/service-list-form-header';
 import useGetDetail from 'hooks/useGetDetail';
-import { getServiceListById, getServiceCategoryList } from './service';
+import { getServiceListById, getServiceCategoryList, getServiceListFollowup } from './service';
 
 import { useServiceFormStore } from './form/service-form-store';
 
@@ -67,6 +67,9 @@ const ProductCategoryDetail = (props) => {
           label: item.categoryName
         };
       }),
+      followup: detail.detail?.followup_list?.map((item) => {
+        return { id: item.id, value: item.service_id, label: item.fullName, created_at: item.created_at };
+      }),
       photos: detail.detail?.image_list?.map((item) => {
         return {
           id: item.id,
@@ -85,6 +88,7 @@ const ProductCategoryDetail = (props) => {
       const getCustomer = await getCustomerGroupList();
       const getLoc = await getLocationList();
       const getCategory = await getServiceCategoryList();
+      const getService = await getServiceListFollowup();
 
       useServiceFormStore.setState((prevState) => {
         return {
@@ -92,7 +96,8 @@ const ProductCategoryDetail = (props) => {
           dataSupport: {
             customerGroupsList: getCustomer,
             locationList: getLoc,
-            categoryList: getCategory
+            categoryList: getCategory,
+            serviceList: getService
           }
         };
       });

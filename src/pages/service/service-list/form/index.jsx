@@ -73,7 +73,6 @@ const ServiceListForm = () => {
             value: item.locationId,
             label: item.locationName
           };
-          // return item.locationId;
         }),
         listPrice: detail.detail?.price_list?.map((item) => {
           return {

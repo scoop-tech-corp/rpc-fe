@@ -4,7 +4,7 @@ import { useServiceFormStore } from '../../service-form-store';
 
 import MainCard from 'components/MainCard';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteFilled } from '@ant-design/icons';
 
 import useGetList from 'hooks/useGetList';
 import { getStaffByLocation } from '../../../service';
@@ -125,7 +125,7 @@ const TabDescription = () => {
           if (data.row.original.isCreate || isDetail) return null;
           return (
             <IconButton size="large" color="error" onClick={() => handleDeleteList(data.row.original.id)}>
-              <DeleteOutlined />
+              <DeleteFilled />
             </IconButton>
           );
         }

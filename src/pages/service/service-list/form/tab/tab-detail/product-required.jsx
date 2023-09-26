@@ -5,7 +5,7 @@ import { useServiceFormStore } from '../../service-form-store';
 
 import MainCard from 'components/MainCard';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import useGetList from 'hooks/useGetList';
 import { getProductList } from '../../../service';
 import { useEffect } from 'react';
@@ -90,7 +90,7 @@ const ProductRequired = () => {
           if (data.row.original.isCreate || isDetail) return null;
           return (
             <IconButton size="large" color="error" onClick={() => handleDeleteList(data.row.original.id)}>
-              <DeleteOutlined />
+              <DeleteFilled />
             </IconButton>
           );
         }

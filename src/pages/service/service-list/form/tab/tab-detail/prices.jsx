@@ -4,7 +4,7 @@ import { useServiceFormStore } from '../../service-form-store';
 
 import MainCard from 'components/MainCard';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import NumberFormatCustom from 'utils/number-format';
 import MultiSelectAll from 'components/MultiSelectAll';
@@ -186,7 +186,7 @@ const Prices = () => {
           if (data.row.original.isCreate || isDetail) return null;
           return (
             <IconButton size="large" color="error" onClick={() => handleDeleteList(data.row.original.id)}>
-              <DeleteOutlined />
+              <DeleteFilled />
             </IconButton>
           );
         }
