@@ -40,6 +40,7 @@
   },
   "plugins": ["prettier", "react", "react-hooks"],
   "rules": {
+    "eslint-disable-next-line react-hooks/exhaustive-deps": "off",
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
     "react/react-in-jsx-scope": "off",

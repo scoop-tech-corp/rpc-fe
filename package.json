@@ -27,6 +27,7 @@
     "@mui/system": "^5.8.4",
     "@mui/x-date-pickers": "^5.0.0-alpha.6",
     "@reduxjs/toolkit": "^1.8.2",
+    "@unicef/material-ui-currency-textfield": "^0.8.6",
     "@wojtekmaj/react-daterange-picker": "^4.2.0",
     "amazon-cognito-identity-js": "^5.2.9",
     "apexcharts": "^3.35.3",

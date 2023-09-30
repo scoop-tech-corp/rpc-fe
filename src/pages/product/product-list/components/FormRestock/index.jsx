@@ -145,7 +145,7 @@ const FormRestock = (props) => {
       >
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
-            <Stack spacing={1}>
+            <Stack spacing={1} className="textFieldA">
               <InputLabel htmlFor="product-name">{<FormattedMessage id="product-name" />}</InputLabel>
               <TextField
                 fullWidth

@@ -7,14 +7,27 @@ export const getLocationList = async () => {
   });
 };
 
+export const getCustomerGroupList = async () => {
+  const getResp = await axios.get('customer/group');
+  return getResp.data.map((dt) => {
+    return { label: dt.customerGroup, value: +dt.id };
+  });
+};
+
 export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
   if (sourcePhoto.length) {
     const tempFileName = [];
     sourcePhoto.forEach((file) => {
-      fd.append('images[]', file.selectedFile);
+      if (file.selectedFile) {
+        fd.append('images[]', file.selectedFile);
 
-      const id = procedure === 'update' ? +file.id : '';
-      tempFileName.push({ id, name: file.label, status: file.status });
+        const id = procedure === 'update' ? +file.id : '';
+        tempFileName.push({ id, name: file.label, status: file.status });
+      } else if (file.created_at) {
+        const id = procedure === 'update' ? +file.id : '';
+        fd.append('images[]', []);
+        tempFileName.push({ id, name: file.label, status: file.status, created_at: file.created_at });
+      }
     });
     fd.append('imagesName', JSON.stringify(tempFileName));
   } else {
