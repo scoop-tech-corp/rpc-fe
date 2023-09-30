@@ -44,20 +44,22 @@ const PhotoC = (props) => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Grid container justifyContent="flex-start" sx={{ position: 'relative', zIndex: 5 }}>
-          <Grid
-            item
-            sx={{ mx: matchDownSM ? 2 : 3, my: matchDownSM ? 1 : 0, mb: matchDownSM ? 2 : 0 }}
-            xs={matchDownSM ? 12 : 'auto'}
-            style={{ margin: '0px' }}
-          >
-            <Button variant="contained" fullWidth={matchDownSM} onClick={onAddPhotos} startIcon={<PlusOutlined />}>
-              <FormattedMessage id="add" />
-            </Button>
+      {!disabled && (
+        <Grid item xs={12}>
+          <Grid container justifyContent="flex-start" sx={{ position: 'relative', zIndex: 5 }}>
+            <Grid
+              item
+              sx={{ mx: matchDownSM ? 2 : 3, my: matchDownSM ? 1 : 0, mb: matchDownSM ? 2 : 0 }}
+              xs={matchDownSM ? 12 : 'auto'}
+              style={{ margin: '0px' }}
+            >
+              <Button variant="contained" fullWidth={matchDownSM} onClick={onAddPhotos} startIcon={<PlusOutlined />}>
+                <FormattedMessage id="add" />
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      )}
       {photoValue.map((ph, i) => {
         if (ph.status === '') {
           return (

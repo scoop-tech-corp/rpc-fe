@@ -23,9 +23,8 @@ export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
 
         const id = procedure === 'update' ? +file.id : '';
         tempFileName.push({ id, name: file.label, status: file.status });
-      } else {
+      } else if (file.created_at) {
         const id = procedure === 'update' ? +file.id : '';
-        // console.log(file);
         fd.append('images[]', []);
         tempFileName.push({ id, name: file.label, status: file.status, created_at: file.created_at });
       }

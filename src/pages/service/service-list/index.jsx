@@ -202,16 +202,7 @@ export default function Index() {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
-      {/* {openFormCategory.isOpen && (
-        <FormServiceCategory
-          open={true}
-          data={{ ...openFormCategory }}
-          onClose={() => {
-            setOpenFormCategory({ isOpen: false, id: '', categoryName: '' });
-          }}
-          setParams={setParams}
-        /> */}
-      {/* )} */}
+
       {openDetail.isOpen && (
         <ServiceListDetail
           open={openDetail.isOpen}

@@ -152,8 +152,7 @@ const FormRestock = (props) => {
                 id="productName"
                 name="productName"
                 value={productName}
-                className="3333333"
-                inputProps={{ readOnly: true, className: 'TextFieldaaa' }}
+                inputProps={{ readOnly: true }}
                 placeholder="Whiskas food 20kg"
               />
             </Stack>

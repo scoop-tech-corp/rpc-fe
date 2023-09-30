@@ -13,7 +13,7 @@ import MainCard from '../MainCard';
 import { LeftOutlined } from '@ant-design/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 
-const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) => {
+const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, onClickBack, action }) => {
   // const theme = useTheme();
   // const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -66,8 +66,13 @@ const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) =
   }, [location]);
 
   const onLocationBack = () => {
-    const setUrl = locationBackConfig.customUrl ? locationBackConfig.customUrl : -1;
-    navigate(setUrl, { replace: true });
+    if (onClickBack) {
+      onClickBack();
+      return;
+    } else {
+      const setUrl = locationBackConfig.customUrl ? locationBackConfig.customUrl : -1;
+      navigate(setUrl, { replace: true });
+    }
   };
 
   return (
@@ -86,7 +91,6 @@ const HeaderPageCustom = ({ title, isBreadcrumb, locationBackConfig, action }) =
             )}
           </Grid>
         )}
-        {/* direction={matchDownSM ? 'column' : 'row'} */}
         <Grid item>
           <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={3}>
             <Typography variant="h3">{title}</Typography>
@@ -107,7 +111,8 @@ HeaderPageCustom.propTypes = {
   title: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   isBreadcrumb: PropTypes.bool,
   locationBackConfig: PropTypes.shape({ setLocationBack: PropTypes.bool, customUrl: PropTypes.string }),
-  action: PropTypes.node
+  action: PropTypes.node,
+  onClickBack: PropTypes.func
 };
 
 export default HeaderPageCustom;

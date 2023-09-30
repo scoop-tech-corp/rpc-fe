@@ -98,6 +98,7 @@ const ServiceListFormHeader = (props) => {
     <>
       <HeaderPageCustom
         title={setTitlePage}
+        onClickBack={() => props.onClose()}
         locationBackConfig={{ setLocationBack: true, customUrl: '/service/list' }}
         action={
           isDetail ? (
