@@ -18,6 +18,7 @@ import TabPhoto from './tab/tab-photo';
 import ServiceListFormHeader from './service-list-form-header';
 import { getServiceCategoryList, getServiceListById, getServiceListFollowup } from '../service';
 import useGetDetail from 'hooks/useGetDetail';
+import { jsonCentralized } from 'utils/func';
 
 const ServiceListForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -115,7 +116,7 @@ const ServiceListForm = () => {
   }, [detail]);
 
   useEffect(() => {
-    useServiceFormStore.setState(defaultServiceListForm);
+    useServiceFormStore.setState(defaultServiceListForm, true);
   }, []);
 
   const TabPanel = (props) => {
@@ -148,7 +149,7 @@ const ServiceListForm = () => {
             <Tab label={<FormattedMessage id="staff" />} id="service-list-tab-4" aria-controls="service-list-tabpanel-4" />
             <Tab label={<FormattedMessage id="facility" />} id="service-list-tab-5" aria-controls="service-list-tabpanel-5" />
             <Tab label={<FormattedMessage id="category" />} id="service-list-tab-6" aria-controls="service-list-tabpanel-6" />
-            <Tab label={<FormattedMessage id="photos" />} id="service-list-tab-7" aria-controls="service-list-tabpanel-7" />
+            <Tab label={<FormattedMessage id="image" />} id="service-list-tab-7" aria-controls="service-list-tabpanel-7" />
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>

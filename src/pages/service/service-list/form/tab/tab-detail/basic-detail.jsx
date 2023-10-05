@@ -27,7 +27,7 @@ const TabDescription = () => {
 
   if (isDetail) {
     return (
-      <MainCard title={<FormattedMessage id="overview" />}>
+      <MainCard title={<FormattedMessage id="basic-info" />}>
         <Grid container spacing={isDetail ? 2 : 3}>
           <Grid item xs={12} sm={11}>
             <p style={{ fontWeight: 900 }}> {type == 1 ? 'Petshop' : type == 2 ? 'Grooming' : 'Klinik'}</p>
@@ -127,7 +127,7 @@ const TabDescription = () => {
     );
   }
   return (
-    <MainCard title={<FormattedMessage id="overview" />}>
+    <MainCard title={<FormattedMessage id="basic-info" />}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={11}>
           <FormControl>

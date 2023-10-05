@@ -21,7 +21,7 @@ import ServiceListFormHeader from './form/service-list-form-header';
 import useGetDetail from 'hooks/useGetDetail';
 import { getServiceListById, getServiceCategoryList, getServiceListFollowup } from './service';
 
-import { useServiceFormStore } from './form/service-form-store';
+import { useServiceFormStore, defaultServiceListForm } from './form/service-form-store';
 
 const ProductCategoryDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -113,7 +113,10 @@ const ProductCategoryDetail = (props) => {
     getData();
   }, []);
 
-  const onCancel = () => props.onClose(false);
+  const onCancel = () => {
+    useServiceFormStore.setState(defaultServiceListForm, true);
+    props.onClose();
+  };
 
   return (
     <ModalC
