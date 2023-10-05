@@ -6,7 +6,6 @@ import { getLocationList, getCustomerGroupList } from 'service/service-global';
 import { defaultServiceListForm, useServiceFormStore } from './service-form-store';
 import configGlobal from '../../../../config';
 
-import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import TabDetail from './tab/tab-detail/tab-detail';
 import TabDescription from './tab/tab-description';
@@ -18,7 +17,7 @@ import TabPhoto from './tab/tab-photo';
 import ServiceListFormHeader from './service-list-form-header';
 import { getServiceCategoryList, getServiceListById, getServiceListFollowup } from '../service';
 import useGetDetail from 'hooks/useGetDetail';
-import { jsonCentralized } from 'utils/func';
+import TabPanel from 'components/TabPanelC';
 
 const ServiceListForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -118,17 +117,6 @@ const ServiceListForm = () => {
   useEffect(() => {
     useServiceFormStore.setState(defaultServiceListForm, true);
   }, []);
-
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`service-list-tabpanel-${value}`} aria-labelledby={`service-list-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = { children: PropTypes.node, value: PropTypes.number, index: PropTypes.number };
 
   const onChangeTab = (_, value) => setTabSelected(value);
 
