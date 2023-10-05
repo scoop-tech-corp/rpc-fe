@@ -44,7 +44,6 @@ const Prices = () => {
     setForm((e) => ({ ...e, [event?.target?.name]: event?.target?.value }));
   };
 
-  console.log(form);
   const formCreated = {
     isCreate: true,
     duration: (
@@ -205,14 +204,7 @@ const Prices = () => {
           style={{ marginTop: 20 }}
           onClick={onAddedPrice}
           key={form.location?.length + form.customerGroup?.length}
-          disabled={
-            form.duration == '' ||
-            form.unit == '' ||
-            form.title == '' ||
-            form.price == '' ||
-            !form.customerGroup.length ||
-            !form.location.length
-          }
+          disabled={form.duration == '' || form.unit == '' || form.price == '' || !form.customerGroup.length || !form.location.length}
         >
           <FormattedMessage id="add" />
         </Button>

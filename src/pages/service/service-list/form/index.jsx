@@ -6,7 +6,6 @@ import { getLocationList, getCustomerGroupList } from 'service/service-global';
 import { defaultServiceListForm, useServiceFormStore } from './service-form-store';
 import configGlobal from '../../../../config';
 
-import PropTypes from 'prop-types';
 import MainCard from 'components/MainCard';
 import TabDetail from './tab/tab-detail/tab-detail';
 import TabDescription from './tab/tab-description';
@@ -18,6 +17,7 @@ import TabPhoto from './tab/tab-photo';
 import ServiceListFormHeader from './service-list-form-header';
 import { getServiceCategoryList, getServiceListById, getServiceListFollowup } from '../service';
 import useGetDetail from 'hooks/useGetDetail';
+import TabPanel from 'components/TabPanelC';
 
 const ServiceListForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -115,19 +115,8 @@ const ServiceListForm = () => {
   }, [detail]);
 
   useEffect(() => {
-    useServiceFormStore.setState(defaultServiceListForm);
+    useServiceFormStore.setState(defaultServiceListForm, true);
   }, []);
-
-  const TabPanel = (props) => {
-    const { children, value, index } = props;
-
-    return (
-      <div role="tabpanel" id={`service-list-tabpanel-${value}`} aria-labelledby={`service-list-tab-${value}`}>
-        {value === index && <>{children}</>}
-      </div>
-    );
-  };
-  TabPanel.propTypes = { children: PropTypes.node, value: PropTypes.number, index: PropTypes.number };
 
   const onChangeTab = (_, value) => setTabSelected(value);
 
@@ -148,7 +137,7 @@ const ServiceListForm = () => {
             <Tab label={<FormattedMessage id="staff" />} id="service-list-tab-4" aria-controls="service-list-tabpanel-4" />
             <Tab label={<FormattedMessage id="facility" />} id="service-list-tab-5" aria-controls="service-list-tabpanel-5" />
             <Tab label={<FormattedMessage id="category" />} id="service-list-tab-6" aria-controls="service-list-tabpanel-6" />
-            <Tab label={<FormattedMessage id="photos" />} id="service-list-tab-7" aria-controls="service-list-tabpanel-7" />
+            <Tab label={<FormattedMessage id="image" />} id="service-list-tab-7" aria-controls="service-list-tabpanel-7" />
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>

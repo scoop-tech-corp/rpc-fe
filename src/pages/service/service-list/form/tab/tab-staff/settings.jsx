@@ -10,7 +10,7 @@ const TabStaffSettings = () => {
   const isDetail = useServiceFormStore((state) => state.isDetail);
 
   return (
-    <MainCard title={<FormattedMessage id="overview" />}>
+    <MainCard title={<FormattedMessage id="settings" />}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <Stack spacing={1}>

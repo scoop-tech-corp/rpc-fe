@@ -12,7 +12,7 @@ const TabDescription = () => {
   const isDetail = useServiceFormStore((state) => state.isDetail);
 
   return (
-    <MainCard title={<FormattedMessage id="overview" />}>
+    <MainCard title={<FormattedMessage id="settings" />}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Stack spacing={1}>
@@ -39,7 +39,7 @@ const TabDescription = () => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    defaultChecked={optionPolicy1}
+                    defaultChecked={optionPolicy1 == 1}
                     disabled={isDetail}
                     onChange={(e) => {
                       useServiceFormStore.setState({ optionPolicy1: e.target.checked });
@@ -51,7 +51,7 @@ const TabDescription = () => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    defaultChecked={optionPolicy2}
+                    defaultChecked={optionPolicy2 == 1}
                     disabled={isDetail}
                     onChange={(e) => {
                       useServiceFormStore.setState({ optionPolicy2: e.target.checked });
@@ -63,7 +63,7 @@ const TabDescription = () => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    defaultChecked={optionPolicy3}
+                    defaultChecked={optionPolicy3 == 1}
                     disabled={isDetail}
                     onChange={(e) => {
                       useServiceFormStore.setState({ optionPolicy3: e.target.checked });

@@ -55,18 +55,16 @@ const ServiceListFormHeader = (props) => {
 
     if (resp && resp.status === 200) {
       const message = `Success ${id ? 'update' : 'create'} product sell`;
-      useServiceFormStore.setState(defaultServiceListForm);
-
+      useServiceFormStore.setState(defaultServiceListForm, true);
       nextProcessSuccess(message);
     }
   };
 
   const onSubmit = async () => {
     if (id) {
-      // console.log(getAllState());
-      updateServiceList(getAllState()).then(responseSuccess).catch(responseError);
+      updateServiceList(useServiceFormStore.getState()).then(responseSuccess).catch(responseError);
     } else {
-      await createServiceList(getAllState()).then(responseSuccess).catch(responseError);
+      await createServiceList(useServiceFormStore.getState()).then(responseSuccess).catch(responseError);
     }
   };
 

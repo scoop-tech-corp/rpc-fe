@@ -12,6 +12,7 @@ export const getProductList = async (params) => {
 
   return getResp;
 };
+
 export const getFacilityList = async (params) => {
   const getResp = await axios.get('location/facility/location', {
     params: {
@@ -114,9 +115,19 @@ export const exportServiceList = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      locationId: property.locationId.length ? property.locationId : [''],
+      // locationId: property.locationId.length ? property.locationId : [''],
       isExportAll: property.allData ? 1 : 0,
       isExportLimit: property.onlyItem ? 1 : 0
     }
   });
+};
+export const downloadTemplateServiceList = async () => {
+  return await axios.get(serviceListUrl + '/template', { responseType: 'blob' });
+};
+
+export const importServiceList = async (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  return await axios.post(serviceListUrl + '/import', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

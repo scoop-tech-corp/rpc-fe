@@ -20,13 +20,13 @@ import { exportData } from 'utils/exportData.js';
 
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, processDownloadExcel } from 'service/service-global';
 
 import ServiceListDetail from './detail';
 
 // Usable
-// import FormServiceCategory from './form-category';
-import { getServiceList, exportServiceList, deleteServiceList } from './service';
+import { getServiceList, exportServiceList, deleteServiceList, downloadTemplateServiceList, importServiceList } from './service';
+import ModalImport from 'pages/product/product-list/components/ModalImport';
 
 export default function Index() {
   const theme = useTheme();
@@ -40,9 +40,9 @@ export default function Index() {
     {},
     'search'
   );
+  const [modalImport, setModalImport] = useState(false);
   const [selectedRow, setSelectedRow] = useState([]);
   const [dialog, setDialog] = useState(false);
-  const [openFormCategory, setOpenFormCategory] = useState({ isOpen: false, id: '', categoryName: '' });
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null, categoryName: '' });
 
   const columns = useMemo(
@@ -102,7 +102,7 @@ export default function Index() {
         Header: <FormattedMessage id="status" />,
         accessor: 'status',
         Cell: (data) => {
-          const val = data.value ? <FormattedMessage id="active" /> : <FormattedMessage id="non-active" />;
+          const val = data.value == 1 ? <FormattedMessage id="active" /> : <FormattedMessage id="non-active" />;
           return <span>{val}</span>;
         }
       },
@@ -118,7 +118,7 @@ export default function Index() {
       orderColumn: params.orderColumn,
       search: params.search
     };
-    // return await exportData(exportServiceList, paramsExport);
+    return await exportData(exportServiceList, paramsExport);
   };
 
   const onConfirm = async (value) => {
@@ -140,6 +140,31 @@ export default function Index() {
     } else {
       setDialog(false);
     }
+  };
+
+  const onImportFile = async (file) => {
+    await importServiceList(file)
+      .then((resp) => {
+        if (resp.status === 200) {
+          dispatch(snackbarSuccess('Success import file'));
+          setModalImport(false);
+          setParams((_params) => ({ ..._params }));
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+  const onDownloadTemplate = async () => {
+    await downloadTemplateServiceList()
+      .then(processDownloadExcel)
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
   };
 
   return (
@@ -173,7 +198,7 @@ export default function Index() {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="primary">
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalImport(true)} color="primary">
                   <FormattedMessage id="import" />
                 </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => navigate('/service/list/form', { replace: true })}>
@@ -186,6 +211,7 @@ export default function Index() {
               data={list || []}
               totalPagination={totalPagination}
               setPageNumber={params.goToPage}
+              colSpanPagination={8}
               setPageRow={params.rowPerPage}
               onGotoPage={goToPage}
               onOrder={orderingChange}
@@ -210,6 +236,9 @@ export default function Index() {
           setParams={setParams}
           onClose={() => setOpenDetail({ isOpen: false, id: '', categoryName: '' })}
         />
+      )}
+      {modalImport && (
+        <ModalImport open={true} onTemplate={onDownloadTemplate} onImport={(e) => onImportFile(e)} onClose={(e) => setModalImport(!e)} />
       )}
     </>
   );
