@@ -1,0 +1,14 @@
+.leaflet-container {
+  height: 50vh;
+  width: 100%;
+
+  margin-top: 10px;
+  border: 2px solid #1890ff;
+  border-radius: 4px;
+}
+
+@media screen and (max-width: 768px) {
+  .leaflet-container {
+    height: 25vh;
+  }
+}

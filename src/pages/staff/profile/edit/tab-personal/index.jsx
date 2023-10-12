@@ -173,7 +173,13 @@ const TabPersonal = (props) => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Button variant="contained" color="warning" startIcon={<EditOutlined />} onClick={onSubmit} disabled={errorForm}>
+        <Button
+          variant="contained"
+          color="warning"
+          startIcon={<EditOutlined />}
+          onClick={onSubmit}
+          disabled={errorForm || firstRender.current}
+        >
           <FormattedMessage id="edit" />
         </Button>
       </Grid>

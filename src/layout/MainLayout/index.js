@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery, Box, Container, Toolbar } from '@mui/material';
+import { openDrawer } from 'store/reducers/menu';
 
 // project import
 import Drawer from './Drawer';
@@ -13,7 +14,8 @@ import Footer from './Footer';
 import navigation from 'menu-items';
 import useConfig from 'hooks/useConfig';
 import Breadcrumbs from 'components/@extended/Breadcrumbs';
-import { openDrawer } from 'store/reducers/menu';
+import FormAbsent from 'pages/absent';
+import useAuth from 'hooks/useAuth';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
@@ -27,6 +29,7 @@ const MainLayout = () => {
 
   const menu = useSelector((state) => state.menu);
   const { drawerOpen } = menu;
+  const { user } = useAuth();
 
   // drawer toggler
   const [open, setOpen] = useState(!miniDrawer || drawerOpen);
@@ -34,6 +37,8 @@ const MainLayout = () => {
     setOpen(!open);
     dispatch(openDrawer({ drawerOpen: !open }));
   };
+
+  const [isOpenAbsent, setOpenAbsent] = useState(!user?.isAbsent);
 
   useEffect(() => {
     if (!matchDownMD) {
@@ -61,30 +66,39 @@ const MainLayout = () => {
   }, [drawerOpen]);
 
   return (
-    <Box sx={{ display: 'flex', width: '100%' }}>
-      <Header open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Box component="main" sx={{ width: 'calc(100% - 260px)', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-        <Toolbar />
-        {container && (
-          <Container
-            maxWidth="lg"
-            sx={{ px: { xs: 0, sm: 2 }, position: 'relative', minHeight: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}
-          >
-            <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
-            <Outlet />
-            <Footer />
-          </Container>
-        )}
-        {!container && (
-          <Box sx={{ position: 'relative', minHeight: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}>
-            {/* <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} /> */}
-            <Outlet />
-            <Footer />
-          </Box>
-        )}
+    <>
+      <Box sx={{ display: 'flex', width: '100%' }}>
+        <Header open={open} handleDrawerToggle={handleDrawerToggle} />
+        <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
+        <Box component="main" sx={{ width: 'calc(100% - 260px)', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+          <Toolbar />
+          {container && (
+            <Container
+              maxWidth="lg"
+              sx={{
+                px: { xs: 0, sm: 2 },
+                position: 'relative',
+                minHeight: 'calc(100vh - 110px)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
+              <Outlet />
+              <Footer />
+            </Container>
+          )}
+          {!container && (
+            <Box sx={{ position: 'relative', minHeight: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}>
+              {/* <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} /> */}
+              <Outlet />
+              <Footer />
+            </Box>
+          )}
+        </Box>
       </Box>
-    </Box>
+      {isOpenAbsent && <FormAbsent open={isOpenAbsent} onClose={(event) => setOpenAbsent(!event)} />}
+    </>
   );
 };
 

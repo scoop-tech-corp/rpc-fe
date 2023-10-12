@@ -1,4 +1,5 @@
 {
+  "absent": "Absent",
   "active": "Active",
   "add": "Add",
   "add-brand": "Add Brand",
@@ -397,6 +398,7 @@
   "position": "Position",
   "postal-code": "Postal Code",
   "pr-number": "PR Number",
+  "present-time": "Present Time",
   "price": "Price",
   "pricing": "Pricing",
   "product": "Product",
@@ -556,6 +558,7 @@
   "surfaces": "Surfaces",
   "switch": "Switch",
   "tabs": "Tabs",
+  "take-a-picture": "Take a picture",
   "template": "Template",
   "text-field": "Text Field",
   "thursday": "Thursday",

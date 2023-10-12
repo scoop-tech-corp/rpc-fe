@@ -112,9 +112,9 @@ export const JWTProvider = ({ children }) => {
             id: userLogin.id,
             email: userLogin.email,
             name: userLogin.name,
-            role: userLogin.role
+            role: userLogin.role,
+            isAbsent: userLogin.isAbsent
           };
-
           dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
         } else {
           logout();
@@ -130,14 +130,15 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role } = response.data;
+    const { token, emailAddress, usersId, userName, role, isAbsent } = response.data;
     setSession(token);
 
     const setUser = {
       id: +usersId,
       email: emailAddress,
       name: userName,
-      role: role.toLowerCase()
+      role: role.toLowerCase(),
+      isAbsent: !!isAbsent
     };
 
     dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
