@@ -51,7 +51,6 @@ const FormAbsent = (props) => {
   });
 
   const onSubmit = async () => {
-    console.log('final Submit', formValue);
     const payload = new FormData();
     payload.append('presentTime', formValue.presentTime);
     payload.append('latitude', formValue.location[0]);
