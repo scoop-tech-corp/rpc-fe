@@ -8,6 +8,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { GlobalFilter } from 'utils/react-table';
 import IconButton from 'components/@extended/IconButton';
+import { useNavigate } from 'react-router';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -19,28 +20,30 @@ import { exportData } from 'utils/exportData.js';
 
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, processDownloadExcel } from 'service/service-global';
+
+import ServiceListDetail from './detail';
 
 // Usable
-import FormServiceCategory from './form-category';
-import { getServiceCategory, exportServiceCategory, deleteServiceCategory } from './service';
-import ServiceCategoryDetail from './detail';
+import { getServiceList, exportServiceList, deleteServiceList, downloadTemplateServiceList, importServiceList } from './service';
+import ModalImport from 'pages/product/product-list/components/ModalImport';
 
 export default function Index() {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
-    getServiceCategory,
+    getServiceList,
     {},
     'search'
   );
+  const [modalImport, setModalImport] = useState(false);
   const [selectedRow, setSelectedRow] = useState([]);
   const [dialog, setDialog] = useState(false);
-  const [openFormCategory, setOpenFormCategory] = useState({ isOpen: false, id: '', categoryName: '' });
-  const [openDetail, setOpenDetail] = useState({ isOpen: false, id: '', categoryName: '' });
+  const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null, categoryName: '' });
 
   const columns = useMemo(
     () => [
@@ -62,42 +65,49 @@ export default function Index() {
         }
       },
       {
-        Header: <FormattedMessage id="category-name" />,
-        accessor: 'categoryName',
+        Header: <FormattedMessage id="full-name" />,
+        accessor: 'fullName',
         Cell: (data) => {
           const getId = data.row.original.id;
-          const getCateName = data.row.original.categoryName;
 
-          const onDetail = () => setOpenDetail({ isOpen: true, id: getId, categoryName: getCateName });
+          const onDetail = () => setOpenDetail({ isOpen: true, id: getId });
 
           return <Link onClick={onDetail}>{data.value}</Link>;
         }
       },
       {
-        Header: <FormattedMessage id="total-service" />,
-        accessor: 'totalServices'
+        Header: <FormattedMessage id="color" />,
+        accessor: 'color',
+        Cell: (data) => {
+          return <div style={{ backgroundColor: data.value, width: 20, height: 20 }}></div>;
+        }
+      },
+      {
+        Header: <FormattedMessage id="type" />,
+        accessor: 'type',
+        Cell: (data) => {
+          const val = data.value == 1 ? 'Petshop' : data.value == 2 ? 'Grooming' : 'Klinik';
+          return <span>{val}</span>;
+        }
+      },
+      {
+        Header: <FormattedMessage id="bookable-online" />,
+        accessor: 'optionPolicy1',
+        Cell: (data) => {
+          const val = data.value ? <FormattedMessage id="yes" /> : <FormattedMessage id="no" />;
+          return <span>{val}</span>;
+        }
+      },
+      {
+        Header: <FormattedMessage id="status" />,
+        accessor: 'status',
+        Cell: (data) => {
+          const val = data.value == 1 ? <FormattedMessage id="active" /> : <FormattedMessage id="non-active" />;
+          return <span>{val}</span>;
+        }
       },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
-      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
-      {
-        Header: <FormattedMessage id="action" />,
-        accessor: 'action',
-        isNotSorting: true,
-        Cell: (data) => {
-          const getId = data.row.original.id;
-          const getCateName = data.row.original.categoryName;
-
-          const onEdit = () => {
-            setOpenFormCategory({ isOpen: true, id: getId, categoryName: getCateName });
-          };
-
-          return (
-            <IconButton size="large" color="warning" onClick={() => onEdit()}>
-              <EditOutlined />
-            </IconButton>
-          );
-        }
-      }
+      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
     ],
     []
   );
@@ -108,12 +118,12 @@ export default function Index() {
       orderColumn: params.orderColumn,
       search: params.search
     };
-    return await exportData(exportServiceCategory, paramsExport);
+    return await exportData(exportServiceList, paramsExport);
   };
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteServiceCategory(selectedRow)
+      await deleteServiceList(selectedRow)
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
@@ -130,6 +140,31 @@ export default function Index() {
     } else {
       setDialog(false);
     }
+  };
+
+  const onImportFile = async (file) => {
+    await importServiceList(file)
+      .then((resp) => {
+        if (resp.status === 200) {
+          dispatch(snackbarSuccess('Success import file'));
+          setModalImport(false);
+          setParams((_params) => ({ ..._params }));
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+  const onDownloadTemplate = async () => {
+    await downloadTemplateServiceList()
+      .then(processDownloadExcel)
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
   };
 
   return (
@@ -163,12 +198,11 @@ export default function Index() {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<PlusOutlined />}
-                  onClick={() => setOpenFormCategory({ isOpen: true, id: '', categoryName: '' })}
-                >
-                  <FormattedMessage id="new" />
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalImport(true)} color="primary">
+                  <FormattedMessage id="import" />
+                </Button>
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => navigate('/service/list/form', { replace: true })}>
+                  <FormattedMessage id="add-service" />
                 </Button>
               </Stack>
             </Stack>
@@ -177,6 +211,7 @@ export default function Index() {
               data={list || []}
               totalPagination={totalPagination}
               setPageNumber={params.goToPage}
+              colSpanPagination={8}
               setPageRow={params.rowPerPage}
               onGotoPage={goToPage}
               onOrder={orderingChange}
@@ -193,23 +228,17 @@ export default function Index() {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
-      {openFormCategory.isOpen && (
-        <FormServiceCategory
-          open={true}
-          data={{ ...openFormCategory }}
-          onClose={() => {
-            setOpenFormCategory({ isOpen: false, id: '', categoryName: '' });
-          }}
-          setParams={setParams}
-        />
-      )}
 
       {openDetail.isOpen && (
-        <ServiceCategoryDetail
+        <ServiceListDetail
           open={openDetail.isOpen}
           data={{ ...openDetail }}
+          setParams={setParams}
           onClose={() => setOpenDetail({ isOpen: false, id: '', categoryName: '' })}
         />
+      )}
+      {modalImport && (
+        <ModalImport open={true} onTemplate={onDownloadTemplate} onImport={(e) => onImportFile(e)} onClose={(e) => setModalImport(!e)} />
       )}
     </>
   );

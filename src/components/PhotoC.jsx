@@ -6,7 +6,7 @@ import MainCard from './MainCard';
 import PropTypes from 'prop-types';
 
 const PhotoC = (props) => {
-  const { photoValue, photoOutput } = props;
+  const { photoValue, photoOutput, disabled } = props;
 
   const onAddPhotos = () => {
     photoOutput([...photoValue, { id: null, label: '', imagePath: '', status: '', originalName: '', selectedFile: null }]);
@@ -44,20 +44,22 @@ const PhotoC = (props) => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Grid container justifyContent="flex-start" sx={{ position: 'relative', zIndex: 5 }}>
-          <Grid
-            item
-            sx={{ mx: matchDownSM ? 2 : 3, my: matchDownSM ? 1 : 0, mb: matchDownSM ? 2 : 0 }}
-            xs={matchDownSM ? 12 : 'auto'}
-            style={{ margin: '0px' }}
-          >
-            <Button variant="contained" fullWidth={matchDownSM} onClick={onAddPhotos} startIcon={<PlusOutlined />}>
-              <FormattedMessage id="add" />
-            </Button>
+      {!disabled && (
+        <Grid item xs={12}>
+          <Grid container justifyContent="flex-start" sx={{ position: 'relative', zIndex: 5 }}>
+            <Grid
+              item
+              sx={{ mx: matchDownSM ? 2 : 3, my: matchDownSM ? 1 : 0, mb: matchDownSM ? 2 : 0 }}
+              xs={matchDownSM ? 12 : 'auto'}
+              style={{ margin: '0px' }}
+            >
+              <Button variant="contained" fullWidth={matchDownSM} onClick={onAddPhotos} startIcon={<PlusOutlined />}>
+                <FormattedMessage id="add" />
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      )}
       {photoValue.map((ph, i) => {
         if (ph.status === '') {
           return (
@@ -84,13 +86,17 @@ const PhotoC = (props) => {
                         id={`photo-name-${i}`}
                         name={`photo-name-${i}`}
                         value={ph.label}
+                        disabled={disabled}
+                        inputProps={{ readOnly: disabled }}
                         onChange={(event) => onChangeLabel(event, i)}
                       />
                     </Stack>
                   </Grid>
-                  <Grid item xs={12}>
-                    <DeleteFilled style={{ fontSize: '14px', color: 'red', cursor: 'pointer' }} onClick={() => onDeletePhoto(i)} />
-                  </Grid>
+                  {!disabled && (
+                    <Grid item xs={12}>
+                      <DeleteFilled style={{ fontSize: '14px', color: 'red', cursor: 'pointer' }} onClick={() => onDeletePhoto(i)} />
+                    </Grid>
+                  )}
                 </Grid>
               </MainCard>
             </Grid>

@@ -1,10 +1,27 @@
 import axios from 'utils/axios';
 
 const serviceCategoryUrl = 'service/category';
+const serviceListUrl = 'service/list';
 
 export const getServiceCategory = async (params) => {
   const getResp = await axios.get(serviceCategoryUrl, {
     params
+  });
+
+  return getResp;
+};
+
+export const findServiceCategory = async (property) => {
+  const getResp = await axios.get(serviceListUrl + '/category', {
+    params: {
+      id: property.id,
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId
+    }
   });
 
   return getResp;
