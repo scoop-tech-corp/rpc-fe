@@ -43,7 +43,9 @@ const PromotionPartner = Loadable(lazy(() => import('pages/extra-pages/sample-pa
 const ServiceDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ServiceList = Loadable(lazy(() => import('pages/service/service-list/')));
 const ServiceListForm = Loadable(lazy(() => import('pages/service/service-list/form')));
-const ServiceTreatment = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ServiceTreatment = Loadable(lazy(() => import('pages/service/treatment/')));
+const ServiceTreatmentForm = Loadable(lazy(() => import('pages/service/treatment/form/form-treatment-step2')));
+
 const ServiceCategory = Loadable(lazy(() => import('pages/service/category')));
 
 const ServicePolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -151,6 +153,7 @@ const MainRoutes = {
             { path: 'list/form', element: <ServiceListForm /> },
             { path: 'list/form/:id', element: <ServiceListForm /> },
             { path: 'treatment', element: <ServiceTreatment /> },
+            { path: 'treatment/:id', element: <ServiceTreatmentForm /> },
             { path: 'category', element: <ServiceCategory /> },
             { path: 'policies', element: <ServicePolicies /> },
             { path: 'template', element: <ServiceTemplate /> },

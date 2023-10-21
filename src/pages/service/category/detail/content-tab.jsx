@@ -26,12 +26,12 @@ const CategoryDetailContent = (props) => {
 
   const columns = useMemo(
     () => [
-      { Header: <FormattedMessage id="product-name" />, accessor: 'fullName' },
+      { Header: <FormattedMessage id="service-name" />, accessor: 'fullName' },
       {
         Header: <FormattedMessage id="location" />,
         accessor: 'locationName',
+        style: { maxWidth: '50%' },
         Cell: (data) => {
-          console.log(data);
           let dataOrigin = data.row.original;
 
           return (
