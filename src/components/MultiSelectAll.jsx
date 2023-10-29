@@ -97,7 +97,6 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limi
     <Autocomplete
       ref={multiSelectRef}
       multiple
-      // size="small"
       options={items}
       value={selectedOptions}
       limitTags={limitTags || 2}

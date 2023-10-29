@@ -169,7 +169,7 @@ export default function Index() {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="service-category" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="service-list" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>

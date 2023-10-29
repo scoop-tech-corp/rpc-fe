@@ -88,3 +88,11 @@ export const swapKeysAndValuesForObject = (obj) => {
 
   return Object.fromEntries(swapped);
 };
+
+export const generateUniqueIdByDate = () => {
+  const date = new Date();
+  const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
+  const randomId = Math.ceil(Math.random() * 9999999999);
+  const uniqueId = parseInt(dateString + randomId);
+  return uniqueId;
+};

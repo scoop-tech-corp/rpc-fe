@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
-export default function (getListFunc, initialParams, searchKey) {
+export default function (getListFunc, initialParams, searchKey, callbackSuccess) {
   const [keyword, setKeyword] = useState('');
   const [params, setParams] = useState({
     goToPage: 1,
     rowPerPage: 5,
-    orderValue: '',
-    orderColumn: '',
+    orderValue: 'desc',
+    orderColumn: 'updated_at',
     ...initialParams
   });
   const [searchTimeout, setSearchTimeout] = useState(null);
@@ -35,6 +35,9 @@ export default function (getListFunc, initialParams, searchKey) {
           isLoading: false,
           called: true
         }));
+        if (callbackSuccess) {
+          callbackSuccess(res);
+        }
       })
       .catch((error) => {
         setListInfo((_info) => ({
