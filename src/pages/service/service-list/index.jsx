@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import DownloadIcon from '@mui/icons-material/Download';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import useGetList from 'hooks/useGetList';
@@ -94,7 +96,7 @@ export default function Index() {
         Header: <FormattedMessage id="bookable-online" />,
         accessor: 'optionPolicy1',
         Cell: (data) => {
-          const val = data.value ? <FormattedMessage id="yes" /> : <FormattedMessage id="no" />;
+          const val = data.value == 1 ? <FormattedMessage id="yes" /> : <FormattedMessage id="no" />;
           return <span>{val}</span>;
         }
       },
@@ -198,7 +200,7 @@ export default function Index() {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={() => setModalImport(true)} color="primary">
+                <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)} color="primary">
                   <FormattedMessage id="import" />
                 </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => navigate('/service/list/form', { replace: true })}>

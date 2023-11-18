@@ -126,6 +126,7 @@ export const ReactTable = ({
                   {...column.getHeaderProps([{ className: column.className, style: column.style }])}
                   onClick={() => clickHeader(column)}
                 >
+                  {console.log(column.style)}
                   <HeaderSort column={column} selectedOrder={selectedOrder} />
                 </TableCell>
               ))}

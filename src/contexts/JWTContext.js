@@ -104,7 +104,6 @@ export const JWTProvider = ({ children }) => {
       try {
         const serviceToken = window.localStorage.getItem('serviceToken');
         const userLogin = JSON.parse(window.localStorage.getItem('user'));
-
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
 
@@ -112,7 +111,8 @@ export const JWTProvider = ({ children }) => {
             id: userLogin.id,
             email: userLogin.email,
             name: userLogin.name,
-            role: userLogin.role
+            role: userLogin.role,
+            avatar: userLogin.avatar
           };
 
           dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
@@ -130,13 +130,15 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role } = response.data;
+    const { token, emailAddress, usersId, userName, role, imagePath } = response.data;
+    console.log(response.data, 1111);
     setSession(token);
 
     const setUser = {
       id: +usersId,
       email: emailAddress,
       name: userName,
+      avatar: imagePath,
       role: role.toLowerCase()
     };
 

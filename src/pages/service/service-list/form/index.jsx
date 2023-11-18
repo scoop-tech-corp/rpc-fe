@@ -134,7 +134,7 @@ const ServiceListForm = () => {
             <Tab label={<FormattedMessage id="details" />} id="service-list-tab-0" aria-controls="service-list-tabpanel-0" />
             <Tab label={<FormattedMessage id="description" />} id="service-list-tab-1" aria-controls="service-list-tabpanel-1" />
             <Tab label={<FormattedMessage id="booking" />} id="service-list-tab-2" aria-controls="service-list-tabpanel-2" />
-            <Tab label={<FormattedMessage id="staff" />} id="service-list-tab-4" aria-controls="service-list-tabpanel-4" />
+            <Tab label={<FormattedMessage id="staff2" />} id="service-list-tab-4" aria-controls="service-list-tabpanel-4" />
             <Tab label={<FormattedMessage id="facility" />} id="service-list-tab-5" aria-controls="service-list-tabpanel-5" />
             <Tab label={<FormattedMessage id="category" />} id="service-list-tab-6" aria-controls="service-list-tabpanel-6" />
             <Tab label={<FormattedMessage id="image" />} id="service-list-tab-7" aria-controls="service-list-tabpanel-7" />
