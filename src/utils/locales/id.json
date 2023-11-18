@@ -1,4 +1,5 @@
 {
+  "absent": "Absen",
   "active": "Aktif",
   "add-task": "Tambah Tugas",
   "add": "Tambah",
@@ -333,6 +334,7 @@
   "position": "Jabatan",
   "postal-code": "Kode Pos",
   "pr-number": "Nomor PR",
+  "present-time": "Waktu Hadir",
   "price": "Harga",
   "pricing": "Harga",
   "product": "Produk",
@@ -477,6 +479,7 @@
   "supplier-name": "Nama Penyedia",
   "supplier-is-required": "Penyedia wajib di isi",
   "supplier-name-is-required": "Nama Penyedia wajib di isi",
+  "take-a-picture": "Ambil Gambar",
   "template": "Templat",
   "to-product": "Produk Tujuan",
   "to": "Sampai",

@@ -70,6 +70,7 @@
     "react-images": "^1.2.0-beta.7",
     "react-intl": "^5.25.1",
     "react-modal-image": "^2.6.0",
+    "react-leaflet": "^4.2.1",
     "react-number-format": "^4.9.4",
     "react-organizational-chart": "^2.1.1",
     "react-otp-input-rc-17": "^2.4.1-minor",
@@ -121,18 +122,11 @@
       "@babel/preset-react"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "devDependencies": {
     "@babel/core": "^7.18.5",
     "@babel/eslint-parser": "^7.18.2",
