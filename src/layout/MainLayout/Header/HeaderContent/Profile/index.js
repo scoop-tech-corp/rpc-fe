@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { Box, ButtonBase, CardContent, ClickAwayListener, Grid, Paper, Popper, Stack, Tooltip, Typography } from '@mui/material'; // Tab, Tabs,
+import configGlobal from '../../../../../config';
 
 // project import
 import Avatar from 'components/@extended/Avatar';
@@ -96,7 +97,7 @@ const Profile = () => {
         onClick={handleToggle}
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
-          <Avatar alt="profile user" src={avatar1} size="xs" />
+          <Avatar alt="profile user" src={user?.avatar ? `${configGlobal.apiUrl}${user?.avatar}` : avatar1} size="xs" />
           <Typography variant="subtitle1">{user?.name}</Typography>
         </Stack>
       </ButtonBase>
@@ -138,7 +139,11 @@ const Profile = () => {
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
                           <Stack direction="row" spacing={1.25} alignItems="center">
-                            <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
+                            <Avatar
+                              alt="profile user"
+                              src={user?.avatar ? `${configGlobal.apiUrl}${user?.avatar}` : avatar1}
+                              sx={{ width: 32, height: 32 }}
+                            />
                             <Stack>
                               <Typography variant="h6">{user?.name}</Typography>
                               <Typography variant="body2" color="textSecondary">

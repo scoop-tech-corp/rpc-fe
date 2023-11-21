@@ -179,7 +179,7 @@ const ProductCategoryDetail = (props) => {
               aria-controls="service-list-tabpanel-6"
             />
             <Tab
-              label={<FormattedMessage id="photos" />}
+              label={<FormattedMessage id="image" />}
               onClick={() => {
                 setTabSelected(6);
               }}

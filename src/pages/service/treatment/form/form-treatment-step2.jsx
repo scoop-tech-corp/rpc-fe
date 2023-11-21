@@ -10,6 +10,7 @@ import { dispatch } from 'store';
 import { createMessageBackend } from 'service/service-global';
 import useGetList from 'hooks/useGetList';
 import MainCard from 'components/MainCard';
+import { useIntl } from 'react-intl';
 
 export default function App() {
   let { id } = useParams();
@@ -17,6 +18,7 @@ export default function App() {
   const totalColumn = useTreatmentStore((state) => state.formStep2.totalColumn);
   const treatmentDetail = useTreatmentStore((state) => state.dataSupport.treatmentDetail);
   const [totalData, setTotalData] = useState(0);
+  const intl = useIntl();
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, changeLimit } = useGetList(
     getTreatmentItem,
@@ -77,8 +79,11 @@ export default function App() {
   };
 
   const defaultColumn = {
-    Header: `${totalData} Items (${totalColumn + 1} days)`,
+    Header: `${totalData} ${intl.formatMessage({ id: 'item' })} (${totalColumn} ${intl.formatMessage({ id: 'day' })})`,
     accessor: 'quantity',
+    style: {
+      minWidth: 150
+    },
     isNotSorting: true,
     Cell: (props) => {
       const { original } = props.row;
@@ -100,8 +105,11 @@ export default function App() {
 
     for (let i = 0; i < totalColumn; i++) {
       newColumn.push({
-        Header: `Days ${i + 1}`,
+        Header: `${intl.formatMessage({ id: 'day' })} ${i + 1}`,
         accessor: `day-${i + 1}`,
+        style: {
+          minWidth: 80
+        },
         isNotSorting: true,
         Cell: (props) => {
           const { original } = props.row;
@@ -130,7 +138,7 @@ export default function App() {
           <ReactTable
             columns={column}
             data={list || []}
-            colSpanPagination={1 + totalColumn}
+            colSpanPagination={totalColumn}
             totalPagination={totalPagination}
             setPageNumber={params.goToPage}
             setPageRow={params.rowPerPage}

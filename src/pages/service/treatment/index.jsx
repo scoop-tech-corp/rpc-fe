@@ -125,7 +125,7 @@ export default function Index() {
         Header: <FormattedMessage id="duration" />,
         accessor: 'column',
         Cell: (data) => {
-          return data.row.original.column || '0';
+          return `${data.row.original.column || '0'} ${intl.formatMessage({ id: 'day' })}`;
         }
       },
       {
@@ -137,7 +137,7 @@ export default function Index() {
           } else if (data.row.original.status == 2) {
             return <FormattedMessage id="draft" />;
           } else {
-            return <FormattedMessage id="inactive" />;
+            return <FormattedMessage id="disabled" />;
           }
         }
       }
