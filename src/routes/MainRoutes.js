@@ -94,8 +94,6 @@ const Report = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const MainRoutes = {
   path: '/',
   children: [
-    // { path: 'message', element: <Message /> },
-
     {
       path: '/',
       element: (

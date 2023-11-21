@@ -6,18 +6,14 @@ import { useTheme } from '@mui/material/styles';
 import { Divider, List, ListItemAvatar, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 
 // third-party
-import { Chance } from 'chance';
 
 // project imports
 import UserAvatar from './UserAvatar';
 import Dot from 'components/@extended/Dot';
-import { getChatUser } from '../service';
 
 // assets
 import { CheckOutlined } from '@ant-design/icons';
 import configGlobal from '../../../config';
-
-const chance = new Chance();
 
 function UserList({ setUser, search, loginUser, listUser, userLogin }) {
   const theme = useTheme();

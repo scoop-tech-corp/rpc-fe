@@ -1,44 +1,17 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import {
-  Box,
-  Chip,
-  Drawer,
-  Grid,
-  InputAdornment,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
-  OutlinedInput,
-  Stack,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
+import { Box, Chip, Drawer, InputAdornment, OutlinedInput, Stack, Typography, useMediaQuery } from '@mui/material';
 
 // project imports
-import UserAvatar from './UserAvatar';
 import UserList from './UserList';
 import MainCard from 'components/MainCard';
 import useAuth from 'hooks/useAuth';
-import IconButton from 'components/@extended/IconButton';
 import SimpleBar from 'components/third-party/SimpleBar';
 // assets
-import {
-  CheckCircleFilled,
-  ClockCircleFilled,
-  LogoutOutlined,
-  MinusCircleFilled,
-  RightOutlined,
-  SearchOutlined,
-  SettingOutlined
-} from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 
 // ==============================|| CHAT DRAWER ||============================== //
 
@@ -51,20 +24,6 @@ function ChatDrawer({ handleDrawerOpen, openChatDrawer, setUser, loginUser, list
 
   // show menu to set current user status
   const [anchorEl, setAnchorEl] = useState();
-  const handleClickRightMenu = (event) => {
-    setAnchorEl(event?.currentTarget);
-  };
-
-  const handleCloseRightMenu = () => {
-    setAnchorEl(null);
-  };
-
-  // set user status on status menu click
-  const [status, setStatus] = useState('available');
-  const handleRightMenuItemClick = (userStatus) => () => {
-    setStatus(userStatus);
-    handleCloseRightMenu();
-  };
 
   const [search, setSearch] = useState('');
   const handleSearch = async (event) => {

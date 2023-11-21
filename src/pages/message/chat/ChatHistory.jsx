@@ -10,7 +10,7 @@ import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import UserAvatar from './UserAvatar';
 // ==============================|| CHAT MESSAGE HISTORY ||============================== //
 
-const ChatHistory = ({ data, theme, user, loginUser, userLogin }) => {
+const ChatHistory = ({ data, theme, user, userLogin }) => {
   // scroll to bottom when new message is sent or received
   const wrapper = useRef(document.createElement('div'));
   const el = wrapper.current;
