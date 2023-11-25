@@ -28,6 +28,48 @@ export const exportStaffSchedule = async (property) => {
 
 export const deleteStaffSchedule = async (id) => {
   return await axios.delete(url, {
-    data: { usersId: id }
+    data: { id }
+  });
+};
+
+export const getStaffScheduleUser = async (locationId) => {
+  const getResp = await axios.get(url + '/liststaff', {
+    params: { locationId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: +dt.usersId };
+  });
+};
+
+export const getStaffScheduleDetail = async (property) => {
+  return await axios.get(url + '/detail', { params: { id: property.id, type: property.type } });
+};
+
+export const getStaffScheduleMenuList = async (masterMenuId) => {
+  const getResp = await axios.get(url + '/menulist', {
+    params: { masterId: masterMenuId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.menuName, value: +dt.id };
+  });
+};
+
+export const createStaffSchedule = async (property) => {
+  const fd = new FormData();
+  fd.append('locationId', property.locationId);
+  fd.append('usersId', property.usersId);
+  fd.append('details', JSON.stringify(property.details));
+
+  return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateStaffSchedule = async (property) => {
+  return await axios.put(url, {
+    id: property.id,
+    locationId: property.locationId,
+    usersId: property.usersId,
+    details: property.details
   });
 };

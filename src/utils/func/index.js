@@ -28,7 +28,7 @@ export const formateDateYYYMMDD = (date) => {
   return year + '-' + month + '-' + day;
 };
 
-export const formateDateDDMMYYY = (date, isWithTime = false) => {
+export const formateDateDDMMYYY = (date, additional = { isWithTime: { show: false, withSecond: true }, separator: '-' }) => {
   // Get year, month, and day part from the date
   const year = date.toLocaleString('default', { year: 'numeric' });
   const month = date.toLocaleString('default', { month: '2-digit' });
@@ -38,12 +38,18 @@ export const formateDateDDMMYYY = (date, isWithTime = false) => {
   const minute = date.getMinutes();
   const second = date.getSeconds();
 
-  if (isWithTime) {
-    return day + '-' + month + '-' + year + ' ' + hour + ':' + addZeroBefore(minute) + ':' + addZeroBefore(second);
+  if (additional.isWithTime.show) {
+    const time = day + additional.separator + month + additional.separator + year + ' ' + addZeroBefore(hour) + ':' + addZeroBefore(minute);
+
+    if (additional.isWithTime.withSecond) {
+      return time + ':' + addZeroBefore(second);
+    }
+
+    return time;
   }
 
   // Generate dd-mm-yyyy date string
-  return day + '-' + month + '-' + year;
+  return day + additional.separator + month + additional.separator + year;
 };
 
 export const formateNumber = (string) => (string ? +string.replaceAll(',', '') : '');

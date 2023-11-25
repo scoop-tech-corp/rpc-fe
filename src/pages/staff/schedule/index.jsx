@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Button, Stack, useMediaQuery, Autocomplete, TextField } from '@mui/material';
+import { Button, Stack, useMediaQuery, Autocomplete, TextField, Link } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { useDispatch } from 'react-redux';
@@ -8,7 +8,7 @@ import { createMessageBackend, getLocationList, processDownloadExcel } from 'ser
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import { deleteStaffSchedule, exportStaffSchedule, getStaffSchedule } from './service';
+import { deleteStaffSchedule, exportStaffSchedule, getStaffSchedule, getStaffScheduleDetail } from './service';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -16,6 +16,9 @@ import DownloadIcon from '@mui/icons-material/Download';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ConfirmationC from 'components/ConfirmationC';
 import IconButton from 'components/@extended/IconButton';
+
+import StaffScheduleForm from './form';
+import StaffScheduleDetail from './detail';
 
 let paramStaffScheduleList = {};
 
@@ -32,6 +35,8 @@ const StaffSchedule = () => {
 
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
+  const [openForm, setOpenForm] = useState({ isOpen: false, data: null });
+  const [openDetail, setOpenDetail] = useState({ isOpen: false, data: null });
 
   const columns = useMemo(
     () => [
@@ -54,11 +59,26 @@ const StaffSchedule = () => {
       },
       {
         Header: <FormattedMessage id="name" />,
-        accessor: 'name'
+        accessor: 'name',
+        Cell: (data) => {
+          return (
+            <Link
+              href="#"
+              onClick={async () => {
+                const getId = data.row.original.id;
+                const getDataDetail = await onDataDetail('detail', getId);
+
+                setOpenDetail({ isOpen: true, data: getDataDetail });
+              }}
+            >
+              {data.value}
+            </Link>
+          );
+        }
       },
       {
         Header: <FormattedMessage id="position" />,
-        accessor: 'jobTitle'
+        accessor: 'position'
       },
       {
         Header: <FormattedMessage id="location" />,
@@ -75,9 +95,18 @@ const StaffSchedule = () => {
         accessor: 'action',
         style: { textAlign: 'center' },
         isNotSorting: true,
-        Cell: () => {
+        Cell: (data) => {
           return (
-            <IconButton size="large" color="warning">
+            <IconButton
+              size="large"
+              color="warning"
+              onClick={async () => {
+                const getId = data.row.original.id;
+                const getDataDetail = await onDataDetail('edit', getId);
+
+                setOpenForm({ isOpen: true, data: getDataDetail });
+              }}
+            >
               <EditOutlined />
             </IconButton>
           );
@@ -137,6 +166,14 @@ const StaffSchedule = () => {
       });
   };
 
+  const onDataDetail = (type, id) => {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve) => {
+      const getRespDetail = await getStaffScheduleDetail({ id, type });
+      resolve(getRespDetail.data);
+    });
+  };
+
   const onConfirm = async (value) => {
     if (value) {
       await deleteStaffSchedule(selectedRow)
@@ -164,11 +201,16 @@ const StaffSchedule = () => {
     setFacilityLocationList(data);
   };
 
-  useEffect(() => {
+  const initPage = () => {
     getDataFacilityLocation();
 
     clearParamFetchData();
     fetchData();
+  };
+
+  useEffect(() => {
+    initPage();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -214,7 +256,7 @@ const StaffSchedule = () => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                <Button variant="contained" startIcon={<PlusOutlined />}>
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setOpenForm({ isOpen: true, data: null })}>
                   <FormattedMessage id="new" />
                 </Button>
               </Stack>
@@ -243,6 +285,28 @@ const StaffSchedule = () => {
           btnFalseText="Cancel"
         />
       )}
+      {openForm.isOpen && (
+        <StaffScheduleForm
+          open={openForm.isOpen}
+          data={openForm.data}
+          onClose={(event) => {
+            setOpenForm({ isOpen: false, data: null });
+            if (event) initPage();
+          }}
+        />
+      )}
+      <StaffScheduleDetail
+        open={openDetail.isOpen}
+        data={openDetail.data}
+        onClose={(event) => {
+          setOpenDetail({ isOpen: false, data: null });
+          if (event) initPage();
+        }}
+        onRefreshIndex={(event) => {
+          setOpenDetail({ isOpen: false, data: null });
+          if (event) initPage();
+        }}
+      />
     </>
   );
 };

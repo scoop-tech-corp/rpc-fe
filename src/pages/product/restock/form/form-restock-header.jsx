@@ -24,7 +24,7 @@ const FormRestockHeader = () => {
 
   const setTitlePage = () => (id ? <FormattedMessage id="edit-product-restock" /> : <FormattedMessage id="add-product-restock" />);
 
-  const responseSuccess = async (resp) => {
+  const responseSuccess = (resp) => {
     if (resp && resp.status === 200) {
       const message = `Success create data`;
       dispatch(snackbarSuccess(message));

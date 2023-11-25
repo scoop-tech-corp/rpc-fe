@@ -46,6 +46,22 @@ export const getAccesControlHistory = async (property) => {
   });
 };
 
+export const getAccessControlMasterMenu = async () => {
+  const getResp = await axios.get(url + '/menumaster');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.masterName, value: +dt.id };
+  });
+};
+
+export const getAccessControlTypeAccess = async () => {
+  const getResp = await axios.get(url + '/accesstype');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.accessType, value: +dt.id };
+  });
+};
+
 export const swapePrivilageStatus = () => swapKeysAndValuesForObject(privilageStatus);
 
 // const dataDummy = {
