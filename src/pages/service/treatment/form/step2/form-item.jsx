@@ -36,6 +36,8 @@ export default function FormService({ step, setStep, setParams }) {
   const productType = useTreatmentStore((state) => state.formStep2Item.product_type);
   const quantity = useTreatmentStore((state) => state.formStep2Item.quantity);
 
+  const isEdit = useTreatmentStore((state) => state.formStep2Item.isEdit);
+
   const [inputValue, setInputValue] = useState('');
 
   const onChange = (name, val, resetName) => {
@@ -62,7 +64,9 @@ export default function FormService({ step, setStep, setParams }) {
       frequency_id: useTreatmentStore.getState().formStep2Item.frequency_id?.value,
       duration: useTreatmentStore.getState().formStep2Item.duration,
       notes: useTreatmentStore.getState().formStep2Item.notes,
-      treatments_id: treatmentDetail?.id
+      treatments_id: treatmentDetail?.id,
+      isEdit: useTreatmentStore.getState().formStep2Item.isEdit,
+      id: useTreatmentStore.getState().formStep2Item.id
     };
 
     if (step == 2) {
@@ -78,7 +82,8 @@ export default function FormService({ step, setStep, setParams }) {
     if (step == 4) {
       params.task_id = useTreatmentStore.getState().formStep2Item.task_id;
     }
-    await updateTreatmentItems(params)
+    await isEdit;
+    updateTreatmentItems(params)
       .then(() => {
         dispatch(snackbarSuccess(`Item has been created successfully`));
         useTreatmentStore.setState(
@@ -184,6 +189,7 @@ export default function FormService({ step, setStep, setParams }) {
             </InputLabel>
             <Autocomplete
               fullWidth
+              disabled={isEdit}
               id="task"
               noOptionsText="Enter to create a new option"
               options={taskList || []}
@@ -222,7 +228,9 @@ export default function FormService({ step, setStep, setParams }) {
             onChange={(e) => onChange('start', e.target.value, 'duration')}
           >
             {Array.from({ length: totalColumn }, (_, i) => (
-              <MenuItem value={i + 1}>{i + 1}</MenuItem>
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
             ))}
           </Select>
         </Stack>
@@ -256,12 +264,15 @@ export default function FormService({ step, setStep, setParams }) {
             onChange={(e) => onChange('duration', e.target.value)}
           >
             {Array.from({ length: totalColumn - (useTreatmentStore.getState().formStep2Item.start - 1) }, (_, i) => (
-              <MenuItem value={i + 1}>{i + 1}</MenuItem>
+              <MenuItem value={i + 1} key={i}>
+                {i + 1}
+              </MenuItem>
             ))}
           </Select>
         </Stack>
         <Stack>
           <InputLabel sx={{ mt: 2 }} htmlFor="duration">
+            {console.log(useTreatmentStore.getState().formStep2Item)}
             {<FormattedMessage id="notes" />}
           </InputLabel>
           <TextField
@@ -273,23 +284,27 @@ export default function FormService({ step, setStep, setParams }) {
           />
         </Stack>
         <Stack>
-          <FormControl sx={{ mt: 2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  sx={{ mt: -0.1 }}
-                  defaultChecked={useTreatmentStore((state) => state.formStep2Item.isAnother == 1)}
-                  onChange={(e) => onChange('isAnother', e.target.checked)}
-                />
-              }
-              label={
-                <FormattedMessage
-                  id={step == 2 ? 'create-another-product' : step == 3 ? 'create-another-service' : step == 4 ? 'create-another-task' : ''}
-                />
-              }
-            />
-          </FormControl>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          {!isEdit && (
+            <FormControl sx={{ mt: 2 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    sx={{ mt: -0.1 }}
+                    defaultChecked={useTreatmentStore((state) => state.formStep2Item.isAnother == 1)}
+                    onChange={(e) => onChange('isAnother', e.target.checked)}
+                  />
+                }
+                label={
+                  <FormattedMessage
+                    id={
+                      step == 2 ? 'create-another-product' : step == 3 ? 'create-another-service' : step == 4 ? 'create-another-task' : ''
+                    }
+                  />
+                }
+              />
+            </FormControl>
+          )}
+          <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
             <Button
               variant="outlined"
               sx={{ mb: 2 }}

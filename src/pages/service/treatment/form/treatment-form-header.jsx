@@ -13,8 +13,10 @@ import { deleteTreatment, getTreatmentById, updateTreatment } from '../service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { dispatch } from 'store';
 import { createMessageBackend } from 'service/service-global';
+import { useEffect } from 'react';
 
 const TreatmentFormHeader = (props) => {
+  const { showEdit, setShowEdit } = props;
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const totalColumn = useTreatmentStore((state) => state.formStep2.totalColumn);
@@ -80,6 +82,40 @@ const TreatmentFormHeader = (props) => {
   const open = Boolean(anchorEl);
   const [openOffcanvas, setOpenOffcanvas] = useState(false);
 
+  useEffect(() => {
+    if (showEdit.id) {
+      setOpenOffcanvas(true);
+
+      if (showEdit.serviceName) {
+        setStep(3);
+      }
+
+      if (showEdit.taskName) {
+        setStep(4);
+        useTreatmentStore.setState({
+          ...useTreatmentStore.getState(),
+          formStep2Item: {
+            ...useTreatmentStore.getState().formStep2Item,
+            task_id: showEdit.taskName,
+            start: showEdit.start,
+            id: showEdit.id,
+            frequency_id: {
+              label: showEdit.frequencyName,
+              value: showEdit.frequencyId
+            },
+            duration: showEdit.duration,
+            notes: showEdit.notes,
+            isEdit: true
+          }
+        });
+      }
+
+      if (showEdit.productName) {
+        setStep(2);
+      }
+    }
+  }, [showEdit]);
+
   return (
     <>
       <HeaderPageCustom
@@ -132,7 +168,12 @@ const TreatmentFormHeader = (props) => {
                 )}
               </>
             </OffCanvas>
-            <Button variant="outlined" color="success" startIcon={<PlusOutlined />} onClick={() => props.setTotalColumn(totalColumn + 1)}>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<PlusOutlined />}
+              onClick={() => props.setTotalColumn(Number(totalColumn + 1))}
+            >
               <FormattedMessage id="day" />
             </Button>
             <Button
@@ -140,7 +181,7 @@ const TreatmentFormHeader = (props) => {
               color="error"
               startIcon={<MinusOutlined />}
               disabled={totalColumn == 1}
-              onClick={() => props.setTotalColumn(totalColumn == 1 ? 1 : totalColumn - 1)}
+              onClick={() => props.setTotalColumn(Number(totalColumn == 1 ? 1 : totalColumn - 1))}
             >
               <FormattedMessage id="day" />
             </Button>
@@ -169,10 +210,10 @@ const TreatmentFormHeader = (props) => {
                 <MenuItem onClick={() => setOpenOffcanvas(true)}>
                   <FormattedMessage id="add-item" />
                 </MenuItem>
-                <MenuItem onClick={() => props.setTotalColumn(totalColumn + 1)}>
+                <MenuItem onClick={() => props.setTotalColumn(Number(totalColumn + 1))}>
                   <FormattedMessage id="add-day" />
                 </MenuItem>
-                <MenuItem onClick={() => props.setTotalColumn(totalColumn == 1 ? 1 : totalColumn - 1)}>
+                <MenuItem onClick={() => props.setTotalColumn(Number(totalColumn == 1 ? 1 : totalColumn - 1))}>
                   <FormattedMessage id="remove-day" />
                 </MenuItem>
                 <MenuItem onClick={handleDisabled}>
