@@ -275,7 +275,6 @@ export default function FormService({ step, setStep, setParams }) {
         </Stack>
         <Stack>
           <InputLabel sx={{ mt: 2 }} htmlFor="duration">
-            {console.log(useTreatmentStore.getState().formStep2Item)}
             {<FormattedMessage id="notes" />}
           </InputLabel>
           <TextField
