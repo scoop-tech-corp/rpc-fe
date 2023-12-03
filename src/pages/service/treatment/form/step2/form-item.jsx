@@ -75,15 +75,14 @@ export default function FormService({ step, setStep, setParams }) {
       params.quantity = useTreatmentStore.getState().formStep2Item.quantity;
     }
 
-    if (step == 3) {
-      params.service_id = useTreatmentStore.getState().formStep2Item.service_id?.value;
+    if (step == 3 && !isEdit) {
+      params.service_id = useTreatmentStore.getState()?.formStep2Item.service_id?.value;
     }
 
     if (step == 4) {
-      params.task_id = useTreatmentStore.getState().formStep2Item.task_id;
+      params.task_id = useTreatmentStore.getState()?.formStep2Item.task_id;
     }
-    await isEdit;
-    updateTreatmentItems(params)
+    await updateTreatmentItems(params)
       .then(() => {
         dispatch(snackbarSuccess(`Item has been created successfully`));
         useTreatmentStore.setState(
@@ -134,24 +133,26 @@ export default function FormService({ step, setStep, setParams }) {
       <Grid item xs={12} sm={12}>
         {step == 2 ? (
           <>
-            <Stack>
-              <InputLabel sx={{ mt: 2 }} htmlFor="product-type">
-                {<FormattedMessage id="product-type" />} *
-              </InputLabel>
-              <Select
-                id="select-type"
-                value={productType}
-                name="productType"
-                onChange={(e) => onChange('product_type', e.target.value, 'product_name')}
-              >
-                <MenuItem value={'product-sell'}>
-                  <FormattedMessage id="product-sell" />
-                </MenuItem>
-                <MenuItem value={'product-clinic'}>
-                  <FormattedMessage id="product-clinic" />
-                </MenuItem>
-              </Select>
-            </Stack>
+            {!isEdit && (
+              <Stack>
+                <InputLabel sx={{ mt: 2 }} htmlFor="product-type">
+                  {<FormattedMessage id="product-type" />} *
+                </InputLabel>
+                <Select
+                  id="select-type"
+                  value={productType}
+                  name="productType"
+                  onChange={(e) => onChange('product_type', e.target.value, 'product_name')}
+                >
+                  <MenuItem value={'product-sell'}>
+                    <FormattedMessage id="product-sell" />
+                  </MenuItem>
+                  <MenuItem value={'product-clinic'}>
+                    <FormattedMessage id="product-clinic" />
+                  </MenuItem>
+                </Select>
+              </Stack>
+            )}
             <Stack>
               <InputLabel sx={{ mt: 2 }} htmlFor="productName">
                 {<FormattedMessage id="product" />} *
@@ -163,6 +164,7 @@ export default function FormService({ step, setStep, setParams }) {
                   label: item.fullName,
                   value: item.fullName
                 }))}
+                disabled={isEdit}
                 onChange={(e, val) => onChange('product_name', val.value)}
                 renderInput={(params) => <TextField {...params} />}
               />
@@ -175,10 +177,11 @@ export default function FormService({ step, setStep, setParams }) {
             </InputLabel>
             <Autocomplete
               id="service"
+              disabled={isEdit}
               value={serviceId}
               options={serviceList}
               onChange={(e, val) => onChange('service_id', val)}
-              isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+              // isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
               renderInput={(params) => <TextField {...params} />}
             />
           </Stack>
@@ -284,26 +287,22 @@ export default function FormService({ step, setStep, setParams }) {
           />
         </Stack>
         <Stack>
-          {!isEdit && (
-            <FormControl sx={{ mt: 2 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    sx={{ mt: -0.1 }}
-                    defaultChecked={useTreatmentStore((state) => state.formStep2Item.isAnother == 1)}
-                    onChange={(e) => onChange('isAnother', e.target.checked)}
-                  />
-                }
-                label={
-                  <FormattedMessage
-                    id={
-                      step == 2 ? 'create-another-product' : step == 3 ? 'create-another-service' : step == 4 ? 'create-another-task' : ''
-                    }
-                  />
-                }
-              />
-            </FormControl>
-          )}
+          <FormControl sx={{ mt: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  sx={{ mt: -0.1 }}
+                  defaultChecked={useTreatmentStore((state) => state.formStep2Item.isAnother == 1)}
+                  onChange={(e) => onChange('isAnother', e.target.checked)}
+                />
+              }
+              label={
+                <FormattedMessage
+                  id={step == 2 ? 'create-another-product' : step == 3 ? 'create-another-service' : step == 4 ? 'create-another-task' : ''}
+                />
+              }
+            />
+          </FormControl>
           <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
             <Button
               variant="outlined"

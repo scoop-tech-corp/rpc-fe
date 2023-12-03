@@ -10,7 +10,6 @@ import { createMessageBackend } from 'service/service-global';
 import useGetList from 'hooks/useGetList';
 import MainCard from 'components/MainCard';
 import { useIntl } from 'react-intl';
-import { Button } from '@mui/material';
 
 export default function App() {
   let { id } = useParams();

@@ -220,124 +220,123 @@ const FormAbsent = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValue]);
 
-  return (
-    <ModalC
-      title={<FormattedMessage id="absent" />}
-      open={open}
-      onOk={onSubmit}
-      onCancel={onCancel}
-      fullWidth
-      maxWidth="md"
-      disabledOk={!isFormValid}
-    >
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Stack spacing={1}>
-            <InputLabel htmlFor="present-time">
-              <FormattedMessage id="present-time" />
-            </InputLabel>
-            <TextField fullWidth id="present-time" name="present-time" value={formValue.presentTime} inputProps={{ readOnly: true }} />
-          </Stack>
-        </Grid>
+  // <ModalC
+  //   title={<FormattedMessage id="absent" />}
+  //   open={open}
+  //   onOk={onSubmit}
+  //   onCancel={onCancel}
+  //   fullWidth
+  //   maxWidth="md"
+  //   disabledOk={!isFormValid}
+  // >
+  //   <Grid container spacing={2}>
+  //     <Grid item xs={12}>
+  //       <Stack spacing={1}>
+  //         <InputLabel htmlFor="present-time">
+  //           <FormattedMessage id="present-time" />
+  //         </InputLabel>
+  //         <TextField fullWidth id="present-time" name="present-time" value={formValue.presentTime} inputProps={{ readOnly: true }} />
+  //       </Stack>
+  //     </Grid>
 
-        <Grid item xs={12}>
-          <Stack spacing={1}>
-            <InputLabel htmlFor="location">
-              <FormattedMessage id="location" />
-            </InputLabel>
-            <TextField fullWidth id="location" name="location" value={formValue.address} />
-          </Stack>
-          {formValue.location[0] !== null && formValue.location[1] !== null && (
-            <MapContainer center={formValue.location} zoom={14} scrollWheelZoom={false}>
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={formValue.location} icon={IconMarker}>
-                <Popup>You are here</Popup>
-              </Marker>
-            </MapContainer>
-          )}
-        </Grid>
+  //     <Grid item xs={12}>
+  //       <Stack spacing={1}>
+  //         <InputLabel htmlFor="location">
+  //           <FormattedMessage id="location" />
+  //         </InputLabel>
+  //         <TextField fullWidth id="location" name="location" value={formValue.address} />
+  //       </Stack>
+  //       {formValue.location[0] !== null && formValue.location[1] !== null && (
+  //         <MapContainer center={formValue.location} zoom={14} scrollWheelZoom={false}>
+  //           <TileLayer
+  //             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  //             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+  //           />
+  //           <Marker position={formValue.location} icon={IconMarker}>
+  //             <Popup>You are here</Popup>
+  //           </Marker>
+  //         </MapContainer>
+  //       )}
+  //     </Grid>
 
-        <Grid item xs={12}>
-          <Stack spacing={1}>
-            <InputLabel htmlFor="status">Status</InputLabel>
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select
-                id="status"
-                name="status"
-                value={formValue.status}
-                onChange={(event) => {
-                  setFormValue((prevState) => ({
-                    ...prevState,
-                    status: event.target.value,
-                    reason: [2, 3].includes(event.target.value) ? prevState.reason : ''
-                  }));
-                }}
-                placeholder="Select status"
-              >
-                <MenuItem value="">
-                  <em>Select status</em>
-                </MenuItem>
-                <MenuItem value={1}>Masuk</MenuItem>
-                <MenuItem value={2}>Cuti</MenuItem>
-                <MenuItem value={3}>Sakit</MenuItem>
-                <MenuItem value={4}>Pulang</MenuItem>
-              </Select>
-              {formErr.statusErr.length > 0 && <FormHelperText error> {formErr.statusErr} </FormHelperText>}
-            </FormControl>
-          </Stack>
-        </Grid>
+  //     <Grid item xs={12}>
+  //       <Stack spacing={1}>
+  //         <InputLabel htmlFor="status">Status</InputLabel>
+  //         <FormControl sx={{ m: 1, minWidth: 120 }}>
+  //           <Select
+  //             id="status"
+  //             name="status"
+  //             value={formValue.status}
+  //             onChange={(event) => {
+  //               setFormValue((prevState) => ({
+  //                 ...prevState,
+  //                 status: event.target.value,
+  //                 reason: [2, 3].includes(event.target.value) ? prevState.reason : ''
+  //               }));
+  //             }}
+  //             placeholder="Select status"
+  //           >
+  //             <MenuItem value="">
+  //               <em>Select status</em>
+  //             </MenuItem>
+  //             <MenuItem value={1}>Masuk</MenuItem>
+  //             <MenuItem value={2}>Cuti</MenuItem>
+  //             <MenuItem value={3}>Sakit</MenuItem>
+  //             <MenuItem value={4}>Pulang</MenuItem>
+  //           </Select>
+  //           {formErr.statusErr.length > 0 && <FormHelperText error> {formErr.statusErr} </FormHelperText>}
+  //         </FormControl>
+  //       </Stack>
+  //     </Grid>
 
-        {[2, 3].includes(formValue.status) && (
-          <Grid item xs={12}>
-            <Stack spacing={1}>
-              <InputLabel htmlFor="reason">{<FormattedMessage id="reason" />}</InputLabel>
-              <TextField
-                fullWidth
-                id="reason"
-                name="reason"
-                value={formValue.reason}
-                onChange={(event) => setFormValue((prevState) => ({ ...prevState, reason: event.target.value }))}
-              />
-            </Stack>
-          </Grid>
-        )}
+  //     {[2, 3].includes(formValue.status) && (
+  //       <Grid item xs={12}>
+  //         <Stack spacing={1}>
+  //           <InputLabel htmlFor="reason">{<FormattedMessage id="reason" />}</InputLabel>
+  //           <TextField
+  //             fullWidth
+  //             id="reason"
+  //             name="reason"
+  //             value={formValue.reason}
+  //             onChange={(event) => setFormValue((prevState) => ({ ...prevState, reason: event.target.value }))}
+  //           />
+  //         </Stack>
+  //       </Grid>
+  //     )}
 
-        <Grid item xs={12}>
-          <Stack spacing={1}>
-            <InputLabel htmlFor="take-a-picture">{<FormattedMessage id="take-a-picture" />}</InputLabel>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setStateCamera((prevState) => {
-                  if (prevState) {
-                    onOpenCamera();
-                  } else {
-                    onStopCamera();
-                  }
+  //     <Grid item xs={12}>
+  //       <Stack spacing={1}>
+  //         <InputLabel htmlFor="take-a-picture">{<FormattedMessage id="take-a-picture" />}</InputLabel>
+  //         <Button
+  //           variant="contained"
+  //           onClick={() => {
+  //             setStateCamera((prevState) => {
+  //               if (prevState) {
+  //                 onOpenCamera();
+  //               } else {
+  //                 onStopCamera();
+  //               }
 
-                  return !prevState;
-                });
-              }}
-              color={stateCamera ? 'primary' : 'error'}
-            >
-              {stateCamera ? 'Open a camera' : 'Stop a camera'}
-            </Button>
+  //               return !prevState;
+  //             });
+  //           }}
+  //           color={stateCamera ? 'primary' : 'error'}
+  //         >
+  //           {stateCamera ? 'Open a camera' : 'Stop a camera'}
+  //         </Button>
 
-            {!stateCamera && (
-              <Button variant="contained" onClick={onTakeSelfie} color="success">
-                Take a selfie
-              </Button>
-            )}
-            <video ref={videoRef} style={{ display: 'none' }} />
-            <canvas ref={photoRef} style={{ display: 'none' }} />
-          </Stack>
-        </Grid>
-      </Grid>
-    </ModalC>
-  );
+  //         {!stateCamera && (
+  //           <Button variant="contained" onClick={onTakeSelfie} color="success">
+  //             Take a selfie
+  //           </Button>
+  //         )}
+  //         <video ref={videoRef} style={{ display: 'none' }} />
+  //         <canvas ref={photoRef} style={{ display: 'none' }} />
+  //       </Stack>
+  //     </Grid>
+  //   </Grid>
+  // </ModalC>
+  return <p>www</p>;
 };
 
 export default FormAbsent;
