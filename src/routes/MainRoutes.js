@@ -40,7 +40,7 @@ const PromotionDiscount = Loadable(lazy(() => import('pages/extra-pages/sample-p
 const PromotionPartner = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Service
-const ServiceDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ServiceDashboard = Loadable(lazy(() => import('pages/service/dashboard')));
 const ServiceList = Loadable(lazy(() => import('pages/service/service-list/')));
 const ServiceListForm = Loadable(lazy(() => import('pages/service/service-list/form')));
 const ServiceTreatment = Loadable(lazy(() => import('pages/service/treatment/')));
@@ -50,7 +50,7 @@ const ServiceCategory = Loadable(lazy(() => import('pages/service/category')));
 
 const ServicePolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ServiceTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ServiceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ServiceStaticData = Loadable(lazy(() => import('pages/service/static-data')));
 const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Product

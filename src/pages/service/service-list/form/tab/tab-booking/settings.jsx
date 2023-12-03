@@ -46,7 +46,8 @@ const TabDescription = () => {
                     }}
                   />
                 }
-                label="Dapat dipesan online"
+                // label="Dapat dipesan online"
+                label={<FormattedMessage id="can-be-booked-online" />}
               />
               <FormControlLabel
                 control={
@@ -58,7 +59,9 @@ const TabDescription = () => {
                     }}
                   />
                 }
-                label="Rekam medis alasan kunjungan"
+                label={<FormattedMessage id="medical-record-reason-visit" />}
+
+                // label="Rekam medis alasan kunjungan"
               />
               <FormControlLabel
                 control={
@@ -70,7 +73,8 @@ const TabDescription = () => {
                     }}
                   />
                 }
-                label="Rekam diagnosa"
+                label={<FormattedMessage id="medical-diagnose" />}
+                // label="Rekam diagnosa"
               />
             </FormControl>
           </Stack>

@@ -36,6 +36,8 @@ export default function FormService({ step, setStep, setParams }) {
   const productType = useTreatmentStore((state) => state.formStep2Item.product_type);
   const quantity = useTreatmentStore((state) => state.formStep2Item.quantity);
 
+  const isEdit = useTreatmentStore((state) => state.formStep2Item.isEdit);
+
   const [inputValue, setInputValue] = useState('');
 
   const onChange = (name, val, resetName) => {
@@ -62,7 +64,9 @@ export default function FormService({ step, setStep, setParams }) {
       frequency_id: useTreatmentStore.getState().formStep2Item.frequency_id?.value,
       duration: useTreatmentStore.getState().formStep2Item.duration,
       notes: useTreatmentStore.getState().formStep2Item.notes,
-      treatments_id: treatmentDetail?.id
+      treatments_id: treatmentDetail?.id,
+      isEdit: useTreatmentStore.getState().formStep2Item.isEdit,
+      id: useTreatmentStore.getState().formStep2Item.id
     };
 
     if (step == 2) {
@@ -71,12 +75,12 @@ export default function FormService({ step, setStep, setParams }) {
       params.quantity = useTreatmentStore.getState().formStep2Item.quantity;
     }
 
-    if (step == 3) {
-      params.service_id = useTreatmentStore.getState().formStep2Item.service_id?.value;
+    if (step == 3 && !isEdit) {
+      params.service_id = useTreatmentStore.getState()?.formStep2Item.service_id?.value;
     }
 
     if (step == 4) {
-      params.task_id = useTreatmentStore.getState().formStep2Item.task_id;
+      params.task_id = useTreatmentStore.getState()?.formStep2Item.task_id;
     }
     await updateTreatmentItems(params)
       .then(() => {
@@ -129,24 +133,26 @@ export default function FormService({ step, setStep, setParams }) {
       <Grid item xs={12} sm={12}>
         {step == 2 ? (
           <>
-            <Stack>
-              <InputLabel sx={{ mt: 2 }} htmlFor="product-type">
-                {<FormattedMessage id="product-type" />} *
-              </InputLabel>
-              <Select
-                id="select-type"
-                value={productType}
-                name="productType"
-                onChange={(e) => onChange('product_type', e.target.value, 'product_name')}
-              >
-                <MenuItem value={'product-sell'}>
-                  <FormattedMessage id="product-sell" />
-                </MenuItem>
-                <MenuItem value={'product-clinic'}>
-                  <FormattedMessage id="product-clinic" />
-                </MenuItem>
-              </Select>
-            </Stack>
+            {!isEdit && (
+              <Stack>
+                <InputLabel sx={{ mt: 2 }} htmlFor="product-type">
+                  {<FormattedMessage id="product-type" />} *
+                </InputLabel>
+                <Select
+                  id="select-type"
+                  value={productType}
+                  name="productType"
+                  onChange={(e) => onChange('product_type', e.target.value, 'product_name')}
+                >
+                  <MenuItem value={'product-sell'}>
+                    <FormattedMessage id="product-sell" />
+                  </MenuItem>
+                  <MenuItem value={'product-clinic'}>
+                    <FormattedMessage id="product-clinic" />
+                  </MenuItem>
+                </Select>
+              </Stack>
+            )}
             <Stack>
               <InputLabel sx={{ mt: 2 }} htmlFor="productName">
                 {<FormattedMessage id="product" />} *
@@ -158,6 +164,7 @@ export default function FormService({ step, setStep, setParams }) {
                   label: item.fullName,
                   value: item.fullName
                 }))}
+                disabled={isEdit}
                 onChange={(e, val) => onChange('product_name', val.value)}
                 renderInput={(params) => <TextField {...params} />}
               />
@@ -170,10 +177,11 @@ export default function FormService({ step, setStep, setParams }) {
             </InputLabel>
             <Autocomplete
               id="service"
+              disabled={isEdit}
               value={serviceId}
               options={serviceList}
               onChange={(e, val) => onChange('service_id', val)}
-              isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+              // isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
               renderInput={(params) => <TextField {...params} />}
             />
           </Stack>
@@ -184,6 +192,7 @@ export default function FormService({ step, setStep, setParams }) {
             </InputLabel>
             <Autocomplete
               fullWidth
+              disabled={isEdit}
               id="task"
               noOptionsText="Enter to create a new option"
               options={taskList || []}
@@ -222,7 +231,9 @@ export default function FormService({ step, setStep, setParams }) {
             onChange={(e) => onChange('start', e.target.value, 'duration')}
           >
             {Array.from({ length: totalColumn }, (_, i) => (
-              <MenuItem value={i + 1}>{i + 1}</MenuItem>
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
             ))}
           </Select>
         </Stack>
@@ -256,7 +267,9 @@ export default function FormService({ step, setStep, setParams }) {
             onChange={(e) => onChange('duration', e.target.value)}
           >
             {Array.from({ length: totalColumn - (useTreatmentStore.getState().formStep2Item.start - 1) }, (_, i) => (
-              <MenuItem value={i + 1}>{i + 1}</MenuItem>
+              <MenuItem value={i + 1} key={i}>
+                {i + 1}
+              </MenuItem>
             ))}
           </Select>
         </Stack>
@@ -289,7 +302,7 @@ export default function FormService({ step, setStep, setParams }) {
               }
             />
           </FormControl>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
             <Button
               variant="outlined"
               sx={{ mb: 2 }}

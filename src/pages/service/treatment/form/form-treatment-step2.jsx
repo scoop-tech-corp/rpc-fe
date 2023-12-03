@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TreatmentFormHeader from './treatment-form-header';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { Grid } from '@mui/material';
 import { useTreatmentStore } from '../treatment-form-store';
 import { getServiceListByLocation, getTreatmentById, getFrequencyList, getTaskList, getTreatmentItem, updateTreatment } from '../service';
 import { useNavigate, useParams } from 'react-router';
@@ -19,6 +18,7 @@ export default function App() {
   const treatmentDetail = useTreatmentStore((state) => state.dataSupport.treatmentDetail);
   const [totalData, setTotalData] = useState(0);
   const intl = useIntl();
+  const [showEdit, setShowEdit] = useState(0);
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, changeLimit } = useGetList(
     getTreatmentItem,
@@ -90,9 +90,24 @@ export default function App() {
 
       return (
         <>
-          <p style={{ color: '#4763E4', fontWeight: 'semibold', marginBottom: 0, marginTop: 5 }}>
+          <button
+            style={{
+              color: '#4763E4',
+              fontWeight: 'semibold',
+              marginBottom: 0,
+              marginTop: 5,
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              display: 'block',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              setShowEdit(original);
+            }}
+          >
             {original.serviceName || original.taskName || original.productName}
-          </p>
+          </button>
           <span>{original.frequencyName}</span>
         </>
       );
@@ -125,7 +140,7 @@ export default function App() {
 
   return (
     <>
-      <TreatmentFormHeader setTotalColumn={setTotalColumn} setParams={setParams} />
+      <TreatmentFormHeader setTotalColumn={setTotalColumn} setParams={setParams} showEdit={showEdit} setShowEdit={setShowEdit} />
       <MainCard content={false}>
         <div
           style={{
@@ -138,7 +153,7 @@ export default function App() {
           <ReactTable
             columns={column}
             data={list || []}
-            colSpanPagination={totalColumn}
+            colSpanPagination={totalColumn + 1}
             totalPagination={totalPagination}
             setPageNumber={params.goToPage}
             setPageRow={params.rowPerPage}
@@ -146,7 +161,6 @@ export default function App() {
             onOrder={orderingChange}
             onPageSize={changeLimit}
           />
-          {/* <ReactTable columns={column} data={[]} totalPagination={0} /> */}
         </div>
       </MainCard>
     </>
