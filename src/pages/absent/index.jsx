@@ -338,7 +338,11 @@ const FormAbsent = (props) => {
       </Grid>
     </ModalC>
   );
-  // return <p>www</p>;
+};
+
+FormAbsent.propTypes = {
+  open: PropTypes.bool,
+  onClose: PropTypes.func
 };
 
 export default FormAbsent;
