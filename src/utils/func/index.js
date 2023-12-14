@@ -52,4 +52,6 @@ export const formateDateDDMMYYY = (date, additional = { isWithTime: { show: fals
   return day + additional.separator + month + additional.separator + year;
 };
 
+export const isContainsUppercaseForWord = (str) => Boolean(str.match(/[A-Z]/));
+
 export const formateNumber = (string) => (string ? +string.replaceAll(',', '') : '');
