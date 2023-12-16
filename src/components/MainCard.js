@@ -40,7 +40,6 @@ const MainCard = forwardRef(
   ) => {
     const theme = useTheme();
     boxShadow = theme.palette.mode === 'dark' ? boxShadow || true : boxShadow;
-
     return (
       <Card
         elevation={elevation || 0}
@@ -61,6 +60,7 @@ const MainCard = forwardRef(
             fontFamily: theme.typography.fontFamily,
             fontSize: '0.75rem'
           },
+          padding: 0,
           ...sx
         }}
       >
