@@ -60,7 +60,6 @@ const MainCard = forwardRef(
             fontFamily: theme.typography.fontFamily,
             fontSize: '0.75rem'
           },
-          padding: 0,
           ...sx
         }}
       >
