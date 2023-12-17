@@ -87,7 +87,7 @@ const FinanceExpenses = Loadable(lazy(() => import('pages/extra-pages/sample-pag
 const FinanceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Report
-const Report = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const Report = Loadable(lazy(() => import('pages/report')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
