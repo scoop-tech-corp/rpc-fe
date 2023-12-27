@@ -115,7 +115,8 @@ export const JWTProvider = ({ children }) => {
             avatar: userLogin.avatar,
             isAbsent: userLogin.isAbsent,
             masterMenu: userLogin.masterMenu,
-            profileMenu: userLogin.profileMenu
+            profileMenu: userLogin.profileMenu,
+            settingMenu: userLogin.settingMenu
           };
           dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
         } else {
@@ -132,7 +133,7 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu } = response.data;
+    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu } = response.data;
     setSession(token);
 
     const setUser = {
@@ -143,7 +144,8 @@ export const JWTProvider = ({ children }) => {
       role: role.toLowerCase(),
       isAbsent: !!isAbsent,
       masterMenu,
-      profileMenu
+      profileMenu,
+      settingMenu
     };
 
     dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
