@@ -5,8 +5,8 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
   const [params, setParams] = useState({
     goToPage: 1,
     rowPerPage: 5,
-    orderValue: 'desc',
-    orderColumn: 'updated_at',
+    orderValue: '',
+    orderColumn: '',
     ...initialParams
   });
   const [searchTimeout, setSearchTimeout] = useState(null);

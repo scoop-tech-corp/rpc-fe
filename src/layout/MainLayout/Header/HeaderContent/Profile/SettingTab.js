@@ -3,8 +3,10 @@ import { useState } from 'react';
 // material-ui
 import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import PropTypes from 'prop-types';
 import { mappingProfileMenu } from 'menu-items';
+import { useNavigate } from 'react-router';
+
+import PropTypes from 'prop-types';
 
 // assets
 // import { CommentOutlined, LockOutlined, QuestionCircleOutlined, UserOutlined, UnorderedListOutlined } from '@ant-design/icons';
@@ -13,11 +15,13 @@ import { mappingProfileMenu } from 'menu-items';
 
 const SettingTab = (props) => {
   const [selectedIndex, setSelectedIndex] = useState();
+  const navigate = useNavigate();
 
   const get_setting_menu = mappingProfileMenu(props.settingMenus);
 
-  const handleListItemClick = (index) => {
+  const handleListItemClick = (index, url) => {
     setSelectedIndex(index);
+    navigate(url, { replace: true });
   };
 
   return (
@@ -30,7 +34,7 @@ const SettingTab = (props) => {
       </ListItemButton> */}
 
       {get_setting_menu.map((dt, i) => (
-        <ListItemButton key={i} selected={selectedIndex === i} onClick={() => handleListItemClick(i)}>
+        <ListItemButton key={i} selected={selectedIndex === i} onClick={() => handleListItemClick(i, dt.url)}>
           <ListItemIcon>{dt.icon}</ListItemIcon>
           <ListItemText primary={<FormattedMessage id={dt.title} />} />
         </ListItemButton>

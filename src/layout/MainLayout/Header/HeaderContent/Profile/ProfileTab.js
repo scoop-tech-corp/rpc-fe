@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 
 // assets
-import { LogoutOutlined } from '@ant-design/icons'; // ProfileOutlined, WalletOutlined
+import { LogoutOutlined } from '@ant-design/icons'; // ProfileOutlined, WalletOutlined, EditOutlined, UserOutlined
 import { useNavigate } from 'react-router';
 import { mappingProfileMenu } from 'menu-items';
 

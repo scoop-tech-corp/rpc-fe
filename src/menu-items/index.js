@@ -137,7 +137,9 @@ export const mappingProfileMenu = (data) => {
 
   return get_profile_menu.map((dt) => {
     const Icon = iconsProfileMenu[dt.icon];
-    dt.icon = <Icon />;
+    const itemIcon = iconsProfileMenu[dt.icon] ? <Icon style={{ fontSize: '1rem' }} /> : false;
+
+    dt.icon = itemIcon;
     return dt;
   });
 };

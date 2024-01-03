@@ -89,6 +89,13 @@ const FinanceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-p
 // Report
 const Report = Loadable(lazy(() => import('pages/report')));
 
+// Menus
+const MenuGroup = Loadable(lazy(() => import('pages/menus/group')));
+const MenuGroupChildren = Loadable(lazy(() => import('pages/menus/children')));
+const MenuGroupGrandChildren = Loadable(lazy(() => import('pages/menus/grand-children')));
+const MenuProfile = Loadable(lazy(() => import('pages/menus/profile')));
+const MenuSetting = Loadable(lazy(() => import('pages/menus/setting')));
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -208,6 +215,16 @@ const MainRoutes = {
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
             { path: 'static-data', element: <FinanceStaticData /> }
+          ]
+        },
+        {
+          path: 'menu',
+          children: [
+            { path: 'group', element: <MenuGroup /> },
+            { path: 'children', element: <MenuGroupChildren /> },
+            { path: 'grand-children', element: <MenuGroupGrandChildren /> },
+            { path: 'profile', element: <MenuProfile /> },
+            { path: 'setting', element: <MenuSetting /> }
           ]
         },
         {
