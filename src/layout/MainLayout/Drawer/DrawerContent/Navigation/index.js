@@ -16,6 +16,7 @@ const Navigation = () => {
   const { user } = useAuth();
   const get_master_menu = mappingMasterMenu(user?.masterMenu);
 
+  console.log(get_master_menu);
   // menuItem.items
   const navGroups = get_master_menu.map((item) => {
     switch (item.type) {

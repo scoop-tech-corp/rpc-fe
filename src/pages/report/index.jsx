@@ -3,37 +3,39 @@ import { FormattedMessage } from 'react-intl';
 
 import MainCard from 'components/MainCard';
 import TabPanel from 'components/TabPanelC';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const list = {
   bookings: [
     {
       id: 1,
-      val: 'By location'
+      val: 'By location',
+      url: 'by-location'
     },
     {
       id: 2,
-      val: 'By status'
+      val: 'By status',
+      url: 'by-status'
     },
     {
       id: 3,
-      val: 'By cancellation reason'
+      val: 'By cancellation reason',
+      url: 'by-cancellation-reason'
     },
     {
       id: 4,
-      val: 'List'
-    },
-    {
-      id: 5,
-      val: 'Offsite by postal code'
+      val: 'List',
+      url: 'list'
     },
     {
       id: 6,
-      val: 'Diagnosis list'
+      val: 'Diagnosis list',
+      url: 'diagnosis-list'
     },
     {
       id: 7,
-      val: 'By diagnosis, species & gender'
+      val: 'By diagnosis, species & gender',
+      url: 'by-diagnosis-species-gender'
     }
   ],
   customers: [
@@ -111,14 +113,16 @@ const list = {
 
 const tab = ['all-reports', 'bookings', 'customer', 'deposit', 'expenses', 'products', 'sales', 'service', 'staff'];
 
-const ServiceListForm = () => {
+const ReportPage = () => {
   let [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   let type = Number(searchParams.get('type')) || 0;
 
   const onChangeTab = (_, value) => {
     setSearchParams({ type: value });
   };
+
   const GenerateTab = ({ list, index, title }) => (
     <Box sx={{ mt: 2.5 }}>
       <TabPanel value={type} index={index}>
@@ -127,7 +131,12 @@ const ServiceListForm = () => {
             {list?.map((item) => (
               <ListItem key={item.id} component="div" disablePadding divider>
                 <ListItemButton>
-                  <ListItemText primary={item.val} />
+                  <ListItemText
+                    primary={item.val}
+                    onClick={() => {
+                      navigate(`/report-detail?type=${title}&detail=${item.url}`, { replace: true });
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             ))}
@@ -171,4 +180,4 @@ const ServiceListForm = () => {
   );
 };
 
-export default ServiceListForm;
+export default ReportPage;

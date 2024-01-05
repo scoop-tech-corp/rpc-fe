@@ -41,6 +41,12 @@ const service = {
           url: '/service/treatment'
         },
         {
+          id: 'service-treatment-plan',
+          title: <FormattedMessage id="Service List 3" />,
+          type: 'item',
+          url: '/service/list-2'
+        },
+        {
           id: 'service-category',
           title: <FormattedMessage id="category" />,
           type: 'item',
@@ -57,19 +63,19 @@ const service = {
           title: 'Template',
           type: 'item',
           url: '/service/template'
-        },
-        {
-          id: 'service-static-data',
-          title: <FormattedMessage id="static-data" />,
-          type: 'item',
-          url: '/service/static-data'
-        },
-        {
-          id: 'service-import',
-          title: <FormattedMessage id="import" />,
-          type: 'item',
-          url: '/service/import'
         }
+        // {
+        //   id: 'service-static-data',
+        //   title: <FormattedMessage id="static-data" />,
+        //   type: 'item',
+        //   url: '/service/static-data'
+        // },
+        // {
+        //   id: 'service-import',
+        //   title: <FormattedMessage id="import" />,
+        //   type: 'item',
+        //   url: '/service/import'
+        // }
       ]
     }
   ]

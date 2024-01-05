@@ -88,6 +88,7 @@ const FinanceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-p
 
 // Report
 const Report = Loadable(lazy(() => import('pages/report')));
+const ReportDetail = Loadable(lazy(() => import('pages/report/report-detail')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -105,7 +106,8 @@ const MainRoutes = {
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'calendar', element: <Calendar /> },
         { path: 'message', element: <Message /> },
-        { path: 'report', element: <Report /> },
+        { path: '/report', element: <Report /> },
+        { path: 'report-detail', element: <ReportDetail /> },
         {
           path: 'customer',
           children: [
