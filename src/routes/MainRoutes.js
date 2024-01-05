@@ -106,7 +106,7 @@ const MainRoutes = {
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'calendar', element: <Calendar /> },
         { path: 'message', element: <Message /> },
-        { path: '/report', element: <Report /> },
+        { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },
         {
           path: 'customer',

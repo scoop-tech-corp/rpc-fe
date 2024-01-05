@@ -25,6 +25,7 @@
     "@mui/material": "^5.8.4",
     "@mui/styles": "^5.8.4",
     "@mui/system": "^5.8.4",
+    "@mui/x-date-pickers": "^6.18.7",
     "@reduxjs/toolkit": "^1.8.2",
     "@unicef/material-ui-currency-textfield": "^0.8.6",
     "@wojtekmaj/react-daterange-picker": "^5.4.4",
