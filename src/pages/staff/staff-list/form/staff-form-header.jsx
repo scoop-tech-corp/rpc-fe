@@ -1,12 +1,12 @@
 import { getAllState, useStaffFormStore } from './staff-form-store';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { createMessageBackend } from 'service/service-global';
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
-import { createStaff, updateStaff, uploadImageStaff } from '../service';
+import { createStaff, updateStaff, uploadImageStaff, validationFormStaff } from '../service';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 
 import PropTypes from 'prop-types';
@@ -14,9 +14,11 @@ import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 
 const StaffFormHeader = (props) => {
+  const allState = useStaffFormStore((state) => state);
   const staffFormError = useStaffFormStore((state) => state.staffFormError);
   const isTouchForm = useStaffFormStore((state) => state.staffFormTouch);
   const [isError, setIsError] = useState(false);
+  const [formError, setFormError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
 
   let { id } = useParams();
@@ -73,13 +75,23 @@ const StaffFormHeader = (props) => {
     }
   };
 
+  useEffect(() => {
+    const getRespValidForm = validationFormStaff('all');
+    setFormError(getRespValidForm);
+  }, [allState]);
+
   return (
     <>
       <HeaderPageCustom
         title={setTitlePage}
         locationBackConfig={{ setLocationBack: true, customUrl: '/staff/list' }}
         action={
-          <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={!isTouchForm || staffFormError}>
+          <Button
+            variant="contained"
+            startIcon={<PlusOutlined />}
+            onClick={onSubmit}
+            disabled={!isTouchForm || formError || staffFormError}
+          >
             <FormattedMessage id="save" />
           </Button>
         }

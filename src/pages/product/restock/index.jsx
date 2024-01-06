@@ -1,11 +1,11 @@
-import { Button, Stack, useMediaQuery, Link, Autocomplete, TextField, Chip } from '@mui/material';
+import { Button, Stack, useMediaQuery, Link, Autocomplete, TextField, Chip, Tooltip } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { deleteProductRestock, exportProductRestock, getProductRestock } from './service';
+import { deleteProductRestock, exportProductRestock, getProductRestock, productRestockSendSupplier } from './service';
 import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
 import { GlobalFilter } from 'utils/react-table';
 import { useDispatch } from 'react-redux';
@@ -19,16 +19,21 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import SendIcon from '@mui/icons-material/Send';
 import ProductRestockDetail from './detail';
+import useAuth from 'hooks/useAuth';
+import ProductRestockApproval from './approval';
 
 let paramProductRestockList = {};
 
 const ProductRestock = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  const dispatch = useDispatch();
   const intl = useIntl();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [productRestockData, setProductRestockData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -41,93 +46,125 @@ const ProductRestock = () => {
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null });
+  const [openApprove, setOpenApprove] = useState({ isOpen: false, id: null });
+  const [dialogSend, setDialogSend] = useState({ isOpen: false, id: null });
 
-  const columns = useMemo(
-    () => [
-      {
-        title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
+  const allColumn = [
+    {
+      Header: <FormattedMessage id="id-number" />,
+      accessor: 'numberId',
+      Cell: (data) => {
+        const getId = data.row.original.id;
 
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
-        accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true,
-        style: {
-          width: '10px'
-        }
-      },
-      {
-        Header: <FormattedMessage id="id-number" />,
-        accessor: 'numberId',
-        Cell: (data) => {
-          const getId = data.row.original.id;
-
-          return <Link onClick={() => setOpenDetail({ isOpen: true, id: +getId })}>{data.value}</Link>;
-        }
-      },
-      {
-        Header: <FormattedMessage id="location" />,
-        accessor: 'locationName'
-      },
-      {
-        Header: <FormattedMessage id="supplier" />,
-        accessor: 'supplierName'
-      },
-      {
-        Header: <FormattedMessage id="product" />,
-        accessor: 'product'
-      },
-      {
-        Header: <FormattedMessage id="quantity" />,
-        accessor: 'quantity'
-      },
-      {
-        Header: 'Status',
-        accessor: 'status',
-        Cell: (data) => {
-          switch (+data.value) {
-            case 0:
-              return <Chip color="warning" label={<FormattedMessage id="draft" />} size="small" variant="light" />;
-            case 1:
-              return <Chip color="info" label={<FormattedMessage id="waiting-for-approval" />} size="small" variant="light" />;
-            case 2:
-              return <Chip color="error" label={<FormattedMessage id="reject" />} size="small" variant="light" />;
-            case 3:
-              return <Chip color="success" label={<FormattedMessage id="approved" />} size="small" variant="light" />;
-            case 4:
-              return <Chip color="info" label={<FormattedMessage id="waiting-for-supplier" />} size="small" variant="light" />;
-            case 5:
-              return <Chip color="primary" label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
-          }
-        }
-      },
-      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
-      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
-      {
-        Header: <FormattedMessage id="action" />,
-        accessor: 'action',
-        isNotSorting: true,
-        Cell: () => {
-          // data
-          // const getId = data.row.original.id;
-          // const getCateName = data.row.original.categoryName;
-          // const getExpiredDay = data.row.original.expiredDay;
-
-          const onEdit = () => {};
-
-          return (
-            <IconButton size="large" color="warning" onClick={() => onEdit()}>
-              <EditOutlined />
-            </IconButton>
-          );
+        return <Link onClick={() => setOpenDetail({ isOpen: true, id: +getId })}>{data.value}</Link>;
+      }
+    },
+    {
+      Header: <FormattedMessage id="location" />,
+      accessor: 'locationName'
+    },
+    {
+      Header: <FormattedMessage id="supplier" />,
+      accessor: 'supplierName'
+    },
+    {
+      Header: <FormattedMessage id="product" />,
+      accessor: 'products'
+    },
+    {
+      Header: <FormattedMessage id="quantity" />,
+      accessor: 'quantity'
+    },
+    {
+      Header: 'Status',
+      accessor: 'status',
+      Cell: (data) => {
+        switch (+data.value) {
+          case 0:
+            return <Chip color="warning" label={<FormattedMessage id="draft" />} size="small" variant="light" />;
+          case 1:
+            return <Chip color="info" label={<FormattedMessage id="waiting-for-approval" />} size="small" variant="light" />;
+          case 2:
+            return <Chip color="error" label={<FormattedMessage id="reject" />} size="small" variant="light" />;
+          case 3:
+            return <Chip color="success" label={<FormattedMessage id="approved" />} size="small" variant="light" />;
+          case 4:
+            return <Chip color="default" label={<FormattedMessage id="send-to-supplier" />} size="small" variant="light" />;
+          case 5:
+            return <Chip label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
         }
       }
-    ],
+    },
+    { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
+    { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
+    {
+      Header: <FormattedMessage id="action" />,
+      accessor: 'action',
+      style: { textAlign: 'center' },
+      isNotSorting: true,
+      Cell: (data) => {
+        const getId = +data.row.original.id;
+        const getStatus = +data.row.original.status;
+        const getNumberId = data.row.original.numberId;
+
+        const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
+
+        return (
+          <>
+            <Stack spacing={1} flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
+              <IconButton
+                size="large"
+                color="warning"
+                onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
+                disabled={isDisabled()}
+              >
+                <EditOutlined />
+              </IconButton>
+              {getStatus == 1 && ['administrator', 'office'].includes(user?.role) && (
+                <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
+                  <ChecklistIcon />
+                </IconButton>
+              )}
+              {getStatus == 3 && (
+                <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                  <IconButton size="large" color="primary" onClick={() => setDialogSend({ isOpen: true, id: getId })}>
+                    <SendIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
+          </>
+        );
+      }
+    }
+  ];
+
+  const selectedColumn =
+    user?.role === 'administrator'
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+            disableSortBy: true,
+            style: {
+              width: '10px'
+            }
+          }
+        ]
+      : [];
+
+  const columns = useMemo(
+    () => [...selectedColumn, ...allColumn],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -205,6 +242,28 @@ const ProductRestock = () => {
         });
     } else {
       setDialog(false);
+    }
+  };
+
+  const onConfirmSendSupplier = async (value) => {
+    if (value) {
+      await productRestockSendSupplier(dialogSend.id)
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialogSend({ isOpen: false, id: null });
+            dispatch(snackbarSuccess('Success send supplier'));
+            clearParamFetchData();
+            fetchData();
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialogSend({ isOpen: false, id: null });
+            dispatch(snackbarError(createMessageBackend(err, true, true)));
+          }
+        });
+    } else {
+      setDialogSend({ isOpen: false, id: null });
     }
   };
 
@@ -312,20 +371,44 @@ const ProductRestock = () => {
           </Stack>
         </ScrollX>
       </MainCard>
-      <ConfirmationC
-        open={dialog}
-        title={<FormattedMessage id="delete" />}
-        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
-        onClose={(response) => onConfirm(response)}
-        btnTrueText="Ok"
-        btnFalseText="Cancel"
-      />
+      {dialog && (
+        <ConfirmationC
+          open={dialog}
+          title={<FormattedMessage id="delete" />}
+          content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+          onClose={(response) => onConfirm(response)}
+          btnTrueText="Ok"
+          btnFalseText="Cancel"
+        />
+      )}
+      {dialogSend.isOpen && (
+        <ConfirmationC
+          open={dialogSend.isOpen}
+          title={<FormattedMessage id="confirmation" />}
+          content={<FormattedMessage id="are-you-sure-you-want-to-send-the-product-to-supplier" />}
+          onClose={(response) => onConfirmSendSupplier(response)}
+          btnTrueText="Ok"
+          btnFalseText="Cancel"
+        />
+      )}
+
       {openDetail.isOpen && (
         <ProductRestockDetail
           id={openDetail.id}
           open={openDetail.isOpen}
-          onClose={() => {
+          onClose={(event) => {
             setOpenDetail({ isOpen: false, id: null });
+            if (event === 'trigerIndex') fetchData();
+          }}
+        />
+      )}
+      {openApprove.isOpen && (
+        <ProductRestockApproval
+          open={openApprove.isOpen}
+          id={openApprove.id}
+          onClose={(resp) => {
+            setOpenApprove({ isOpen: false, id: null });
+            if (resp) fetchData();
           }}
         />
       )}

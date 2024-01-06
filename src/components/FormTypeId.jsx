@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
+import { saveStaffDataStatic } from 'pages/staff/static-data/service';
 import { createTypeId } from 'pages/staff/staff-list/service';
 import { createMessageBackend } from 'service/service-global';
 
@@ -14,7 +15,15 @@ const FormTypeId = (props) => {
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    await createTypeId(typeId)
+    const moduleEndpoint = (module = 'customer') => {
+      if (module == 'staff') {
+        return saveStaffDataStatic({ keyword: 'Type id', name: typeId });
+      } else if (module == 'customer') {
+        return createTypeId(typeId);
+      }
+    };
+
+    await moduleEndpoint(props.module)
       .then((resp) => {
         if (resp && resp.status === 200) {
           setTypeId('');
@@ -57,6 +66,7 @@ const FormTypeId = (props) => {
 
 FormTypeId.propTypes = {
   open: PropTypes.bool,
+  module: PropTypes.string,
   onClose: PropTypes.func
 };
 

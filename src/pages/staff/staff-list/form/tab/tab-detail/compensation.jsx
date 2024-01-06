@@ -2,8 +2,8 @@ import { FormattedMessage } from 'react-intl';
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { useStaffFormStore } from '../../staff-form-store';
 import { PlusOutlined } from '@ant-design/icons';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 import { useState } from 'react';
-import { getPayPeriodList } from 'pages/staff/staff-list/service';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -30,8 +30,8 @@ const Compensation = () => {
   const onCloseFormPayPeriod = async (val) => {
     if (val) {
       setOpenFormPayPeriod(false);
-      const getPayPeriod = await getPayPeriodList();
-      useStaffFormStore.setState({ payPeriodList: getPayPeriod });
+      const { dataStaticPayPeriod } = await getDropdownStaffDataStatic();
+      useStaffFormStore.setState({ payPeriodList: dataStaticPayPeriod });
     }
   };
 

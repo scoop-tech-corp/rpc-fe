@@ -1,5 +1,6 @@
 import { formateDateYYYMMDD, formateNumber, jsonCentralized } from 'utils/func';
 import { getCityList } from 'pages/location/location-list/detail/service';
+import { getAllState } from './form/staff-form-store';
 import axios from 'utils/axios';
 
 export const getStaffList = async (property) => {
@@ -40,6 +41,7 @@ export const createStaff = async (property) => {
       isPrimary: da.isPrimary ? 1 : 0
     };
   });
+  const newLocationId = property.locationId.map((dt) => dt.value);
 
   param.append('firstName', property.firstName);
   param.append('middleName', property.middleName);
@@ -53,7 +55,7 @@ export const createStaff = async (property) => {
   param.append('endDate', endDate);
   param.append('registrationNo', property.registrationNo);
   param.append('designation', property.designation);
-  param.append('locationId', property.locationId);
+  param.append('locationId', JSON.stringify(newLocationId));
 
   param.append('annualSickAllowance', property.annualSickAllowance);
   param.append('annualLeaveAllowance', property.annualLeaveAllowance);
@@ -99,6 +101,8 @@ export const updateStaff = async (property) => {
     };
   });
 
+  const newLocationId = property.locationId.map((dt) => dt.value);
+
   return await axios.put('staff', {
     id: property.id,
     firstName: property.firstName,
@@ -113,7 +117,7 @@ export const updateStaff = async (property) => {
     endDate,
     registrationNo: property.registrationNo,
     designation: property.designation,
-    locationId: property.locationId,
+    locationId: newLocationId,
 
     annualSickAllowance: property.annualSickAllowance,
     annualLeaveAllowance: property.annualLeaveAllowance,
@@ -207,22 +211,6 @@ export const getStaff = async () => {
   });
 };
 
-export const getTypeIdList = async () => {
-  const getResp = await axios.get('staff/typeid');
-
-  return getResp.data.map((dt) => {
-    return { label: dt.typeName, value: +dt.typeId };
-  });
-};
-
-export const getPayPeriodList = async () => {
-  const getResp = await axios.get('staff/payperiod');
-
-  return getResp.data.map((dt) => {
-    return { label: dt.periodName, value: +dt.payPeriodId };
-  });
-};
-
 export const getRolesIdList = async () => {
   const getResp = await axios.get('staff/rolesid');
 
@@ -231,26 +219,42 @@ export const getRolesIdList = async () => {
   });
 };
 
-export const getJobTitleList = async () => {
-  const getResp = await axios.get('staff/jobtitle');
+// export const getPayPeriodList = async () => {
+//   const getResp = await axios.get('staff/payperiod');
+
+//   return getResp.data.map((dt) => {
+//     return { label: dt.periodName, value: +dt.payPeriodId };
+//   });
+// };
+
+// export const getJobTitleList = async () => {
+//   const getResp = await axios.get('staff/jobtitle');
+
+//   return getResp.data.map((dt) => {
+//     return { label: dt.jobName, value: +dt.jobTitleid };
+//   });
+// };
+
+// export const createJobTitle = async (jobName) => {
+//   const parameter = new FormData();
+//   parameter.append('jobName', jobName);
+
+//   return await axios.post('staff/jobtitle', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+// };
+
+// export const createPayPeriod = async (periodName) => {
+//   const parameter = new FormData();
+//   parameter.append('periodName', periodName);
+
+//   return await axios.post('staff/payperiod', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+// };
+
+export const getTypeIdList = async () => {
+  const getResp = await axios.get('staff/typeid');
 
   return getResp.data.map((dt) => {
-    return { label: dt.jobName, value: +dt.jobTitleid };
+    return { label: dt.typeName, value: +dt.typeId };
   });
-};
-
-export const createJobTitle = async (jobName) => {
-  const parameter = new FormData();
-  parameter.append('jobName', jobName);
-
-  return await axios.post('staff/jobtitle', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
-};
-
-export const createPayPeriod = async (periodName) => {
-  const parameter = new FormData();
-  parameter.append('periodName', periodName);
-
-  return await axios.post('staff/payperiod', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const createTypeId = async (typeName) => {
@@ -258,4 +262,109 @@ export const createTypeId = async (typeName) => {
   parameter.append('typeName', typeName);
 
   return await axios.post('staff/typeid', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+// Validation Form Staff
+const coreValidationPosition = [
+  { code: 0, message: 'Job title is required' },
+  { code: 1, message: 'Start Date is required' },
+  { code: 2, message: 'End Date is required' },
+  { code: 3, message: 'Location is required' },
+  { code: 4, message: 'Start Date must be smaller then End Date' },
+  { code: 5, message: 'End Date must be greater then Start Date' }
+];
+
+const coreValidationBasicDetail = [
+  { code: 0, message: 'First Name is required' },
+  { code: 1, message: 'Status is required' },
+  { code: 7, message: 'First Name minimum 3 characters and maximum 20 characters' },
+  { code: 8, message: 'Middle Name minimum 3 characters and maximum 20 characters' },
+  { code: 9, message: 'Last Name minimum 3 characters and maximum 20 characters' },
+  { code: 10, message: 'Nick Name minimum 3 characters and maximum 20 characters' }
+];
+
+export const validationFormStaff = (procedure) => {
+  let getLocation = getAllState().locationId;
+  let getJobTitle = getAllState().jobTitleId;
+  let getStartDate = getAllState().startDate;
+  let getEndDate = getAllState().endDate;
+
+  let getFirstName = getAllState().firstName;
+  let getMiddleName = getAllState().middleName;
+  let getLastName = getAllState().lastName;
+  let getNickName = getAllState().nickName;
+  let getStatus = getAllState().status;
+
+  let getLocationError = '';
+  let getJobTitleError = '';
+  let getStartDateError = '';
+  let getEndDateError = '';
+
+  let getFirstNameError = '';
+  let getMiddleNameError = '';
+  let getLastNameError = '';
+  let getNickNameError = '';
+  let getStatusError = '';
+
+  const checkBasicDetail = () => {
+    if (!getFirstName) {
+      getFirstNameError = coreValidationBasicDetail.find((d) => d.code === 0);
+    } else if (getFirstName.length < 3 || getFirstName.length > 20) {
+      getFirstNameError = coreValidationBasicDetail.find((d) => d.code === 7);
+    }
+
+    if (getMiddleName && (getMiddleName.length < 3 || getMiddleName.length > 20)) {
+      getMiddleNameError = coreValidationBasicDetail.find((d) => d.code === 8);
+    }
+
+    if (getLastName && (getLastName.length < 3 || getLastName.length > 20)) {
+      getLastNameError = coreValidationBasicDetail.find((d) => d.code === 9);
+    }
+
+    if (getNickName && (getNickName.length < 3 || getNickName.length > 20)) {
+      getNickNameError = coreValidationBasicDetail.find((d) => d.code === 10);
+    }
+
+    if (!getStatus) {
+      getStatusError = coreValidationBasicDetail.find((d) => d.code === 1);
+    }
+
+    if (getFirstNameError || getMiddleNameError || getLastNameError || getNickNameError || getStatusError) {
+      return { getFirstNameError, getMiddleNameError, getLastNameError, getNickNameError, getStatusError };
+    } else {
+      return false;
+    }
+  };
+
+  const checkPosition = () => {
+    if (!getJobTitle) getJobTitleError = coreValidationPosition.find((d) => d.code === 0);
+
+    if (!getStartDate) {
+      getStartDateError = coreValidationPosition.find((d) => d.code === 1);
+    } else if (new Date(getStartDate).getTime() > new Date(getEndDate).getTime()) {
+      getStartDateError = coreValidationPosition.find((d) => d.code === 4);
+    }
+
+    if (!getEndDate) {
+      getEndDateError = coreValidationPosition.find((d) => d.code === 2);
+    } else if (new Date(getEndDate).getTime() < new Date(getStartDate).getTime()) {
+      getEndDateError = coreValidationPosition.find((d) => d.code === 5);
+    }
+
+    if (!getLocation.length) getLocationError = coreValidationPosition.find((d) => d.code === 3);
+
+    if (getJobTitleError || getStartDateError || getEndDateError || getLocationError) {
+      return { getJobTitleError, getStartDateError, getEndDateError, getLocationError };
+    } else {
+      return false;
+    }
+  };
+
+  if (procedure === 'position') {
+    return checkPosition();
+  } else if (procedure === 'basic-detail') {
+    return checkBasicDetail();
+  } else {
+    return checkPosition() || checkBasicDetail() ? true : false;
+  }
 };

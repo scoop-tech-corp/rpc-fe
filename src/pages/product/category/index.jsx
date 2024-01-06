@@ -6,7 +6,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { deleteProductCategory, exportProductCategory, getProductCategory } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, processDownloadExcel } from 'service/service-global';
 import { GlobalFilter } from 'utils/react-table';
 import { useDispatch } from 'react-redux';
 
@@ -143,17 +143,7 @@ const ProductCategory = () => {
 
   const onExport = async () => {
     await exportProductCategory(paramProductCategoryList)
-      .then((resp) => {
-        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-        let downloadUrl = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
-
-        a.href = downloadUrl;
-        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
-        document.body.appendChild(a);
-        a.click();
-      })
+      .then(processDownloadExcel)
       .catch((err) => {
         if (err) {
           dispatch(snackbarError(createMessageBackend(err)));

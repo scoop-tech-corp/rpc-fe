@@ -19,7 +19,9 @@ import { CloseOutlined, LineOutlined, SearchOutlined } from '@ant-design/icons';
 export function GlobalFilter({ placeHolder, globalFilter, setGlobalFilter, ...other }) {
   const [value, setValue] = useState('');
   const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
+    if (setGlobalFilter) {
+      setGlobalFilter(value || undefined);
+    }
   }, 200);
 
   useEffect(() => {
