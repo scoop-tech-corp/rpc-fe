@@ -17,7 +17,7 @@ import { getAllState, useFormRestockStore } from './form-restock-store';
 import { getProductClinicDropdown, getProductSellDropdown, getSupplierList } from 'pages/product/product-list/service';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DeleteFilled, EyeFilled, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, EyeFilled, PlusOutlined, EditFilled } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { formateDateYYYMMDD } from 'utils/func';
@@ -27,6 +27,7 @@ import FormSupplier from 'components/FormSupplier';
 import PhotoC from 'components/PhotoC';
 import IconButton from 'components/@extended/IconButton';
 import ModalImages from './modal-images';
+import ModalEditProductRestock from './modal-edit';
 
 const configCoreErr = {
   productLocationErr: '',
@@ -35,7 +36,8 @@ const configCoreErr = {
   supplierIdErr: '',
   requireDateErr: '',
   restockQuantityErr: '',
-  costPerItemErr: ''
+  costPerItemErr: '',
+  productDetailsErr: ''
 };
 const FormRestockBody = () => {
   const productLocationList = useFormRestockStore((state) => state.locationList);
@@ -58,10 +60,13 @@ const FormRestockBody = () => {
 
   const images = useFormRestockStore((state) => state.images);
   const productDetails = useFormRestockStore((state) => state.productDetails);
+  // const [newProductDetails] = useState(productDetails.filter((pd) => pd.status == ''));
+  const newProductDetails = productDetails.filter((pd) => pd.status == '');
 
   const [openFormSupplier, setOpenFormSupplier] = useState(false);
   const [openImages, setOpenImages] = useState({ isOpen: false, images: [] });
   const [productRestockErr, setProductRestockErr] = useState(configCoreErr);
+  const [openEdit, setOpenEdit] = useState({ isOpen: false, data: null });
   const intl = useIntl();
 
   const onCheckValidation = () => {
@@ -74,6 +79,9 @@ const FormRestockBody = () => {
     const getRestockQty = getAllState().reStockQuantity;
     const getCostPerItem = getAllState().costPerItem;
 
+    let getProductDetails = [...getAllState().productDetails];
+    const newPD = getProductDetails.filter((pd) => pd.status == '');
+
     let getProductLocErr = '';
     let getProductTypeErr = '';
     let getProductIdErr = '';
@@ -81,6 +89,7 @@ const FormRestockBody = () => {
     let getRequireDateErr = '';
     let getRestockQtyErr = '';
     let getCostPerItemErr = '';
+    let getProductDetailErr = '';
 
     if (!getProductLoc) {
       getProductLocErr = intl.formatMessage({ id: 'product-location-is-required' });
@@ -112,6 +121,10 @@ const FormRestockBody = () => {
       getCostPerItemErr = intl.formatMessage({ id: 'cost-per-item-is-required' });
     }
 
+    if (!newPD.length) {
+      getProductDetailErr = intl.formatMessage({ id: 'product-details-is-required' });
+    }
+
     if (
       getProductLocErr ||
       getProductTypeErr ||
@@ -119,7 +132,8 @@ const FormRestockBody = () => {
       getSupplierIdErr ||
       getRequireDateErr ||
       getRestockQtyErr ||
-      getCostPerItemErr
+      getCostPerItemErr ||
+      getProductDetailErr
     ) {
       setProductRestockErr({
         productLocationErr: getProductLocErr ?? '',
@@ -128,7 +142,8 @@ const FormRestockBody = () => {
         supplierIdErr: getSupplierIdErr ?? '',
         requireDateErr: getRequireDateErr ?? '',
         restockQuantityErr: getRestockQtyErr ?? '',
-        costPerItemErr: getCostPerItemErr ?? ''
+        costPerItemErr: getCostPerItemErr ?? '',
+        productDetailsErr: getProductDetailErr ?? ''
       });
       useFormRestockStore.setState({ formRestockError: true });
     } else {
@@ -214,6 +229,8 @@ const FormRestockBody = () => {
     const newRequireDate = requireDate ? formateDateYYYMMDD(new Date(requireDate)) : '';
 
     const tempProductDetail = {
+      id: '',
+      index: productDetails.length,
       productId: productId.value,
       productType: productType,
       productName: productId.label,
@@ -226,7 +243,8 @@ const FormRestockBody = () => {
       total: total,
       remark: remark,
       images: images,
-      totalImage: images.filter((dt) => dt.status !== 'del').length
+      totalImage: images.filter((dt) => dt.status !== 'del').length,
+      status: ''
     };
 
     useFormRestockStore.setState((prevState) => {
@@ -254,6 +272,19 @@ const FormRestockBody = () => {
         productDetails: [...prevState.productDetails, tempProductDetail]
       };
     });
+
+    const getProductDetails = getAllState().productDetails;
+    const newPD = getProductDetails.filter((pd) => pd.status == '');
+    let getProductDetailErr = '';
+
+    if (!newPD.length) {
+      getProductDetailErr = intl.formatMessage({ id: 'product-details-is-required' });
+    }
+
+    setProductRestockErr((prevState) => {
+      return { ...prevState, productDetailsErr: getProductDetailErr ?? '' };
+    });
+    useFormRestockStore.setState({ formRestockError: getProductDetailErr ? true : false });
   };
 
   const columns = useMemo(
@@ -304,22 +335,51 @@ const FormRestockBody = () => {
         accessor: 'action',
         isNotSorting: true,
         Cell: (data) => {
-          const onDeleteProductList = (dt) => {
+          const rowData = data.row.original;
+
+          const onDeleteProductList = () => {
             useFormRestockStore.setState((prevState) => {
               const newData = [...prevState.productDetails];
-              newData.splice(dt.row.index, 1);
+              newData[rowData.index].status = 'del';
+              // newData.splice(dt.row.index, 1);
 
               return { productDetails: newData };
             });
+
+            if (!getAllState().productDetails.filter((pd) => pd.status == '').length) {
+              onCheckValidation();
+            }
           };
           return (
-            <IconButton size="large" color="error" onClick={() => onDeleteProductList(data)}>
-              <DeleteFilled />
-            </IconButton>
+            <>
+              <Stack spacing={1} flexDirection={'row'} alignItems={'baseline'} justifyContent={'center'}>
+                {rowData.id && (
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={() => {
+                      const dataForEdit = {
+                        ...rowData,
+                        productLocationId: getAllState().productLocation.value,
+                        productLocationList: getAllState().locationList,
+                        supplierList: getAllState().supplierList
+                      };
+                      setOpenEdit({ isOpen: true, data: dataForEdit });
+                    }}
+                  >
+                    <EditFilled />
+                  </IconButton>
+                )}
+                <IconButton size="large" color="error" onClick={() => onDeleteProductList()}>
+                  <DeleteFilled />
+                </IconButton>
+              </Stack>
+            </>
           );
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -559,7 +619,8 @@ const FormRestockBody = () => {
             </Grid>
 
             <Grid item xs={12} md={12}>
-              <Stack spacing={1} alignItems={'flex-end'}>
+              <Stack spacing={1} flexDirection={'row'} justifyContent={'space-between'}>
+                <FormHelperText error>{productRestockErr.productDetailsErr} </FormHelperText>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onAddProduct} disabled={isDisabledBtnProductList()}>
                   <FormattedMessage id="product" />
                 </Button>
@@ -567,7 +628,7 @@ const FormRestockBody = () => {
             </Grid>
 
             <Grid item xs={12} md={12}>
-              <ReactTable columns={columns} data={productDetails} />
+              <ReactTable columns={columns} data={newProductDetails} />
             </Grid>
           </Grid>
         </Container>
@@ -576,6 +637,31 @@ const FormRestockBody = () => {
 
       {openImages.isOpen && (
         <ModalImages open={openImages.isOpen} images={openImages.images} onClose={() => setOpenImages({ isOpen: false, images: [] })} />
+      )}
+      {openEdit.isOpen && (
+        <ModalEditProductRestock
+          open={openEdit.isOpen}
+          data={openEdit.data}
+          onClose={(resp) => {
+            setOpenEdit({ isOpen: false, data: null });
+
+            if (resp) {
+              const currentProductDetails = [...getAllState().productDetails];
+              const findIdx = currentProductDetails.findIndex((pd) => +pd.id == resp.id);
+              const getObj = { ...currentProductDetails[findIdx] };
+
+              getObj.requireDate = resp.requireDate;
+              getObj.restockQuantity = resp.restockQuantity;
+              getObj.costPerItem = resp.costPerItem;
+              getObj.total = resp.total;
+              getObj.remark = resp.remark;
+              getObj.status = resp.status;
+              currentProductDetails[findIdx] = getObj;
+
+              useFormRestockStore.setState({ productDetails: currentProductDetails, formRestockTouch: true });
+            }
+          }}
+        />
       )}
     </>
   );

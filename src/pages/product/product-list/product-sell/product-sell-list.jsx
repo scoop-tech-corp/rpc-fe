@@ -29,7 +29,7 @@ import {
   downloadTemplateProductSell,
   importProductSell
 } from '../service';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, processDownloadExcel } from 'service/service-global';
 import { formatThousandSeparator } from 'utils/func';
 
 import PropTypes from 'prop-types';
@@ -291,17 +291,7 @@ const ProductSellList = (props) => {
 
   const onExport = async (event) => {
     await exportProductSell({ ...paramProductSellList, allData: event.allData, onlyItem: event.onlyItem })
-      .then((resp) => {
-        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-        let downloadUrl = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
-
-        a.href = downloadUrl;
-        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
-        document.body.appendChild(a);
-        a.click();
-      })
+      .then(processDownloadExcel)
       .catch((err) => {
         if (err) {
           dispatch(snackbarError(createMessageBackend(err)));

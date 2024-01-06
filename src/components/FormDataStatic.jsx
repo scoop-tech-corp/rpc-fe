@@ -8,6 +8,7 @@ import { createMessageBackend } from 'service/service-global';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
+import { saveStaffDataStatic } from 'pages/staff/static-data/service';
 
 const FormDataStatic = (props) => {
   const [dataStatic, setDataStatic] = useState('');
@@ -20,7 +21,15 @@ const FormDataStatic = (props) => {
       return word.charAt(0).toUpperCase() + word.slice(1);
     };
 
-    await saveDataStaticLocation({ keyword: capitalizeFirstLetter(props.typeValue), name: dataStatic })
+    const moduleEndpoint = (module = 'location') => {
+      if (module == 'location') {
+        return saveDataStaticLocation({ keyword: capitalizeFirstLetter(props.typeValue), name: dataStatic });
+      } else if (module == 'staff') {
+        return saveStaffDataStatic({ keyword: capitalizeFirstLetter(props.typeValue), name: dataStatic });
+      }
+    };
+
+    await moduleEndpoint(props.module)
       .then((resp) => {
         if (resp && resp.status === 200) {
           dispatch(snackbarSuccess(`${dataStatic} ${props.procedure} has been created successfully`));
@@ -81,7 +90,8 @@ FormDataStatic.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   procedure: PropTypes.string, // usage, type
-  typeValue: PropTypes.string // telephone, messenger
+  typeValue: PropTypes.string, // telephone, messenger
+  module: PropTypes.string
 };
 
 export default FormDataStatic;

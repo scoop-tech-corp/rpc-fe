@@ -2,6 +2,7 @@ import { jsonCentralized } from 'utils/func';
 import { create } from 'zustand';
 
 export const defaultFormRestock = {
+  productRestockId: '',
   productId: null,
   productType: '',
   productLocation: null,

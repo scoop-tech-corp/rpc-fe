@@ -10,7 +10,7 @@ import AuthGuard from 'utils/route-guard/AuthGuard';
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Calendar = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const Message = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const Message = Loadable(lazy(() => import('pages/message')));
 
 // Customer
 const CustomerDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -18,7 +18,7 @@ const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list'))
 const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const CustomerStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerStaticData = Loadable(lazy(() => import('pages/customer/static-data')));
 const CustomerImport = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Staff
@@ -26,9 +26,13 @@ const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page
 const StaffList = Loadable(lazy(() => import('pages/staff/staff-list')));
 const StaffForm = Loadable(lazy(() => import('pages/staff/staff-list/form')));
 const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
-const StaffAccessControl = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const StaffSecurityGroup = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const StaffStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const StaffAccessControl = Loadable(lazy(() => import('pages/staff/access-control')));
+const StaffSecurityGroup = Loadable(lazy(() => import('pages/staff/security-group')));
+const StaffSecurityGroupForm = Loadable(lazy(() => import('pages/staff/security-group/form')));
+const StaffSchedule = Loadable(lazy(() => import('pages/staff/schedule')));
+const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view')));
+const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
+const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -36,13 +40,17 @@ const PromotionDiscount = Loadable(lazy(() => import('pages/extra-pages/sample-p
 const PromotionPartner = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Service
-const ServiceDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ServiceList = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ServiceTreatment = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ServiceCategory = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ServiceDashboard = Loadable(lazy(() => import('pages/service/dashboard')));
+const ServiceList = Loadable(lazy(() => import('pages/service/service-list/')));
+const ServiceListForm = Loadable(lazy(() => import('pages/service/service-list/form')));
+const ServiceTreatment = Loadable(lazy(() => import('pages/service/treatment/')));
+const ServiceTreatmentForm = Loadable(lazy(() => import('pages/service/treatment/form/form-treatment-step2')));
+
+const ServiceCategory = Loadable(lazy(() => import('pages/service/category')));
+
 const ServicePolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ServiceTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ServiceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ServiceStaticData = Loadable(lazy(() => import('pages/service/static-data')));
 const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Product
@@ -54,9 +62,12 @@ const ProductInventoryDetail = Loadable(lazy(() => import('pages/product/product
 const ProductBundle = Loadable(lazy(() => import('pages/product/bundle')));
 const ProductBundleForm = Loadable(lazy(() => import('pages/product/bundle/form')));
 const ProductCategory = Loadable(lazy(() => import('pages/product/category')));
+const ProductSupplier = Loadable(lazy(() => import('pages/product/supplier')));
+const ProductSupplierForm = Loadable(lazy(() => import('pages/product/supplier/form')));
 const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
 const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
+const ProductTransfer = Loadable(lazy(() => import('pages/product/transfer')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
@@ -76,7 +87,15 @@ const FinanceExpenses = Loadable(lazy(() => import('pages/extra-pages/sample-pag
 const FinanceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Report
-const Report = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const Report = Loadable(lazy(() => import('pages/report')));
+const ReportDetail = Loadable(lazy(() => import('pages/report/report-detail')));
+
+// Menus
+const MenuGroup = Loadable(lazy(() => import('pages/menus/group')));
+const MenuGroupChildren = Loadable(lazy(() => import('pages/menus/children')));
+const MenuGroupGrandChildren = Loadable(lazy(() => import('pages/menus/grand-children')));
+const MenuProfile = Loadable(lazy(() => import('pages/menus/profile')));
+const MenuSetting = Loadable(lazy(() => import('pages/menus/setting')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -95,6 +114,7 @@ const MainRoutes = {
         { path: 'calendar', element: <Calendar /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
+        { path: 'report-detail', element: <ReportDetail /> },
         {
           path: 'customer',
           children: [
@@ -118,6 +138,11 @@ const MainRoutes = {
             { path: 'leave-approval', element: <StaffLeaveApproval /> },
             { path: 'access-control', element: <StaffAccessControl /> },
             { path: 'security-group', element: <StaffSecurityGroup /> },
+            { path: 'security-group/form', element: <StaffSecurityGroupForm /> },
+            { path: 'security-group/form/:id', element: <StaffSecurityGroupForm /> },
+            { path: 'schedule', element: <StaffSchedule /> },
+            { path: 'profile/view/:id', element: <StaffViewProfile /> },
+            { path: 'profile/edit/:id', element: <StaffEditProfile /> },
             { path: 'static-data', element: <StaffStaticData /> }
           ]
         },
@@ -134,7 +159,10 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <ServiceDashboard /> },
             { path: 'list', element: <ServiceList /> },
+            { path: 'list/form', element: <ServiceListForm /> },
+            { path: 'list/form/:id', element: <ServiceListForm /> },
             { path: 'treatment', element: <ServiceTreatment /> },
+            { path: 'treatment/:id', element: <ServiceTreatmentForm /> },
             { path: 'category', element: <ServiceCategory /> },
             { path: 'policies', element: <ServicePolicies /> },
             { path: 'template', element: <ServiceTemplate /> },
@@ -156,10 +184,14 @@ const MainRoutes = {
             { path: 'bundle/form', element: <ProductBundleForm /> },
             { path: 'bundle/form/:id', element: <ProductBundleForm /> },
             { path: 'category', element: <ProductCategory /> },
+            { path: 'supplier', element: <ProductSupplier /> },
+            { path: 'supplier/form', element: <ProductSupplierForm /> },
+            { path: 'supplier/form/:id', element: <ProductSupplierForm /> },
             { path: 'policies', element: <ProductPolicies /> },
             { path: 'restock', element: <ProductRestock /> },
             { path: 'restock/form', element: <ProductRestockForm /> },
             { path: 'restock/form/:id', element: <ProductRestockForm /> },
+            { path: 'transfer', element: <ProductTransfer /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
             { path: 'static-data', element: <ProductStaticData /> }
           ]
@@ -185,6 +217,16 @@ const MainRoutes = {
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
             { path: 'static-data', element: <FinanceStaticData /> }
+          ]
+        },
+        {
+          path: 'menu',
+          children: [
+            { path: 'group', element: <MenuGroup /> },
+            { path: 'children', element: <MenuGroupChildren /> },
+            { path: 'grand-children', element: <MenuGroupGrandChildren /> },
+            { path: 'profile', element: <MenuProfile /> },
+            { path: 'setting', element: <MenuSetting /> }
           ]
         },
         {

@@ -40,6 +40,8 @@
   },
   "plugins": ["prettier", "react", "react-hooks"],
   "rules": {
+    "jsx-a11y/media-has-caption": "off",
+    "eslint-disable-next-line react-hooks/exhaustive-deps": "off",
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
     "react/react-in-jsx-scope": "off",
@@ -47,7 +49,7 @@
     "react/display-name": "off",
     "react/jsx-filename-extension": "off",
     "no-param-reassign": "off",
-    "react/prop-types": 1,
+    "react/prop-types": "off",
     "react/require-default-props": "off",
     "react/no-array-index-key": "off",
     "react/jsx-props-no-spreading": "off",
@@ -68,7 +70,7 @@
       }
     ],
     "no-unused-vars": [
-      "error",
+      "warn",
       {
         "ignoreRestSiblings": false
       }

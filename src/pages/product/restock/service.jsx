@@ -13,7 +13,8 @@ export const getProductRestock = async (property) => {
       orderColumn: property.orderColumn,
       search: property.keyword,
       locationId: property.locationId,
-      supplierId: property.supplierId
+      supplierId: property.supplierId,
+      type: property.type
     }
   });
 };
@@ -30,7 +31,20 @@ export const exportProductRestock = async (property) => {
     params: {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      search: property.keyword
+      supplierId: property.supplierId,
+      locationId: property.locationId,
+      type: property.type ?? ''
+    }
+  });
+};
+
+export const exportProductRestockPdf = async (property) => {
+  return await axios.get(productRestockUrl + '/export/pdf', {
+    responseType: 'blob',
+    params: {
+      id: property.id,
+      isExportAll: property.isExportAll,
+      supplierId: property.supplierId
     }
   });
 };
@@ -56,14 +70,66 @@ export const createProductRestock = async (property) => {
 export const createProductRestockMultiple = async (property) => {
   const fd = new FormData();
   fd.append('status', property.status);
-  fd.append('locationId', property.productLocation);
+  fd.append('locationId', property.locationId);
   fd.append('productList', JSON.stringify(property.productList));
 
   return await axios.post(productRestockUrl + '/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const getProductRestockDetail = async (id) => {
+export const updateProductRestock = async (parameter) => {
+  return await axios.put(productRestockUrl, parameter);
+};
+
+export const createProductRestockTracking = async (property) => {
+  const fd = new FormData();
+  fd.append('productRestockId', property.id);
+  fd.append('progress', property.progress);
+
+  return await axios.post(productRestockUrl + '/tracking', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const getProductRestockDetail = async (id, type = '') => {
   return await axios.get(productRestockUrl + '/detail', {
+    params: { id, type }
+  });
+};
+
+export const getProductRestockDetailHistory = async (property) => {
+  return await axios.get(productRestockUrl + '/detail/history', {
+    params: {
+      id: property.id,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      goToPage: property.goToPage,
+      rowPerPage: property.rowPerPage
+    }
+  });
+};
+
+export const getSupplierProductRestock = async (id) => {
+  const getResp = await axios.get(productRestockUrl + '/detail/supplier', {
     params: { id }
   });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.supplierName, value: +dt.id };
+  });
+};
+
+export const productRestockApproval = async (property) => {
+  const fd = new FormData();
+  fd.append('productRestockId', property.id);
+  fd.append('productRestocks', JSON.stringify(property.productRestocks));
+  fd.append('isAcceptedAll', property.isAcceptedAll);
+  fd.append('isRejectedAll', property.isRejectedAll);
+  fd.append('reasonRejectAll', property.reasonRejectAll);
+
+  return await axios.post(productRestockUrl + '/approval', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const productRestockSendSupplier = async (productRestockId) => {
+  const fd = new FormData();
+  fd.append('productRestockId', productRestockId);
+
+  return await axios.post(productRestockUrl + '/sentsupplier', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

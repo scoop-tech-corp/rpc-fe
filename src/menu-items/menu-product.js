@@ -49,6 +49,12 @@ const product = {
           url: '/product/category'
         },
         {
+          id: 'product-supplier',
+          title: <FormattedMessage id="supplier" />,
+          type: 'item',
+          url: '/product/supplier'
+        },
+        {
           id: 'product-policies',
           title: <FormattedMessage id="policies" />,
           type: 'item',
@@ -59,6 +65,12 @@ const product = {
           title: <FormattedMessage id="restocks" />,
           type: 'item',
           url: '/product/restock'
+        },
+        {
+          id: 'product-transfer',
+          title: <FormattedMessage id="transfer" />,
+          type: 'item',
+          url: '/product/transfer'
         },
         {
           id: 'product-delivery-agent',

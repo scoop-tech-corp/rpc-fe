@@ -1,6 +1,7 @@
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Slide } from '@mui/material';
-import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
+import { FormattedMessage } from 'react-intl';
+import PropTypes from 'prop-types';
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -25,7 +26,7 @@ const ConfirmationC = (props) => {
       </DialogContent>
       <DialogActions>
         <Button variant="outlined" color="error" onClick={handleFalse}>
-          {btnFalseText}
+          {btnFalseText || <FormattedMessage id="cancel" />}
         </Button>
         <Button variant="contained" onClick={handleTrue} autoFocus>
           {btnTrueText}

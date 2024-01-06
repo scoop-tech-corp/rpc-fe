@@ -17,7 +17,7 @@ import ModalC from 'components/ModalC';
 
 const FormTransfer = (props) => {
   const [transferNo, setTransferNo] = useState('');
-  const [transferDate] = useState(formateDateDDMMYYY(new Date(), true));
+  const [transferDate] = useState(formateDateDDMMYYY(new Date(), { isWithTime: { show: true } }));
   const [transferName, setTransferName] = useState('');
   const [branchOrigin] = useState(props.data.inventory.locationName);
   const [branchDestination, setBranchDestination] = useState(null);

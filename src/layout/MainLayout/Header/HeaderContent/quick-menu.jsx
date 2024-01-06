@@ -98,7 +98,7 @@ const QuickMenu = (props) => {
                     <ListItemButton style={subListItemStyle} onClick={() => props.onQuickMenuOpen({ menuType: 'IA', isOpen: true })}>
                       <ListItemText primary={<Typography color="textPrimary">Inventory Approval</Typography>} />
                     </ListItemButton>
-                    <ListItemButton style={subListItemStyle}>
+                    <ListItemButton style={subListItemStyle} onClick={() => props.onQuickMenuOpen({ menuType: 'RA', isOpen: true })}>
                       <ListItemText primary={<Typography color="textPrimary">Restock Approval</Typography>} />
                     </ListItemButton>
                     <ListItemButton style={subListItemStyle} onClick={() => props.onQuickMenuOpen({ menuType: 'TA', isOpen: true })}>

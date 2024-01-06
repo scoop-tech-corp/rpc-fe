@@ -2,9 +2,15 @@ import axios from 'utils/axios';
 
 export const getLocationList = async () => {
   const getResp = await axios.get('location/list');
-
   return getResp.data.map((dt) => {
     return { label: dt.locationName, value: +dt.id };
+  });
+};
+
+export const getCustomerGroupList = async () => {
+  const getResp = await axios.get('customer/group');
+  return getResp.data.map((dt) => {
+    return { label: dt.customerGroup, value: +dt.id };
   });
 };
 
@@ -12,10 +18,16 @@ export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
   if (sourcePhoto.length) {
     const tempFileName = [];
     sourcePhoto.forEach((file) => {
-      fd.append('images[]', file.selectedFile);
+      if (file.selectedFile) {
+        fd.append('images[]', file.selectedFile);
 
-      const id = procedure === 'update' ? +file.id : '';
-      tempFileName.push({ id, name: file.label, status: file.status });
+        const id = procedure === 'update' ? +file.id : '';
+        tempFileName.push({ id, name: file.label, status: file.status });
+      } else if (file.created_at) {
+        const id = procedure === 'update' ? +file.id : '';
+        fd.append('images[]', []);
+        tempFileName.push({ id, name: file.label, status: file.status, created_at: file.created_at });
+      }
     });
     fd.append('imagesName', JSON.stringify(tempFileName));
   } else {
@@ -69,4 +81,18 @@ export const processDownloadExcel = (resp) => {
   a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
   document.body.appendChild(a);
   a.click();
+};
+
+export const swapKeysAndValuesForObject = (obj) => {
+  const swapped = Object.entries(obj).map(([key, value]) => [value, key]);
+
+  return Object.fromEntries(swapped);
+};
+
+export const generateUniqueIdByDate = () => {
+  const date = new Date();
+  const dateString = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
+  const randomId = Math.ceil(Math.random() * 9999999999);
+  const uniqueId = parseInt(dateString + randomId);
+  return uniqueId;
 };

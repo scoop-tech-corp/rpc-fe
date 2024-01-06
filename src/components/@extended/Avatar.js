@@ -43,7 +43,15 @@ function getColorStyle({ theme, color, type }) {
 
 // ==============================|| AVATAR - SIZE STYLE ||============================== //
 
-function getSizeStyle(size) {
+function getSizeStyle(size, iscustomsize, width, height) {
+  if (iscustomsize === 'true') {
+    return {
+      fontSize: '1rem',
+      width,
+      height
+    };
+  }
+
   switch (size) {
     case 'badge':
       return {
@@ -89,8 +97,8 @@ function getSizeStyle(size) {
 // ==============================|| STYLED - AVATAR ||============================== //
 
 const AvatarStyle = styled(MuiAvatar, { shouldForwardProp: (prop) => prop !== 'color' && prop !== 'type' && prop !== 'size' })(
-  ({ theme, variant, color, type, size }) => ({
-    ...getSizeStyle(size),
+  ({ theme, variant, color, type, size, iscustomsize, width, height }) => ({
+    ...getSizeStyle(size, iscustomsize, width, height),
     ...getColorStyle({ variant, theme, color, type }),
     ...(size === 'badge' && {
       borderColor: theme.palette.background.default

@@ -22,13 +22,6 @@ const staff = {
       icon: icons.TeamOutlined,
       children: [
         {
-          id: 'staff-dashboard',
-          title: 'Dashboard',
-          type: 'item',
-          url: '/staff/dashboard',
-          breadcrumbs: false
-        },
-        {
           id: 'staff-list',
           title: <FormattedMessage id="staff-list" />,
           type: 'item',
@@ -53,10 +46,16 @@ const staff = {
           url: '/staff/security-group'
         },
         {
+          id: 'staff-schedule',
+          title: <FormattedMessage id="schedule" />,
+          type: 'item',
+          url: '/staff/schedule'
+        },
+        {
           id: 'staff-static-data',
           title: <FormattedMessage id="static-data" />,
           type: 'item',
-          url: '/customer/static-data'
+          url: '/staff/static-data'
         }
       ]
     }

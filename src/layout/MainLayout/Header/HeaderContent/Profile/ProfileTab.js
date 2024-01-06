@@ -5,44 +5,36 @@ import { useState } from 'react';
 import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 
 // assets
-import { EditOutlined, ProfileOutlined, LogoutOutlined, UserOutlined, WalletOutlined } from '@ant-design/icons';
+import { LogoutOutlined } from '@ant-design/icons'; // ProfileOutlined, WalletOutlined, EditOutlined, UserOutlined
+import { useNavigate } from 'react-router';
+import { mappingProfileMenu } from 'menu-items';
+
+import useAuth from 'hooks/useAuth';
+import { FormattedMessage } from 'react-intl';
 
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
 const ProfileTab = ({ handleLogout }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const handleListItemClick = (event, index) => {
-    setSelectedIndex(index);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const get_profile_menu = mappingProfileMenu(user?.profileMenu);
+
+  const onClickProfile = (_, i) => {
+    setSelectedIndex(i);
+    navigate(`/staff/profile/${i == 0 ? 'edit' : 'view'}/${user.id}`, { replace: true });
   };
 
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
-      <ListItemButton selected={selectedIndex === 0} onClick={(event) => handleListItemClick(event, 0)}>
-        <ListItemIcon>
-          <EditOutlined />
-        </ListItemIcon>
-        <ListItemText primary="Edit Profile" />
-      </ListItemButton>
-      <ListItemButton selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1)}>
-        <ListItemIcon>
-          <UserOutlined />
-        </ListItemIcon>
-        <ListItemText primary="View Profile" />
-      </ListItemButton>
+      {get_profile_menu.map((dt, i) => (
+        <ListItemButton key={i} selected={selectedIndex === i} onClick={(_) => onClickProfile(_, i)}>
+          <ListItemIcon>{dt.icon}</ListItemIcon>
+          <ListItemText primary={<FormattedMessage id={dt.title} />} />
+        </ListItemButton>
+      ))}
 
-      <ListItemButton selected={selectedIndex === 3} onClick={(event) => handleListItemClick(event, 3)}>
-        <ListItemIcon>
-          <ProfileOutlined />
-        </ListItemIcon>
-        <ListItemText primary="Social Profile" />
-      </ListItemButton>
-      <ListItemButton selected={selectedIndex === 4} onClick={(event) => handleListItemClick(event, 4)}>
-        <ListItemIcon>
-          <WalletOutlined />
-        </ListItemIcon>
-        <ListItemText primary="Billing" />
-      </ListItemButton>
-      <ListItemButton selected={selectedIndex === 2} onClick={handleLogout}>
+      <ListItemButton onClick={handleLogout}>
         <ListItemIcon>
           <LogoutOutlined />
         </ListItemIcon>

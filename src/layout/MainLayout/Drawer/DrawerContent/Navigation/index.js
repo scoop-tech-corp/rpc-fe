@@ -5,15 +5,19 @@ import { Box, Typography } from '@mui/material';
 
 // project import
 import NavGroup from './NavGroup';
-import menuItem from 'menu-items';
+import { mappingMasterMenu } from 'menu-items'; // menuItem
+import useAuth from 'hooks/useAuth';
 
 // ==============================|| DRAWER CONTENT - NAVIGATION ||============================== //
 
 const Navigation = () => {
   const menu = useSelector((state) => state.menu);
   const { drawerOpen } = menu;
+  const { user } = useAuth();
+  const get_master_menu = mappingMasterMenu(user?.masterMenu);
 
-  const navGroups = menuItem.items.map((item) => {
+  // menuItem.items
+  const navGroups = get_master_menu.map((item) => {
     switch (item.type) {
       case 'group':
         return <NavGroup key={item.id} item={item} />;

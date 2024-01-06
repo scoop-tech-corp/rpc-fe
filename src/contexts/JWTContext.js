@@ -104,7 +104,6 @@ export const JWTProvider = ({ children }) => {
       try {
         const serviceToken = window.localStorage.getItem('serviceToken');
         const userLogin = JSON.parse(window.localStorage.getItem('user'));
-
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
 
@@ -112,9 +111,13 @@ export const JWTProvider = ({ children }) => {
             id: userLogin.id,
             email: userLogin.email,
             name: userLogin.name,
-            role: userLogin.role
+            role: userLogin.role,
+            avatar: userLogin.avatar,
+            isAbsent: userLogin.isAbsent,
+            masterMenu: userLogin.masterMenu,
+            profileMenu: userLogin.profileMenu,
+            settingMenu: userLogin.settingMenu
           };
-
           dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
         } else {
           logout();
@@ -130,14 +133,19 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role } = response.data;
+    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu } = response.data;
     setSession(token);
 
     const setUser = {
       id: +usersId,
       email: emailAddress,
       name: userName,
-      role: role.toLowerCase()
+      avatar: imagePath,
+      role: role.toLowerCase(),
+      isAbsent: !!isAbsent,
+      masterMenu,
+      profileMenu,
+      settingMenu
     };
 
     dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
