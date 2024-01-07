@@ -69,7 +69,7 @@ const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
 const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
 const ProductTransfer = Loadable(lazy(() => import('pages/product/transfer')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductStaticData = Loadable(lazy(() => import('pages/product/static-data')));
 
 // Location
 const LocationDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
