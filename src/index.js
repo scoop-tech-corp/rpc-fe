@@ -14,6 +14,9 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'assets/third-party/apex-chart.css';
 import 'assets/third-party/react-table.css';
 
+// date range picker style
+import '@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css';
+import 'react-calendar/dist/Calendar.css';
 import 'assets/third-party/daterange-picker-custom.css';
 
 // load mock apis
