@@ -67,10 +67,7 @@ const FormAbsent = (props) => {
       .then((resp) => {
         if (resp && resp.status === 200) {
           dispatch(snackbarSuccess('Success input absent'));
-
-          let prevUserLogin = JSON.parse(localStorage.getItem('user'));
-          prevUserLogin.isAbsent = !prevUserLogin.isAbsent;
-          localStorage.setItem('user', JSON.stringify(prevUserLogin));
+          updateIsAbsent();
 
           props.onClose(true);
         }
@@ -82,7 +79,15 @@ const FormAbsent = (props) => {
 
   const onCancel = () => {
     onStopCamera();
+    updateIsAbsent();
+
     props.onClose(true);
+  };
+
+  const updateIsAbsent = () => {
+    let prevUserLogin = JSON.parse(localStorage.getItem('user'));
+    prevUserLogin.isAbsent = !prevUserLogin.isAbsent;
+    localStorage.setItem('user', JSON.stringify(prevUserLogin));
   };
 
   const getCurrentLocationUser = () => {
