@@ -80,7 +80,7 @@ const MenuGroupGrandChildren = () => {
           );
         }
       },
-      { Header: <FormattedMessage id="children-menu-name" />, accessor: 'childrenName' },
+      { Header: <FormattedMessage id="children-menu-name" />, accessor: 'childrenMenuName' },
       { Header: <FormattedMessage id="order-menu" />, accessor: 'orderMenu' },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
       { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
