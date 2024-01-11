@@ -27,8 +27,6 @@ const LocationList = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
 
-  // console.log(user.masterMenu.map((e) => e.menuName));
-
   const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');

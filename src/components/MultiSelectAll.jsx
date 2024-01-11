@@ -55,7 +55,6 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, labe
   };
 
   const handleToggleSelectAll = () => {
-    console.log('click select all');
     handleSelectAll(!allItemsSelected());
   };
 
@@ -93,7 +92,6 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, labe
   if (isDetail) {
     return selectedOptions?.length > 0 ? selectedOptions.map((item) => item.label).join(', ') : '';
   }
-  console.log(items);
   return (
     <Autocomplete
       ref={multiSelectRef}

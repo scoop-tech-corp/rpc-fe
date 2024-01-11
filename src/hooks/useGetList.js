@@ -28,7 +28,6 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
     setListInfo((_info) => ({ ..._info, isLoading: true }));
     getListFunc(_params)
       .then((res) => {
-        console.log(res, 'o333333333333333k');
         setListInfo((_info) => ({
           list: res?.data?.data || res.data || res,
           totalPagination: res?.data?.totalPagination,

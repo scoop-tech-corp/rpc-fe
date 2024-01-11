@@ -166,7 +166,6 @@ const ReportPage = () => {
 
   let type = searchParams.get('type') || 'all';
   const location = useLocation();
-  console.log(location, 99999999);
   const onChangeTab = (_, value) => {
     setSearchParams({ type: tab[value].id });
   };

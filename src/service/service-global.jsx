@@ -20,7 +20,6 @@ export const getServiceList = async () => {
   });
 };
 export const getFacilityByLocationList = async (params) => {
-  console.log(params);
   const getResp = await axios.get('location/facility/location', { params });
   return getResp?.data?.map((dt) => {
     return { label: dt.unitName, value: +dt.id };
