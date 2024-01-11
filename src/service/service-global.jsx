@@ -7,6 +7,26 @@ export const getLocationList = async () => {
   });
 };
 
+export const getStaffList = async () => {
+  const getResp = await axios.get('staff/list');
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+export const getServiceList = async () => {
+  const getResp = await axios.get('service/list');
+  return getResp?.data?.data?.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+export const getFacilityByLocationList = async (params) => {
+  console.log(params);
+  const getResp = await axios.get('location/facility/location', { params });
+  return getResp?.data?.map((dt) => {
+    return { label: dt.unitName, value: +dt.id };
+  });
+};
+
 export const getCustomerGroupList = async () => {
   const getResp = await axios.get('customer/group');
   return getResp.data.map((dt) => {

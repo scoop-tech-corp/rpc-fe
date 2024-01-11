@@ -8,19 +8,31 @@ export default function BookingByCancelationReason({ data }) {
     () => [
       {
         Header: <FormattedMessage id="reason" />,
-        accessor: 'totalServices'
+        accessor: 'reason'
       },
-      { Header: <FormattedMessage id="cancelliations" />, accessor: 'createdBy' }
+      { Header: <FormattedMessage id="cancelliations" />, accessor: 'cancelliations' }
     ],
     []
   );
 
+  const dataDummy = [
+    { reason: 'Meninggal', cancelliations: 50 },
+    { reason: 'Penyakit', cancelliations: 100 },
+    { reason: 'Mendadak', cancelliations: 300 },
+    { reason: 'Cacingan', cancelliations: 20 }
+  ];
+
   useEffect(() => {
+    // Extracting data from dataDummy
+    const categories = dataDummy.map((item) => item.reason);
+    const seriesData = dataDummy.map((item) => item.cancelliations);
+
     const options = {
-      series: [44, 55, 41, 17, 15],
+      series: seriesData,
       chart: {
         type: 'donut'
       },
+      labels: categories, // Set reasons as labels for better representation
       responsive: [
         {
           breakpoint: 480,
@@ -43,7 +55,7 @@ export default function BookingByCancelationReason({ data }) {
     return () => {
       chart.destroy();
     };
-  }, []);
+  }, []); // Empty dependency array to ensure useEffect runs only once
 
   return (
     <div>
@@ -58,7 +70,19 @@ export default function BookingByCancelationReason({ data }) {
 
       <ReactTable
         columns={columns}
-        data={data || []}
+        data={[
+          ...dataDummy,
+          {
+            reason: <strong>Total</strong>,
+            cancelliations: (
+              <strong>
+                {dataDummy.reduce((total, item) => {
+                  return total + item.cancelliations;
+                }, 0)}
+              </strong>
+            )
+          }
+        ]}
         // totalPagination={totalPagination}
         // setPageNumber={params.goToPage}
         // setPageRow={params.rowPerPage}

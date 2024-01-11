@@ -3,39 +3,47 @@ import { FormattedMessage } from 'react-intl';
 
 import MainCard from 'components/MainCard';
 import TabPanel from 'components/TabPanelC';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { LineChartOutlined, LockOutlined, PieChartOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import useAuth from 'hooks/useAuth';
 
 const list = {
   bookings: [
     {
       id: 1,
       val: 'By location',
-      url: 'by-location'
+      url: 'by-location',
+      icon: <LineChartOutlined />
     },
     {
       id: 2,
       val: 'By status',
-      url: 'by-status'
+      url: 'by-status',
+      icon: <PieChartOutlined />
     },
     {
       id: 3,
       val: 'By cancellation reason',
-      url: 'by-cancellation-reason'
+      url: 'by-cancellation-reason',
+      icon: <PieChartOutlined />
     },
     {
       id: 4,
       val: 'List',
-      url: 'list'
+      url: 'list',
+      icon: <UnorderedListOutlined />
     },
     {
       id: 6,
       val: 'Diagnosis list',
-      url: 'diagnosis-list'
+      url: 'diagnosis-list',
+      icon: <UnorderedListOutlined />
     },
     {
       id: 7,
       val: 'By diagnosis, species & gender',
-      url: 'by-diagnosis-species-gender'
+      url: 'by-diagnosis-species-gender',
+      icon: <UnorderedListOutlined />
     }
   ],
   customers: [
@@ -111,35 +119,91 @@ const list = {
   service: [{ id: 1, val: 'Summary ' }]
 };
 
-const tab = ['all-reports', 'bookings', 'customer', 'deposit', 'expenses', 'products', 'sales', 'service', 'staff'];
+const tab = [
+  {
+    id: 'all',
+    val: 'all-reports'
+  },
+  {
+    id: 'booking',
+    val: 'booking'
+  },
+  {
+    id: 'customer',
+    val: 'customer'
+  },
+  {
+    id: 'deposit',
+    val: 'deposit'
+  },
+  {
+    id: 'expenses',
+    val: 'expenses'
+  },
+  {
+    id: 'products',
+    val: 'products'
+  },
+  {
+    id: 'sales',
+    val: 'sales'
+  },
+  {
+    id: 'service',
+    val: 'service'
+  },
+  {
+    id: 'staff',
+    val: 'staff'
+  }
+];
 
 const ReportPage = () => {
   let [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  let type = Number(searchParams.get('type')) || 0;
+  const { user } = useAuth();
 
+  let type = searchParams.get('type') || 'all';
+  const location = useLocation();
+  console.log(location, 99999999);
   const onChangeTab = (_, value) => {
-    setSearchParams({ type: value });
+    setSearchParams({ type: tab[value].id });
   };
 
+  const checkAccess = (item, title) => {
+    const tempUrl = `report-detail?type=${title}&detail=${item.url}`;
+    const checkIfExist = user.reportMenu.find((e) => e.url === tempUrl);
+
+    return checkIfExist;
+  };
   const GenerateTab = ({ list, index, title }) => (
     <Box sx={{ mt: 2.5 }}>
       <TabPanel value={type} index={index}>
         <MainCard contentSX={{ padding: 0 }} title={<FormattedMessage id={title} />}>
           <List width="100%" sx={{ padding: 0 }}>
-            {list?.map((item) => (
-              <ListItem key={item.id} component="div" disablePadding divider>
-                <ListItemButton>
-                  <ListItemText
-                    primary={item.val}
-                    onClick={() => {
-                      navigate(`/report-detail?type=${title}&detail=${item.url}`, { replace: true });
+            {list?.map((item) => {
+              const thisAccess = checkAccess(item, title);
+              return (
+                <ListItem key={item.id} component="div" disablePadding divider>
+                  <ListItemButton
+                    style={{
+                      display: 'flex',
+                      gap: 10
                     }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
+                  >
+                    {thisAccess ? item.icon : <LockOutlined />}
+                    <ListItemText
+                      primary={item.val}
+                      onClick={() => {
+                        if (!thisAccess) return;
+                        navigate(`/report-detail?type=${title}&detail=${item.url}`, { replace: true });
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
           </List>
         </MainCard>
       </TabPanel>
@@ -152,29 +216,29 @@ const ReportPage = () => {
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
           <Tabs value={type} onChange={onChangeTab} variant="scrollable" scrollButtons="auto" aria-label="product sell detail tab">
             {tab.map((e) => (
-              <Tab key={e} label={<FormattedMessage id={e} />} id="service-list-tab-0" aria-controls="service-list-tabpanel-0" />
+              <Tab key={e.id} label={<FormattedMessage id={e.val} />} id="service-list-tab-0" aria-controls="service-list-tabpanel-0" />
             ))}
           </Tabs>
         </Box>
         {/* FOR ALL */}
-        <GenerateTab list={list.bookings} index={0} title="booking" />
-        <GenerateTab list={list.customers} index={0} title="customer" />
-        <GenerateTab list={list.deposit} index={0} title="deposit" />
-        <GenerateTab list={list.expenses} index={0} title="expenses" />
-        <GenerateTab list={list.products} index={0} title="products" />
-        <GenerateTab list={list.sales} index={0} title="sales" />
-        <GenerateTab list={list.service} index={0} title="service" />
-        <GenerateTab list={list.staff} index={0} title="staff" />
+        <GenerateTab list={list.bookings} index={'all'} title="booking" />
+        <GenerateTab list={list.customers} index={'all'} title="customer" />
+        <GenerateTab list={list.deposit} index={'all'} title="deposit" />
+        <GenerateTab list={list.expenses} index={'all'} title="expenses" />
+        <GenerateTab list={list.products} index={'all'} title="products" />
+        <GenerateTab list={list.sales} index={'all'} title="sales" />
+        <GenerateTab list={list.service} index={'all'} title="service" />
+        <GenerateTab list={list.staff} index={'all'} title="staff" />
         {/* FOR ALL */}
 
-        <GenerateTab list={list.bookings} index={1} title="booking" />
-        <GenerateTab list={list.customers} index={2} title="customer" />
-        <GenerateTab list={list.deposit} index={3} title="deposit" />
-        <GenerateTab list={list.expenses} index={4} title="expenses" />
-        <GenerateTab list={list.products} index={5} title="products" />
-        <GenerateTab list={list.sales} index={6} title="sales" />
-        <GenerateTab list={list.service} index={7} title="service" />
-        <GenerateTab list={list.staff} index={8} title="staff" />
+        <GenerateTab list={list.bookings} index={'booking'} title="booking" />
+        <GenerateTab list={list.customers} index={'customer'} title="customer" />
+        <GenerateTab list={list.deposit} index={'deposit'} title="deposit" />
+        <GenerateTab list={list.expenses} index={'expenses'} title="expenses" />
+        <GenerateTab list={list.products} index={'products'} title="products" />
+        <GenerateTab list={list.sales} index={'sales'} title="sales" />
+        <GenerateTab list={list.service} index={'service'} title="service" />
+        <GenerateTab list={list.staff} index={'staff'} title="staff" />
       </MainCard>
     </>
   );

@@ -16,6 +16,7 @@ import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ConfirmationC from 'components/ConfirmationC';
 import DownloadIcon from '@mui/icons-material/Download';
+import useAuth from 'hooks/useAuth';
 
 let paramLocationList = {};
 
@@ -25,6 +26,8 @@ const LocationList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const intl = useIntl();
+
+  // console.log(user.masterMenu.map((e) => e.menuName));
 
   const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
