@@ -16,7 +16,6 @@ import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ConfirmationC from 'components/ConfirmationC';
 import DownloadIcon from '@mui/icons-material/Download';
-import useAuth from 'hooks/useAuth';
 
 let paramLocationList = {};
 
