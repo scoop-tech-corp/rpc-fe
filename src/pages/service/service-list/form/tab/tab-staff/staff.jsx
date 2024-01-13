@@ -136,7 +136,6 @@ const TabDescription = () => {
   const onFieldHandler = (event) => {
     useServiceFormStore.setState({ listStaff: [...listStaff, { id: Date.now(), ...event.target.value }] });
   };
-  console.log({ totalList: listStaff });
 
   return (
     <MainCard title={<FormattedMessage id="staff" />}>

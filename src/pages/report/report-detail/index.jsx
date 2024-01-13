@@ -9,33 +9,60 @@ import { ExportOutlined } from '@ant-design/icons';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
-// import { exportData } from 'utils/exportData.js';
+import { getLocationList, getCustomerGroupList, getStaffList, getServiceList } from 'service/service-global';
 
 import { useSearchParams } from 'react-router-dom';
-import { DateRangePicker } from 'materialui-daterange-picker';
 import FilterBooking from './filter/bookings';
 import BookingByLocation from './section/bookings/by-location';
 import BookingByStatus from './section/bookings/by-status';
 import BookingByCancelationReason from './section/bookings/by-cancelation-reason';
 import BookingByList from './section/bookings/by-list';
 import BookingByDiagnosisList from './section/bookings/by-diagnosis-list';
+import useAuth from 'hooks/useAuth';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
-
-  const [filter, setFilter] = useState({
-    location_id: '',
-    status: '',
-    category: [],
-    facility: [],
-    location: []
-  });
-
   let type = searchParams.get('type');
   let detail = searchParams.get('detail');
+  const { user } = useAuth();
+
+  const [extData, setExtData] = useState({
+    location: []
+  });
+  const checkAccess = (item, title) => {
+    const tempUrl = `report-detail?type=${item}&detail=${title}`;
+    const checkIfExist = user.reportMenu.find((e) => e.url === tempUrl);
+
+    return checkIfExist;
+  };
+
+  useEffect(() => {
+    const thisAccess = checkAccess(type, detail);
+    if (!thisAccess) return (window.location.href = '/report');
+  }, []);
+
+  const [filter, setFilter] = useState({
+    location: [],
+    staff: [],
+    category: [],
+    facility: [],
+    date: ''
+  });
 
   useEffect(() => {
     if (!type || !detail) return (window.location.href = '/report');
+  }, []);
+
+  const getDropdownData = async () => {
+    const getLoc = await getLocationList();
+    const getStaff = await getStaffList();
+    const getService = await getServiceList();
+
+    setExtData((prevState) => ({ ...prevState, location: getLoc, staff: getStaff, service: getService }));
+  };
+
+  useEffect(() => {
+    getDropdownData();
   }, []);
 
   const onExport = async () => {
@@ -65,7 +92,7 @@ export default function Index() {
   };
 
   const getFilter = () => {
-    if (type === 'booking') return <FilterBooking dateRange={dateRange} filter={filter} />;
+    if (type === 'booking') return <FilterBooking extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -79,9 +106,6 @@ export default function Index() {
     if (type === 'booking' && detail === 'by-diagnosis-species-gender') return 'booking-by-diagnosis-species-gender';
     return '';
   };
-
-  const [openDatePicker, setOpenDatePicker] = useState(false);
-  const [dateRange, setDateRange] = useState(null);
 
   return (
     <>
@@ -97,22 +121,7 @@ export default function Index() {
           </>
         }
       />
-      <div
-        style={{
-          position: 'absolute',
-          zIndex: 1000,
-          marginTop: 180
-        }}
-      >
-        <DateRangePicker
-          open={openDatePicker}
-          onChange={(range) => {
-            setDateRange(range);
-            setOpenDatePicker(false);
-          }}
-          closeOnClickOutside
-        />
-      </div>
+
       <MainCard content={false}>
         <div className="" style={{ margin: 20 }}>
           <ScrollX>
