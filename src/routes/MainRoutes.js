@@ -96,6 +96,7 @@ const MenuGroupChildren = Loadable(lazy(() => import('pages/menus/children')));
 const MenuGroupGrandChildren = Loadable(lazy(() => import('pages/menus/grand-children')));
 const MenuProfile = Loadable(lazy(() => import('pages/menus/profile')));
 const MenuSetting = Loadable(lazy(() => import('pages/menus/setting')));
+const MenuReport = Loadable(lazy(() => import('pages/menus/report')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -226,7 +227,8 @@ const MainRoutes = {
             { path: 'children', element: <MenuGroupChildren /> },
             { path: 'grand-children', element: <MenuGroupGrandChildren /> },
             { path: 'profile', element: <MenuProfile /> },
-            { path: 'setting', element: <MenuSetting /> }
+            { path: 'setting', element: <MenuSetting /> },
+            { path: 'report', element: <MenuReport /> }
           ]
         },
         {
