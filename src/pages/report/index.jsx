@@ -172,7 +172,7 @@ const ReportPage = () => {
 
   const checkAccess = (item, title) => {
     const tempUrl = `report-detail?type=${title}&detail=${item.url}`;
-    const checkIfExist = user.reportMenu.find((e) => e.url === tempUrl);
+    const checkIfExist = user?.reportMenu?.items?.find((e) => e.url === tempUrl);
 
     return checkIfExist;
   };

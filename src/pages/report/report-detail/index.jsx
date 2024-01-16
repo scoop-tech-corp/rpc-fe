@@ -31,7 +31,7 @@ export default function Index() {
   });
   const checkAccess = (item, title) => {
     const tempUrl = `report-detail?type=${item}&detail=${title}`;
-    const checkIfExist = user.reportMenu.find((e) => e.url === tempUrl);
+    const checkIfExist = user?.reportMenu?.items?.find((e) => e.url === tempUrl);
 
     return checkIfExist;
   };
