@@ -101,7 +101,9 @@ const FormAbsent = (props) => {
       setFormValue((prevState) => ({
         ...prevState,
         location: [postion.coords.latitude, postion.coords.longitude],
-        address: `${getAddress.city_district} ${getAddress.city} ${getAddress.state ?? ''}`,
+        address: `${getAddress.city_district || getAddress.suburb}, ${getAddress.city || getAddress.municipality}, ${
+          getAddress.state ?? ''
+        }`,
         city: getAddress.city,
         province: getAddress.state ?? ''
       }));
