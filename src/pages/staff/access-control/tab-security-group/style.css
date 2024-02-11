@@ -37,6 +37,10 @@
 }
 
 /* STATUS STYLE */
+.status {
+  text-align: center;
+}
+
 .status-full {
   background-color: #ff4d4f;
   color: white;

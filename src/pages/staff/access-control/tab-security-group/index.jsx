@@ -37,6 +37,8 @@ const TabSecurityGroup = (props) => {
     return { module: dt.module, menus: mapMenus };
   });
 
+  const setWidthColumn = { width: `${(data.roles.length + 1) / 100}%` };
+
   const renderContent = () => {
     return (
       <>
@@ -45,9 +47,11 @@ const TabSecurityGroup = (props) => {
             <>
               {/* create for header */}
               <tr key={list}>
-                <th>{list.module}</th>
+                <th style={setWidthColumn}>{list.module}</th>
                 {data.roles.map((role) => (
-                  <th key={role}>{uppercaseWord(role)}</th>
+                  <th key={role} style={setWidthColumn}>
+                    {uppercaseWord(role)}
+                  </th>
                 ))}
               </tr>
               {/* create for row */}
@@ -66,7 +70,7 @@ const TabSecurityGroup = (props) => {
                           context: { menuId: e.target.parentNode.getAttribute('id'), roleName: e.target.getAttribute('name') }
                         }));
                       }}
-                      className={`status-${privilageStatus[menu[role]]}`}
+                      className={`status status-${privilageStatus[menu[role]]}`}
                     >
                       {uppercaseWord(privilageStatus[menu[role]])}
                     </td>
