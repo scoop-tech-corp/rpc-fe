@@ -99,8 +99,8 @@ export const JWTProvider = ({ children }) => {
             masterMenu: userLogin.masterMenu,
             profileMenu: userLogin.profileMenu,
             settingMenu: userLogin.settingMenu,
-            reportMenu: userLogin.reportMenu.items,
-            extractMenu: userLogin.extractMenu
+            extractMenu: userLogin.extractMenu,
+            reportMenu: userLogin.reportMenu
           };
           dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
         } else {
