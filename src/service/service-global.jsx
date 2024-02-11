@@ -115,3 +115,15 @@ export const generateUniqueIdByDate = () => {
   const uniqueId = parseInt(dateString + randomId);
   return uniqueId;
 };
+
+export const findUrlConfigByLocationPath = (urls) => urls.find((e) => location.pathname.startsWith(e.url));
+
+export const detectUserPrivilage = (urls) => {
+  let result = null;
+  if (urls) {
+    const find = findUrlConfigByLocationPath(urls);
+    if (find) result = +find.accessType;
+  }
+
+  return result;
+};

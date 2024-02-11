@@ -16,10 +16,10 @@ export const updateAccessControlMenu = async (property) => {
 };
 
 export const privilageStatus = {
-  3: 'none',
-  4: 'full',
-  2: 'write',
-  1: 'read'
+  3: 'none', // tidak bisa semua
+  4: 'full', // full. insert, view, edit, delete
+  2: 'write', // insert dan view, tidak bisa edit dan delete
+  1: 'read' // cuman view, tidak bisa edit dan delete
 };
 
 export const getAccesControlUser = async (property) => {
