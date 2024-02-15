@@ -20,15 +20,19 @@ const ProfileTab = ({ handleLogout }) => {
   const navigate = useNavigate();
   const get_profile_menu = mappingProfileMenu(user?.profileMenu);
 
-  const onClickProfile = (_, i) => {
+  const onClickProfile = (data, i) => {
     setSelectedIndex(i);
-    navigate(`/staff/profile/${i == 0 ? 'edit' : 'view'}/${user.id}`, { replace: true });
+    let url = `${data.url}`;
+
+    if (data.title.includes('profile')) url = `${data.url}/${user.id}`;
+
+    navigate(url, { replace: true });
   };
 
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
       {get_profile_menu.map((dt, i) => (
-        <ListItemButton key={i} selected={selectedIndex === i} onClick={(_) => onClickProfile(_, i)}>
+        <ListItemButton key={i} selected={selectedIndex === i} onClick={(_) => onClickProfile(dt, i)}>
           <ListItemIcon>{dt.icon}</ListItemIcon>
           <ListItemText primary={<FormattedMessage id={dt.title} />} />
         </ListItemButton>

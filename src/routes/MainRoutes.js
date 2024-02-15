@@ -33,6 +33,7 @@ const StaffSchedule = Loadable(lazy(() => import('pages/staff/schedule')));
 const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view')));
 const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
+const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -144,7 +145,8 @@ const MainRoutes = {
             { path: 'schedule', element: <StaffSchedule /> },
             { path: 'profile/view/:id', element: <StaffViewProfile /> },
             { path: 'profile/edit/:id', element: <StaffEditProfile /> },
-            { path: 'static-data', element: <StaffStaticData /> }
+            { path: 'static-data', element: <StaffStaticData /> },
+            { path: 'absent', element: <StaffAbsent /> }
           ]
         },
         {
