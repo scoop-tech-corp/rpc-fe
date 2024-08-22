@@ -7,7 +7,7 @@ import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { createMessageBackend, getLocationList } from 'service/service-global';
+import { createMessageBackend, detectUserPrivilage, getLocationList } from 'service/service-global';
 import { exportFacility, getFacility } from './detail/service';
 
 import DownloadIcon from '@mui/icons-material/Download';
@@ -16,6 +16,7 @@ import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ConfirmationC from 'components/ConfirmationC';
+import useAuth from 'hooks/useAuth';
 
 let paramFacilityList = {};
 
@@ -24,6 +25,8 @@ const FacilityList = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
   const [getFacilityData, setFacilityData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -31,30 +34,36 @@ const FacilityList = () => {
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [dialog, setDialog] = useState(false);
 
+  const isCheckbox = () => {
+    return userPrivilage == 4
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const selectRows = header.selectedFlatRows
+                  .filter(({ original }) => +original.facilityVariation)
+                  .map(({ original }) => original.locationId);
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => {
+              const getFacilityVariation = +cell.row.original.facilityVariation;
+              return <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} disabled={!getFacilityVariation} />;
+            },
+            disableSortBy: true,
+            style: { width: '10px' }
+          }
+        ]
+      : [];
+  };
+
   const columns = useMemo(
     () => [
-      {
-        title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows
-              .filter(({ original }) => +original.facilityVariation)
-              .map(({ original }) => original.locationId);
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
-
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
-        accessor: 'selection',
-        Cell: (cell) => {
-          const getFacilityVariation = +cell.row.original.facilityVariation;
-          return <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} disabled={!getFacilityVariation} />;
-        },
-        disableSortBy: true,
-        style: {
-          width: '10px'
-        }
-      },
+      ...isCheckbox(),
       {
         Header: <FormattedMessage id="location" />,
         accessor: 'locationName',
@@ -71,6 +80,7 @@ const FacilityList = () => {
       { Header: <FormattedMessage id="facility-variant" />, accessor: 'facilityVariation' },
       { Header: <FormattedMessage id="amount-unit" />, accessor: 'unitTotal' }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -224,9 +234,12 @@ const FacilityList = () => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="add-facility" />
-                </Button>
+
+                {[2, 4].includes(userPrivilage) && (
+                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                    <FormattedMessage id="add-facility" />
+                  </Button>
+                )}
               </Stack>
             </Stack>
             <ReactTable

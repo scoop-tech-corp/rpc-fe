@@ -44,49 +44,31 @@ const setSession = (serviceToken) => {
   }
 };
 
+const extractUrls = (data) => {
+  const urls = [];
+  // Fungsi rekursif untuk menelusuri struktur JSON
+  function extract(data) {
+    if (Array.isArray(data)) {
+      data.forEach((item) => extract(item));
+    } else if (typeof data === 'object') {
+      // eslint-disable-next-line no-prototype-builtins
+      if (data.hasOwnProperty('url')) urls.push(data);
+      // eslint-disable-next-line no-prototype-builtins
+      if (data.hasOwnProperty('children')) extract(data['children']);
+    }
+  }
+
+  // Memulai proses ekstraksi
+  extract(data['items']);
+  return urls;
+};
+
 // ==============================|| JWT CONTEXT & PROVIDER ||============================== //
 
 const JWTContext = createContext(null);
 
 export const JWTProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-
-  // useEffect(() => {
-  //   const init = async () => {
-  //     try {
-  //       const serviceToken = window.localStorage.getItem('serviceToken');
-  //       if (serviceToken && verifyToken(serviceToken)) {
-  //         setSession(serviceToken);
-  //         const resp = await axios.get('login');
-  //         console.log('RESP', resp);
-
-  //         dispatch({
-  //           type: LOGIN,
-  //           payload: {
-  //             isLoggedIn: true,
-  //             user: {
-  //               id: 1,
-  //               email: 'adiyansyahdwiputra@gmail.com',
-  //               name: 'Adiyansyah',
-  //               role: 'Front End Developer'
-  //             }
-  //           }
-  //         });
-  //       } else {
-  //         dispatch({
-  //           type: LOGOUT
-  //         });
-  //       }
-  //     } catch (err) {
-  //       console.error(err);
-  //       dispatch({
-  //         type: LOGOUT
-  //       });
-  //     }
-  //   };
-
-  //   init();
-  // }, []);
 
   const logout = async () => {
     const getToken = localStorage.getItem('serviceToken');
@@ -116,7 +98,9 @@ export const JWTProvider = ({ children }) => {
             isAbsent: userLogin.isAbsent,
             masterMenu: userLogin.masterMenu,
             profileMenu: userLogin.profileMenu,
-            settingMenu: userLogin.settingMenu
+            settingMenu: userLogin.settingMenu,
+            extractMenu: userLogin.extractMenu,
+            reportMenu: userLogin.reportMenu
           };
           dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
         } else {
@@ -133,7 +117,8 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu } = response.data;
+    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu, reportMenu } =
+      response.data;
     setSession(token);
 
     const setUser = {
@@ -145,7 +130,11 @@ export const JWTProvider = ({ children }) => {
       isAbsent: !!isAbsent,
       masterMenu,
       profileMenu,
-      settingMenu
+      settingMenu,
+      reportMenu,
+      extractMenu: {
+        masterMenu: extractUrls(masterMenu)
+      }
     };
 
     dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });

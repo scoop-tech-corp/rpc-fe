@@ -6,16 +6,19 @@ import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { getAllState, useLocationDetailStore } from './location-detail-store';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, detectUserPrivilage } from 'service/service-global';
 import { saveLocation, updateLocation, uploadImageLocation } from './service';
 
 import PropTypes from 'prop-types';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import useAuth from 'hooks/useAuth';
 
 const LocationDetailHeader = (props) => {
   const locationDetailError = useLocationDetailStore((state) => state.locationDetailError);
   const isTouchForm = useLocationDetailStore((state) => state.locataionTouch);
+  const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
@@ -64,20 +67,28 @@ const LocationDetailHeader = (props) => {
     }
   };
 
+  const isShowBtnSave = () => {
+    if (code && userPrivilage == 4) return true;
+    else if (!code && [2, 4].includes(userPrivilage)) return true;
+    else return false;
+  };
+
   return (
     <>
       <HeaderPageCustom
         title={setTitlePage()}
         locationBackConfig={{ setLocationBack: true, customUrl: '/location/location-list' }}
         action={
-          <Button
-            variant="contained"
-            startIcon={<PlusOutlined />}
-            onClick={onSubmitLocation}
-            disabled={!isTouchForm || locationDetailError}
-          >
-            <FormattedMessage id="save" />
-          </Button>
+          isShowBtnSave() && (
+            <Button
+              variant="contained"
+              startIcon={<PlusOutlined />}
+              onClick={onSubmitLocation}
+              disabled={!isTouchForm || locationDetailError}
+            >
+              <FormattedMessage id="save" />
+            </Button>
+          )
         }
       />
       <ErrorContainer open={!isTouchForm && isError} content={errContent} />

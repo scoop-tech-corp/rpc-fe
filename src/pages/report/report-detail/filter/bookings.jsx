@@ -1,72 +1,96 @@
 import { useTheme } from '@mui/material/styles';
 import { Autocomplete, Button, Stack, TextField, useMediaQuery } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import moment from 'moment';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import { AlignCenterOutlined, UndoOutlined } from '@ant-design/icons';
+import MultiSelectAll from 'components/MultiSelectAll';
+import useGetList from 'hooks/useGetList';
+import { getFacilityByLocationList } from 'service/service-global';
 
-export default function FilterBooking({ dateRange, filter }) {
+export default function FilterBooking({ extData, filter, setFilter }) {
   const theme = useTheme();
 
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
+  const facilityList = useGetList(getFacilityByLocationList, {
+    locationId: [],
+    disabled: filter.location.length === 0
+  });
+
+  useEffect(() => {
+    facilityList.setParams((e) => ({
+      ...e,
+      disabled: filter.location.length === 0,
+      locationId: '[' + filter.location.map((item) => item.value).join(',') + ']'
+    }));
+  }, [filter.location]);
 
   return (
     <>
-      <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={1} sx={{ p: 3, pb: 0 }}>
+      <Stack
+        direction={matchDownSM ? 'column' : 'row'}
+        className="filterReport"
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={1}
+        sx={{ p: 3, pb: 0 }}
+      >
         <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: '100%' }}>
-          <TextField
-            id="date"
-            name="date"
-            sx={{ width: '25%', height: '100%' }}
-            placeholder="Select Date"
-            InputProps={{
-              readOnly: true
-            }}
-            value={
-              dateRange ? `${moment(dateRange?.startDate).format('DD/MM/YYYY')} - ${moment(dateRange?.endDate).format('DD/MM/YYYY')}` : ''
-            }
-            onClick={() => setOpen(true)}
+          <DateRangePicker onChange={(value) => setFilter((e) => ({ ...e, date: value }))} value={filter.date} format="dd/MM/yyy" />
+
+          <MultiSelectAll
+            items={extData?.location || []}
+            style={{ width: '25%', height: '100%' }}
+            limitTags={1}
+            value={filter?.location}
+            key={filter?.location?.length}
+            selectAllLabel="Select All"
+            onChange={(val) => setFilter((e) => ({ ...e, location: val }))}
+            label={<FormattedMessage id="location" />}
           />
-          <Autocomplete
-            id="location"
-            multiple
-            options={[]}
-            sx={{ width: '25%', height: '100%' }}
-            limitTags={2}
-            value={filter.location_id}
-            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-            onChange={(e, val) => setFilter({ ...filter, location_id: val })}
-            renderInput={(params) => <TextField {...params} label={<FormattedMessage id="location" />} />}
+          <MultiSelectAll
+            items={extData?.staff || []}
+            style={{ width: '25%', height: '100%' }}
+            limitTags={1}
+            value={filter?.staff}
+            key={filter?.staff?.length}
+            selectAllLabel="Select All"
+            onChange={(val) => setFilter((e) => ({ ...e, staff: val }))}
+            label={<FormattedMessage id="staff" />}
           />
-          <Autocomplete
-            id="category"
-            sx={{ width: '25%', height: '100%' }}
-            options={[]}
-            value={filter.status}
-            onChange={(e, val) => setFilter({ ...filter, status: val })}
-            renderInput={(params) => <TextField {...params} label={<FormattedMessage id="staff" />} />}
-          />
-          <Autocomplete
-            id="category"
-            sx={{ width: '25%', height: '100%' }}
-            options={[]}
-            value={filter.status}
-            onChange={(e, val) => setFilter({ ...filter, status: val })}
-            renderInput={(params) => <TextField {...params} label={<FormattedMessage id="facility" />} />}
+
+          <MultiSelectAll
+            items={facilityList.list || []}
+            style={{ width: '25%', height: '100%' }}
+            limitTags={1}
+            key={filter?.facility?.length}
+            value={filter?.facility}
+            selectAllLabel="Select All"
+            onChange={(val) => setFilter((e) => ({ ...e, facility: val }))}
+            label={<FormattedMessage id="facility" />}
           />
         </Stack>{' '}
       </Stack>
       <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} sx={{ p: 3, pt: 0, pb: 0, mt: '10px !important' }}>
-        <Autocomplete
-          id="category"
-          sx={{ width: '25%', height: '100%' }}
-          options={[]}
-          value={filter.status}
-          onChange={(e, val) => setFilter({ ...filter, status: val })}
-          renderInput={(params) => <TextField {...params} label={<FormattedMessage id="service" />} />}
+        <MultiSelectAll
+          items={extData?.service || []}
+          style={{ width: '25%', height: '100%' }}
+          limitTags={1}
+          key={filter?.service?.length}
+          value={filter?.service}
+          selectAllLabel="Select All"
+          onChange={(val) => setFilter((e) => ({ ...e, service: val }))}
+          label={<FormattedMessage id="service" />}
         />
-        <Button variant="outlined" color="secondary" startIcon={<UndoOutlined />}>
+        <Button
+          variant="outlined"
+          color="secondary"
+          startIcon={<UndoOutlined />}
+          onClick={() => {
+            setFilter(() => ({ location: [], staff: [], category: [], facility: [], date: '' }));
+          }}
+        >
           <FormattedMessage id="reset" />
         </Button>
         <Button variant="outlined" startIcon={<AlignCenterOutlined />}>

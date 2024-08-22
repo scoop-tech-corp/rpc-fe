@@ -7,6 +7,25 @@ export const getLocationList = async () => {
   });
 };
 
+export const getStaffList = async () => {
+  const getResp = await axios.get('staff/list');
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+export const getServiceList = async () => {
+  const getResp = await axios.get('service/list');
+  return getResp?.data?.data?.map((dt) => {
+    return { label: dt.fullName, value: +dt.id };
+  });
+};
+export const getFacilityByLocationList = async (params) => {
+  const getResp = await axios.get('location/facility/location', { params });
+  return getResp?.data?.map((dt) => {
+    return { label: dt.unitName, value: +dt.id };
+  });
+};
+
 export const getCustomerGroupList = async () => {
   const getResp = await axios.get('customer/group');
   return getResp.data.map((dt) => {
@@ -95,4 +114,16 @@ export const generateUniqueIdByDate = () => {
   const randomId = Math.ceil(Math.random() * 9999999999);
   const uniqueId = parseInt(dateString + randomId);
   return uniqueId;
+};
+
+export const findUrlConfigByLocationPath = (urls) => urls.find((e) => location.pathname.startsWith(e.url));
+
+export const detectUserPrivilage = (urls) => {
+  let result = null;
+  if (urls) {
+    const find = findUrlConfigByLocationPath(urls);
+    if (find) result = +find.accessType;
+  }
+
+  return result;
 };
