@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, detectUserPrivilage } from 'service/service-global';
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import { snackbarSuccess } from 'store/reducers/snackbar';
@@ -12,12 +12,15 @@ import { createCustomer } from 'pages/customer/service';
 import PropTypes from 'prop-types';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
+import useAuth from 'hooks/useAuth';
 
 const CustomerFormHeader = (props) => {
   const allState = useCustomerFormStore((state) => state);
   const customerFormError = useCustomerFormStore((state) => state.customerFormError);
   const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
   const [formError, setFormError] = useState(false);
+  const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
@@ -71,6 +74,12 @@ const CustomerFormHeader = (props) => {
     }
   };
 
+  const isShowBtnSave = () => {
+    if (id && userPrivilage == 4) return true;
+    else if (!id && [2, 4].includes(userPrivilage)) return true;
+    else return false;
+  };
+
   useEffect(() => {
     let getFirstName = getAllState().firstName;
     let getLocation = getAllState().locationId;
@@ -89,14 +98,16 @@ const CustomerFormHeader = (props) => {
         title={setTitlePage}
         locationBackConfig={{ setLocationBack: true, customUrl: '/customer/list' }}
         action={
-          <Button
-            variant="contained"
-            startIcon={<PlusOutlined />}
-            onClick={onSubmit}
-            disabled={!isTouchForm || formError || customerFormError}
-          >
-            <FormattedMessage id="save" />
-          </Button>
+          isShowBtnSave() && (
+            <Button
+              variant="contained"
+              startIcon={<PlusOutlined />}
+              onClick={onSubmit}
+              disabled={!isTouchForm || formError || customerFormError}
+            >
+              <FormattedMessage id="save" />
+            </Button>
+          )
         }
       />
       <ErrorContainer open={!isTouchForm && isError} content={errContent} />

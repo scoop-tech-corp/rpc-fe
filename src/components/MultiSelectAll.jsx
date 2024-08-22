@@ -5,13 +5,13 @@ import debounce from 'lodash/debounce';
 import { Autocomplete, TextField } from '@mui/material';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 
-const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limitTags }) => {
+const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, label, limitTags, style }) => {
   const [selectedOptions, setSelectedOptions] = useState(value);
   const [filteredOptions, setFilteredOptions] = useState(null);
   const multiSelectRef = useRef(null);
 
   useEffect(() => {
-    onChange(selectedOptions);
+    onChange ? onChange(selectedOptions) : '';
   }, [selectedOptions]);
 
   const handleToggleOption = (selectedOptions) => setSelectedOptions(selectedOptions);
@@ -19,19 +19,19 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limi
   const getOptionLabel = (option) => `${option.label}`;
 
   const allItemsSelected = () => {
-    if (filteredOptions?.length !== items.length) {
+    if (filteredOptions?.length !== items?.length) {
       const excludedFilteredOptions = filteredOptions?.filter((opt) => !selectedOptions.find((selOpt) => selOpt.label === opt.label));
       if (excludedFilteredOptions?.length > 0) {
         return false;
       }
       return true;
     }
-    const allSelected = items.length > 0 && items.length === selectedOptions.length;
+    const allSelected = items?.length > 0 && items?.length === selectedOptions?.length;
     return allSelected;
   };
 
   const clearSelected = (selOptions) => {
-    if (selOptions.length > 0) {
+    if (selOptions?.length > 0) {
       setSelectedOptions(selectedOptions.filter((item) => !selOptions.find((selOption) => selOption.label === item.label)));
     } else {
       setSelectedOptions([]);
@@ -40,11 +40,11 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limi
 
   const handleSelectAll = (isSelected) => {
     let selectedList = [];
-    if (filteredOptions?.length > 0 && filteredOptions.length !== items.length) {
+    if (filteredOptions?.length > 0 && filteredOptions?.length !== items?.length) {
       selectedList = items.filter((item) => filteredOptions.find((filteredOption) => filteredOption.label === item.label));
     }
     if (isSelected) {
-      if (selectedList.length > 0) {
+      if (selectedList?.length > 0) {
         setSelectedOptions([...selectedOptions, ...selectedList]);
       } else {
         setSelectedOptions(items);
@@ -55,7 +55,6 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limi
   };
 
   const handleToggleSelectAll = () => {
-    console.log('click select all');
     handleSelectAll(!allItemsSelected());
   };
 
@@ -86,7 +85,7 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limi
     debouncedStateValue(filtered);
   };
 
-  const inputRenderer = (params) => <TextField {...params} variant="outlined" />;
+  const inputRenderer = (params) => <TextField {...params} variant="outlined" label={label} />;
 
   const filter = createFilterOptions();
 
@@ -97,6 +96,7 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, limi
     <Autocomplete
       ref={multiSelectRef}
       multiple
+      sx={style}
       options={items}
       value={selectedOptions}
       limitTags={limitTags || 2}

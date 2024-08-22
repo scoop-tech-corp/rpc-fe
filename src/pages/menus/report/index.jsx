@@ -4,10 +4,10 @@ import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactT
 import { FormattedMessage, useIntl } from 'react-intl';
 import { GlobalFilter } from 'utils/react-table';
 import { Stack, useMediaQuery, Button, Link } from '@mui/material';
+import { deleteMenuReport, getMenuReport } from './service';
 import { useDispatch } from 'react-redux';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { deleteMenuGroupGrandChildren, getMenuGroupGrandChildren } from './service';
 import { createMessageBackend } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
@@ -15,16 +15,16 @@ import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import useGetList from 'hooks/useGetList';
-import FormMenuGroupGrandChildren from './form';
+import FormMenuReport from './form';
 
-const MenuGroupGrandChildren = () => {
+const MenuReport = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const dispatch = useDispatch();
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
-    getMenuGroupGrandChildren,
+    getMenuReport,
     {},
     'search'
   );
@@ -34,7 +34,7 @@ const MenuGroupGrandChildren = () => {
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteMenuGroupGrandChildren(selectedRow)
+      await deleteMenuReport(selectedRow)
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
@@ -70,8 +70,8 @@ const MenuGroupGrandChildren = () => {
         style: { width: '10px' }
       },
       {
-        Header: <FormattedMessage id="menu-name" />,
-        accessor: 'menuName',
+        Header: <FormattedMessage id="group-name" />,
+        accessor: 'groupName',
         Cell: (data) => {
           return (
             <Link href="#" onClick={() => setOpenForm({ isOpen: true, id: +data.row.original.id })}>
@@ -80,8 +80,9 @@ const MenuGroupGrandChildren = () => {
           );
         }
       },
-      { Header: <FormattedMessage id="children-menu-name" />, accessor: 'childrenMenuName' },
-      { Header: <FormattedMessage id="order-menu" />, accessor: 'orderMenu' },
+      { Header: <FormattedMessage id="menu-name" />, accessor: 'menuName' },
+      { Header: <FormattedMessage id="role" />, accessor: 'roleName' },
+      { Header: <FormattedMessage id="access-type" />, accessor: 'accessType' },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
       { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
     ],
@@ -90,7 +91,7 @@ const MenuGroupGrandChildren = () => {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="grand-children-menu-group" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="menu-report" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
@@ -142,9 +143,9 @@ const MenuGroupGrandChildren = () => {
         btnFalseText="Cancel"
       />
       {openForm.isOpen && (
-        <FormMenuGroupGrandChildren
-          open={openForm.isOpen}
+        <FormMenuReport
           id={openForm.id}
+          open={openForm.isOpen}
           onClose={() => setOpenForm({ isOpen: false, id: null })}
           setParams={setParams}
         />
@@ -153,4 +154,4 @@ const MenuGroupGrandChildren = () => {
   );
 };
 
-export default MenuGroupGrandChildren;
+export default MenuReport;

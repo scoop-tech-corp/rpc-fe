@@ -20,7 +20,7 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
   });
 
   const clear = () => {
-    setListInfo((_info) => ({ list: [], totalPagination: 0, isLoading: false }));
+    setListInfo(() => ({ list: [], totalPagination: 0, isLoading: false }));
   };
 
   const { list, totalPagination, isLoading, called } = listInfo;
@@ -28,10 +28,9 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
     setListInfo((_info) => ({ ..._info, isLoading: true }));
     getListFunc(_params)
       .then((res) => {
-        // console.log(res);
-        setListInfo((_info) => ({
-          list: res.data.data || res.data || [],
-          totalPagination: res.data.totalPagination,
+        setListInfo(() => ({
+          list: res?.data?.data || res.data || res,
+          totalPagination: res?.data?.totalPagination,
           isLoading: false,
           called: true
         }));
@@ -40,7 +39,7 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
         }
       })
       .catch((error) => {
-        setListInfo((_info) => ({
+        setListInfo(() => ({
           isLoading: false,
           error
         }));
@@ -49,6 +48,7 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
   useEffect(() => {
     if (params.disabled) return;
     getList(params);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   const goToPage = (page) => {
@@ -99,6 +99,7 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
         clearTimeout(searchTimeout);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword]);
 
   const changeLimit = (e) => {

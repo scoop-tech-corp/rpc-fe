@@ -2,15 +2,50 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import React, { useMemo, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Chart from 'react-apexcharts';
+import NumberFormat from 'react-number-format';
 
 export default function BookingByLocation({ data }) {
+  // Dummy data for the table
+  const dummyTableData = useMemo(
+    () => [
+      {
+        location: 'RPC SUMATERA UTARA',
+        bookings: '100',
+        quantity: 10,
+        value: 'Rp. 1.500.000'
+      },
+      {
+        location: 'RPC ACEH',
+        bookings: '200',
+        quantity: 15,
+        value: 'Rp. 3.000.000'
+      }
+    ],
+    []
+  );
+
+  // Dummy data for the chart
+  const dummyChartData = {
+    series: [
+      {
+        name: 'RPC ACEH',
+        data: [10, 10, 10, 10, 30, 20, 10]
+      },
+      {
+        name: 'RPC SUMATERA UTARA',
+        data: [20, 40, 20, 10, 80, 30, 10]
+      }
+    ],
+    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+  };
+
   const columns = useMemo(
     () => [
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'totalServices'
+        accessor: 'location'
       },
-      { Header: <FormattedMessage id="bookings" />, accessor: 'createdBy' },
+      { Header: <FormattedMessage id="bookings" />, accessor: 'bookings' },
       { Header: <FormattedMessage id="quantity" />, accessor: 'quantity' },
       { Header: <FormattedMessage id="value-rp" />, accessor: 'value' }
     ],
@@ -18,17 +53,9 @@ export default function BookingByLocation({ data }) {
   );
 
   useEffect(() => {
+    // Create the chart options using dummyChartData
     const options = {
-      series: [
-        {
-          name: 'High - 2013',
-          data: [28, 29, 33, 36, 32, 32, 33]
-        },
-        {
-          name: 'Low - 2013',
-          data: [12, 11, 14, 18, 17, 13, 13]
-        }
-      ],
+      series: dummyChartData.series,
       chart: {
         height: 350,
         type: 'line',
@@ -66,7 +93,7 @@ export default function BookingByLocation({ data }) {
         size: 1
       },
       xaxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        categories: dummyChartData.categories,
         title: {
           text: 'Month'
         }
@@ -74,9 +101,9 @@ export default function BookingByLocation({ data }) {
       yaxis: {
         title: {
           text: 'Temperature'
-        },
-        min: 5,
-        max: 40
+        }
+        // min: 5,
+        // max: 40
       },
       legend: {
         position: 'top',
@@ -102,7 +129,15 @@ export default function BookingByLocation({ data }) {
 
       <ReactTable
         columns={columns}
-        data={data || []}
+        data={[
+          ...dummyTableData,
+          {
+            location: <strong>Total</strong>,
+            bookings: <strong>300</strong>,
+            quantity: <strong>25</strong>,
+            value: <strong>Rp. 4.500.000</strong>
+          }
+        ]}
         // totalPagination={totalPagination}
         // setPageNumber={params.goToPage}
         // setPageRow={params.rowPerPage}

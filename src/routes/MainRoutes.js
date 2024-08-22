@@ -33,6 +33,7 @@ const StaffSchedule = Loadable(lazy(() => import('pages/staff/schedule')));
 const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view')));
 const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
+const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -69,7 +70,7 @@ const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
 const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
 const ProductTransfer = Loadable(lazy(() => import('pages/product/transfer')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const ProductStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductStaticData = Loadable(lazy(() => import('pages/product/static-data')));
 
 // Location
 const LocationDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -96,6 +97,7 @@ const MenuGroupChildren = Loadable(lazy(() => import('pages/menus/children')));
 const MenuGroupGrandChildren = Loadable(lazy(() => import('pages/menus/grand-children')));
 const MenuProfile = Loadable(lazy(() => import('pages/menus/profile')));
 const MenuSetting = Loadable(lazy(() => import('pages/menus/setting')));
+const MenuReport = Loadable(lazy(() => import('pages/menus/report')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -143,7 +145,8 @@ const MainRoutes = {
             { path: 'schedule', element: <StaffSchedule /> },
             { path: 'profile/view/:id', element: <StaffViewProfile /> },
             { path: 'profile/edit/:id', element: <StaffEditProfile /> },
-            { path: 'static-data', element: <StaffStaticData /> }
+            { path: 'static-data', element: <StaffStaticData /> },
+            { path: 'absent', element: <StaffAbsent /> }
           ]
         },
         {
@@ -226,7 +229,8 @@ const MainRoutes = {
             { path: 'children', element: <MenuGroupChildren /> },
             { path: 'grand-children', element: <MenuGroupGrandChildren /> },
             { path: 'profile', element: <MenuProfile /> },
-            { path: 'setting', element: <MenuSetting /> }
+            { path: 'setting', element: <MenuSetting /> },
+            { path: 'report', element: <MenuReport /> }
           ]
         },
         {

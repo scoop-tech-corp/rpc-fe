@@ -10,12 +10,14 @@ import { useNavigate } from 'react-router';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { exportLocation, getLocation } from './detail/service';
+import { detectUserPrivilage, processDownloadExcel } from 'service/service-global';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import ConfirmationC from 'components/ConfirmationC';
 import DownloadIcon from '@mui/icons-material/Download';
+import useAuth from 'hooks/useAuth';
 
 let paramLocationList = {};
 
@@ -25,31 +27,39 @@ const LocationList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const intl = useIntl();
+  const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
   const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
 
+  const isCheckbox = () => {
+    return userPrivilage == 4
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const selectRows = header.selectedFlatRows.map(({ original }) => original.codeLocation);
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+            disableSortBy: true,
+            style: { width: '10px' }
+          }
+        ]
+      : [];
+  };
+
   const columns = useMemo(
     () => [
-      {
-        title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.codeLocation);
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
-
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
-        accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true,
-        style: {
-          width: '10px'
-        }
-      },
+      ...isCheckbox(),
       {
         Header: <FormattedMessage id="name" />,
         accessor: 'locationName',
@@ -74,6 +84,7 @@ const LocationList = () => {
         }
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -124,18 +135,23 @@ const LocationList = () => {
   };
 
   const onExport = async () => {
-    await exportLocation().then((resp) => {
-      let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-      let downloadUrl = URL.createObjectURL(blob);
-      let a = document.createElement('a');
-      // const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
+    await exportLocation(paramLocationList).then(processDownloadExcel);
+  };
 
-      a.href = downloadUrl;
-      // a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
-      a.download = 'Location-list';
-      document.body.appendChild(a);
-      a.click();
-    });
+  const renderButtonAction = () => {
+    return (
+      <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
+        <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+          <FormattedMessage id="export" />
+        </Button>
+
+        {[2, 4].includes(userPrivilage) && (
+          <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+            <FormattedMessage id="add-location" />
+          </Button>
+        )}
+      </Stack>
+    );
   };
 
   async function fetchData() {
@@ -180,14 +196,7 @@ const LocationList = () => {
                 )}
               </Stack>
 
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
-                </Button>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="add-location" />
-                </Button>
-              </Stack>
+              {renderButtonAction()}
             </Stack>
             <ReactTable
               columns={columns}

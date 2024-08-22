@@ -7,13 +7,14 @@ import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactT
 import { DeleteFilled } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, detectUserPrivilage } from 'service/service-global';
 import { getCustomerDataStatic, deleteCustomerDataStatic } from './service';
 
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import useAuth from 'hooks/useAuth';
 
 let paramDataStaticList = {};
 
@@ -22,34 +23,43 @@ const CustomerDataStatic = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
   const intl = useIntl();
+  const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
   const [staticData, setStaticData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
 
+  const isCheckbox = () => {
+    return userPrivilage == 4
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const selectRows = header.selectedFlatRows.map(({ original }) => ({ id: +original.id, type: original.type }));
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+            disableSortBy: true,
+            style: { width: '10px' }
+          }
+        ]
+      : [];
+  };
+
   const columns = useMemo(
     () => [
-      {
-        title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => ({ id: +original.id, type: original.type }));
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
-
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
-        accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true,
-        style: {
-          width: '10px'
-        }
-      },
+      ...isCheckbox(),
       { Header: <FormattedMessage id="type" />, accessor: 'type' },
       { Header: <FormattedMessage id="name" />, accessor: 'typeName' }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

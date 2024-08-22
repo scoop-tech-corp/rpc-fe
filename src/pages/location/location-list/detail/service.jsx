@@ -207,6 +207,13 @@ export const uploadImageLocation = async (property, code) => {
   return await axios.post('location/imagelocation', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const exportLocation = async () => {
-  return axios.get('location/exportlocation', { responseType: 'blob' });
+export const exportLocation = async (param) => {
+  return axios.get('location/exportlocation', {
+    responseType: 'blob',
+    params: {
+      orderValue: param.orderValue,
+      orderColumn: param.orderColumn,
+      search: param.keyword
+    }
+  });
 };

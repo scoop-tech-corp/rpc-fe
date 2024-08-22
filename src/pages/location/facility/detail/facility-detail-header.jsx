@@ -7,11 +7,12 @@ import { FormattedMessage } from 'react-intl';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createFacilityLocation, updateFacilityLocation, uploadImageFacility } from './service';
 import { getAllState, useFacilityDetailStore } from './facility-detail-store';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, detectUserPrivilage } from 'service/service-global';
 
 import PropTypes from 'prop-types';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import useAuth from 'hooks/useAuth';
 
 const FacilityDetailHeader = (props) => {
   let { id } = useParams();
@@ -19,6 +20,8 @@ const FacilityDetailHeader = (props) => {
   const isTouchForm = useFacilityDetailStore((state) => state.facilityDetailTouch);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
@@ -63,20 +66,28 @@ const FacilityDetailHeader = (props) => {
     }
   };
 
+  const isShowBtnSave = () => {
+    if (id && userPrivilage == 4) return true;
+    else if (!id && [2, 4].includes(userPrivilage)) return true;
+    else return false;
+  };
+
   return (
     <>
       <HeaderPageCustom
         title={setTitleFacility()}
         locationBackConfig={{ setLocationBack: true, customUrl: '/location/facilities' }}
         action={
-          <Button
-            variant="contained"
-            startIcon={<PlusOutlined />}
-            onClick={onSubmitFacility}
-            disabled={!isTouchForm || facilityDetailError}
-          >
-            <FormattedMessage id="save" />
-          </Button>
+          isShowBtnSave() && (
+            <Button
+              variant="contained"
+              startIcon={<PlusOutlined />}
+              onClick={onSubmitFacility}
+              disabled={!isTouchForm || facilityDetailError}
+            >
+              <FormattedMessage id="save" />
+            </Button>
+          )
         }
       />
       <ErrorContainer open={!isTouchForm && isError} content={errContent} />

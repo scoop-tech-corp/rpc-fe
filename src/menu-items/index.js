@@ -43,7 +43,9 @@ const icons = {
   LocationOn,
   StorageIcon,
   AccessibilityNewOutlinedIcon,
-  DollarCircleOutlined
+  DollarCircleOutlined,
+  EditOutlined,
+  UserOutlined
 };
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -127,17 +129,12 @@ export const mappingMasterMenu = (data) => {
   });
 };
 
-const iconsProfileMenu = {
-  EditOutlined,
-  UserOutlined
-};
-
 export const mappingProfileMenu = (data) => {
   const get_profile_menu = data ? jsonCentralized(data.items) : [];
 
   return get_profile_menu.map((dt) => {
-    const Icon = iconsProfileMenu[dt.icon];
-    const itemIcon = iconsProfileMenu[dt.icon] ? <Icon style={{ fontSize: '1rem' }} /> : false;
+    const Icon = icons[dt.icon];
+    const itemIcon = icons[dt.icon] ? <Icon style={{ fontSize: '1rem' }} /> : false;
 
     dt.icon = itemIcon;
     return dt;

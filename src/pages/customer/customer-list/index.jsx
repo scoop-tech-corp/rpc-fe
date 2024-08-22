@@ -9,7 +9,7 @@ import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactT
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
-import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
+import { createMessageBackend, detectUserPrivilage, getLocationList, processDownloadExcel } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { GlobalFilter } from 'utils/react-table';
 import { getCustomerList, deleteCustomerList, exportCustomer } from '../service';
@@ -41,26 +41,33 @@ const CustomerList = () => {
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const { user } = useAuth();
+  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+
+  const isCheckbox = () => {
+    return userPrivilage == 4
+      ? [
+          {
+            title: 'Row Selection',
+            Header: (header) => {
+              useEffect(() => {
+                const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
+                setSelectedRow(selectRows);
+              }, [header.selectedFlatRows]);
+
+              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
+            },
+            accessor: 'selection',
+            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
+            disableSortBy: true,
+            style: { width: '10px' }
+          }
+        ]
+      : [];
+  };
 
   const columns = useMemo(
     () => [
-      {
-        title: 'Row Selection',
-        Header: (header) => {
-          useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
-            setSelectedRow(selectRows);
-          }, [header.selectedFlatRows]);
-
-          return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-        },
-        accessor: 'selection',
-        Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-        disableSortBy: true,
-        style: {
-          width: '10px'
-        }
-      },
+      ...isCheckbox(),
       {
         Header: <FormattedMessage id="customer-name" />,
         accessor: 'customerName',
@@ -106,6 +113,7 @@ const CustomerList = () => {
         accessor: 'createdAt'
       }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -248,9 +256,11 @@ const CustomerList = () => {
                     <FormattedMessage id="export" />
                   </Button>
                 )}
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="new" />
-                </Button>
+                {[2, 4].includes(userPrivilage) && (
+                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                    <FormattedMessage id="new" />
+                  </Button>
+                )}
               </Stack>
             </Stack>
             <ReactTable
