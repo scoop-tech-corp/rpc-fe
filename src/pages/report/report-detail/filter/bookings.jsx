@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material/styles';
-import { Autocomplete, Button, Stack, TextField, useMediaQuery } from '@mui/material';
+import { Button, Stack, useMediaQuery } from '@mui/material';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 
@@ -44,7 +44,7 @@ export default function FilterBooking({ extData, filter, setFilter }) {
             style={{ width: '25%', height: '100%' }}
             limitTags={1}
             value={filter?.location}
-            key={filter?.location?.length}
+            // key={filter?.location?.length}
             selectAllLabel="Select All"
             onChange={(val) => setFilter((e) => ({ ...e, location: val }))}
             label={<FormattedMessage id="location" />}
@@ -54,7 +54,7 @@ export default function FilterBooking({ extData, filter, setFilter }) {
             style={{ width: '25%', height: '100%' }}
             limitTags={1}
             value={filter?.staff}
-            key={filter?.staff?.length}
+            // key={filter?.staff?.length}
             selectAllLabel="Select All"
             onChange={(val) => setFilter((e) => ({ ...e, staff: val }))}
             label={<FormattedMessage id="staff" />}
@@ -64,7 +64,7 @@ export default function FilterBooking({ extData, filter, setFilter }) {
             items={facilityList.list || []}
             style={{ width: '25%', height: '100%' }}
             limitTags={1}
-            key={filter?.facility?.length}
+            // key={filter?.facility?.length}
             value={filter?.facility}
             selectAllLabel="Select All"
             onChange={(val) => setFilter((e) => ({ ...e, facility: val }))}
@@ -77,7 +77,7 @@ export default function FilterBooking({ extData, filter, setFilter }) {
           items={extData?.service || []}
           style={{ width: '25%', height: '100%' }}
           limitTags={1}
-          key={filter?.service?.length}
+          // key={filter?.service?.length}
           value={filter?.service}
           selectAllLabel="Select All"
           onChange={(val) => setFilter((e) => ({ ...e, service: val }))}
