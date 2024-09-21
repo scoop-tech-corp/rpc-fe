@@ -6,7 +6,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { PlusOutlined } from '@ant-design/icons';
 import { getOccupationList } from 'pages/customer/service';
 import { useState, useEffect } from 'react';
-import { getTypeIdList } from 'pages/staff/staff-list/service';
+import { getTypeIdList } from 'pages/customer/service';
 
 import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
@@ -218,7 +218,7 @@ const Background = () => {
           </Grid>
         </Grid>
       </MainCard>
-      <FormTypeId open={openFormTypeId} onClose={onCloseFormTypeId} />
+      <FormTypeId open={openFormTypeId} onClose={onCloseFormTypeId} module="customer" />
       <FormOccupation open={openFormOccupation} onClose={onCloseFormOccupation} />
     </>
   );

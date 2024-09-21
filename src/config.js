@@ -31,9 +31,11 @@ export const AUTH0_API = {
 };
 
 // API Production and UAT
-const apiUrl = 'https://www.rpc.rambadvetclinic.com';
+// const apiUrl = 'https://www.rpc.rambadvetclinic.com';
 
 // API Development
+const apiUrl = 'https://www.uatradhiyan.rambadvetclinic.com';
+
 // const apiUrl = process?.env?.REACT_APP_MODE === 'local' ? 'http://localhost:8000' : 'https://www.uatradhiyan.rambadvetclinic.com';
 // API LOCAL
 // console.log(apiUrl);

@@ -8,7 +8,7 @@ import useConfig from 'hooks/useConfig';
 import Search from './Search';
 import Profile from './Profile';
 import Localization from './Localization';
-import MobileSection from './MobileSection';
+// import MobileSection from './MobileSection';
 import QuickMenu from './quick-menu';
 
 import ProductInventoryApproval from 'pages/product/product-list/product-inventory/approval';
@@ -45,12 +45,14 @@ const HeaderContent = () => {
       <QuickMenu onQuickMenuOpen={responseQuckMenu} />
       {!matchesXs && <Search />}
       {/* {!matchesXs && megaMenu} */}
-      {!matchesXs && localization}
+      {/* {!matchesXs && localization} */}
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
+      {localization}
       {/* <Notification /> */}
       {/* <Message /> */}
-      {!matchesXs && <Profile />}
-      {matchesXs && <MobileSection />}
+      <Profile />
+      {/* {!matchesXs && <Profile />}
+      {matchesXs && <MobileSection />} */}
 
       {openModalInvenApproval && <ProductInventoryApproval open={openModalInvenApproval} onClose={(e) => setOpenModalInvenApproval(!e)} />}
       {openModalRestockApproval && (

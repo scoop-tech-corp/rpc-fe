@@ -81,38 +81,39 @@ export const JWTProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const serviceToken = window.localStorage.getItem('serviceToken');
-        const userLogin = JSON.parse(window.localStorage.getItem('user'));
-        if (serviceToken && verifyToken(serviceToken)) {
-          setSession(serviceToken);
+  const init = async () => {
+    try {
+      const serviceToken = window.localStorage.getItem('serviceToken');
+      const userLogin = JSON.parse(window.localStorage.getItem('user'));
+      if (serviceToken && verifyToken(serviceToken)) {
+        setSession(serviceToken);
 
-          const setUser = {
-            id: userLogin.id,
-            email: userLogin.email,
-            name: userLogin.name,
-            role: userLogin.role,
-            avatar: userLogin.avatar,
-            isAbsent: userLogin.isAbsent,
-            masterMenu: userLogin.masterMenu,
-            profileMenu: userLogin.profileMenu,
-            settingMenu: userLogin.settingMenu,
-            extractMenu: userLogin.extractMenu,
-            reportMenu: userLogin.reportMenu
-          };
-          dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
-        } else {
-          logout();
-        }
-      } catch (err) {
-        console.error(err);
+        const setUser = {
+          id: userLogin.id,
+          email: userLogin.email,
+          name: userLogin.name,
+          role: userLogin.role,
+          avatar: userLogin.avatar,
+          isAbsent: userLogin.isAbsent,
+          masterMenu: userLogin.masterMenu,
+          profileMenu: userLogin.profileMenu,
+          settingMenu: userLogin.settingMenu,
+          extractMenu: userLogin.extractMenu,
+          reportMenu: userLogin.reportMenu
+        };
+        dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
+      } else {
         logout();
       }
-    };
+    } catch (err) {
+      console.error(err);
+      logout();
+    }
+  };
 
+  useEffect(() => {
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (email, password) => {
@@ -181,6 +182,7 @@ export const JWTProvider = ({ children }) => {
     <JWTContext.Provider
       value={{
         ...state,
+        init,
         login,
         logout,
         register,
