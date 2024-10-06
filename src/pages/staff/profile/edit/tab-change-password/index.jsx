@@ -162,7 +162,7 @@ const TabChangePassword = () => {
                 value={formChangePw.newPassword}
                 name="password"
                 onChange={(e) => setFormChangePw((prevState) => ({ ...prevState, newPassword: e.target.value }))}
-                error={Boolean(formErr.newPasswordErr && formErr.newPasswordErr.length > 0)}
+                error={Boolean((formErr.newPasswordErr && formErr.newPasswordErr.length > 0) || newPwError)}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
