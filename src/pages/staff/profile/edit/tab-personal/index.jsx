@@ -1,16 +1,19 @@
 import { Grid, Stack, InputLabel, TextField, FormControl, MenuItem, Select, Typography, Button } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useEffect, useRef, useState } from 'react';
-import { EditOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { updateProfile, uploadImageProfile } from '../../service';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
+import { DeleteFilled } from '@ant-design/icons';
 
 import Avatar from 'components/@extended/Avatar';
+import IconButton from 'components/@extended/IconButton';
 import avatarUnknown from 'assets/images/users/avatar-unknown.jpg';
 import PropTypes from 'prop-types';
 import configGlobal from '../../../../../config';
+import useAuth from 'hooks/useAuth';
 
 const configCoreErr = {
   firstNameErr: '',
@@ -31,6 +34,7 @@ const TabPersonal = (props) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const firstRender = useRef(true);
+  const { init } = useAuth();
 
   const [formProfile, setFormProfile] = useState({
     id: dataProfile?.id,
@@ -52,7 +56,8 @@ const TabPersonal = (props) => {
       selectedFile: null,
       imagePath: dataProfile?.imagePath ? `${configGlobal.apiUrl}${dataProfile?.imagePath}` : '',
       originalName: '',
-      isChange: false
+      isChange: false,
+      isDelete: false
     }
   });
 
@@ -122,9 +127,14 @@ const TabPersonal = (props) => {
       await updateProfile(formProfile)
         .then(async (resp) => {
           if (resp && resp.status === 200) {
-            if (formProfile.photo.isChange) {
+            if (formProfile.photo.isChange || formProfile.photo.isDelete) {
               await uploadImageProfile(formProfile)
                 .then((res) => {
+                  let prevUserLogin = JSON.parse(localStorage.getItem('user'));
+                  prevUserLogin.avatar = res.data.imagePath;
+                  localStorage.setItem('user', JSON.stringify(prevUserLogin));
+                  init();
+
                   if (res && res.status === 200) {
                     dispatch(snackbarSuccess('Success update profile'));
                   }
@@ -158,6 +168,17 @@ const TabPersonal = (props) => {
     }
   };
 
+  const onDeleteProfileImage = () => {
+    setFormProfile((prevState) => ({
+      ...prevState,
+      photo: {
+        ...prevState.photo,
+        imagePath: '',
+        isDelete: true
+      }
+    }));
+  };
+
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
@@ -173,14 +194,8 @@ const TabPersonal = (props) => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Button
-          variant="contained"
-          color="warning"
-          startIcon={<EditOutlined />}
-          onClick={onSubmit}
-          disabled={errorForm || firstRender.current}
-        >
-          <FormattedMessage id="edit" />
+        <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={errorForm || firstRender.current}>
+          <FormattedMessage id="save" />
         </Button>
       </Grid>
       <Grid item xs={12}>
@@ -195,6 +210,20 @@ const TabPersonal = (props) => {
                 width={150}
                 height={150}
               />
+              {formProfile.photo.imagePath && (
+                <IconButton
+                  size="medium"
+                  color="error"
+                  style={{
+                    bottom: -10,
+                    right: -10,
+                    position: 'absolute'
+                  }}
+                  onClick={onDeleteProfileImage}
+                >
+                  <DeleteFilled />
+                </IconButton>
+              )}
               <input
                 type="file"
                 onChange={(event) => onSelectedPhoto(event)}

@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce';
 import { Autocomplete, TextField } from '@mui/material';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 
-const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, label, limitTags, style }) => {
+const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, label, limitTags, isReset, setIsReset, style }) => {
   const [selectedOptions, setSelectedOptions] = useState(value);
   const [filteredOptions, setFilteredOptions] = useState(null);
   const multiSelectRef = useRef(null);
@@ -13,6 +13,14 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, labe
   useEffect(() => {
     onChange ? onChange(selectedOptions) : '';
   }, [selectedOptions]);
+
+  useEffect(() => {
+    if (isReset) {
+      handleClearOptions();
+      setIsReset(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReset]);
 
   const handleToggleOption = (selectedOptions) => setSelectedOptions(selectedOptions);
   const handleClearOptions = () => setSelectedOptions([]);

@@ -25,11 +25,11 @@ const TabAccessControlUsers = () => {
         accessor: 'name'
       },
       {
-        Header: <FormattedMessage id="role" />,
+        Header: <FormattedMessage id="access-control" />,
         accessor: 'roleName'
       },
       {
-        Header: <FormattedMessage id="job" />,
+        Header: <FormattedMessage id="job-v2" />,
         accessor: 'jobName'
       },
       {

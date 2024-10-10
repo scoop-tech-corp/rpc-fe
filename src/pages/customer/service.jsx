@@ -197,3 +197,18 @@ export const createSource = async (sourceName) => {
 
   return await axios.post('customer/source', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
+
+export const getTypeIdList = async () => {
+  const getResp = await axios.get('customer/typeid');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.typeName, value: +dt.typeId };
+  });
+};
+
+export const createTypeId = async (typeName) => {
+  const parameter = new FormData();
+  parameter.append('typeName', typeName);
+
+  return await axios.post('customer/typeid', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
+};

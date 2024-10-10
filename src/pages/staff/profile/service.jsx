@@ -36,6 +36,7 @@ export const uploadImageProfile = async (property) => {
 
   fd.append('id', property.id);
   fd.append('image', property.photo.selectedFile || '');
+  fd.append('status', property.photo.isDelete ? 'del' : '');
 
   return await axios.post(url + '/image', fd);
 };

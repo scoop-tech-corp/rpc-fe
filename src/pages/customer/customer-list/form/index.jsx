@@ -20,11 +20,11 @@ import {
   getPetCategoryList,
   getReferenceList,
   getSourceList,
-  getTitleList
+  getTitleList,
+  getTypeIdList
 } from 'pages/customer/service';
 import { getDataStaticLocation, getProvinceLocation } from 'pages/location/location-list/detail/service';
 import { getLocationList } from 'service/service-global';
-import { getTypeIdList } from 'pages/staff/staff-list/service';
 import { jsonCentralized } from 'utils/func';
 
 const CustomerForm = () => {

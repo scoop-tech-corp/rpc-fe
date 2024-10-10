@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { Button, FormHelperText, Grid, InputAdornment, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material';
-import { EyeOutlined, EyeInvisibleOutlined, EditOutlined } from '@ant-design/icons';
+import { EyeOutlined, EyeInvisibleOutlined, PlusOutlined } from '@ant-design/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { updatePassword } from '../../service';
 import { useDispatch } from 'react-redux';
@@ -107,8 +107,13 @@ const TabChangePassword = () => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Button variant="contained" color="warning" startIcon={<EditOutlined />} onClick={onSubmit} disabled={errorForm || newPwError}>
-          <FormattedMessage id="edit" />
+        <Button
+          variant="contained"
+          startIcon={<PlusOutlined />}
+          onClick={onSubmit}
+          disabled={errorForm || newPwError || firstRender.current}
+        >
+          <FormattedMessage id="save" />
         </Button>
       </Grid>
       <Grid item xs={12}>
@@ -157,7 +162,7 @@ const TabChangePassword = () => {
                 value={formChangePw.newPassword}
                 name="password"
                 onChange={(e) => setFormChangePw((prevState) => ({ ...prevState, newPassword: e.target.value }))}
-                error={Boolean(formErr.newPasswordErr && formErr.newPasswordErr.length > 0)}
+                error={Boolean((formErr.newPasswordErr && formErr.newPasswordErr.length > 0) || newPwError)}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton

@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { saveStaffDataStatic } from 'pages/staff/static-data/service';
-import { createTypeId } from 'pages/staff/staff-list/service';
+import { createTypeId } from 'pages/customer/service';
 import { createMessageBackend } from 'service/service-global';
 
 import ModalC from './ModalC';

@@ -9,7 +9,7 @@ import { ExportOutlined } from '@ant-design/icons';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
-import { getLocationList, getCustomerGroupList, getStaffList, getServiceList } from 'service/service-global';
+import { getLocationList, getStaffList, getServiceList } from 'service/service-global';
 
 import { useSearchParams } from 'react-router-dom';
 import FilterBooking from './filter/bookings';
@@ -44,6 +44,7 @@ export default function Index() {
   const [filter, setFilter] = useState({
     location: [],
     staff: [],
+    service: [],
     category: [],
     facility: [],
     date: ''
@@ -111,7 +112,7 @@ export default function Index() {
     <>
       <HeaderPageCustom
         title={<FormattedMessage id={getTitle()} />}
-        isBreadcrumb={true}
+        isBreadcrumb={false}
         locationBackConfig={{ setLocationBack: true, customUrl: '/report' }}
         action={
           <>
