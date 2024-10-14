@@ -4,24 +4,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
-import { FormattedMessage } from 'react-intl'; // useIntl
+import { FormattedMessage } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
-import { deleteStaffList, exportStaff, getStaffList } from './service';
+import { deleteStaffList, downloadTemplateStaff, exportStaff, getStaffList, importStaff } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-// import { GlobalFilter } from 'utils/react-table';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
-import DownloadIcon from '@mui/icons-material/Download';
 import iconWhatsapp from '../../../../src/assets/images/ico-whatsapp.png';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import ModalImport from 'pages/product/product-list/components/ModalImport';
 import IconButton from 'components/@extended/IconButton';
+import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 let paramStaffList = {};
 
@@ -30,11 +31,10 @@ const StaffList = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const intl = useIntl();
 
   const [getStaffListData, setStaffListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  // const [keywordSearch, setKeywordSearch] = useState('');
+  const [modalImport, setModalImport] = useState(false);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
@@ -196,6 +196,32 @@ const StaffList = () => {
     }
   };
 
+  const onDownloadTemplate = async () => {
+    await downloadTemplateStaff()
+      .then(processDownloadExcel)
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const onImportFile = async (file) => {
+    await importStaff(file)
+      .then((resp) => {
+        if (resp.status === 200) {
+          dispatch(snackbarSuccess('Success import file'));
+          setModalImport(false);
+          fetchData();
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
   const onRefresh = () => fetchData();
 
   useEffect(() => {
@@ -247,6 +273,9 @@ const StaffList = () => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
+                <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)} color="primary">
+                  <FormattedMessage id="import" />
+                </Button>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                   <FormattedMessage id="staff" />
                 </Button>
@@ -274,6 +303,9 @@ const StaffList = () => {
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
+      {modalImport && (
+        <ModalImport open={true} onTemplate={onDownloadTemplate} onImport={(e) => onImportFile(e)} onClose={(e) => setModalImport(!e)} />
+      )}
     </>
   );
 };

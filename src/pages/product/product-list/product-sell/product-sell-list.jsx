@@ -303,17 +303,7 @@ const ProductSellList = (props) => {
 
   const onDownloadTemplate = async () => {
     await downloadTemplateProductSell()
-      .then((resp) => {
-        let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
-        let downloadUrl = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
-
-        a.href = downloadUrl;
-        a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
-        document.body.appendChild(a);
-        a.click();
-      })
+      .then(processDownloadExcel)
       .catch((err) => {
         if (err) {
           dispatch(snackbarError(createMessageBackend(err)));
