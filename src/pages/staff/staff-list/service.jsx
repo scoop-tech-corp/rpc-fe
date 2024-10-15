@@ -219,36 +219,6 @@ export const getRolesIdList = async () => {
   });
 };
 
-// export const getPayPeriodList = async () => {
-//   const getResp = await axios.get('staff/payperiod');
-
-//   return getResp.data.map((dt) => {
-//     return { label: dt.periodName, value: +dt.payPeriodId };
-//   });
-// };
-
-// export const getJobTitleList = async () => {
-//   const getResp = await axios.get('staff/jobtitle');
-
-//   return getResp.data.map((dt) => {
-//     return { label: dt.jobName, value: +dt.jobTitleid };
-//   });
-// };
-
-// export const createJobTitle = async (jobName) => {
-//   const parameter = new FormData();
-//   parameter.append('jobName', jobName);
-
-//   return await axios.post('staff/jobtitle', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
-// };
-
-// export const createPayPeriod = async (periodName) => {
-//   const parameter = new FormData();
-//   parameter.append('periodName', periodName);
-
-//   return await axios.post('staff/payperiod', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
-// };
-
 export const getTypeIdList = async () => {
   const getResp = await axios.get('staff/typeid');
 
@@ -367,4 +337,15 @@ export const validationFormStaff = (procedure) => {
   } else {
     return checkPosition() || checkBasicDetail() ? true : false;
   }
+};
+
+export const downloadTemplateStaff = async () => {
+  return await axios.get('staff/template', { responseType: 'blob' });
+};
+
+export const importStaff = async (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  return await axios.post('staff/import', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

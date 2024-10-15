@@ -5,9 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { GlobalFilter } from 'utils/react-table';
-import IconButton from 'components/@extended/IconButton';
 import { useNavigate } from 'react-router';
 
 import MainCard from 'components/MainCard';
