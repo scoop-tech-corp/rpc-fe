@@ -19,7 +19,7 @@ export const getLastOrderMenu = async () => await axios.get('menu/last-order-chi
 export const getMenuChildrenList = async () => {
   const getResp = await axios.get('menu/list-child-menu-group');
   return getResp.data.map((dt) => {
-    return { label: dt.childrenName, value: +dt.id };
+    return { label: dt.menuName, value: +dt.id };
   });
 };
 

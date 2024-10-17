@@ -37,6 +37,7 @@ export const createMenuGroupGrandChildren = async (property) => {
   param.append('title', property.title);
   param.append('type', property.type);
   param.append('icon', property.icon);
+  param.append('url', property.url);
   param.append('orderMenu', property.orderMenu);
   param.append('isActive', property.isActive);
 
@@ -52,6 +53,7 @@ export const updateMenuGroupGrandChildren = async (property) =>
     title: property.title,
     type: property.type,
     icon: property.icon,
+    url: property.url,
     orderMenu: property.orderMenu,
     isActive: property.isActive
   });
