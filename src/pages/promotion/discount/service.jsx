@@ -6,13 +6,13 @@ const baseUrl = 'promotion/discount';
 export const getPromotionDiscountList = async (property) => {
   return await axios.get(baseUrl, {
     params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
-      goToPage: property.goToPage,
-      rowPerPage: property.rowPerPage,
       search: property.keyword,
-      locationId: property.locationId.length ? property.locationId : [''],
-      type: property.type.length ? property.type : ['']
+      locationId: property.locationId,
+      type: property.type
     }
   });
 };
