@@ -37,7 +37,7 @@ const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const PromotionDiscount = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const PromotionDiscount = Loadable(lazy(() => import('pages/promotion/discount')));
 const PromotionPartner = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const PromotionStaticData = Loadable(lazy(() => import('pages/promotion/static-data')));
 
