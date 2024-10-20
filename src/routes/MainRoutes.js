@@ -39,6 +39,7 @@ const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 const PromotionDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const PromotionDiscount = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const PromotionPartner = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const PromotionStaticData = Loadable(lazy(() => import('pages/promotion/static-data')));
 
 // Service
 const ServiceDashboard = Loadable(lazy(() => import('pages/service/dashboard')));
@@ -154,7 +155,8 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <PromotionDashboard /> },
             { path: 'discount', element: <PromotionDiscount /> },
-            { path: 'partner', element: <PromotionPartner /> }
+            { path: 'partner', element: <PromotionPartner /> },
+            { path: 'static-data', element: <PromotionStaticData /> }
           ]
         },
         {
