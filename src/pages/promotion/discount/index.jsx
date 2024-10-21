@@ -15,7 +15,7 @@ import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { GlobalFilter } from 'utils/react-table';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 
 import IconButton from 'components/@extended/IconButton';
@@ -52,7 +52,7 @@ const PromotionDiscount = () => {
         title: 'Row Selection',
         Header: (header) => {
           useEffect(() => {
-            const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
+            const selectRows = header.selectedFlatRows.map(({ original }) => +original.id);
             setSelectedRow(selectRows);
           }, [header.selectedFlatRows]);
 
@@ -250,6 +250,11 @@ const PromotionDiscount = () => {
                   onChange={(_, value) => onFilterType(value)}
                   renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-type" />} />}
                 />
+                {selectedRow.length > 0 && (
+                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                    <FormattedMessage id="delete" />
+                  </Button>
+                )}
               </Stack>
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
                 <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
