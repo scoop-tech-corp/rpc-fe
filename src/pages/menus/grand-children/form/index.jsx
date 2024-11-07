@@ -18,6 +18,7 @@ const FormMenuGroupGrandChildren = (props) => {
     title: '',
     type: '',
     icon: '',
+    url: '',
     orderMenu: '',
     isActive: 1,
     menuChildrenList: []
@@ -33,6 +34,7 @@ const FormMenuGroupGrandChildren = (props) => {
         title: formValue.title,
         type: formValue.type,
         icon: formValue.icon,
+        url: formValue.url,
         orderMenu: formValue.orderMenu,
         isActive: formValue.isActive
       };
@@ -69,7 +71,8 @@ const FormMenuGroupGrandChildren = (props) => {
         !formValue.identify ||
         !formValue.title ||
         !formValue.type ||
-        !formValue.icon
+        !formValue.icon ||
+        !formValue.url
     );
 
   const prefillLastOrderMenu = async () => {
@@ -89,6 +92,7 @@ const FormMenuGroupGrandChildren = (props) => {
         title: getDetail.title,
         type: getDetail.type,
         icon: getDetail.icon,
+        url: getDetail.url,
         orderMenu: getDetail.orderMenu
       }));
     });
@@ -98,6 +102,7 @@ const FormMenuGroupGrandChildren = (props) => {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const respList = await getMenuChildrenList();
+
       setFormValue((prev) => ({ ...prev, menuChildrenList: respList }));
       resolve(true);
     });
@@ -222,6 +227,21 @@ const FormMenuGroupGrandChildren = (props) => {
               onChange={(event) => setFormValue((prevState) => ({ ...prevState, icon: event.target.value }))}
               error={Boolean(!formValue.icon)}
               helperText={!formValue.icon ? <FormattedMessage id="icon-is-required" /> : ''}
+            />
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} sm={12}>
+          <Stack spacing={1}>
+            <InputLabel htmlFor="url">URL</InputLabel>
+            <TextField
+              fullWidth
+              id="url"
+              name="url"
+              value={formValue.url}
+              onChange={(event) => setFormValue((prevState) => ({ ...prevState, url: event.target.value }))}
+              error={Boolean(!formValue.url)}
+              helperText={!formValue.url ? <FormattedMessage id="url-is-required" /> : ''}
             />
           </Stack>
         </Grid>

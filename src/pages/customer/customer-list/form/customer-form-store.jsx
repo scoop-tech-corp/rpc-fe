@@ -23,6 +23,7 @@ const defaultPhotos = {
 };
 
 export const defaultCustomerForm = {
+  memberNo: '',
   firstName: '',
   middleName: '',
   lastName: '',

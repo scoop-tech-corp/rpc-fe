@@ -54,6 +54,7 @@ export const createCustomer = async (property) => {
   });
 
   const param = new FormData();
+  param.append('memberNo', property.memberNo);
   param.append('firstName', property.firstName);
   param.append('middleName', property.middleName);
   param.append('lastName', property.lastName);

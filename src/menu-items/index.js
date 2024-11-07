@@ -18,6 +18,26 @@ import { LocationOn } from '@mui/icons-material';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import StorageIcon from '@mui/icons-material/Storage';
+import ListIcon from '@mui/icons-material/List';
+import ForestIcon from '@mui/icons-material/Forest';
+import ComputerIcon from '@mui/icons-material/Computer';
+import HttpsIcon from '@mui/icons-material/Https';
+import AlarmIcon from '@mui/icons-material/Alarm';
+import SubtitlesIcon from '@mui/icons-material/Subtitles';
+import MergeIcon from '@mui/icons-material/Merge';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+import DiscountIcon from '@mui/icons-material/Discount';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import CategoryIcon from '@mui/icons-material/Category';
+import PolicyIcon from '@mui/icons-material/Policy';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import RepartitionIcon from '@mui/icons-material/Repartition';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import HouseIcon from '@mui/icons-material/House';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccessibilityNewOutlinedIcon from '@mui/icons-material/AccessibilityNewOutlined';
 
 import customerMenu from './menu-customer';
@@ -45,7 +65,27 @@ const icons = {
   AccessibilityNewOutlinedIcon,
   DollarCircleOutlined,
   EditOutlined,
-  UserOutlined
+  UserOutlined,
+  ListIcon,
+  ForestIcon,
+  ComputerIcon,
+  HttpsIcon,
+  AlarmIcon,
+  SubtitlesIcon,
+  MergeIcon,
+  ImportExportIcon,
+  DiscountIcon,
+  HandshakeIcon,
+  VolunteerActivismIcon,
+  CategoryIcon,
+  PolicyIcon,
+  ListAltIcon,
+  RepartitionIcon,
+  SwapHorizIcon,
+  LocalShippingIcon,
+  HouseIcon,
+  RequestQuoteIcon,
+  AddShoppingCartIcon
 };
 
 // ==============================|| MENU ITEMS ||============================== //

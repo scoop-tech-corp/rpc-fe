@@ -11,11 +11,13 @@ import FormTitle from '../../components/FormTitle';
 import FormCustomerGroup from '../../components/FormCustomerGroup';
 
 const configCoreErr = {
+  memberNoErr: '',
   firstNameErr: '',
   branchErr: ''
 };
 
 const GeneralInfo = () => {
+  const memberNo = useCustomerFormStore((state) => state.memberNo);
   const firstName = useCustomerFormStore((state) => state.firstName);
   const middleName = useCustomerFormStore((state) => state.middleName);
   const lastName = useCustomerFormStore((state) => state.lastName);
@@ -42,11 +44,17 @@ const GeneralInfo = () => {
   const intl = useIntl();
 
   const onCheckValidation = () => {
+    let getMemberNo = getAllState().memberNo;
     let getFirstName = getAllState().firstName;
     let getLocation = getAllState().locationId;
 
+    let getMemberNoError = '';
     let getFirstNameError = '';
     let getLocationError = '';
+
+    if (!getMemberNo) {
+      getMemberNoError = intl.formatMessage({ id: 'member-no-is-required' });
+    }
 
     if (!getFirstName) {
       getFirstNameError = intl.formatMessage({ id: 'first-name-is-required' });
@@ -56,8 +64,9 @@ const GeneralInfo = () => {
       getLocationError = intl.formatMessage({ id: 'branch-is-required' });
     }
 
-    if (getFirstNameError || getLocationError) {
+    if (getMemberNoError || getFirstNameError || getLocationError) {
       setGeneralInfoErr({
+        memberNoErr: getMemberNoError ? getMemberNoError : '',
         firstNameErr: getFirstNameError ? getFirstNameError : '',
         branchErr: getLocationError ? getLocationError : ''
       });
@@ -107,6 +116,21 @@ const GeneralInfo = () => {
     <>
       <MainCard title={<FormattedMessage id="general-info" />}>
         <Grid container spacing={3}>
+          <Grid item xs={12} sm={4}>
+            <Stack spacing={1}>
+              <InputLabel htmlFor="no-member">{<FormattedMessage id="no-member" />}</InputLabel>
+              <TextField
+                fullWidth
+                id="memberNo"
+                name="memberNo"
+                value={memberNo}
+                onChange={onFieldHandler}
+                // inputProps={{ maxLength: 100 }}
+                error={Boolean(generalInfoErr.memberNoErr && generalInfoErr.memberNoErr.length > 0)}
+                helperText={generalInfoErr.memberNoErr}
+              />
+            </Stack>
+          </Grid>
           <Grid item xs={12} sm={4}>
             <Stack spacing={1}>
               <InputLabel htmlFor="first-name">{<FormattedMessage id="first-name" />}</InputLabel>

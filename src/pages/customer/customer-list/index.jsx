@@ -69,13 +69,17 @@ const CustomerList = () => {
     () => [
       ...isCheckbox(),
       {
-        Header: <FormattedMessage id="customer-name" />,
-        accessor: 'customerName',
+        Header: <FormattedMessage id="no-member" />,
+        accessor: 'memberNo',
         Cell: (data) => {
           // const getId = data.row.original.id;
           // return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
           return <Link href="#">{data.value}</Link>;
         }
+      },
+      {
+        Header: <FormattedMessage id="customer-name" />,
+        accessor: 'customerName'
       },
       {
         Header: <FormattedMessage id="total-pet" />,
