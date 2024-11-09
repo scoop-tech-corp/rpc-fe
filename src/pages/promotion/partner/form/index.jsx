@@ -41,22 +41,24 @@ const PromotionPartnerForm = () => {
 
       if (formPromotionPartner.phone.data.length) {
         formPromotionPartner.phone.data.forEach((dt, idx) => {
-          const setPhoneErrObj = { idx, usageErr: '', numberErr: '', typeErr: '' };
+          if (dt.status !== 'delete') {
+            const setPhoneErrObj = { idx, usageErr: '', numberErr: '', typeErr: '' };
 
-          if (!dt.usage || !dt.number || !dt.type) {
-            if (!dt.usage) {
-              setPhoneErrObj.usageErr = intl.formatMessage({ id: 'usage-is-required' });
+            if (!dt.usage || !dt.number || !dt.type) {
+              if (!dt.usage) {
+                setPhoneErrObj.usageErr = intl.formatMessage({ id: 'usage-is-required' });
+              }
+
+              if (!dt.number) {
+                setPhoneErrObj.numberErr = intl.formatMessage({ id: 'number-is-required' });
+              }
+
+              if (!dt.type) {
+                setPhoneErrObj.typeErr = intl.formatMessage({ id: 'type-is-required' });
+              }
+
+              objErr.phoneErr.push(setPhoneErrObj);
             }
-
-            if (!dt.number) {
-              setPhoneErrObj.numberErr = intl.formatMessage({ id: 'number-is-required' });
-            }
-
-            if (!dt.type) {
-              setPhoneErrObj.typeErr = intl.formatMessage({ id: 'type-is-required' });
-            }
-
-            objErr.phoneErr.push(setPhoneErrObj);
           }
         });
       }
