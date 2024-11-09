@@ -5,10 +5,11 @@ import { snackbarSuccess, snackbarError } from 'store/reducers/snackbar';
 import { Grid, InputLabel, Stack, TextField } from '@mui/material';
 import { saveDataStaticLocation } from 'pages/location/location-list/detail/service';
 import { createMessageBackend } from 'service/service-global';
+import { saveStaffDataStatic } from 'pages/staff/static-data/service';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
-import { saveStaffDataStatic } from 'pages/staff/static-data/service';
+import { savePromotionDataStaticType, savePromotionDataStaticUsage } from 'pages/promotion/static-data/service';
 
 const FormDataStatic = (props) => {
   const [dataStatic, setDataStatic] = useState('');
@@ -26,6 +27,12 @@ const FormDataStatic = (props) => {
         return saveDataStaticLocation({ keyword: capitalizeFirstLetter(props.typeValue), name: dataStatic });
       } else if (module == 'staff') {
         return saveStaffDataStatic({ keyword: capitalizeFirstLetter(props.typeValue), name: dataStatic });
+      } else if (module == 'promotion-partner') {
+        if (props.procedure == 'usage') {
+          return savePromotionDataStaticUsage({ name: dataStatic });
+        } else if (props.procedure.includes('type')) {
+          return savePromotionDataStaticType({ name: dataStatic }, props.procedure.split('-')[1]);
+        }
       }
     };
 
