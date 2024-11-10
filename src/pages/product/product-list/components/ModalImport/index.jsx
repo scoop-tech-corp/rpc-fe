@@ -7,16 +7,18 @@ import PropTypes from 'prop-types';
 import DownloadIcon from '@mui/icons-material/Download';
 
 const ModalImport = (props) => {
+  const { onClose, onImport, onTemplate, open, isTemplate = true } = props;
+
   const [selectedFile, setFile] = useState('');
 
   const handleOnCancel = () => {
     document.getElementById('file-import').value = '';
     setFile('');
-    props.onClose(true);
+    onClose(true);
   };
 
   const handleOnOk = () => {
-    props.onImport(selectedFile);
+    onImport(selectedFile);
   };
 
   const onChangeFile = (event) => {
@@ -34,7 +36,7 @@ const ModalImport = (props) => {
     <ModalC
       title={<FormattedMessage id="import-data" />}
       okText={<FormattedMessage id="import" />}
-      open={props.open}
+      open={open}
       onOk={handleOnOk}
       onCancel={handleOnCancel}
       disabledOk={Boolean(!selectedFile)}
@@ -48,14 +50,18 @@ const ModalImport = (props) => {
         : <FormattedMessage id="before-you-import-the-data-you-must-download-the-template-first" />
       </p>
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={3}>
-          <InputLabel htmlFor="template">{<FormattedMessage id="template" />}</InputLabel>
-        </Grid>
-        <Grid item xs={12} sm={9}>
-          <Button variant="contained" startIcon={<DownloadIcon />} onClick={props.onTemplate}>
-            <FormattedMessage id="download" />
-          </Button>
-        </Grid>
+        {isTemplate && (
+          <>
+            <Grid item xs={12} sm={3}>
+              <InputLabel htmlFor="template">{<FormattedMessage id="template" />}</InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={9}>
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onTemplate}>
+                <FormattedMessage id="download" />
+              </Button>
+            </Grid>
+          </>
+        )}
         <Grid item xs={12} sm={3}>
           <InputLabel htmlFor="upload">{<FormattedMessage id="upload-file" />}</InputLabel>
         </Grid>
