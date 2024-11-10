@@ -77,22 +77,22 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
   };
 
   const changeKeyword = (e) => {
-    setKeyword(e);
     setHasSearch(true);
+    setKeyword(e);
   };
 
   useEffect(() => {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    const timeoutId = setTimeout(() => {
-      if (hasSearch) {
-        search();
+    if (hasSearch) {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
       }
-    }, 500);
 
-    setSearchTimeout(timeoutId);
+      const timeoutId = setTimeout(() => {
+        search();
+      }, 500);
+
+      setSearchTimeout(timeoutId);
+    }
 
     return () => {
       if (searchTimeout) {

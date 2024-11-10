@@ -16,10 +16,10 @@ const Message = Loadable(lazy(() => import('pages/message')));
 const CustomerDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
 const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
-const CustomerTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerTemplate = Loadable(lazy(() => import('pages/customer/template')));
 const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/customer/static-data')));
-const CustomerImport = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerImport = Loadable(lazy(() => import('pages/customer/import')));
 
 // Staff
 const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
