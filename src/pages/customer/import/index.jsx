@@ -34,7 +34,7 @@ const CustomerImport = () => {
   const columns = useMemo(
     () => [
       { Header: <FormattedMessage id="file-name" />, accessor: 'fileName' },
-      { Header: <FormattedMessage id="name" />, accessor: 'totalData' },
+      { Header: <FormattedMessage id="total-data" />, accessor: 'totalData' },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
       { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
     ],

@@ -67,7 +67,7 @@ const CustomerTemplate = () => {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="customer-import" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="customer-template" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>
