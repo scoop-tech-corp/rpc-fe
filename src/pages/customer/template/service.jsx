@@ -14,12 +14,14 @@ export const getCustomerTemplate = async (property) => {
   });
 };
 
-export const downloadCustomerTemplate = async (fileType) => {
-  return await axios.get(
-    url + '/download',
-    {
-      params: { fileType }
-    },
-    { responseType: 'blob' }
-  );
+export const downloadCustomerTemplate = async () => {
+  // fileType
+  // return await axios.get(
+  //   url + '/download',
+  //   {
+  //     params: { fileType }
+  //   },
+  //   { responseType: 'blob' }
+  // );
+  return await axios.get(url + '/download', { responseType: 'blob' });
 };

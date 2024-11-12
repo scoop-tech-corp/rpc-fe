@@ -91,7 +91,9 @@ export const createMessageBackend = (errResp, isBreakdownArrErr = false, isBreak
 };
 
 export const processDownloadExcel = (resp) => {
+  // console.log('resp', resp);
   let blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+  // console.log('blob', blob);
   let downloadUrl = URL.createObjectURL(blob);
   let a = document.createElement('a');
   const fileName = resp.headers['content-disposition'].split('filename=')[1].split(';')[0];
