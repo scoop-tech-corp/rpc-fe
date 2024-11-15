@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Chip, Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
 import { deleteStaffList, downloadTemplateStaff, exportStaff, getStaffList, importStaff } from './service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { GlobalFilter } from 'utils/react-table';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -31,6 +32,7 @@ const StaffList = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [getStaffListData, setStaffListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -38,6 +40,7 @@ const StaffList = () => {
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const [keywordSearch, setKeywordSearch] = useState('');
 
   const columns = useMemo(
     () => [
@@ -140,12 +143,12 @@ const StaffList = () => {
     fetchData();
   };
 
-  // const onSearch = (event) => {
-  //   paramStaffList.keyword = event;
-  //   setKeywordSearch(event);
+  const onSearch = (event) => {
+    paramStaffList.keyword = event;
+    setKeywordSearch(event);
 
-  //   fetchData();
-  // };
+    fetchData();
+  };
 
   const onClickAdd = () => {
     navigate('/staff/list/form', { replace: true });
@@ -244,12 +247,12 @@ const StaffList = () => {
               sx={{ p: 3, pb: 0 }}
             >
               <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                {/* <GlobalFilter
+                <GlobalFilter
                   placeHolder={intl.formatMessage({ id: 'search' })}
                   globalFilter={keywordSearch}
                   setGlobalFilter={onSearch}
                   style={{ height: '41.3px' }}
-                /> */}
+                />
                 <Autocomplete
                   id="filterLocation"
                   multiple
