@@ -218,6 +218,7 @@
   "custom": "Custom",
   "customer": "Customer",
   "customer-group": "Customer Group",
+  "customer-group-is-required": "Customer Group is required",
   "customer-name": "Customer Name",
   "customer-list": "Customer List",
   "customer-import": "Customer Import",

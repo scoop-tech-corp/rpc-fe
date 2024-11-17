@@ -83,9 +83,10 @@ const CustomerFormHeader = (props) => {
   useEffect(() => {
     let getFirstName = getAllState().firstName;
     let getLocation = getAllState().locationId;
-    let getNumberId = getAllState().numberId;
+    // let getNumberId = getAllState().numberId;
+    let getCustomerGroupId = getAllState().customerGroupId;
 
-    if (!getFirstName || !getLocation || !getNumberId) {
+    if (!getFirstName || !getLocation || !getCustomerGroupId) {
       setFormError(true);
     } else {
       setFormError(false);
