@@ -1,5 +1,5 @@
 import { FormattedMessage, useIntl } from 'react-intl';
-import { getAllState, useCustomerFormStore } from '../../customer-form-store';
+import { useCustomerFormStore } from '../../customer-form-store'; // getAllState
 import { Autocomplete, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -13,7 +13,7 @@ import IconButton from 'components/@extended/IconButton';
 import FormOccupation from '../../components/FormOccupation';
 import FormTypeId from 'components/FormTypeId';
 
-const configCoreErr = { nomorIdErr: '' };
+// const configCoreErr = { nomorIdErr: '' };
 
 const Background = () => {
   const joinDate = useCustomerFormStore((state) => state.joinDate);
@@ -32,26 +32,23 @@ const Background = () => {
   const occupationId = useCustomerFormStore((state) => state.occupationId);
   const occupationValue = occupationList.find((tl) => tl.value === occupationId) || null;
 
-  const [backgroundErr, setBackgroundErr] = useState(configCoreErr);
+  // const [backgroundErr, setBackgroundErr] = useState(configCoreErr);
   const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
   const intl = useIntl();
 
   const onCheckValidation = () => {
-    let getNumberId = getAllState().numberId;
-
-    let getNumberIdError = '';
-
-    if (!getNumberId) {
-      getNumberIdError = intl.formatMessage({ id: 'id-number-is-required' });
-    }
-
-    if (getNumberIdError) {
-      setBackgroundErr({
-        nomorIdErr: getNumberIdError ? getNumberIdError : ''
-      });
-    } else {
-      setBackgroundErr(configCoreErr);
-    }
+    // let getNumberId = getAllState().numberId;
+    // let getNumberIdError = '';
+    // if (!getNumberId) {
+    //   getNumberIdError = intl.formatMessage({ id: 'id-number-is-required' });
+    // }
+    // if (getNumberIdError) {
+    //   setBackgroundErr({
+    //     nomorIdErr: getNumberIdError ? getNumberIdError : ''
+    //   });
+    // } else {
+    //   setBackgroundErr(configCoreErr);
+    // }
   };
 
   const onDateChange = (selectedDate, procedure) => {
@@ -152,8 +149,8 @@ const Background = () => {
                 value={numberId}
                 onChange={onFieldHandler}
                 inputProps={{ maxLength: 50 }}
-                error={Boolean(backgroundErr.nomorIdErr && backgroundErr.nomorIdErr.length > 0)}
-                helperText={backgroundErr.nomorIdErr}
+                // error={Boolean(backgroundErr.nomorIdErr && backgroundErr.nomorIdErr.length > 0)}
+                // helperText={backgroundErr.nomorIdErr}
               />
             </Stack>
           </Grid>

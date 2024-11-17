@@ -182,6 +182,7 @@
   "current-stock": "Stok Saat Ini",
   "customer": "Pelanggan",
   "customer-group": "Group Pelanggan",
+  "customer-group-is-required": "Group Pelanggan wajib di isi",
   "customer-name": "Nama Pelanggan",
   "customer-list": "Daftar Pelanggan",
   "customer-import": "Impor Pelanggan",

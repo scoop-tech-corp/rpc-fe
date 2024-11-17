@@ -11,9 +11,9 @@ import FormTitle from '../../components/FormTitle';
 import FormCustomerGroup from '../../components/FormCustomerGroup';
 
 const configCoreErr = {
-  memberNoErr: '',
   firstNameErr: '',
-  branchErr: ''
+  branchErr: '',
+  customerGroupErr: ''
 };
 
 const GeneralInfo = () => {
@@ -44,17 +44,13 @@ const GeneralInfo = () => {
   const intl = useIntl();
 
   const onCheckValidation = () => {
-    let getMemberNo = getAllState().memberNo;
     let getFirstName = getAllState().firstName;
     let getLocation = getAllState().locationId;
+    let getCustomerGroupId = getAllState().customerGroupId;
 
-    let getMemberNoError = '';
     let getFirstNameError = '';
     let getLocationError = '';
-
-    if (!getMemberNo) {
-      getMemberNoError = intl.formatMessage({ id: 'member-no-is-required' });
-    }
+    let getCustomerGroupError = '';
 
     if (!getFirstName) {
       getFirstNameError = intl.formatMessage({ id: 'first-name-is-required' });
@@ -64,11 +60,15 @@ const GeneralInfo = () => {
       getLocationError = intl.formatMessage({ id: 'branch-is-required' });
     }
 
-    if (getMemberNoError || getFirstNameError || getLocationError) {
+    if (!getCustomerGroupId) {
+      getCustomerGroupError = intl.formatMessage({ id: 'customer-group-is-required' });
+    }
+
+    if (getFirstNameError || getLocationError || getCustomerGroupError) {
       setGeneralInfoErr({
-        memberNoErr: getMemberNoError ? getMemberNoError : '',
         firstNameErr: getFirstNameError ? getFirstNameError : '',
-        branchErr: getLocationError ? getLocationError : ''
+        branchErr: getLocationError ? getLocationError : '',
+        customerGroupErr: getCustomerGroupError || ''
       });
     } else {
       setGeneralInfoErr(configCoreErr);
@@ -126,8 +126,8 @@ const GeneralInfo = () => {
                 value={memberNo}
                 onChange={onFieldHandler}
                 // inputProps={{ maxLength: 100 }}
-                error={Boolean(generalInfoErr.memberNoErr && generalInfoErr.memberNoErr.length > 0)}
-                helperText={generalInfoErr.memberNoErr}
+                // error={Boolean(generalInfoErr.memberNoErr && generalInfoErr.memberNoErr.length > 0)}
+                // helperText={generalInfoErr.memberNoErr}
               />
             </Stack>
           </Grid>
@@ -234,7 +234,14 @@ const GeneralInfo = () => {
                       value={customerGroupValue}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, value) => onDropdownHandler(value, 'customerGroupId')}
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={Boolean(generalInfoErr.customerGroupErr && generalInfoErr.customerGroupErr.length > 0)}
+                          helperText={generalInfoErr.customerGroupErr}
+                          variant="outlined"
+                        />
+                      )}
                     />
                   </Grid>
                 </Grid>

@@ -69,8 +69,8 @@ const CustomerList = () => {
     () => [
       ...isCheckbox(),
       {
-        Header: <FormattedMessage id="no-member" />,
-        accessor: 'memberNo',
+        Header: <FormattedMessage id="customer-name" />,
+        accessor: 'customerName',
         Cell: (data) => {
           // const getId = data.row.original.id;
           // return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
@@ -78,8 +78,8 @@ const CustomerList = () => {
         }
       },
       {
-        Header: <FormattedMessage id="customer-name" />,
-        accessor: 'customerName'
+        Header: <FormattedMessage id="no-member" />,
+        accessor: 'memberNo'
       },
       {
         Header: <FormattedMessage id="total-pet" />,
