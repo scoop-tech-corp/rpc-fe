@@ -15,6 +15,12 @@ export const getCustomerList = async (property) => {
   });
 };
 
+export const getCustomerDetail = async (id) => {
+  return await axios.get('customer/detail', {
+    params: { customerId: id }
+  });
+};
+
 export const createCustomer = async (property) => {
   const joinDate = property.joinDate ? formateDateYYYMMDD(new Date(property.joinDate)) : '';
   const birthDate = property.birthDate ? formateDateYYYMMDD(new Date(property.birthDate)) : '';
@@ -90,6 +96,103 @@ export const createCustomer = async (property) => {
   setFormDataImage(property.photos, param, 'save');
 
   return await axios.post('customer', param, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const updateCustomer = async (property) => {
+  const joinDate = property.joinDate ? formateDateYYYMMDD(new Date(property.joinDate)) : '';
+  const birthDate = property.birthDate ? formateDateYYYMMDD(new Date(property.birthDate)) : '';
+
+  const customerPets = property.customerPets.map((dt) => {
+    const dateOfBirth = dt.dateOfBirth ? formateDateYYYMMDD(new Date(dt.dateOfBirth)) : '';
+    return {
+      id: dt.id,
+      petName: dt.petName,
+      petCategoryId: dt.petCategoryId?.value || '',
+      races: dt.races,
+      condition: dt.condition,
+      color: dt.color,
+      petMonth: dt.petMonth,
+      petYear: dt.petYear,
+      dateOfBirth: dateOfBirth,
+      petGender: dt.petGender,
+      isSteril: dt.isSteril,
+      command: dt.command
+    };
+  });
+
+  const reminderBooking = property.reminderBooking.map((dt) => {
+    return {
+      ...dt,
+      sourceId: dt.sourceId?.value || ''
+    };
+  });
+
+  const reminderLatePayment = property.reminderLatePayment.map((dt) => {
+    return {
+      ...dt,
+      sourceId: dt.sourceId?.value || ''
+    };
+  });
+
+  const reminderPayment = property.reminderPayment.map((dt) => {
+    return {
+      ...dt,
+      sourceId: dt.sourceId?.value || ''
+    };
+  });
+
+  const detailAddresses = property.detailAddresses.map((dt) => {
+    return {
+      addressName: dt.streetAddress,
+      additionalInfo: dt.additionalInfo,
+      country: dt.country,
+      provinceCode: dt.province,
+      cityCode: dt.city,
+      postalCode: dt.postalCode ? +dt.postalCode : '',
+      isPrimary: dt.isPrimary ? 1 : 0
+    };
+  });
+
+  return await axios.put('customer', {
+    customerId: property.id,
+    memberNo: property.memberNo,
+    firstName: property.firstName,
+    middleName: property.middleName,
+    lastName: property.lastName,
+    nickName: property.nickName,
+    gender: property.gender,
+    titleCustomerId: property.titleCustomerId,
+    customerGroupId: property.customerGroupId,
+    locationId: property.locationId,
+    notes: property.notes,
+    joinDate: joinDate,
+    typeId: property.typeId,
+    numberId: property.numberId,
+    occupationId: property.occupationId,
+    birthDate,
+    referenceCustomerId: property.referenceCustomerId,
+    isReminderBooking: property.isReminderBooking ? 1 : 0,
+    isReminderPayment: property.isReminderPayment ? 1 : 0,
+    customerPets,
+    reminderBooking,
+    reminderPayment,
+    reminderLatePayment,
+    detailAddresses,
+    telephones: property.telephones,
+    emails: property.emails,
+    messengers: property.messengers,
+    images: property.image
+  });
+};
+
+export const uploadImageCustomer = async (property) => {
+  const fd = new FormData();
+  const url = 'customer/images';
+
+  fd.append('customerId', property.id);
+  setFormDataImage(property.photos, fd);
+
+  return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const exportCustomer = async (param) => {
