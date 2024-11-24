@@ -7,7 +7,7 @@ import { createMessageBackend, detectUserPrivilage } from 'service/service-globa
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import { snackbarSuccess } from 'store/reducers/snackbar';
-import { createCustomer } from 'pages/customer/service';
+import { createCustomer, updateCustomer, uploadImageCustomer } from 'pages/customer/service';
 
 import PropTypes from 'prop-types';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -53,7 +53,9 @@ const CustomerFormHeader = (props) => {
           if (res && res.status === 200) nextProcessSuccess(message);
         };
 
-        await uploadImageCustomer({ image, id }).then(thenUpload).catch(responseError);
+        await uploadImageCustomer({ ...getAllState(), id })
+          .then(thenUpload)
+          .catch(responseError);
       } else {
         nextProcessSuccess(message);
       }
@@ -83,7 +85,6 @@ const CustomerFormHeader = (props) => {
   useEffect(() => {
     let getFirstName = getAllState().firstName;
     let getLocation = getAllState().locationId;
-    // let getNumberId = getAllState().numberId;
     let getCustomerGroupId = getAllState().customerGroupId;
 
     if (!getFirstName || !getLocation || !getCustomerGroupId) {

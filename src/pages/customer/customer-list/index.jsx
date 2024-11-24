@@ -72,9 +72,8 @@ const CustomerList = () => {
         Header: <FormattedMessage id="customer-name" />,
         accessor: 'customerName',
         Cell: (data) => {
-          // const getId = data.row.original.id;
-          // return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
-          return <Link href="#">{data.value}</Link>;
+          const getId = data.row.original.id;
+          return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
         }
       },
       {
@@ -276,7 +275,7 @@ const CustomerList = () => {
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
-              colSpanPagination={8}
+              colSpanPagination={9}
             />
           </Stack>
         </ScrollX>

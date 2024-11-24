@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
-import { defaultCustomerForm, useCustomerFormStore } from './customer-form-store';
+import { defaultCustomerForm, getAllState, useCustomerFormStore } from './customer-form-store';
 
 import TabPanel from 'components/TabPanelC';
 import CustomerFormHeader from './customer-form-header';
@@ -15,6 +15,7 @@ import TabReminders from './tab/tab-reminders';
 import TabPetInformation from './tab/tab-pet-information';
 import TabInformation from './tab/tab-information';
 import {
+  getCustomerDetail,
   getCustomerGroupList,
   getOccupationList,
   getPetCategoryList,
@@ -26,6 +27,8 @@ import {
 import { getDataStaticLocation, getProvinceLocation } from 'pages/location/location-list/detail/service';
 import { getLocationList } from 'service/service-global';
 import { jsonCentralized } from 'utils/func';
+import { getCityList } from 'pages/location/location-list/detail/service';
+import configGlobal from '../../../../config';
 
 const CustomerForm = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -66,7 +69,129 @@ const CustomerForm = () => {
   };
 
   const getDetail = async () => {
-    setCustomerName('');
+    const resp = await getCustomerDetail(id);
+    const getData = resp.data;
+
+    const petCategoryList = getAllState().petCategoryList;
+    const newCustomerPets = getData.customerPets.map((dt) => {
+      let newBirthDateType = (data) => {
+        if (data === 'Birth Date') return 'birthDate';
+        else if (data === 'Month and Year') return 'monthAndYear';
+      };
+
+      return {
+        ...dt,
+        petCategoryId: petCategoryList?.length ? petCategoryList.find((list) => list.value === +dt.petCategoryId) : null,
+        birthDateType: newBirthDateType(dt.isbirthDate),
+        command: '',
+        error: {
+          petNameErr: '',
+          petCategoryErr: '',
+          conditionErr: '',
+          petGenderErr: '',
+          isSterilErr: ''
+        }
+      };
+    });
+
+    const sourceList = getAllState().sourceList;
+    const newReminderBooking = getData.reminderBooking.map((dt) => {
+      return {
+        ...dt,
+        sourceId: sourceList?.length ? sourceList.find((source) => source.value === +dt.sourceId) : null
+      };
+    });
+
+    const newReminderPayment = getData.reminderPayment.map((dt) => {
+      return {
+        ...dt,
+        sourceId: sourceList?.length ? sourceList.find((source) => source.value === +dt.sourceId) : null
+      };
+    });
+
+    const newReminderLatePayment = getData.reminderLatePayment.map((dt) => {
+      return {
+        ...dt,
+        sourceId: sourceList?.length ? sourceList.find((source) => source.value === +dt.sourceId) : null
+      };
+    });
+
+    const detailAddress = [];
+    getData.detailAddresses.forEach(async (dt) => {
+      const setCityList = dt.provinceCode ? await getCityList(+dt.provinceCode) : [];
+
+      detailAddress.push({
+        isPrimary: +dt.isPrimary ? true : false,
+        streetAddress: dt.addressName,
+        additionalInfo: dt.additionalInfo,
+        country: dt.country,
+        province: +dt.provinceCode,
+        city: +dt.cityCode,
+        postalCode: dt.postalCode,
+        cityList: setCityList,
+        error: { streetAddressErr: '', countryErr: '', provinceErr: '', cityErr: '' }
+      });
+    });
+
+    const newTelephone = getData.telephones.map((dt) => {
+      return {
+        ...dt,
+        error: { phoneUsageErr: '', phoneNumberErr: '', phoneTypeErr: '' }
+      };
+    });
+
+    const newEmail = getData.emails.map((dt) => {
+      return {
+        ...dt,
+        error: { emailUsageErr: '', emailAddressErr: '' }
+      };
+    });
+
+    const newMessenger = getData.messengers.map((dt) => {
+      return {
+        ...dt,
+        error: { messengerUsageErr: '', messengerUsageNameErr: '', messengerTypeErr: '' }
+      };
+    });
+
+    const getImage = getData.images?.map((img) => ({
+      ...img,
+      label: img.labelName,
+      imagePath: `${configGlobal.apiUrl}${img.imagePath}`,
+      status: '',
+      selectedFile: null
+    }));
+
+    setCustomerName(`${getData.firstName ?? ''} ${getData.middleName ?? ''} ${getData.lastName ?? ''}`);
+    useCustomerFormStore.setState({
+      memberNo: getData.memberNo,
+      firstName: getData.firstName ?? '',
+      middleName: getData.middleName ?? '',
+      lastName: getData.lastName ?? '',
+      nickName: getData.nickName ?? '',
+      titleCustomerId: +getData.titleCustomerId,
+      customerGroupId: +getData.customerGroupId,
+      locationId: +getData.locationId,
+      notes: getData.notes,
+      gender: getData.gender,
+      joinDate: getData.joinDate,
+      typeId: +getData.typeId,
+      numberId: getData.numberId,
+      occupationId: +getData.occupationId,
+      birthDate: getData.birthDate,
+      referenceCustomerId: +getData.referenceCustomerId,
+      customerPets: newCustomerPets,
+      isReminderBooking: +getData.isReminderBooking ? true : false,
+      isReminderPayment: +getData.isReminderPayment ? true : false,
+      reminderBooking: newReminderBooking,
+      reminderPayment: newReminderPayment,
+      reminderLatePayment: newReminderLatePayment,
+      detailAddresses: detailAddress,
+      telephones: newTelephone,
+      emails: newEmail,
+      messengers: newMessenger,
+      photos: getImage
+    });
   };
 
   const getData = async () => {

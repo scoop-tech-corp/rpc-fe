@@ -49,7 +49,7 @@ export const defaultCustomerForm = {
   reminderPayment: [],
   reminderLatePayment: [],
 
-  detailAddresses: [defaultDetailAddress],
+  detailAddresses: [],
   telephones: [],
   emails: [],
   messengers: [],
