@@ -8,7 +8,7 @@ import AuthGuard from 'utils/route-guard/AuthGuard';
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const Dashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Calendar = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Message = Loadable(lazy(() => import('pages/message')));
 

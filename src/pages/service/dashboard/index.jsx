@@ -6,9 +6,9 @@ import { Stack, useMediaQuery, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import ApexColumnChart from './chart/column';
-import ApexPieChart from './chart/pie';
+import ApexPieChart from 'components/dashboard/pie';
 import TableChart from './chart/table';
-import AnalyticEcommerce from './chart/card';
+import AnalyticEcommerce from 'components/dashboard/card';
 
 const ServiceDataStatic = () => {
   const theme = useTheme();

@@ -106,7 +106,7 @@ const ApexPieChart = () => {
 
   return (
     <div id="chart">
-      <ReactApexChart options={options} series={series} type="pie" />
+      <ReactApexChart options={options} series={series} type="donut" />
     </div>
   );
 };
