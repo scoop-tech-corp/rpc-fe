@@ -3,6 +3,7 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { FormattedMessage } from 'react-intl';
 
 import MainCard from 'components/MainCard';
+import ScrollX from 'components/ScrollX';
 
 const DashboardRecentActivity = () => {
   const columns = useMemo(
@@ -36,7 +37,9 @@ const DashboardRecentActivity = () => {
   return (
     <>
       <MainCard content={true}>
-        <ReactTable columns={columns} data={data} />
+        <ScrollX>
+          <ReactTable columns={columns} data={data} />
+        </ScrollX>
       </MainCard>
     </>
   );

@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 
 import TabPanel from 'components/TabPanelC';
 import MainCard from 'components/MainCard';
+import ScrollX from 'components/ScrollX';
 
 const DashboardUpcomingBooking = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -86,10 +87,14 @@ const DashboardUpcomingBooking = () => {
         </Box>
         <Box sx={{ mt: 2.5 }}>
           <TabPanel value={tabSelected} index={0} name="dashboard-upcoming-booking">
-            <ReactTable columns={columnsTable} data={dataInap} />
+            <ScrollX>
+              <ReactTable columns={columnsTable} data={dataInap} />
+            </ScrollX>
           </TabPanel>
           <TabPanel value={tabSelected} index={1} name="dashboard-upcoming-booking">
-            <ReactTable columns={columnsTable} data={dataJalan} />
+            <ScrollX>
+              <ReactTable columns={columnsTable} data={dataJalan} />
+            </ScrollX>
           </TabPanel>
         </Box>
       </MainCard>
