@@ -1,8 +1,6 @@
 import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import Chart from 'react-apexcharts';
-import NumberFormat from 'react-number-format';
 
 export default function BookingByLocation({ data }) {
   // Dummy data for the table
@@ -121,6 +119,7 @@ export default function BookingByLocation({ data }) {
     return () => {
       chart.destroy();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
