@@ -40,6 +40,8 @@ export default function (getListFunc, initialParams, searchKey, callbackSuccess)
       })
       .catch((error) => {
         setListInfo(() => ({
+          list: [],
+          totalPagination: 0,
           isLoading: false,
           error
         }));

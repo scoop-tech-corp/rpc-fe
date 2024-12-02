@@ -41,6 +41,7 @@ export default function Index() {
   const dispatch = useDispatch();
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, changeLimit } = useGetList(getTreatment, {}, 'search');
+
   const [selectedRow, setSelectedRow] = useState([]);
   const locationList = useTreatmentStore((state) => state.dataSupport.locationList);
   const diagnoseList = useTreatmentStore((state) => state.dataSupport.diagnoseList);
@@ -174,6 +175,7 @@ export default function Index() {
       setDialog(false);
     }
   };
+
   useEffect(() => {
     async function fetchData() {
       useTreatmentStore.setState({
