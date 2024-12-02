@@ -17,6 +17,7 @@ import BookingByDiagnosisList from './section/bookings/by-diagnosis-list';
 import useAuth from 'hooks/useAuth';
 import FilterCustomer from './filter/customer';
 import CustomerGrowth from './section/customer/growth';
+import CustomerGrowthByGroup from './section/customer/growt-by-group';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -95,6 +96,7 @@ export default function Index() {
     if (type === 'booking' && detail === 'by-diagnosis-species-gender') return 'booking-by-diagnosis-species-gender';
 
     if (type === 'customer' && detail === 'growth') return 'customer-growth';
+    if (type === 'customer' && detail === 'growth-by-group') return 'customer-growth-by-group';
 
     return '-';
   };
@@ -115,6 +117,7 @@ export default function Index() {
     if (type === 'booking' && detail === 'by-diagnosis-species-gender') return 'booking-by-diagnosis-species-gender';
 
     if (type === 'customer' && detail === 'growth') return <CustomerGrowth data={[]} />;
+    if (type === 'customer' && detail === 'growth-by-group') return <CustomerGrowthByGroup data={[]} />;
 
     return '';
   };

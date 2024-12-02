@@ -48,7 +48,9 @@ export const list = {
     },
     {
       id: 2,
-      val: 'Growth by group'
+      val: 'Growth by group',
+      url: 'growth-by-group',
+      icon: <PieChartOutlined />
     },
     {
       id: 3,
