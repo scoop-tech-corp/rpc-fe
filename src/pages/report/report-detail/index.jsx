@@ -2,7 +2,7 @@ import { Button, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ExportOutlined } from '@ant-design/icons';
-import { getLocationList, getStaffList, getServiceList } from 'service/service-global';
+import { getLocationList, getStaffList, getServiceList, getCustomerGroupList } from 'service/service-global';
 import { useSearchParams } from 'react-router-dom';
 
 import MainCard from 'components/MainCard';
@@ -83,8 +83,9 @@ export default function Index() {
 
   const getPrepareDataForCustomer = async () => {
     const getLoc = await getLocationList();
+    const getCustomerGroup = await getCustomerGroupList();
 
-    setExtData((prevState) => ({ ...prevState, location: getLoc }));
+    setExtData((prevState) => ({ ...prevState, location: getLoc, customerGroup: getCustomerGroup }));
   };
 
   const getTitle = () => {
