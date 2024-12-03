@@ -54,7 +54,9 @@ export const list = {
     },
     {
       id: 3,
-      val: 'Total'
+      val: 'Total',
+      url: 'total',
+      icon: <LineChartOutlined />
     },
     {
       id: 4,
