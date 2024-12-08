@@ -77,6 +77,10 @@ const CustomerList = () => {
         }
       },
       {
+        Header: <FormattedMessage id="customer-group" />,
+        accessor: 'customerGroup'
+      },
+      {
         Header: <FormattedMessage id="no-member" />,
         accessor: 'memberNo'
       },
