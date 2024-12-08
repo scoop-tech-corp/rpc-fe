@@ -184,3 +184,7 @@
   overflow:unset !important;
   z-index: 0;
 }
+
+.fullWidth {
+  width: 100%;
+}

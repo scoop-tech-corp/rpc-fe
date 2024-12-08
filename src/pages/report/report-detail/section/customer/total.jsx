@@ -1,4 +1,5 @@
 import ReactApexChart from 'react-apexcharts';
+
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';

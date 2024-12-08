@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { ExportOutlined } from '@ant-design/icons';
 import { getLocationList, getStaffList, getServiceList, getCustomerGroupList } from 'service/service-global';
 import { useSearchParams } from 'react-router-dom';
+import { getTypeIdList } from 'pages/customer/service';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -19,6 +20,10 @@ import FilterCustomer from './filter/customer';
 import CustomerGrowth from './section/customer/growth';
 import CustomerGrowthByGroup from './section/customer/growt-by-group';
 import CustomerTotal from './section/customer/total';
+import CustomerLeaving from './section/customer/leaving';
+import CustomerList from './section/customer/list';
+import CustomerReferralSpend from './section/customer/referral-spend';
+import CustomerSubAccountList from './section/customer/sub-account-list';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -32,7 +37,9 @@ export default function Index() {
 
   const [filter, setFilter] = useState(() => {
     if (type === 'booking') return { location: [], staff: [], service: [], category: [], facility: [], date: '' };
-    if (type === 'customer') return { location: [], customerGroup: [], date: '' };
+    if (type === 'customer') {
+      return { location: [], customerGroup: [], date: '', status: '', search: '', gender: '', sterile: '', typeId: [] };
+    }
   });
 
   const checkAccess = (item, title) => {
@@ -86,7 +93,10 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getCustomerGroup = await getCustomerGroupList();
 
-    setExtData((prevState) => ({ ...prevState, location: getLoc, customerGroup: getCustomerGroup }));
+    let getTypeId = [];
+    if (detail === 'list') getTypeId = await getTypeIdList();
+
+    setExtData((prevState) => ({ ...prevState, location: getLoc, customerGroup: getCustomerGroup, typeId: getTypeId }));
   };
 
   const getTitle = () => {
@@ -100,6 +110,10 @@ export default function Index() {
     if (type === 'customer' && detail === 'growth') return 'customer-growth';
     if (type === 'customer' && detail === 'growth-by-group') return 'customer-growth-by-group';
     if (type === 'customer' && detail === 'total') return 'customer-total';
+    if (type === 'customer' && detail === 'leaving') return 'customer-leaving';
+    if (type === 'customer' && detail === 'list') return 'customer-list';
+    if (type === 'customer' && detail === 'referral-spend') return 'customer-referral-spend';
+    if (type === 'customer' && detail === 'sub-account-list') return 'customer-sub-account-list';
 
     return '-';
   };
@@ -122,6 +136,10 @@ export default function Index() {
     if (type === 'customer' && detail === 'growth') return <CustomerGrowth data={[]} />;
     if (type === 'customer' && detail === 'growth-by-group') return <CustomerGrowthByGroup data={[]} />;
     if (type === 'customer' && detail === 'total') return <CustomerTotal data={[]} />;
+    if (type === 'customer' && detail === 'leaving') return <CustomerLeaving data={[]} />;
+    if (type === 'customer' && detail === 'list') return <CustomerList data={[]} />;
+    if (type === 'customer' && detail === 'referral-spend') return <CustomerReferralSpend data={[]} />;
+    if (type === 'customer' && detail === 'sub-account-list') return <CustomerSubAccountList data={[]} />;
 
     return '';
   };

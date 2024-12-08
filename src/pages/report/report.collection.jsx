@@ -60,21 +60,23 @@ export const list = {
     },
     {
       id: 4,
-      val: 'Leaving'
+      val: 'Leaving',
+      url: 'leaving',
+      icon: <UnorderedListOutlined />
     },
     {
       id: 5,
-      val: 'List'
+      val: 'List',
+      url: 'list',
+      icon: <UnorderedListOutlined />
     },
     {
       id: 6,
-      val: 'Credit balance'
+      val: 'Referral Spend',
+      url: 'referral-spend',
+      icon: <UnorderedListOutlined />
     },
-    { id: 7, val: 'Customer support' },
-    {
-      id: 8,
-      val: 'Customer letters'
-    }
+    { id: 7, val: 'Sub Account List', url: 'sub-account-list', icon: <UnorderedListOutlined /> }
   ],
   deposit: [
     { id: 1, val: 'Summary' },
