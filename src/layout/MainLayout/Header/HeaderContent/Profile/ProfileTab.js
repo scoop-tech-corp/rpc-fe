@@ -32,7 +32,7 @@ const ProfileTab = ({ handleLogout }) => {
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
       {get_profile_menu.map((dt, i) => (
-        <ListItemButton key={i} selected={selectedIndex === i} onClick={(_) => onClickProfile(dt, i)}>
+        <ListItemButton key={i} selected={selectedIndex === i} onClick={() => onClickProfile(dt, i)}>
           <ListItemIcon>{dt.icon}</ListItemIcon>
           <ListItemText primary={<FormattedMessage id={dt.title} />} />
         </ListItemButton>

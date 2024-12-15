@@ -152,7 +152,7 @@ export default function FilterCustomer({ extData, filter, setFilter }) {
                   value={filter?.typeId}
                   key={'filter-typeId'}
                   selectAllLabel="Select All"
-                  onChange={(val) => setFilter((e) => ({ ...e, customerGroup: val }))}
+                  onChange={(val) => setFilter((e) => ({ ...e, typeId: val }))}
                   isReset={isReset}
                   setIsReset={setIsReset}
                   label={<FormattedMessage id="id-type" />}
@@ -170,7 +170,7 @@ export default function FilterCustomer({ extData, filter, setFilter }) {
                 fullWidth={true}
                 startIcon={<UndoOutlined />}
                 onClick={() => {
-                  setFilter(() => ({ location: [], customerGroup: [], date: '', status: '', search: '', gender: '', typeId: null }));
+                  setFilter(() => ({ location: [], customerGroup: [], date: '', status: '', search: '', gender: '', typeId: [] }));
                   setIsReset(true);
                 }}
               >

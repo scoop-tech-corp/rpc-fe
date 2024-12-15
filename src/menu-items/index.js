@@ -39,6 +39,7 @@ import HouseIcon from '@mui/icons-material/House';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccessibilityNewOutlinedIcon from '@mui/icons-material/AccessibilityNewOutlined';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import customerMenu from './menu-customer';
 import staffMenu from './menu-staff';
@@ -85,7 +86,8 @@ const icons = {
   LocalShippingIcon,
   HouseIcon,
   RequestQuoteIcon,
-  AddShoppingCartIcon
+  AddShoppingCartIcon,
+  ReceiptIcon
 };
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -110,6 +112,13 @@ const menuItems = {
           type: 'item',
           url: '/calendar',
           icon: icons.CalendarOutlined
+        },
+        {
+          id: 'transaction-menu',
+          title: <FormattedMessage id="transaction" />,
+          type: 'item',
+          url: '/transaction',
+          icon: icons.ReceiptIcon
         },
         {
           id: 'message-menu',

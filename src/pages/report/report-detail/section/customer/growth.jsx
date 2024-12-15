@@ -1,49 +1,34 @@
 import ReactApexChart from 'react-apexcharts';
+
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export default function CustomerGrowth({ data }) {
+export default function CustomerGrowth({ data, setFilter }) {
+  const chartsData = data?.charts;
+  const tablesData = data?.table;
+
   // Create the chart options using dummyChartData
-  const series = [
-    {
-      name: 'RPC Bandung',
-      data: [10, 10, 10, 10, 30, 20]
-    },
-    {
-      name: 'RPC Condet',
-      data: [20, 40, 20, 10, 80, 30]
-    }
-  ];
+  // const series = [
+  //   {
+  //     name: 'RPC Bandung',
+  //     data: [10, 10, 10, 10, 30, 20]
+  //   },
+  //   {
+  //     name: 'RPC Condet',
+  //     data: [20, 40, 20, 10, 80, 30]
+  //   }
+  // ];
   const options = {
     chart: {
       type: 'line',
-      dropShadow: {
-        enabled: true,
-        color: '#000',
-        top: 18,
-        left: 7,
-        blur: 10,
-        opacity: 0.2
-      },
-      zoom: {
-        enabled: false
-      },
-      toolbar: {
-        show: false
-      }
+      dropShadow: { enabled: true, color: '#000', top: 18, left: 7, blur: 10, opacity: 0.2 },
+      zoom: { enabled: false },
+      toolbar: { show: false }
     },
-    colors: ['#77B6EA', '#545454'],
-    dataLabels: {
-      enabled: true
-    },
-    stroke: {
-      curve: 'smooth'
-    },
-    title: {
-      text: '',
-      align: 'left'
-    },
+    dataLabels: { enabled: true },
+    stroke: { curve: 'smooth' },
+    title: { text: '', align: 'left' },
     grid: {
       borderColor: '#e7e7e7',
       row: {
@@ -51,25 +36,13 @@ export default function CustomerGrowth({ data }) {
         opacity: 0.5
       }
     },
-    markers: {
-      size: 1
-    },
+    markers: { size: 1 },
     xaxis: {
-      categories: ['1 May', '2 May', '3 May', '4 May', '5 May', '6 May'],
-      title: {
-        text: ''
-      }
+      categories: chartsData?.categories || [],
+      title: { text: '' }
     },
-    yaxis: {
-      title: {
-        text: ''
-      }
-    },
-    legend: {
-      position: 'bottom',
-      horizontalAlign: 'center',
-      floating: false
-    }
+    yaxis: { title: { text: '' } },
+    legend: { position: 'bottom', horizontalAlign: 'center', floating: false }
   };
 
   const tableColumns = useMemo(
@@ -85,38 +58,23 @@ export default function CustomerGrowth({ data }) {
     []
   );
 
-  const tableData = useMemo(
-    () => [
-      {
-        location: 'RPC Condet',
-        new: 200,
-        inactive: 250,
-        deleted: 0
-      },
-      {
-        location: 'RPC Bandung',
-        new: 300,
-        inactive: 350,
-        deleted: 0
-      }
-    ],
-    []
-  );
-
   return (
     <>
       <div style={{ marginBottom: 20 }}>
-        <ReactApexChart options={options} series={series} type="line" height={350} />
+        <ReactApexChart options={options} series={chartsData?.series || []} type="line" height={350} />
       </div>
       <ReactTable
         columns={tableColumns}
+        onOrder={(event) => {
+          setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
+        }}
         data={[
-          ...tableData,
+          ...(tablesData?.data || []),
           {
             location: <strong>Total</strong>,
-            new: <strong>500</strong>,
-            inactive: <strong>600</strong>,
-            deleted: <strong>0</strong>
+            new: <strong>{tablesData?.totalData.new || 0}</strong>,
+            inactive: <strong>{tablesData?.totalData.inactive || 0}</strong>,
+            deleted: <strong>{tablesData?.totalData.deleted || 0}</strong>
           }
         ]}
       />

@@ -1,44 +1,46 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { FormattedMessage } from 'react-intl';
+import { getDashboardRecentActivity } from '../service';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 
 const DashboardRecentActivity = () => {
+  const [recentActivityData, setRecentActivityData] = useState({ data: [], totalPagination: 0 });
+
   const columns = useMemo(
     () => [
       { Header: <FormattedMessage id="date" />, accessor: 'date', isNotSorting: true },
       { Header: <FormattedMessage id="staff" />, accessor: 'staff', isNotSorting: true },
       { Header: <FormattedMessage id="module" />, accessor: 'module', isNotSorting: true },
       { Header: <FormattedMessage id="event" />, accessor: 'event', isNotSorting: true },
-      { Header: <FormattedMessage id="detail" />, accessor: 'detail', isNotSorting: true }
+      { Header: <FormattedMessage id="details" />, accessor: 'detail', isNotSorting: true }
     ],
     []
   );
 
-  const data = [
-    {
-      date: '19 Nov, 2022 12:00 AM',
-      staff: 'Junaidi',
-      module: 'Booking',
-      event: 'Change Data',
-      detail: 'Change data booking'
-    },
-    {
-      date: '22 Dec, 2024 12:00 AM',
-      staff: 'Junaidi 2',
-      module: 'Booking',
-      event: 'Change Data',
-      detail: 'Change data booking'
-    }
-  ];
+  const fetchData = async () => {
+    await getDashboardRecentActivity()
+      .then((resp) => {
+        setRecentActivityData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+      })
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <>
       <MainCard content={true}>
         <ScrollX>
-          <ReactTable columns={columns} data={data} />
+          <ReactTable columns={columns} data={recentActivityData.data} totalPagination={recentActivityData.totalPagination} />
         </ScrollX>
       </MainCard>
     </>

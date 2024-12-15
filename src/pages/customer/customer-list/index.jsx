@@ -29,10 +29,10 @@ let paramCustomerList = {};
 const CustomerList = () => {
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('md'));
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
   const intl = useIntl();
   const roleCanExport = ['administrator', 'office'];
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [getCustomerListData, setCustomerListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -279,7 +279,7 @@ const CustomerList = () => {
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
-              colSpanPagination={9}
+              colSpanPagination={10}
             />
           </ScrollX>
         </Stack>

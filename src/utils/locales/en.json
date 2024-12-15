@@ -445,6 +445,7 @@
   "message": "Message",
   "middle-name": "Middle Name",
   "middle-name-minimum-3-char-and-max-20-char": "Middle Name minimum 3 characters and maximum 20 characters",
+  "module": "Module",
   "modal": "Modal",
   "monday": "Monday",
   "month-and-year": "Month and Year",

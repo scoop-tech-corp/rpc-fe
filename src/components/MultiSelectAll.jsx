@@ -12,6 +12,7 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, labe
 
   useEffect(() => {
     onChange ? onChange(selectedOptions) : '';
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOptions]);
 
   useEffect(() => {

@@ -8,9 +8,10 @@ const OffCanvas = (props) => {
     setShow(isOpen);
   }, [isOpen]);
 
-  const toggleOffCanvas = () => {
-    setShow(!show);
-  };
+  // const toggleOffCanvas = () => {
+  //   setShow(!show);
+  // };
+
   return (
     <div className={`offcanvas-container ${!show && 'hidden'}`}>
       <div className={`offcanvas offcanvas-first offcanvas-start ${show ? 'show' : ''}`} tabIndex="-1" aria-labelledby={`${title}Label`}>

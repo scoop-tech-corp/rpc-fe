@@ -8,7 +8,6 @@ import { Box, Chip, Drawer, InputAdornment, OutlinedInput, Stack, Typography, us
 // project imports
 import UserList from './UserList';
 import MainCard from 'components/MainCard';
-import useAuth from 'hooks/useAuth';
 import SimpleBar from 'components/third-party/SimpleBar';
 // assets
 import { SearchOutlined } from '@ant-design/icons';
@@ -17,13 +16,12 @@ import { SearchOutlined } from '@ant-design/icons';
 
 function ChatDrawer({ handleDrawerOpen, openChatDrawer, setUser, loginUser, listUser, userLogin }) {
   const theme = useTheme();
-  const { user } = useAuth();
 
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const drawerBG = theme.palette.mode === 'dark' ? 'dark.main' : 'white';
 
   // show menu to set current user status
-  const [anchorEl, setAnchorEl] = useState();
+  // const [anchorEl, setAnchorEl] = useState();
 
   const [search, setSearch] = useState('');
   const handleSearch = async (event) => {

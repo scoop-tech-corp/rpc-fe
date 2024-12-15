@@ -1,48 +1,22 @@
 import ScrollX from 'components/ScrollX';
+
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export default function CustomerReferralSpend({ data }) {
+export default function CustomerReferralSpend({ data, setFilter }) {
+  const tablesData = data?.data;
+  const totalPagination = data?.totalPagination;
+
   const tableColumns = useMemo(
     () => [
       {
         Header: <FormattedMessage id="referred-by" />,
-        accessor: 'referred_by'
+        accessor: 'referenceBy'
       },
-      { Header: <FormattedMessage id="referrer" />, accessor: 'referrer' },
+      { Header: <FormattedMessage id="referrer" />, accessor: 'reference' },
       { Header: <FormattedMessage id="customer" />, accessor: 'customer' },
-      { Header: <FormattedMessage id="total-spend-rp" />, accessor: 'total_spend' }
-    ],
-    []
-  );
-
-  const tableData = useMemo(
-    () => [
-      {
-        referred_by: 'Other',
-        referrer: 'Langsung Datang',
-        customer: 'Budi',
-        total_spend: '290,000'
-      },
-      {
-        referred_by: 'Other',
-        referrer: 'Langsung Datang',
-        customer: 'Agus',
-        total_spend: '290,000'
-      },
-      {
-        referred_by: 'Other',
-        referrer: 'Langsung Datang',
-        customer: 'Susi',
-        total_spend: '290,000'
-      },
-      {
-        referred_by: 'Other',
-        referrer: 'Langsung Datang',
-        customer: 'Tina',
-        total_spend: '290,000'
-      },
+      { Header: <FormattedMessage id="total-spend-rp" />, accessor: 'totalSpend' }
     ],
     []
   );
@@ -50,7 +24,14 @@ export default function CustomerReferralSpend({ data }) {
   return (
     <>
       <ScrollX>
-        <ReactTable columns={tableColumns} data={tableData} />
+        <ReactTable
+          columns={tableColumns}
+          data={tablesData || []}
+          totalPagination={totalPagination || 0}
+          onOrder={(event) => {
+            setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
+          }}
+        />
       </ScrollX>
     </>
   );

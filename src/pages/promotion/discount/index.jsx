@@ -24,7 +24,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
-import useAuth from 'hooks/useAuth';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 let paramPromoDiscountList = {};
@@ -34,7 +33,6 @@ const PromotionDiscount = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const intl = useIntl();
-  const { user } = useAuth();
 
   const [openDetail, setOpenDetail] = useState({ isOpen: false, data: null });
   const [promoDiscountData, setPromoDiscountData] = useState({ data: [], totalPagination: 0 });

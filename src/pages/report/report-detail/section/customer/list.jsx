@@ -4,12 +4,15 @@ import { FormattedMessage } from 'react-intl';
 
 import ScrollX from 'components/ScrollX';
 
-export default function CustomerList({ data }) {
+export default function CustomerList({ data, setFilter }) {
+  const tablesData = data?.data;
+  const totalPagination = data?.totalPagination;
+
   const tableColumns = useMemo(
     () => [
       {
         Header: <FormattedMessage id="no-member" />,
-        accessor: 'member_no'
+        accessor: 'memberNo'
       },
       { Header: <FormattedMessage id="name" />, accessor: 'name' },
       { Header: <FormattedMessage id="location" />, accessor: 'location' },
@@ -21,61 +24,17 @@ export default function CustomerList({ data }) {
     []
   );
 
-  const tableData = useMemo(
-    () => [
-      {
-        member_no: 'RPC 123',
-        name: 'Budi',
-        location: 'RPC Condet',
-        status: 'Active',
-        gender: 'Male',
-        telephone: '081123123321',
-        email: 'test@gmail.com'
-      },
-      {
-        member_no: 'RPC 123',
-        name: 'Tono',
-        location: 'RPC Condet',
-        status: 'Active',
-        gender: 'Male',
-        telephone: '081123123321',
-        email: 'test@gmail.com'
-      },
-      {
-        member_no: 'RPC 123',
-        name: 'Susi',
-        location: 'RPC Condet',
-        status: 'Active',
-        gender: 'Female',
-        telephone: '081123123321',
-        email: 'test@gmail.com'
-      },
-      {
-        member_no: 'RPC 123',
-        name: 'Agus',
-        location: 'RPC Condet',
-        status: 'Active',
-        gender: 'Male',
-        telephone: '081123123321',
-        email: 'test@gmail.com'
-      },
-      {
-        member_no: 'RPC 123',
-        name: 'Joko',
-        location: 'RPC Condet',
-        status: 'Active',
-        gender: 'Male',
-        telephone: '081123123321',
-        email: 'test@gmail.com'
-      }
-    ],
-    []
-  );
-
   return (
     <>
       <ScrollX>
-        <ReactTable columns={tableColumns} data={tableData} />
+        <ReactTable
+          columns={tableColumns}
+          data={tablesData || []}
+          totalPagination={totalPagination || 0}
+          onOrder={(event) => {
+            setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
+          }}
+        />
       </ScrollX>
     </>
   );

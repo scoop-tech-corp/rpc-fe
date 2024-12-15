@@ -1,6 +1,7 @@
 import { setFormDataImage } from 'service/service-global';
-import axios from 'utils/axios';
 import { formateDateYYYMMDD, jsonCentralized } from 'utils/func';
+
+import axios from 'utils/axios';
 
 export const getCustomerList = async (property) => {
   return await axios.get('customer', {
