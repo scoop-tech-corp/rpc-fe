@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, Stack, useMediaQuery, Link } from '@mui/material';
+import { Button, Stack, useMediaQuery, Link, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
@@ -39,11 +39,12 @@ export default function Index() {
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getServiceList,
-    {},
+    { type: '' },
     'search'
   );
   const [modalImport, setModalImport] = useState(false);
   const [selectedRow, setSelectedRow] = useState([]);
+  const [selectedFilterType, setFilterType] = useState('');
   const [dialog, setDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null, categoryName: '' });
 
@@ -189,6 +190,31 @@ export default function Index() {
                   setGlobalFilter={changeKeyword}
                   style={{ height: '41.3px' }}
                 />
+                <FormControl style={{ width: '250px' }}>
+                  <InputLabel>
+                    <FormattedMessage id="select-type" />
+                  </InputLabel>
+                  <Select
+                    id="filter-type"
+                    name="filter-type"
+                    value={selectedFilterType}
+                    onChange={(event) => {
+                      setFilterType(event.target.value);
+                      setParams((_params) => ({ ..._params, type: event.target.value }));
+                    }}
+                    placeholder="Select type"
+                  >
+                    <MenuItem value="">
+                      <em>
+                        <FormattedMessage id="select-type" />
+                      </em>
+                    </MenuItem>
+                    <MenuItem value={1}>Pet Clinic</MenuItem>
+                    <MenuItem value={2}>Pet Hotel</MenuItem>
+                    <MenuItem value={3}>Pet Salon</MenuItem>
+                    <MenuItem value={4}>Pacak</MenuItem>
+                  </Select>
+                </FormControl>
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
                     <FormattedMessage id="delete" />

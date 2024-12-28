@@ -644,6 +644,7 @@
   "select-month": "Select Month",
   "select-status": "Select status",
   "select-stock": "Select stock",
+  "select-type": "Select Type",
   "select-location-type": "Select location type",
   "selling-location": "Selling Location",
   "selling-location-is-required": "Selling location is required",
