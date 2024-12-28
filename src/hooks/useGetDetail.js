@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function (getDetailFunc, key, id, resultKey = 'data', handleSuccess = () => {}, handleError = () => {}) {
+export default function (getDetailFunc, key, id, handleSuccess = () => {}, handleError = () => {}) {
   const [detail, setDetail] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,6 +23,7 @@ export default function (getDetailFunc, key, id, resultKey = 'data', handleSucce
           });
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, detail?.reload, reload]);
   return { detail, setDetail, isLoading, setReload };
 }

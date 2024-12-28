@@ -29,7 +29,7 @@ let paramStaffList = {};
 
 const StaffList = () => {
   const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
+  const matchDownMD = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const intl = useIntl();
@@ -237,53 +237,53 @@ const StaffList = () => {
     <>
       <HeaderPageCustom title={<FormattedMessage id="staff-list" />} isBreadcrumb={true} />
       <MainCard content={false}>
-        <ScrollX>
-          <Stack spacing={3}>
-            <Stack
-              direction={matchDownSM ? 'column' : 'row'}
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <GlobalFilter
-                  placeHolder={intl.formatMessage({ id: 'search' })}
-                  globalFilter={keywordSearch}
-                  setGlobalFilter={onSearch}
-                  style={{ height: '41.3px' }}
-                />
-                <Autocomplete
-                  id="filterLocation"
-                  multiple
-                  options={facilityLocationList}
-                  value={selectedFilterLocation}
-                  sx={{ width: 300 }}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, value) => onFilterLocation(value)}
-                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                />
-                {selectedRow.length > 0 && (
-                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
-                    <FormattedMessage id="delete" />
-                  </Button>
-                )}
-              </Stack>
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
-                  <RefreshIcon />
-                </IconButton>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
+        <Stack spacing={3}>
+          <Stack
+            direction={matchDownMD ? 'column' : 'row'}
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={1}
+            sx={{ p: 3, pb: 0 }}
+          >
+            <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+              <GlobalFilter
+                placeHolder={intl.formatMessage({ id: 'search' })}
+                globalFilter={keywordSearch}
+                setGlobalFilter={onSearch}
+                style={{ height: '41.3px' }}
+              />
+              <Autocomplete
+                id="filterLocation"
+                multiple
+                options={facilityLocationList}
+                value={selectedFilterLocation}
+                sx={{ width: 300 }}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => onFilterLocation(value)}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+              />
+              {selectedRow.length > 0 && (
+                <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                  <FormattedMessage id="delete" />
                 </Button>
-                <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)} color="primary">
-                  <FormattedMessage id="import" />
-                </Button>
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="staff" />
-                </Button>
-              </Stack>
+              )}
             </Stack>
+            <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+              <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
+                <RefreshIcon />
+              </IconButton>
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                <FormattedMessage id="export" />
+              </Button>
+              <Button variant="contained" startIcon={<FileUploadIcon />} onClick={() => setModalImport(true)} color="primary">
+                <FormattedMessage id="import" />
+              </Button>
+              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                <FormattedMessage id="staff" />
+              </Button>
+            </Stack>
+          </Stack>
+          <ScrollX>
             <ReactTable
               columns={columns}
               data={getStaffListData.data}
@@ -295,8 +295,8 @@ const StaffList = () => {
               onPageSize={onPageSizeChange}
               colSpanPagination={9}
             />
-          </Stack>
-        </ScrollX>
+          </ScrollX>
+        </Stack>
       </MainCard>
       <ConfirmationC
         open={dialog}

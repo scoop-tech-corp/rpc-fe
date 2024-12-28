@@ -9,10 +9,17 @@ import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactT
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
-import { createMessageBackend, detectUserPrivilage, getLocationList, processDownloadExcel } from 'service/service-global';
+import {
+  createMessageBackend,
+  detectUserPrivilage,
+  getCustomerGroupList,
+  getLocationList,
+  processDownloadExcel
+} from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { GlobalFilter } from 'utils/react-table';
 import { getCustomerList, deleteCustomerList, exportCustomer } from '../service';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
@@ -28,17 +35,19 @@ let paramCustomerList = {};
 
 const CustomerList = () => {
   const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const matchDownMD = useMediaQuery(theme.breakpoints.down('md'));
   const intl = useIntl();
   const roleCanExport = ['administrator', 'office'];
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [getCustomerListData, setCustomerListData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
+  const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
+  const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const { user } = useAuth();
   const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
@@ -75,6 +84,10 @@ const CustomerList = () => {
           const getId = data.row.original.id;
           return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
         }
+      },
+      {
+        Header: <FormattedMessage id="customer-group" />,
+        accessor: 'customerGroup'
       },
       {
         Header: <FormattedMessage id="no-member" />,
@@ -176,12 +189,21 @@ const CustomerList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramCustomerList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [] };
+    paramCustomerList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [], customerGroupId: [] };
   };
 
-  const getDataFacilityLocation = async () => {
+  const getDropdownData = async () => {
+    loaderService.setManualLoader(true);
+    loaderGlobalConfig.setLoader(true);
+
     const data = await getLocationList();
+    const getCustomerGroup = await getCustomerGroupList();
+
     setFacilityLocationList(data);
+    setFilterCustomerGroupList(getCustomerGroup);
+
+    loaderGlobalConfig.setLoader(false);
+    loaderService.setManualLoader(false);
   };
 
   const onConfirm = async (value) => {
@@ -208,7 +230,7 @@ const CustomerList = () => {
   const onRefresh = () => fetchData();
 
   useEffect(() => {
-    getDataFacilityLocation();
+    getDropdownData();
     clearParamFetchData();
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -218,54 +240,70 @@ const CustomerList = () => {
     <>
       <HeaderPageCustom title={<FormattedMessage id="customer-list" />} isBreadcrumb={true} />
       <MainCard content={false}>
-        <ScrollX>
-          <Stack spacing={3}>
-            <Stack
-              direction={matchDownSM ? 'column' : 'row'}
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <GlobalFilter
-                  placeHolder={intl.formatMessage({ id: 'search' })}
-                  globalFilter={keywordSearch}
-                  setGlobalFilter={onSearch}
-                  style={{ height: '41.3px' }}
-                />
-                <Autocomplete
-                  id="filterLocation"
-                  multiple
-                  options={facilityLocationList}
-                  value={selectedFilterLocation}
-                  sx={{ width: 300 }}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, value) => onFilterLocation(value)}
-                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                />
-                {selectedRow.length > 0 && (
-                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
-                    <FormattedMessage id="delete" />
-                  </Button>
-                )}
-              </Stack>
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
-                  <RefreshIcon />
-                </IconButton>
-                {roleCanExport.includes(user?.role) && (
-                  <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                    <FormattedMessage id="export" />
-                  </Button>
-                )}
-                {[2, 4].includes(userPrivilage) && (
-                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                    <FormattedMessage id="new" />
-                  </Button>
-                )}
-              </Stack>
+        <Stack spacing={3}>
+          <Stack
+            direction={matchDownMD ? 'column' : 'row'}
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={1}
+            sx={{ p: 3, pb: 0 }}
+          >
+            <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+              <GlobalFilter
+                placeHolder={intl.formatMessage({ id: 'search' })}
+                globalFilter={keywordSearch}
+                setGlobalFilter={onSearch}
+                style={{ height: '41.3px' }}
+              />
+              <Autocomplete
+                id="filterLocation"
+                multiple
+                limitTags={1}
+                options={facilityLocationList}
+                value={selectedFilterLocation}
+                sx={{ width: 350 }}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => onFilterLocation(value)}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+              />
+              <Autocomplete
+                id="filter-customer-group"
+                multiple
+                limitTags={1}
+                options={filterCustomerGroupList}
+                value={selectedFilterCustomerGroup}
+                sx={{ width: 350 }}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, selected) => {
+                  paramCustomerList.customerGroupId = selected.map((dt) => dt.value);
+                  setFilterCustomerGroup(selected);
+                  fetchData();
+                }}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="customer-group" />} />}
+              />
+              {selectedRow.length > 0 && (
+                <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                  <FormattedMessage id="delete" />
+                </Button>
+              )}
             </Stack>
+            <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+              <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
+                <RefreshIcon />
+              </IconButton>
+              {roleCanExport.includes(user?.role) && (
+                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                  <FormattedMessage id="export" />
+                </Button>
+              )}
+              {[2, 4].includes(userPrivilage) && (
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="new" />
+                </Button>
+              )}
+            </Stack>
+          </Stack>
+          <ScrollX>
             <ReactTable
               columns={columns}
               data={getCustomerListData.data}
@@ -275,10 +313,10 @@ const CustomerList = () => {
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
-              colSpanPagination={9}
+              colSpanPagination={10}
             />
-          </Stack>
-        </ScrollX>
+          </ScrollX>
+        </Stack>
       </MainCard>
       <ConfirmationC
         open={dialog}

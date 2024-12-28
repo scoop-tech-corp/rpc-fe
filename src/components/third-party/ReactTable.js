@@ -11,6 +11,7 @@ import { styled as styledMaterial, useTheme, alpha } from '@mui/material/styles'
 // react-table
 import { useTable, useRowSelect } from 'react-table';
 // import styled from 'styled-components';
+import './ReactTable.css';
 
 import {
   Box,

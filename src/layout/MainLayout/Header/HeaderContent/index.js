@@ -17,6 +17,7 @@ import ProductRestockQuickAccessApproval from 'pages/product/restock/approval/qu
 
 // import Message from './Message';
 // import Notification from './Notification';
+import Reminder from './Reminder';
 // import MegaMenuSection from './MegaMenuSection';
 
 // ==============================|| HEADER - CONTENT ||============================== //
@@ -48,6 +49,7 @@ const HeaderContent = () => {
       {/* {!matchesXs && localization} */}
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
       {localization}
+      <Reminder />
       {/* <Notification /> */}
       {/* <Message /> */}
       <Profile />

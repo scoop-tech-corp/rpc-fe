@@ -39,7 +39,7 @@ function createSocketConnectionOnce() {
   }
 }
 
-export const useSocket = ({ type, callBack, userId, openId, listUser }) => {
+export const useSocket = ({ type, callBack, userId }) => {
   useEffect(() => {
     createSocketConnectionOnce();
     let cleanUpFunction;
@@ -62,5 +62,6 @@ export const useSocket = ({ type, callBack, userId, openId, listUser }) => {
     }
 
     return cleanUpFunction;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]); // Add an empty dependency array to ensure this effect runs only once
 };

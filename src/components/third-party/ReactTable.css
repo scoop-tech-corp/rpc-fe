@@ -1,0 +1,5 @@
+@media only screen and (max-width: 768px) {
+  .MuiTableCell-head, .MuiTableCell-body {
+    white-space: nowrap;
+  }
+}

@@ -113,8 +113,8 @@ const StaffScheduleForm = (props) => {
               <IconButton size="large" color="error" onClick={() => onDeleteDetailSchedule()} disabled={rowData.editMode}>
                 <DeleteFilled />
               </IconButton>
-            )
-          }
+            );
+          };
 
           return (
             <>
@@ -401,7 +401,8 @@ const StaffScheduleForm = (props) => {
     if (!formValue.masterMenuId) masterMenuErr = <FormattedMessage id="master-menu-is-required" />;
     if (!formValue.menuListId) menuErr = <FormattedMessage id="menu-is-required" />;
     if (!formValue.accessTypeId) typeAccessErr = <FormattedMessage id="type-access-is-required" />;
-    if (!formValue.giveAccessNow && typeof formValue.giveAccessNow !== 'number') giveAccessErr = <FormattedMessage id="give-access-now-is-required" />;
+    if (!formValue.giveAccessNow && typeof formValue.giveAccessNow !== 'number')
+      giveAccessErr = <FormattedMessage id="give-access-now-is-required" />;
     if (!formValue.startTime && !props.data) startTimeErr = <FormattedMessage id="start-time-is-required" />;
     if (!formValue.endTime && !props.data) endTimeErr = <FormattedMessage id="end-time-is-required" />;
 

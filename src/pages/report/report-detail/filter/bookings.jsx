@@ -1,31 +1,31 @@
 import { useTheme } from '@mui/material/styles';
 import { Button, Stack, useMediaQuery } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { AlignCenterOutlined, UndoOutlined } from '@ant-design/icons';
+import { getFacilityByLocationList } from 'service/service-global';
 
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
-import { AlignCenterOutlined, UndoOutlined } from '@ant-design/icons';
 import MultiSelectAll from 'components/MultiSelectAll';
 import useGetList from 'hooks/useGetList';
-import { getFacilityByLocationList } from 'service/service-global';
 
 export default function FilterBooking({ extData, filter, setFilter }) {
   const theme = useTheme();
   const [isReset, setIsReset] = useState(false);
-  const MockServiceDropdownList = [
-    { label: 'w', value: 28 },
-    { label: 'Scalling Anjing Extra Care1', value: 27 },
-    { label: 'Operasi Pyometria', value: 26 },
-    { label: 'coba input service', value: 23 },
-    { label: 'Infus NACL', value: 16 },
-    { label: 'Nebu Ventolin', value: 15 },
-    { label: 'Scalling Anjing Extra Care', value: 14 },
-    { label: 'Scalling Anjing', value: 12 },
-    { label: 'Klinik Virus', value: 11 },
-    { label: 'Klinik Untuk Melahirkan', value: 10 },
-    { label: 'Titip Sehat', value: 9 },
-    { label: 'Grooming Anjing', value: 6 }
-  ];
+  // const MockServiceDropdownList = [
+  //   { label: 'w', value: 28 },
+  //   { label: 'Scalling Anjing Extra Care1', value: 27 },
+  //   { label: 'Operasi Pyometria', value: 26 },
+  //   { label: 'coba input service', value: 23 },
+  //   { label: 'Infus NACL', value: 16 },
+  //   { label: 'Nebu Ventolin', value: 15 },
+  //   { label: 'Scalling Anjing Extra Care', value: 14 },
+  //   { label: 'Scalling Anjing', value: 12 },
+  //   { label: 'Klinik Virus', value: 11 },
+  //   { label: 'Klinik Untuk Melahirkan', value: 10 },
+  //   { label: 'Titip Sehat', value: 9 },
+  //   { label: 'Grooming Anjing', value: 6 }
+  // ];
 
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const facilityList = useGetList(getFacilityByLocationList, {
@@ -39,6 +39,7 @@ export default function FilterBooking({ extData, filter, setFilter }) {
       disabled: filter.location.length === 0,
       locationId: '[' + filter.location.map((item) => item.value).join(',') + ']'
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.location]);
 
   return (

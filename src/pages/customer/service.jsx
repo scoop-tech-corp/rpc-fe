@@ -1,6 +1,7 @@
 import { setFormDataImage } from 'service/service-global';
-import axios from 'utils/axios';
 import { formateDateYYYMMDD, jsonCentralized } from 'utils/func';
+
+import axios from 'utils/axios';
 
 export const getCustomerList = async (property) => {
   return await axios.get('customer', {
@@ -10,7 +11,8 @@ export const getCustomerList = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      locationId: property.locationId
+      locationId: property.locationId,
+      customerGroupId: property.customerGroupId
     }
   });
 };
@@ -18,6 +20,16 @@ export const getCustomerList = async (property) => {
 export const getCustomerDetail = async (id) => {
   return await axios.get('customer/detail', {
     params: { customerId: id }
+  });
+};
+
+export const getCustomerPetList = async (id) => {
+  const getResp = await axios.get('customer/petlist', {
+    params: { customerId: id }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.petName, value: +dt.id };
   });
 };
 
