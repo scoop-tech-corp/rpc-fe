@@ -8,6 +8,7 @@ import { AppBar, Box, ClickAwayListener, Paper, Popper, Toolbar } from '@mui/mat
 import Search from './Search';
 import Profile from './Profile';
 import Localization from './Localization';
+import Reminder from './Reminder';
 import IconButton from 'components/@extended/IconButton';
 import Transitions from 'components/@extended/Transitions';
 
@@ -90,6 +91,7 @@ const MobileSection = () => {
                   <Toolbar>
                     <Search />
                     <Localization />
+                    <Reminder />
                     <Profile />
                   </Toolbar>
                 </AppBar>

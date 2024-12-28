@@ -22,15 +22,7 @@ import SimpleBar from 'components/third-party/SimpleBar';
 import { openSnackbar, snackbarError } from 'store/reducers/snackbar';
 
 // assets
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  PaperClipOutlined,
-  PictureOutlined,
-  SendOutlined,
-  SmileOutlined,
-  SoundOutlined
-} from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, PictureOutlined, SendOutlined, SmileOutlined } from '@ant-design/icons';
 
 import { useSocket } from 'hooks/useSocket';
 import useAuth from 'hooks/useAuth';
@@ -240,6 +232,7 @@ const Chat = () => {
         setListUser(listUserWIthoutUserId);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
