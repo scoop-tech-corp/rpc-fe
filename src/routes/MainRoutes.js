@@ -10,6 +10,7 @@ import AuthGuard from 'utils/route-guard/AuthGuard';
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Calendar = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const Transaction = Loadable(lazy(() => import('pages/transaction')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
 // Customer
@@ -116,6 +117,7 @@ const MainRoutes = {
       children: [
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'calendar', element: <Calendar /> },
+        { path: 'transaction', element: <Transaction /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },

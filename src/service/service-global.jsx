@@ -13,6 +13,27 @@ export const getStaffList = async () => {
     return { label: dt.fullName, value: +dt.id };
   });
 };
+
+export const getDoctorStaffByLocationList = async (locationId) => {
+  const getResp = await axios.get('staff/list/location/doctor', {
+    params: { locationId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.firstName, value: +dt.id };
+  });
+};
+
+export const getCustomerByLocationList = async (locationId) => {
+  const getResp = await axios.get('customer/list', {
+    params: { locationId }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: `${dt.memberNo || ''} - ${dt.firstName}`, value: +dt.id };
+  });
+};
+
 export const getServiceList = async () => {
   const getResp = await axios.get('service/list');
   return getResp?.data?.data?.map((dt) => {
