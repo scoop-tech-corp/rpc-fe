@@ -52,7 +52,7 @@ const FormPet = (props) => {
   const intl = useIntl();
 
   const onFieldHandler = (event) => {
-    if (event.target.name === 'petYear' && +event.target.value > 20) return;
+    if (event.target.name === 'petYear' && +event.target.value > 9999) return;
 
     setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
   };
@@ -239,6 +239,7 @@ const FormPet = (props) => {
               <Fragment>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DesktopDatePicker
+                    inputFormat="DD/MM/YYYY"
                     value={formValue.dateOfBirth}
                     onChange={(selected) => onDropdownHandler(selected, 'dateOfBirth')}
                     renderInput={(params) => <TextField {...params} />}
@@ -258,7 +259,7 @@ const FormPet = (props) => {
                     name="petYear"
                     value={formValue.petYear}
                     onChange={(event) => onFieldHandler(event)}
-                    inputProps={{ min: 0, max: 20 }}
+                    inputProps={{ min: 0, max: 9999 }}
                     sx={{ width: '50%' }}
                   />
                   <FormControl style={{ marginTop: 'unset' }} sx={{ width: '50%' }}>
