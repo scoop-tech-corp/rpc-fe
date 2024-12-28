@@ -1,6 +1,6 @@
 import { FormControl, FormControlLabel, Grid, InputLabel, MenuItem, Radio, RadioGroup, Select, Stack, TextField } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { useServiceFormStore } from '../../service-form-store';
+import { CONSTANT_TYPE_SERVICE, useServiceFormStore } from '../../service-form-store';
 
 import MainCard from 'components/MainCard';
 import MultiSelectAll from 'components/MultiSelectAll';
@@ -30,7 +30,7 @@ const TabDescription = () => {
       <MainCard title={<FormattedMessage id="basic-info" />}>
         <Grid container spacing={isDetail ? 2 : 3}>
           <Grid item xs={12} sm={11}>
-            <p style={{ fontWeight: 900 }}> {type == 1 ? 'Petshop' : type == 2 ? 'Grooming' : 'Klinik'}</p>
+            <p style={{ fontWeight: 900 }}> {CONSTANT_TYPE_SERVICE[type]}</p>
           </Grid>
           <Grid item xs={12} sm={1}>
             <div style={{ textAlign: 'end' }}>
@@ -138,9 +138,10 @@ const TabDescription = () => {
               value={type}
               onChange={(event) => useServiceFormStore.setState({ type: event.target.value })}
             >
-              <FormControlLabel value="1" control={<Radio />} label="Petshop" />
-              <FormControlLabel value="2" control={<Radio />} label="Grooming" />
-              <FormControlLabel value="3" control={<Radio />} label="Klinik" />
+              <FormControlLabel value="1" control={<Radio />} label="Pet Clinic" />
+              <FormControlLabel value="2" control={<Radio />} label="Pet Hotel" />
+              <FormControlLabel value="3" control={<Radio />} label="Pet Salon" />
+              <FormControlLabel value="4" control={<Radio />} label="Pacak" />
             </RadioGroup>
           </FormControl>
         </Grid>

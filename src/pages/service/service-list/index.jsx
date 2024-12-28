@@ -28,6 +28,7 @@ import ServiceListDetail from './detail';
 // Usable
 import { getServiceList, exportServiceList, deleteServiceList, downloadTemplateServiceList, importServiceList } from './service';
 import ModalImport from 'pages/product/product-list/components/ModalImport';
+import { CONSTANT_TYPE_SERVICE } from './form/service-form-store';
 
 export default function Index() {
   const theme = useTheme();
@@ -87,7 +88,7 @@ export default function Index() {
         Header: <FormattedMessage id="type" />,
         accessor: 'type',
         Cell: (data) => {
-          const val = data.value == 1 ? 'Petshop' : data.value == 2 ? 'Grooming' : 'Klinik';
+          const val = CONSTANT_TYPE_SERVICE[data.value];
           return <span>{val}</span>;
         }
       },
