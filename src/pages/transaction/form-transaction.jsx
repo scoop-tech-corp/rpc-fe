@@ -76,8 +76,6 @@ const FormTransaction = (props) => {
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    console.log('formValue', formValue);
-
     const responseError = (err) => {
       const { msg, detail } = createMessageBackend(err, true);
       setErrContent({ title: msg, detail: detail });
@@ -101,7 +99,7 @@ const FormTransaction = (props) => {
   const onCancel = () => props.onClose(false);
 
   const onFieldHandler = (event) => {
-    if (event.target.name === 'petYear' && +event.target.value > 20) return;
+    if (event.target.name === 'petYear' && +event.target.value > 9999) return;
 
     setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
   };
@@ -134,7 +132,6 @@ const FormTransaction = (props) => {
 
   const getDoctorStaffByLocation = async (locationId) => {
     const getDoctor = await getDoctorStaffByLocationList(locationId);
-    console.log('getDoctor', getDoctor);
     setDropdownList((prevState) => ({
       ...prevState,
       doctorList: getDoctor
@@ -213,6 +210,7 @@ const FormTransaction = (props) => {
                     setFormValue((e) => ({
                       ...e,
                       customer: event.target.value,
+                      location: null,
                       // reset pet form
                       ...CONSTANT_PET_FORM
                     }));
@@ -260,34 +258,49 @@ const FormTransaction = (props) => {
             </Stack>
           </Grid>
 
-          <Grid item xs={12}>
-            <Stack spacing={1}>
-              <InputLabel htmlFor="customer-name">
-                <FormattedMessage id="customer-name" />
-              </InputLabel>
-              <Autocomplete
-                id="customer-name"
-                options={dropdownList.customerList}
-                value={formValue.customerName}
-                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                onChange={(_, selected) => {
-                  const customerValue = selected ? selected : null;
-                  setFormValue((e) => ({ ...e, customerName: customerValue, pets: null }));
+          {formValue.customer && (
+            <Grid item xs={12}>
+              <Stack spacing={1}>
+                <InputLabel htmlFor="customer-name">
+                  <FormattedMessage id="customer-name" />
+                </InputLabel>
+                {formValue.customer === 'old' && (
+                  <Autocomplete
+                    id="customer-name"
+                    options={dropdownList.customerList}
+                    value={formValue.customerName}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, selected) => {
+                      const customerValue = selected ? selected : null;
+                      setFormValue((e) => ({ ...e, customerName: customerValue, pets: null }));
 
-                  setDropdownList((prevState) => ({ ...prevState, customerPetList: [] }));
-                  if (customerValue) getCustomerPet(customerValue.value);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    // error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
-                    // helperText={dt.error.countryErr}
-                    // variant="outlined"
+                      setDropdownList((prevState) => ({ ...prevState, customerPetList: [] }));
+                      if (customerValue) getCustomerPet(customerValue.value);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // error={Boolean(dt.error.customerNameErr && dt.error.customerNameErr.length > 0)}
+                        // helperText={dt.error.customerNameErr}
+                        // variant="outlined"
+                      />
+                    )}
                   />
                 )}
-              />
-            </Stack>
-          </Grid>
+                {formValue.customer === 'new' && (
+                  <TextField
+                    fullWidth
+                    id="customerName"
+                    name="customerName"
+                    value={formValue.customerName || ''}
+                    onChange={(event) => onFieldHandler(event)}
+                    // error={Boolean(dt.error.customerNameErr && dt.error.customerNameErr.length > 0)}
+                    // helperText={dt.error.customerNameErr}
+                  />
+                )}
+              </Stack>
+            </Grid>
+          )}
 
           {formValue.customer === 'old' && (
             <>
@@ -494,6 +507,7 @@ const FormTransaction = (props) => {
                     <Fragment>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DesktopDatePicker
+                          inputFormat="DD/MM/YYYY"
                           value={formValue.petDateOfBirth}
                           onChange={(selected) => onDropdownHandler(selected, 'petDateOfBirth')}
                           renderInput={(params) => <TextField {...params} />}
@@ -506,13 +520,14 @@ const FormTransaction = (props) => {
                     <Fragment>
                       <Stack spacing={1} flexDirection={'row'} sx={{ width: '100%' }} gap={'10px'}>
                         <TextField
+                          type="number"
                           fullWidth
                           label={<FormattedMessage id="year" />}
                           id={'petYear'}
                           name="petYear"
                           value={formValue.petYear}
                           onChange={(event) => onFieldHandler(event)}
-                          inputProps={{ min: 0, max: 20 }}
+                          inputProps={{ min: 0, max: 9999 }}
                           sx={{ width: '50%' }}
                         />
                         <FormControl style={{ marginTop: 'unset' }} sx={{ width: '50%' }}>
@@ -566,6 +581,7 @@ const FormTransaction = (props) => {
                         </InputLabel>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DesktopDatePicker
+                            inputFormat="DD/MM/YYYY"
                             value={formValue.startDate}
                             onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
                             renderInput={(params) => <TextField {...params} />}
@@ -580,6 +596,7 @@ const FormTransaction = (props) => {
                         </InputLabel>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DesktopDatePicker
+                            inputFormat="DD/MM/YYYY"
                             value={formValue.endDate}
                             onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
                             renderInput={(params) => <TextField {...params} />}

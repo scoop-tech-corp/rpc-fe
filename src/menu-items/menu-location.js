@@ -45,10 +45,10 @@ const location = {
           breadcrumbs: false
         },
         {
-          id: 'location-static-data',
-          title: <FormattedMessage id="static-data" />,
+          id: 'location-material-data',
+          title: <FormattedMessage id="material-data" />,
           type: 'item',
-          url: '/location/static-data',
+          url: '/location/material-data',
           icon: icons.StorageIcon,
           breadcrumbs: false
         }

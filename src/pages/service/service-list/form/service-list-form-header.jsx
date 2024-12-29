@@ -1,12 +1,12 @@
 import { DownOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Menu, MenuItem, Select } from '@mui/material';
+import { Button, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useParams, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createServiceList, deleteServiceList, updateServiceList } from '../service';
-import { defaultServiceListForm, getAllState, useServiceFormStore } from './service-form-store';
+import { defaultServiceListForm, useServiceFormStore } from './service-form-store';
 import { createMessageBackend } from 'service/service-global';
 
 import PropTypes from 'prop-types';
@@ -15,7 +15,7 @@ import ErrorContainer from 'components/@extended/ErrorContainer';
 
 const ServiceListFormHeader = (props) => {
   const isDetail = useServiceFormStore((state) => state.isDetail);
-  const serviceFormError = useServiceFormStore((state) => state.serviceFormError);
+  // const serviceFormError = useServiceFormStore((state) => state.serviceFormError);
   const isTouchForm = useServiceFormStore((state) => state.productSellFormTouch);
   const originalName = useServiceFormStore((state) => state.originalName);
   const id = useServiceFormStore((state) => state.id);

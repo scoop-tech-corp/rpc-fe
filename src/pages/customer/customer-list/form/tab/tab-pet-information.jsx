@@ -75,7 +75,7 @@ const TabPetInformation = () => {
   const onCheckValidation = () => {};
 
   const onFieldHandler = (event, i) => {
-    if (event.target.name === 'petYear' && +event.target.value > 20) return;
+    if (event.target.name === 'petYear' && +event.target.value > 9999) return;
 
     useCustomerFormStore.setState((prevState) => {
       let newData = [...prevState.customerPets];
@@ -322,12 +322,13 @@ const TabPetInformation = () => {
                               <Stack spacing={1} flexDirection={'row'} gap={'10px'}>
                                 <TextField
                                   fullWidth
+                                  type="number"
                                   label={<FormattedMessage id="year" />}
                                   id={`petYear${i}`}
                                   name="petYear"
                                   value={dt.petYear}
                                   onChange={(event) => onFieldHandler(event, i)}
-                                  inputProps={{ min: 0, max: 20 }}
+                                  inputProps={{ min: 0, max: 9999 }}
                                 />
                                 <FormControl sx={{ m: 1, minWidth: '120px' }} style={{ marginTop: 'unset' }}>
                                   <Select

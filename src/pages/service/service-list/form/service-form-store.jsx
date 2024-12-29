@@ -1,6 +1,13 @@
 import { jsonCentralized } from 'utils/func';
 import { create } from 'zustand';
 
+export const CONSTANT_TYPE_SERVICE = {
+  1: 'Pet Clinic',
+  2: 'Pet Hotel',
+  3: 'Pet Salon',
+  4: 'Pacak'
+};
+
 const defaultPhotos = {
   id: null,
   label: '',

@@ -130,7 +130,7 @@ const MainRoutes = {
             { path: 'list/form/:id', element: <CustomerForm /> },
             { path: 'template', element: <CustomerTemplate /> },
             { path: 'merge', element: <CustomerMerge /> },
-            { path: 'static-data', element: <CustomerStaticData /> },
+            { path: 'material-data', element: <CustomerStaticData /> },
             { path: 'import', element: <CustomerImport /> }
           ]
         },
@@ -149,7 +149,7 @@ const MainRoutes = {
             { path: 'schedule', element: <StaffSchedule /> },
             { path: 'profile/view/:id', element: <StaffViewProfile /> },
             { path: 'profile/edit/:id', element: <StaffEditProfile /> },
-            { path: 'static-data', element: <StaffStaticData /> },
+            { path: 'material-data', element: <StaffStaticData /> },
             { path: 'absent', element: <StaffAbsent /> }
           ]
         },
@@ -161,7 +161,7 @@ const MainRoutes = {
             { path: 'partner', element: <PromotionPartner /> },
             { path: 'partner/form', element: <PromotionPartnerForm /> },
             { path: 'partner/form/:id', element: <PromotionPartnerForm /> },
-            { path: 'static-data', element: <PromotionStaticData /> }
+            { path: 'material-data', element: <PromotionStaticData /> }
           ]
         },
         {
@@ -176,7 +176,7 @@ const MainRoutes = {
             { path: 'category', element: <ServiceCategory /> },
             { path: 'policies', element: <ServicePolicies /> },
             { path: 'template', element: <ServiceTemplate /> },
-            { path: 'static-data', element: <ServiceStaticData /> },
+            { path: 'material-data', element: <ServiceStaticData /> },
             { path: 'import', element: <ServiceImport /> }
           ]
         },
@@ -203,7 +203,7 @@ const MainRoutes = {
             { path: 'restock/form/:id', element: <ProductRestockForm /> },
             { path: 'transfer', element: <ProductTransfer /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
-            { path: 'static-data', element: <ProductStaticData /> }
+            { path: 'material-data', element: <ProductStaticData /> }
           ]
         },
         {
@@ -216,7 +216,7 @@ const MainRoutes = {
             { path: 'facilities', element: <LocationFacilities /> },
             { path: 'facilities/add', element: <LocationFacilitiesDetail /> },
             { path: 'facilities/:id', element: <LocationFacilitiesDetail /> },
-            { path: 'static-data', element: <LocationStaticData /> }
+            { path: 'material-data', element: <LocationStaticData /> }
           ]
         },
         {
@@ -226,7 +226,7 @@ const MainRoutes = {
             { path: 'sales', element: <FinanceSales /> },
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
-            { path: 'static-data', element: <FinanceStaticData /> }
+            { path: 'material-data', element: <FinanceStaticData /> }
           ]
         },
         {
