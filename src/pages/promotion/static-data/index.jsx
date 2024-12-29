@@ -78,7 +78,7 @@ const PromotionStaticData = () => {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="static-data" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="material-data" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>

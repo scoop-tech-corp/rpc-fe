@@ -16,7 +16,7 @@ const ServiceDataStatic = () => {
 
   return (
     <>
-      <HeaderCustom title={<FormattedMessage id="static-data" />} isBreadcrumb={true} />
+      <HeaderCustom title={<FormattedMessage id="material-data" />} isBreadcrumb={true} />
       <Grid container spacing={3} sx={{ marginBottom: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />

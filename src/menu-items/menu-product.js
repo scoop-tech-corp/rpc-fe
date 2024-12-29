@@ -79,10 +79,10 @@ const product = {
           url: '/product/delivery-agent'
         },
         {
-          id: 'product-static-data',
-          title: <FormattedMessage id="static-data" />,
+          id: 'product-material-data',
+          title: <FormattedMessage id="material-data" />,
           type: 'item',
-          url: '/product/static-data'
+          url: '/product/material-data'
         }
       ]
     }

@@ -52,10 +52,10 @@ const staff = {
           url: '/staff/schedule'
         },
         {
-          id: 'staff-static-data',
-          title: <FormattedMessage id="static-data" />,
+          id: 'staff-material-data',
+          title: <FormattedMessage id="material-data" />,
           type: 'item',
-          url: '/staff/static-data'
+          url: '/staff/material-data'
         }
       ]
     }

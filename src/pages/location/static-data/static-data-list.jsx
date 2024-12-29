@@ -140,7 +140,7 @@ const StaticDataList = () => {
 
   return (
     <>
-      <HeaderCustom title={<FormattedMessage id="static-data" />} isBreadcrumb={true} />
+      <HeaderCustom title={<FormattedMessage id="material-data" />} isBreadcrumb={true} />
       <MainCard content={false}>
         <ScrollX>
           <Stack spacing={3}>

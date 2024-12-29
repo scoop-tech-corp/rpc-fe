@@ -65,10 +65,10 @@ const service = {
           url: '/service/template'
         }
         // {
-        //   id: 'service-static-data',
-        //   title: <FormattedMessage id="static-data" />,
+        //   id: 'service-material-data',
+        //   title: <FormattedMessage id="material-data" />,
         //   type: 'item',
-        //   url: '/service/static-data'
+        //   url: '/service/material-data'
         // },
         // {
         //   id: 'service-import',

@@ -47,10 +47,10 @@ const finance = {
           url: '/finance/expenses'
         },
         {
-          id: 'finance-static-data',
-          title: <FormattedMessage id="static-data" />,
+          id: 'finance-material-data',
+          title: <FormattedMessage id="material-data" />,
           type: 'item',
-          url: '/finance/static-data'
+          url: '/finance/material-data'
         }
       ]
     }
