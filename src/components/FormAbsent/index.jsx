@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 
 import './style.css';
 import 'leaflet/dist/leaflet.css';
+import useAuth from 'hooks/useAuth';
 
 const IconMarker = new Icon({
   iconRetinaUrl: iconRetina,
@@ -28,6 +29,7 @@ const FormAbsent = (props) => {
   const photoRef = useRef(null);
   const firstRender = useRef(true);
   const intl = useIntl();
+  const { user } = useAuth();
   const dispatch = useDispatch();
 
   const [formErr, setFormErr] = useState(configCoreErr);
@@ -39,6 +41,7 @@ const FormAbsent = (props) => {
     address: '',
     city: '',
     province: '',
+    shift: '',
     status: '', // 1 = masuk, 2 = cuti, 3 = sakit, 4 = pulang
     reason: '',
     filePhoto: ''
@@ -49,6 +52,7 @@ const FormAbsent = (props) => {
     payload.append('presentTime', formValue.presentTime);
     payload.append('latitude', formValue.location[0]);
     payload.append('longitude', formValue.location[1]);
+    payload.append('shift', formValue.shift);
     payload.append('status', formValue.status);
     payload.append('reason', formValue.reason);
     payload.append('address', '');
@@ -257,6 +261,31 @@ const FormAbsent = (props) => {
           </MapContainer>
         )}
       </Grid>
+
+      {user?.role === 'doctor' && (
+        <Grid item xs={12}>
+          <Stack spacing={1}>
+            <InputLabel htmlFor="shift">Shift</InputLabel>
+            <FormControl>
+              <Select
+                id={'shift'}
+                name="shift"
+                value={formValue.shift}
+                onChange={(event) => setFormValue((prevState) => ({ ...prevState, shift: event.target.value }))}
+              >
+                <MenuItem value="">
+                  <em>
+                    <FormattedMessage id="select-shift" />
+                  </em>
+                </MenuItem>
+                <MenuItem value={1}>Shift 1</MenuItem>
+                <MenuItem value={2}>Shift 2</MenuItem>
+              </Select>
+              {/* {dt.error.shiftErr.length > 0 && <FormHelperText error> {dt.error.shiftErr} </FormHelperText>} */}
+            </FormControl>
+          </Stack>
+        </Grid>
+      )}
 
       <Grid item xs={12}>
         <Stack spacing={1}>
