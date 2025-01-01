@@ -114,17 +114,8 @@ const FormRequestLeave = (props) => {
 
   const getLeaveType = async () => {
     // hit get leave type based user id
-    const resp = await getLeaveTypeList(props.userId);
-    const getData = resp.data;
-    let newMapping = [];
-
-    if (getData && getData.length) {
-      newMapping = getData.map((dt) => ({
-        label: dt.value,
-        value: dt.leaveType
-      }));
-    }
-    setLeaveTypeList(newMapping);
+    const getLeaveTypeList = await getLeaveTypeList(props.userId);
+    setLeaveTypeList(getLeaveTypeList);
   };
 
   const getWorkingDays = async () => {

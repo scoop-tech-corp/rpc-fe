@@ -30,6 +30,7 @@ import {
   getReportCustomerSubAccount,
   getReportCustomerTotal
 } from '../service';
+import { getLeaveTypeList } from 'pages/staff/leave/service';
 
 import useAuth from 'hooks/useAuth';
 import MainCard from 'components/MainCard';
@@ -49,6 +50,10 @@ import CustomerLeaving from './section/customer/leaving';
 import CustomerList from './section/customer/list';
 import CustomerReferralSpend from './section/customer/referral-spend';
 import CustomerSubAccountList from './section/customer/sub-account-list';
+import FilterStaff from './filter/staff';
+import StaffLogin from './section/staff/login';
+import StaffLate from './section/staff/late';
+import StaffLeave from './section/staff/leave';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -79,6 +84,7 @@ export default function Index() {
         typeId: []
       };
     }
+    if (type === 'staff') return { orderValue: '', orderColumn: '', date: '', location: [], staff: [], leaveType: [] };
   });
 
   useEffect(() => {
@@ -95,6 +101,7 @@ export default function Index() {
   useEffect(() => {
     if (type === 'booking') getPrepareDataForBooking();
     if (type === 'customer') getPrepareDataForCustomer();
+    if (type === 'staff') getPrepareDataForStaff();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -204,6 +211,16 @@ export default function Index() {
     setExtData((prevState) => ({ ...prevState, location: getLoc, customerGroup: getCustomerGroup, typeId: getTypeId }));
   };
 
+  const getPrepareDataForStaff = async () => {
+    const getLoc = await getLocationList();
+    const getStaff = await getStaffList();
+
+    let getLeaveType = [];
+    if (detail === 'leave') getLeaveType = await getLeaveTypeList();
+
+    setExtData((prevState) => ({ ...prevState, location: getLoc, staff: getStaff, leaveType: getLeaveType }));
+  };
+
   const getTitle = () => {
     if (type === 'booking' && detail === 'by-location') return 'booking-by-location';
     if (type === 'booking' && detail === 'by-status') return 'booking-by-status';
@@ -220,12 +237,17 @@ export default function Index() {
     if (type === 'customer' && detail === 'referral-spend') return 'customer-referral-spend';
     if (type === 'customer' && detail === 'sub-account-list') return 'customer-sub-account-list';
 
+    if (type === 'staff' && detail === 'login') return 'staff-login';
+    if (type === 'staff' && detail === 'late') return 'staff-late';
+    if (type === 'staff' && detail === 'leave') return 'staff-leave';
+
     return '-';
   };
 
   const getFilter = () => {
     if (type === 'booking') return <FilterBooking extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'customer') return <FilterCustomer extData={extData} filter={filter} setFilter={setFilter} />;
+    if (type === 'staff') return <FilterStaff extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -245,6 +267,10 @@ export default function Index() {
     if (type === 'customer' && detail === 'list') return <CustomerList data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'referral-spend') return <CustomerReferralSpend data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'sub-account-list') return <CustomerSubAccountList data={mainData} setFilter={setFilter} />;
+
+    if (type === 'staff' && detail === 'login') return <StaffLogin data={mainData} setFilter={setFilter} />;
+    if (type === 'staff' && detail === 'late') return <StaffLate data={mainData} setFilter={setFilter} />;
+    if (type === 'staff' && detail === 'leave') return <StaffLeave data={mainData} setFilter={setFilter} />;
 
     return '';
   };
