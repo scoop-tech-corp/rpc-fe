@@ -94,13 +94,9 @@ const ServiceDashboard = () => {
             </Stack>
           </MainCard>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={6} md={8}>
           <MainCard title={<FormattedMessage id="bookings-by-category" />} content={false}>
-            <Stack spacing={3}>
-              <Stack sx={{ p: 3 }}>
-                <ApexPieChart labelsProps={chartData.bookingByCategory.labels} seriesProps={chartData.bookingByCategory.series} />
-              </Stack>
-            </Stack>
+            <ApexPieChart labelsProps={chartData.bookingByCategory.labels} seriesProps={chartData.bookingByCategory.series} />
           </MainCard>
         </Grid>
       </Grid>

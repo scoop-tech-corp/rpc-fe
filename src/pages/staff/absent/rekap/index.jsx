@@ -259,7 +259,7 @@ const StaffRekap = () => {
               totalPagination={staffRekapData.totalPagination}
               setPageNumber={paramStaffRekapList.goToPage}
               setPageRow={paramStaffRekapList.rowPerPage}
-              colSpanPagination={10}
+              colSpanPagination={11}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
