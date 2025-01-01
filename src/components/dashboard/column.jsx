@@ -8,6 +8,7 @@ import ReactApexChart from 'react-apexcharts';
 
 // project import
 import useConfig from 'hooks/useConfig';
+import PropTypes from 'prop-types';
 
 // chart options
 const columnChartOptions = {
@@ -33,21 +34,21 @@ const columnChartOptions = {
   xaxis: {
     categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']
   },
-  yaxis: {
-    title: {
-      text: '$ (thousands)'
-    }
-  },
+  // yaxis: {
+  //   title: {
+  //     text: '$ (thousands)'
+  //   }
+  // },
   fill: {
     opacity: 1
   },
-  tooltip: {
-    y: {
-      formatter(val) {
-        return `$ ${val} thousands`;
-      }
-    }
-  },
+  // tooltip: {
+  //   y: {
+  //     formatter(val) {
+  //       return `$ ${val} thousands`;
+  //     }
+  //   }
+  // },
   legend: {
     show: true,
     fontFamily: `'Roboto', sans-serif`,
@@ -81,19 +82,13 @@ const columnChartOptions = {
 
 // ==============================|| APEXCHART - COLUMN ||============================== //
 
-const ApexColumnChart = () => {
+const ApexColumnChart = (props) => {
+  const { categoriesProps, seriesProps } = props;
   const theme = useTheme();
+  const line = theme.palette.divider;
   const { mode } = useConfig();
 
-  const { primary } = theme.palette.text;
-  const line = theme.palette.divider;
-  const grey200 = theme.palette.grey[200];
-
-  const secondary = theme.palette.primary[700];
-  const primaryMain = theme.palette.primary.main;
-  const successDark = theme.palette.success.main;
-
-  const [series] = useState([
+  const [series, setSeries] = useState([
     {
       name: 'Net Profit',
       data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
@@ -109,40 +104,27 @@ const ApexColumnChart = () => {
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
-      colors: [secondary, primaryMain, successDark],
-      xaxis: {
-        labels: {
-          style: {
-            colors: [primary, primary, primary, primary, primary, primary, primary, primary, primary]
-          }
-        }
-      },
-      yaxis: {
-        labels: {
-          style: {
-            colors: [primary]
-          }
-        }
-      },
-      grid: {
-        borderColor: line
-      },
-      tooltip: {
-        theme: mode === 'dark' ? 'dark' : 'light'
-      },
-      legend: {
-        labels: {
-          colors: 'grey.500'
-        }
-      }
+      colors: [],
+      xaxis: { categories: categoriesProps || prevState.xaxis.categories },
+      grid: { borderColor: line },
+      tooltip: { theme: mode === 'dark' ? 'dark' : 'light' }
     }));
-  }, [mode, primary, line, grey200, secondary, primaryMain, successDark]);
+  }, [mode, line, categoriesProps]);
+
+  useEffect(() => {
+    setSeries((prevState) => seriesProps || prevState);
+  }, [seriesProps]);
 
   return (
     <div id="chart">
       <ReactApexChart options={options} series={series} type="bar" height={350} />
     </div>
   );
+};
+
+ApexColumnChart.propTypes = {
+  categoriesProps: PropTypes.array, // PropTypes.arrayOf(PropTypes.string)
+  seriesProps: PropTypes.array
 };
 
 export default ApexColumnChart;

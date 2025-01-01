@@ -40,3 +40,7 @@ export const saveServiceDataStatic = async (data) => {
 
   return await axios.post('service/datastatic', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
+
+export const getServiceDashboard = async () => {
+  return await axios.get('service/dashboard');
+};
