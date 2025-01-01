@@ -26,7 +26,7 @@ const StaffRekap = () => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
   const { user } = useAuth();
-  const isSpecialRole = ['administrator', 'office'];
+  const isSpecialRole = ['administrator', 'manager'];
 
   const [openDetail, setOpenDetail] = useState({ isOpen: false, data: null });
   const [staffRekapData, setStaffRekapData] = useState({ data: [], totalPagination: 0 });
@@ -164,8 +164,10 @@ const StaffRekap = () => {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const getLoc = await getLocationList();
-      const getAbsentStaff = await getAbsentStaffList();
       const getPresentStaff = await getAbsentPresentList();
+      let getAbsentStaff = [];
+
+      if (isSpecialRole.includes(user?.role)) getAbsentStaff = await getAbsentStaffList();
 
       setDdLocationList(getLoc);
       setDdAbsentStaffList(getAbsentStaff);
