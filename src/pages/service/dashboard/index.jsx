@@ -1,74 +1,102 @@
+import { useEffect, useState, useMemo } from 'react';
+import { getServiceDashboard } from './service';
 import { FormattedMessage } from 'react-intl';
+import { Stack, Grid } from '@mui/material';
+import { ReactTable } from 'components/third-party/ReactTable';
 
-import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
-import { Stack, useMediaQuery, Grid } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-
-import ApexColumnChart from './chart/column';
+import HeaderCustom from 'components/@extended/HeaderPageCustom';
+import ApexColumnChart from 'components/dashboard/column';
 import ApexPieChart from 'components/dashboard/pie';
-import TableChart from './chart/table';
 import AnalyticEcommerce from 'components/dashboard/card';
 
-const ServiceDataStatic = () => {
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
+const CONSTANT_CARD_ANALYTIC_DATA = { isLoss: 0, percentage: 0, total: '0' };
+const ServiceDashboard = () => {
+  const [chartData, setChartData] = useState({ series: [], categories: [], bookingByCategory: {} });
+  const [cardAnalyticData, setCardAnalyticData] = useState({
+    bookings: { ...CONSTANT_CARD_ANALYTIC_DATA },
+    bookingsQty: { ...CONSTANT_CARD_ANALYTIC_DATA },
+    bookingsValue: { ...CONSTANT_CARD_ANALYTIC_DATA }
+  });
+  const [tableMostPopular, setTableMostPopular] = useState([]);
+
+  const columnMostPopular = useMemo(
+    () => [
+      { Header: <FormattedMessage id="service" />, accessor: 'serviceName', isNotSorting: true },
+      { Header: <FormattedMessage id="bookings" />, accessor: 'bookings', isNotSorting: true }
+    ],
+    []
+  );
+
+  useEffect(() => {
+    async function fetchData() {
+      // You can await here
+      const response = await await getServiceDashboard();
+      console.log('getResp dashboard service', response.data);
+      setChartData(() => ({
+        series: response.data.charts.series,
+        categories: response.data.charts.categories,
+        bookingByCategory: response.data.bookingsByCategory
+      }));
+      setCardAnalyticData(() => ({
+        bookings: response.data.bookings,
+        bookingsQty: response.data.bookingsQty,
+        bookingsValue: response.data.bookingsValue
+      }));
+      setTableMostPopular(response.data.mostPopular);
+    }
+    fetchData();
+  }, []);
 
   return (
     <>
-      <HeaderCustom title={'Dashboard Service'} isBreadcrumb={true} />
+      <HeaderCustom title={'Service Dashboard'} isBreadcrumb={false} />
       <Grid container spacing={3} sx={{ marginBottom: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
-          <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />
+          <AnalyticEcommerce
+            title={<FormattedMessage id="bookings" />}
+            count={cardAnalyticData.bookings.total}
+            percentage={Number(cardAnalyticData.bookings.percentage)}
+            isLoss={Boolean(cardAnalyticData.bookings.isLoss)}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <AnalyticEcommerce title="Total Users" count="78,250" percentage={70.5} color="success" extra="8,900" />
+          <AnalyticEcommerce
+            title={<FormattedMessage id="bookings-qty" />}
+            count={cardAnalyticData.bookingsQty.total}
+            percentage={Number(cardAnalyticData.bookingsQty.percentage)}
+            isLoss={Boolean(cardAnalyticData.bookingsQty.isLoss)}
+            color="success"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <AnalyticEcommerce title="Total Order" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
+          <AnalyticEcommerce
+            title={<FormattedMessage id="booking-value-rp" />}
+            count={cardAnalyticData.bookingsValue.total}
+            percentage={Number(cardAnalyticData.bookingsValue.percentage)}
+            isLoss={Boolean(cardAnalyticData.bookingsValue.isLoss)}
+            color="warning"
+          />
         </Grid>
       </Grid>
       <Grid item xs={12} md={6} lg={6} sx={{ marginBottom: 3 }}>
         <MainCard title="Bookings">
-          <ApexColumnChart />
+          <ApexColumnChart categoriesProps={chartData.categories} seriesProps={chartData.series} />
         </MainCard>
       </Grid>
       <Grid container spacing={3} sx={{ marginBottom: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
-          <MainCard title="Recent Tickets" content={false}>
+          <MainCard title={<FormattedMessage id="most-popular" />} content={false}>
             <Stack spacing={3}>
               <Stack sx={{ p: 3 }}>
-                <TableChart />
+                <ReactTable columns={columnMostPopular} data={tableMostPopular || []} />
               </Stack>
             </Stack>
           </MainCard>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <MainCard title="Booking By Category" content={false}>
-            <Stack spacing={3}>
-              <Stack sx={{ p: 3 }}>
-                <ApexPieChart />
-              </Stack>
-            </Stack>
-          </MainCard>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <MainCard title="Most Popular" content={false}>
-            <Stack spacing={3}>
-              <Stack sx={{ p: 3 }}>
-                <Grid container spacing={0.5}>
-                  <Grid item xs={12}>
-                    <AnalyticEcommerce title="Total Page Views" count="4,42,236" />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <AnalyticEcommerce title="Total Users" count="78,250" color="success" />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <AnalyticEcommerce title="Total Order" count="18,800" isLoss color="warning" />
-                  </Grid>
-                </Grid>
-              </Stack>
-            </Stack>
+        <Grid item xs={12} sm={6} md={8}>
+          <MainCard title={<FormattedMessage id="bookings-by-category" />} content={false}>
+            <ApexPieChart labelsProps={chartData.bookingByCategory.labels} seriesProps={chartData.bookingByCategory.series} />
           </MainCard>
         </Grid>
       </Grid>
@@ -76,4 +104,4 @@ const ServiceDataStatic = () => {
   );
 };
 
-export default ServiceDataStatic;
+export default ServiceDashboard;

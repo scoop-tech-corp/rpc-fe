@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 
 // project import
 import MainLayout from 'layout/MainLayout';
@@ -124,6 +125,7 @@ const MainRoutes = {
         {
           path: 'customer',
           children: [
+            { path: '', element: <Navigate to="/customer/dashboard" /> },
             { path: 'dashboard', element: <CustomerDashboard /> },
             { path: 'list', element: <CustomerList /> },
             { path: 'list/form', element: <CustomerForm /> },
@@ -137,6 +139,7 @@ const MainRoutes = {
         {
           path: 'staff',
           children: [
+            { path: '', element: <Navigate to="/staff/list" /> },
             { path: 'dashboard', element: <StaffDashboard /> },
             { path: 'list', element: <StaffList /> },
             { path: 'list/form', element: <StaffForm /> },
@@ -156,6 +159,7 @@ const MainRoutes = {
         {
           path: 'promotion',
           children: [
+            { path: '', element: <Navigate to="/promotion/dashboard" /> },
             { path: 'dashboard', element: <PromotionDashboard /> },
             { path: 'discount', element: <PromotionDiscount /> },
             { path: 'partner', element: <PromotionPartner /> },
@@ -167,6 +171,7 @@ const MainRoutes = {
         {
           path: 'service',
           children: [
+            { path: '', element: <Navigate to="/service/dashboard" /> },
             { path: 'dashboard', element: <ServiceDashboard /> },
             { path: 'list', element: <ServiceList /> },
             { path: 'list/form', element: <ServiceListForm /> },
@@ -183,6 +188,7 @@ const MainRoutes = {
         {
           path: 'product',
           children: [
+            { path: '', element: <Navigate to="/product/dashboard" /> },
             { path: 'dashboard', element: <ProductDashboard /> },
             { path: 'product-list', element: <ProductList /> },
             { path: 'product-list/sell/form', element: <ProductSellForm /> },
@@ -209,6 +215,7 @@ const MainRoutes = {
         {
           path: 'location',
           children: [
+            { path: '', element: <Navigate to="/location/dashboard" /> },
             { path: 'dashboard', element: <LocationDashboard /> },
             { path: 'location-list', element: <LocationList /> },
             { path: 'location-list/add', element: <LocationDetail /> },

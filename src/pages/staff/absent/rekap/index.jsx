@@ -57,6 +57,14 @@ const StaffRekap = () => {
         }
       },
       { Header: <FormattedMessage id="job" />, accessor: 'jobName' },
+      { Header: <FormattedMessage id="shift" />, accessor: 'shift' },
+      {
+        Header: <FormattedMessage id="status" />,
+        accessor: 'status',
+        Cell: (data) => {
+          return <span style={{ color: data.value.toLowerCase() === 'terlambat' ? '#ff4d4f' : '#52c41a' }}>{data.value}</span>;
+        }
+      },
       { Header: <FormattedMessage id="day" />, accessor: 'day' },
       { Header: <FormattedMessage id="attendance-time" />, accessor: 'presentTime' },
       { Header: <FormattedMessage id="homecoming-time" />, accessor: 'homeTime' },
@@ -251,7 +259,7 @@ const StaffRekap = () => {
               totalPagination={staffRekapData.totalPagination}
               setPageNumber={paramStaffRekapList.goToPage}
               setPageRow={paramStaffRekapList.rowPerPage}
-              colSpanPagination={10}
+              colSpanPagination={11}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
