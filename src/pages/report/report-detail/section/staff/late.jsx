@@ -27,7 +27,7 @@ export default function StaffLate({ data, setFilter }) {
     },
     markers: { size: 1 },
     xaxis: {
-      categories: chartsData?.categories || ['1 May', '2 May', '3 May', '4 May', '5 May', '6 May'],
+      categories: chartsData?.categories || [],
       title: { text: '' }
     },
     yaxis: { title: { text: '' } },
@@ -37,8 +37,7 @@ export default function StaffLate({ data, setFilter }) {
   const tableColumns = useMemo(
     () => [
       { Header: <FormattedMessage id="name" />, accessor: 'name' },
-      { Header: <FormattedMessage id="location" />, accessor: 'location' },
-      { Header: <FormattedMessage id="job" />, accessor: 'job' },
+      { Header: <FormattedMessage id="shift" />, accessor: 'shift' },
       { Header: <FormattedMessage id="day" />, accessor: 'day' },
       { Header: <FormattedMessage id="attendance-time" />, accessor: 'attendanceTime' },
       { Header: <FormattedMessage id="homecoming-time" />, accessor: 'homecomingTime' }
@@ -49,49 +48,14 @@ export default function StaffLate({ data, setFilter }) {
   return (
     <>
       <div style={{ marginBottom: 20 }}>
-        <ReactApexChart
-          options={options}
-          series={
-            chartsData?.series || [
-              {
-                name: 'RPC Condet',
-                data: [10, 10, 10, 10, 30, 20]
-              },
-              {
-                name: 'RPC Hakam',
-                data: [20, 40, 20, 10, 80, 30]
-              }
-            ]
-          }
-          type="line"
-          height={350}
-        />
+        <ReactApexChart options={options} series={chartsData?.series || []} type="line" height={350} />
       </div>
       <ReactTable
         columns={tableColumns}
         onOrder={(event) => {
           setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
         }}
-        data={
-          tablesData?.data || [
-            {
-              name: 'Udin',
-              location: 'RPC Condet',
-              job: 'Dokter',
-              day: 'Selasa, 24 Dec 2024',
-              attendanceTime: '9:30',
-              homecomingTime: '10:15'
-            },
-            {
-              name: 'Susi',
-              location: 'RPC Hankam',
-              job: 'Kasir',
-              day: 'Selasa, 24 Dec 2024',
-              attendanceTime: '9:46',
-              homecomingTime: '10:00'
-            }
-          ]
-        }
+        data={tablesData?.data || []}
       />
     </>
   );

@@ -9,17 +9,23 @@ const urlCustomerList = 'report/customer/list';
 const urlCustomerReferralSpend = 'report/customer/refspend';
 const urlCustomerSubAccount = 'report/customer/subaccount';
 
+const urlStaffLogin = 'report/staff/login';
+const urlStaffLate = 'report/staff/late';
+const urlStaffLeave = 'report/staff/leave';
+
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customerGroup = payload.customerGroup.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerGrowth}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
-      customerGroup: payload.customerGroup.length ? payload.customerGroup : ['']
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : ['']
     }
   });
 };
@@ -45,14 +51,16 @@ export const getReportCustomerGrowth = async (payload) => {
 export const exportReportCustomerGrowthGroup = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customerGroup = payload.customerGroup.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerGrowthByGroup}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
-      customerGroup: payload.customerGroup.length ? payload.customerGroup : ['']
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : ['']
     }
   });
 };
@@ -78,14 +86,16 @@ export const getReportCustomerGrowthGroup = async (payload) => {
 export const exportReportCustomerTotal = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customerGroup = payload.customerGroup.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerTotal}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
-      customerGroup: payload.customerGroup.length ? payload.customerGroup : ['']
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : ['']
     }
   });
 };
@@ -111,14 +121,16 @@ export const getReportCustomerTotal = async (payload) => {
 export const exportReportCustomerLeaving = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customerGroup = payload.customerGroup.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerLeaving}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
-      customerGroup: payload.customerGroup.length ? payload.customerGroup : [''],
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : [''],
       status: payload.status
     }
   });
@@ -146,14 +158,16 @@ export const getReportCustomerLeaving = async (payload) => {
 export const exportReportCustomerList = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customerGroup = payload.customerGroup.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerList}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
-      customerGroup: payload.customerGroup.length ? payload.customerGroup : [''],
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : [''],
       status: payload.status,
       search: payload.search,
       gender: payload.gender,
@@ -188,13 +202,14 @@ export const getReportCustomerList = async (payload) => {
 export const exportReportCustomerReferralSpend = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerReferralSpend}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
+      locationId: location.length ? location : [''],
       search: payload.search
     }
   });
@@ -220,14 +235,16 @@ export const getReportCustomerReferralSpend = async (payload) => {
 export const exportReportCustomerSubAccount = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customerGroup = payload.customerGroup.map((dt) => dt.value);
 
   return await axios.get(`${urlCustomerSubAccount}/export`, {
     responseType: 'blob',
     params: {
       dateFrom,
       dateTo,
-      locationId: payload.location.length ? payload.location : [''],
-      customerGroup: payload.customerGroup.length ? payload.customerGroup : [''],
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : [''],
       status: payload.status,
       sterile: payload.sterile,
       gender: payload.gender,
@@ -253,6 +270,121 @@ export const getReportCustomerSubAccount = async (payload) => {
       sterile: payload.sterile,
       gender: payload.gender,
       search: payload.search
+    }
+  });
+};
+
+export const getReportStaffLogin = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlStaffLogin, {
+    params: {
+      dateFrom,
+      dateTo,
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      locationId: location,
+      staffId: staff
+    }
+  });
+};
+
+export const exportReportStaffLogin = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+
+  return await axios.get(`${urlStaffLogin}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      staffId: staff.length ? staff : ['']
+    }
+  });
+};
+
+export const getReportStaffLate = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlStaffLate, {
+    params: {
+      dateFrom,
+      dateTo,
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      locationId: location,
+      staffId: staff
+    }
+  });
+};
+
+export const exportReportStaffLate = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+
+  return await axios.get(`${urlStaffLate}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      staffId: staff.length ? staff : ['']
+    }
+  });
+};
+
+export const getReportStaffLeave = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const leaveType = payload.leaveType.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlStaffLeave, {
+    params: {
+      dateFrom,
+      dateTo,
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      locationId: location,
+      staffId: staff,
+      leaveType: leaveType
+    }
+  });
+};
+
+export const exportReportStaffLeave = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const leaveType = payload.leaveType.map((dt) => dt.value);
+
+  return await axios.get(`${urlStaffLeave}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      staffId: staff.length ? staff : [''],
+      leaveType: leaveType.length ? leaveType : ['']
     }
   });
 };

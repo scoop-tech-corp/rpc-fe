@@ -1,5 +1,5 @@
 import { Button, Stack } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ExportOutlined } from '@ant-design/icons';
 import {
@@ -22,15 +22,20 @@ import {
   exportReportCustomerReferralSpend,
   exportReportCustomerSubAccount,
   exportReportCustomerTotal,
+  exportReportStaffLate,
+  exportReportStaffLeave,
+  exportReportStaffLogin,
   getReportCustomerGrowth,
   getReportCustomerGrowthGroup,
   getReportCustomerLeaving,
   getReportCustomerList,
   getReportCustomerReferralSpend,
   getReportCustomerSubAccount,
-  getReportCustomerTotal
+  getReportCustomerTotal,
+  getReportStaffLate,
+  getReportStaffLeave,
+  getReportStaffLogin
 } from '../service';
-import { getLeaveTypeList } from 'pages/staff/leave/service';
 
 import useAuth from 'hooks/useAuth';
 import MainCard from 'components/MainCard';
@@ -61,6 +66,7 @@ export default function Index() {
   let detail = searchParams.get('detail');
   const { user } = useAuth();
   const dispatch = useDispatch();
+  const firstRender = useRef(true);
 
   const [mainData, setMainData] = useState();
 
@@ -84,7 +90,17 @@ export default function Index() {
         typeId: []
       };
     }
-    if (type === 'staff') return { orderValue: '', orderColumn: '', date: '', location: [], staff: [], leaveType: [] };
+    if (type === 'staff')
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        location: [],
+        staff: [],
+        leaveType: []
+      };
   });
 
   useEffect(() => {
@@ -106,7 +122,13 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
+    if (!firstRender.current) fetchData();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
@@ -137,6 +159,10 @@ export default function Index() {
         payload = { ...payload, search: filter.search, gender: filter.gender, sterile: filter.sterile };
         respFetch = await getReportCustomerSubAccount(payload);
       }
+    } else if (type === 'staff') {
+      if (detail === 'login') respFetch = await getReportStaffLogin(filter);
+      if (detail === 'late') respFetch = await getReportStaffLate(filter);
+      if (detail === 'leave') respFetch = await getReportStaffLeave(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -182,6 +208,9 @@ export default function Index() {
           sterile: filter.sterile,
           search: filter.search
         });
+      else if (type === 'staff' && detail === 'login') return await exportReportStaffLogin(filter);
+      else if (type === 'staff' && detail === 'late') return await exportReportStaffLate(filter);
+      else if (type === 'staff' && detail === 'leave') return await exportReportStaffLeave(filter);
     };
 
     fetchExport()
@@ -215,10 +244,15 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
 
-    let getLeaveType = [];
-    if (detail === 'leave') getLeaveType = await getLeaveTypeList();
-
-    setExtData((prevState) => ({ ...prevState, location: getLoc, staff: getStaff, leaveType: getLeaveType }));
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      staff: getStaff,
+      leaveType: [
+        { label: 'Leave Allowance', value: 'Leave Allowance' },
+        { label: 'Sick Allowance', value: 'Sick Allowance' }
+      ]
+    }));
   };
 
   const getTitle = () => {
@@ -268,7 +302,7 @@ export default function Index() {
     if (type === 'customer' && detail === 'referral-spend') return <CustomerReferralSpend data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'sub-account-list') return <CustomerSubAccountList data={mainData} setFilter={setFilter} />;
 
-    if (type === 'staff' && detail === 'login') return <StaffLogin data={mainData} setFilter={setFilter} />;
+    if (type === 'staff' && detail === 'login') return <StaffLogin data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'staff' && detail === 'late') return <StaffLate data={mainData} setFilter={setFilter} />;
     if (type === 'staff' && detail === 'leave') return <StaffLeave data={mainData} setFilter={setFilter} />;
 

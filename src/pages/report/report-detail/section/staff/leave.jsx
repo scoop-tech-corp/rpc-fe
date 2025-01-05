@@ -27,7 +27,7 @@ export default function StaffLeave({ data, setFilter }) {
     },
     markers: { size: 1 },
     xaxis: {
-      categories: chartsData?.categories || ['1 May', '2 May', '3 May', '4 May', '5 May', '6 May'],
+      categories: chartsData?.categories || [],
       title: { text: '' }
     },
     yaxis: { title: { text: '' } },
@@ -38,9 +38,10 @@ export default function StaffLeave({ data, setFilter }) {
     () => [
       { Header: <FormattedMessage id="name" />, accessor: 'name' },
       { Header: <FormattedMessage id="location" />, accessor: 'location' },
-      { Header: <FormattedMessage id="job" />, accessor: 'job' },
+      { Header: <FormattedMessage id="job" />, accessor: 'jobName' },
       { Header: <FormattedMessage id="leave-type" />, accessor: 'leaveType' },
-      { Header: <FormattedMessage id="date" />, accessor: 'date' },
+      { Header: <FormattedMessage id="start-date" />, accessor: 'startDate' },
+      { Header: <FormattedMessage id="end-date" />, accessor: 'endDate' },
       { Header: <FormattedMessage id="days" />, accessor: 'days' }
     ],
     []
@@ -49,49 +50,14 @@ export default function StaffLeave({ data, setFilter }) {
   return (
     <>
       <div style={{ marginBottom: 20 }}>
-        <ReactApexChart
-          options={options}
-          series={
-            chartsData?.series || [
-              {
-                name: 'RPC Condet',
-                data: [10, 10, 10, 10, 30, 20]
-              },
-              {
-                name: 'RPC Hakam',
-                data: [20, 40, 20, 10, 80, 30]
-              }
-            ]
-          }
-          type="line"
-          height={350}
-        />
+        <ReactApexChart options={options} series={chartsData?.series || []} type="line" height={350} />
       </div>
       <ReactTable
         columns={tableColumns}
         onOrder={(event) => {
           setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
         }}
-        data={
-          tablesData?.data || [
-            {
-              name: 'Udin',
-              location: 'RPC Condet',
-              job: 'Dokter',
-              leaveType: 'Sick Allowence',
-              date: '24 Jan 2023',
-              days: '5'
-            },
-            {
-              name: 'Susi',
-              location: 'RPC Hankam',
-              job: 'Kasir',
-              leaveType: 'Leave Allowence',
-              attandanceTime: '24 Jan 2023',
-              homecomingTime: '2'
-            }
-          ]
-        }
+        data={tablesData?.data || []}
       />
     </>
   );

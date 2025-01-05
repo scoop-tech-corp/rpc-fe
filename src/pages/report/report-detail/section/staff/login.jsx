@@ -4,14 +4,8 @@ import { FormattedMessage } from 'react-intl';
 
 import ScrollX from 'components/ScrollX';
 
-export default function StaffLogin({ data, setFilter }) {
-  const tablesData = data?.data || [
-    { name: 'Budi', date: '12 May 2022', time: '12:20 AM', ipAddress: '10.20.30.30', device: 'Mobile Ios' },
-    { name: 'Agus', date: '12 May 2022', time: '12:20 AM', ipAddress: '10.20.30.30', device: 'Mobile Ios' },
-    { name: 'Susi', date: '12 May 2022', time: '12:20 AM', ipAddress: '10.20.30.30', device: 'Mobile Ios' },
-    { name: 'Tono', date: '12 May 2022', time: '12:20 AM', ipAddress: '10.20.30.30', device: 'Mobile Ios' },
-    { name: 'Udin', date: '12 May 2022', time: '12:20 AM', ipAddress: '10.20.30.30', device: 'Mobile Ios' }
-  ];
+export default function StaffLogin({ data, filter, setFilter }) {
+  const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
 
   const tableColumns = useMemo(
@@ -32,6 +26,10 @@ export default function StaffLogin({ data, setFilter }) {
           columns={tableColumns}
           data={tablesData || []}
           totalPagination={totalPagination || 0}
+          setPageNumber={filter.goToPage}
+          onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
+          setPageRow={filter.rowPerPage}
+          onPageSize={(event) => setFilter((e) => ({ ...e, rowPerPage: event }))}
           onOrder={(event) => {
             setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
           }}
