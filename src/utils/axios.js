@@ -40,6 +40,8 @@ axiosServices.interceptors.response.use(
     if (error.response.status === 401 && error.response?.data.status === 'Token is Expired') {
       window.location.href = `/login?islogout=1`;
       return true;
+    } else if (error.response.status === 403) {
+      window.location.href = `/403`;
     } else {
       const elementSnackbar = document.getElementById('snackbar-custom');
       const title = document.getElementById('snackbar-custom__title');
@@ -50,14 +52,15 @@ axiosServices.interceptors.response.use(
         elementSnackbar.style.backgroundColor = '#ff4d4f';
         title.innerText = error.message;
         desc.innerText = error.response?.data.message;
-      } else if (error.response.status === 403) {
-        elementSnackbar.className = 'show';
-        title.innerText = error.message;
-        desc.innerText = error.response?.data.message;
-        elementSnackbar.style.backgroundColor = 'rgb(255, 251, 230)';
-        title.style.color = 'rgb(173, 104, 0)';
-        desc.style.color = 'rgb(250, 173, 20)';
       }
+      // else if (error.response.status === 403) {
+      //   elementSnackbar.className = 'show';
+      //   title.innerText = error.message;
+      //   desc.innerText = error.response?.data.message;
+      //   elementSnackbar.style.backgroundColor = 'rgb(255, 251, 230)';
+      //   title.style.color = 'rgb(173, 104, 0)';
+      //   desc.style.color = 'rgb(250, 173, 20)';
+      // }
 
       setTimeout(() => {
         elementSnackbar.className = elementSnackbar.className.replace('show', '');

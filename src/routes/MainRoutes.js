@@ -103,6 +103,9 @@ const MenuProfile = Loadable(lazy(() => import('pages/menus/profile')));
 const MenuSetting = Loadable(lazy(() => import('pages/menus/setting')));
 const MenuReport = Loadable(lazy(() => import('pages/menus/report')));
 
+// Maintenance Page
+const ForbiddenPage = Loadable(lazy(() => import('pages/maintenance/403')));
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -246,6 +249,10 @@ const MainRoutes = {
             { path: 'setting', element: <MenuSetting /> },
             { path: 'report', element: <MenuReport /> }
           ]
+        },
+        {
+          path: '403',
+          element: <ForbiddenPage />
         },
         {
           path: 'sample-page',
