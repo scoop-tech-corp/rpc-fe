@@ -36,7 +36,7 @@ export default function StaffPerformance({ data, filter, setFilter }) {
           columns={tableColumns}
           data={tablesData || []}
           totalPagination={totalPagination || 0}
-          colSpanPagination={12}
+          colSpanPagination={14}
           setPageNumber={filter.goToPage}
           onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
           setPageRow={filter.rowPerPage}
