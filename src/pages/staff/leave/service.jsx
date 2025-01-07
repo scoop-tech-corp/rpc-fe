@@ -84,7 +84,21 @@ export const createStaffLeave = async (property) => {
   return await axios.post('staff/leave', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const getLeaveTypeList = async (usersId) => await axios.get('staff/leave/leavetype', { params: { usersId } });
+export const getLeaveTypeList = async (usersId) => {
+  await axios.get('staff/leave/leavetype', { params: { usersId } });
+
+  const getData = resp.data;
+  let newMapping = [];
+
+  if (getData && getData.length) {
+    newMapping = getData.map((dt) => ({
+      label: dt.value,
+      value: dt.leaveType
+    }));
+  }
+
+  return newMapping;
+};
 
 export const getWorkingDaysList = async (property) => {
   const fromDate = property.fromDate ? formateDateYYYMMDD(new Date(property.fromDate)) : '';

@@ -69,7 +69,7 @@ const DashboardOverview = () => {
             title="Bookings"
             count={dashboardOverview?.bookings.total}
             isLoss={Boolean(dashboardOverview?.bookings.isLoss)}
-            percentage={dashboardOverview?.bookings.percentage}
+            percentage={Number(dashboardOverview?.bookings.percentage)}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
@@ -78,7 +78,7 @@ const DashboardOverview = () => {
             count={dashboardOverview?.totalSaleValue.total}
             isLoss={Boolean(dashboardOverview?.totalSaleValue.isLoss)}
             color="success"
-            percentage={dashboardOverview?.totalSaleValue.percentage}
+            percentage={Number(dashboardOverview?.totalSaleValue.percentage)}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
@@ -87,7 +87,7 @@ const DashboardOverview = () => {
             count={dashboardOverview?.newCustomer.total}
             isLoss={Boolean(dashboardOverview?.newCustomer.isLoss)}
             color="warning"
-            percentage={dashboardOverview?.newCustomer.percentage}
+            percentage={Number(dashboardOverview?.newCustomer.percentage)}
           />
         </Grid>
 
@@ -114,7 +114,7 @@ const DashboardOverview = () => {
             title="Rebook Rate"
             count={dashboardOverview?.rebookRate.total}
             isLoss={Boolean(dashboardOverview?.rebookRate.isLoss)}
-            percentage={dashboardOverview?.rebookRate.percentage}
+            percentage={Number(dashboardOverview?.rebookRate.percentage)}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
@@ -122,7 +122,7 @@ const DashboardOverview = () => {
             title="Customer Retention"
             count={dashboardOverview?.customerRetention.total}
             isLoss={Boolean(dashboardOverview?.customerRetention.isLoss)}
-            percentage={dashboardOverview?.customerRetention.percentage}
+            percentage={Number(dashboardOverview?.customerRetention.percentage)}
             color="success"
           />
         </Grid>
@@ -131,7 +131,7 @@ const DashboardOverview = () => {
             title="Average Sale Value (Rp)"
             count={dashboardOverview?.avgSaleValue.total}
             isLoss={Boolean(dashboardOverview?.avgSaleValue.isLoss)}
-            percentage={dashboardOverview?.avgSaleValue.percentage}
+            percentage={Number(dashboardOverview?.avgSaleValue.percentage)}
             color="warning"
           />
         </Grid>
