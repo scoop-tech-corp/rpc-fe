@@ -352,6 +352,8 @@
   "fixed-header": "Fixed Header",
   "follow-up-reminders": "Follow Up Reminders",
   "follow-up": "Follow Up",
+  "forbidden": "Forbidden",
+  "forbidden-desc": "You don't have permission to access this module",
   "forgot-password": "Forgot Password",
   "form-edit": "Form Edit",
   "form-tracking": "Form Tracking",

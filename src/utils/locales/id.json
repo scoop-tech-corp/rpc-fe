@@ -297,6 +297,8 @@
   "first-name-minimum-3-char-and-max-20-char": "Nama depan minimal 3 karakter dan maksimum 20 karakter",
   "follow-up-reminders": "Pengingat Tindak Lanjut",
   "follow-up": "Tindak Lanjut",
+  "forbidden": "Dilarang",
+  "forbidden-desc": "Anda tidak memiliki izin untuk mengakses modul ini", 
   "form-edit": "Form Ubah",
   "form-tracking": "Form Pelacakan",
   "friday": "Jumat",
