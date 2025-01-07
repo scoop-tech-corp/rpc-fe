@@ -115,7 +115,8 @@ export const list = {
   staff: [
     { id: 1, val: 'Staff Login', url: 'login', icon: <UnorderedListOutlined /> },
     { id: 2, val: 'Staff Late', url: 'late', icon: <LineChartOutlined /> },
-    { id: 3, val: 'Staff Leave', url: 'leave', icon: <LineChartOutlined /> }
+    { id: 3, val: 'Staff Leave', url: 'leave', icon: <LineChartOutlined /> },
+    { id: 4, val: 'Staff Performance', url: 'performance', icon: <UnorderedListOutlined /> }
   ],
   service: [{ id: 1, val: 'Summary ' }]
 };

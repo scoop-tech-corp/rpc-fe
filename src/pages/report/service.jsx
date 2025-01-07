@@ -12,6 +12,7 @@ const urlCustomerSubAccount = 'report/customer/subaccount';
 const urlStaffLogin = 'report/staff/login';
 const urlStaffLate = 'report/staff/late';
 const urlStaffLeave = 'report/staff/leave';
+const urlStaffPerformance = 'report/staff/peformance';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -385,6 +386,43 @@ export const exportReportStaffLeave = async (payload) => {
       locationId: location.length ? location : [''],
       staffId: staff.length ? staff : [''],
       leaveType: leaveType.length ? leaveType : ['']
+    }
+  });
+};
+
+export const getReportStaffPerformance = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlStaffPerformance, {
+    params: {
+      dateFrom,
+      dateTo,
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      locationId: location,
+      staffId: staff
+    }
+  });
+};
+
+export const exportReportStaffPerformance = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+
+  return await axios.get(`${urlStaffPerformance}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      staffId: staff.length ? staff : ['']
     }
   });
 };

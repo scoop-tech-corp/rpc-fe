@@ -77,7 +77,7 @@ export default function FilterStaff({ extData, filter, setFilter }) {
                 fullWidth={true}
                 startIcon={<UndoOutlined />}
                 onClick={() => {
-                  setFilter(() => ({ orderValue: '', orderColumn: '', date: '', location: [] }));
+                  setFilter(() => ({ orderValue: '', orderColumn: '', date: '', location: [], staff: [], leaveType: [] }));
                   setIsReset(true);
                 }}
               >

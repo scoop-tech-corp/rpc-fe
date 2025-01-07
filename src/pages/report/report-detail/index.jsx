@@ -25,6 +25,7 @@ import {
   exportReportStaffLate,
   exportReportStaffLeave,
   exportReportStaffLogin,
+  exportReportStaffPerformance,
   getReportCustomerGrowth,
   getReportCustomerGrowthGroup,
   getReportCustomerLeaving,
@@ -34,7 +35,8 @@ import {
   getReportCustomerTotal,
   getReportStaffLate,
   getReportStaffLeave,
-  getReportStaffLogin
+  getReportStaffLogin,
+  getReportStaffPerformance
 } from '../service';
 
 import useAuth from 'hooks/useAuth';
@@ -59,6 +61,7 @@ import FilterStaff from './filter/staff';
 import StaffLogin from './section/staff/login';
 import StaffLate from './section/staff/late';
 import StaffLeave from './section/staff/leave';
+import StaffPerformance from './section/staff/performance';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -163,6 +166,7 @@ export default function Index() {
       if (detail === 'login') respFetch = await getReportStaffLogin(filter);
       if (detail === 'late') respFetch = await getReportStaffLate(filter);
       if (detail === 'leave') respFetch = await getReportStaffLeave(filter);
+      if (detail === 'performance') respFetch = await getReportStaffPerformance(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -211,6 +215,7 @@ export default function Index() {
       else if (type === 'staff' && detail === 'login') return await exportReportStaffLogin(filter);
       else if (type === 'staff' && detail === 'late') return await exportReportStaffLate(filter);
       else if (type === 'staff' && detail === 'leave') return await exportReportStaffLeave(filter);
+      else if (type === 'staff' && detail === 'performance') return await exportReportStaffPerformance(filter);
     };
 
     fetchExport()
@@ -274,6 +279,7 @@ export default function Index() {
     if (type === 'staff' && detail === 'login') return 'staff-login';
     if (type === 'staff' && detail === 'late') return 'staff-late';
     if (type === 'staff' && detail === 'leave') return 'staff-leave';
+    if (type === 'staff' && detail === 'performance') return 'staff-performance';
 
     return '-';
   };
@@ -305,6 +311,7 @@ export default function Index() {
     if (type === 'staff' && detail === 'login') return <StaffLogin data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'staff' && detail === 'late') return <StaffLate data={mainData} setFilter={setFilter} />;
     if (type === 'staff' && detail === 'leave') return <StaffLeave data={mainData} setFilter={setFilter} />;
+    if (type === 'staff' && detail === 'performance') return <StaffPerformance data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };
