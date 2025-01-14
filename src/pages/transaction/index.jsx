@@ -19,6 +19,7 @@ import TabPanel from 'components/TabPanelC';
 import ConfirmationC from 'components/ConfirmationC';
 import useGetList from 'hooks/useGetList';
 import useAuth from 'hooks/useAuth';
+import TransactionDetail from './detail';
 
 const Transaction = () => {
   const intl = useIntl();
@@ -30,7 +31,8 @@ const Transaction = () => {
     'search'
   );
 
-  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, data: null });
+  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
+  const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [filterLocationList, setFilterLocationList] = useState([]);
@@ -44,7 +46,7 @@ const Transaction = () => {
   const [dialog, setDialog] = useState(false);
 
   const onClickAdd = () => {
-    setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true, data: null }));
+    setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
   };
 
   const onConfirm = async (value) => {
@@ -134,9 +136,8 @@ const Transaction = () => {
 
           return (
             <Link
-              onClick={async () => {
-                const resp = await getTransactionDetail(getId);
-                setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true, data: resp.data }));
+              onClick={() => {
+                setDetailTransactionConfig({ isOpen: true, data: { id: getId } });
               }}
             >
               {data.value}
@@ -309,13 +310,28 @@ const Transaction = () => {
       {formTransactionConfig.isOpen && (
         <FormTransaction
           open={formTransactionConfig.isOpen}
-          data={formTransactionConfig.data}
+          id={formTransactionConfig.id}
           onClose={(e) => {
-            setFormTransactionConfig({ isOpen: false, data: null });
+            setFormTransactionConfig({ isOpen: false, id: null });
             if (e) setParams((_params) => ({ ..._params }));
           }}
         />
       )}
+
+      {detailTransactionConfig.isOpen && (
+        <TransactionDetail
+          open={detailTransactionConfig.isOpen}
+          data={detailTransactionConfig.data}
+          onClose={async (action) => {
+            if (action === 'edit') {
+              setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });
+            }
+
+            setDetailTransactionConfig({ isOpen: false, data: { id: null } });
+          }}
+        />
+      )}
+
       <ConfirmationC
         open={dialog}
         title={<FormattedMessage id="delete" />}

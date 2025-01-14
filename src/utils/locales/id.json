@@ -1,6 +1,7 @@
 {
   "absent": "Absen",
   "active": "Aktif",
+  "activity": "Aktifitas",
   "add-task": "Tambah Tugas",
   "add-transaction": "Tambah Transaksi",
   "add": "Tambah",
@@ -259,6 +260,7 @@
   "edit-product": "Ubah Produk",
   "edit-service": "Ubah Tugas",
   "edit-task": "Ubah ",
+  "edit-transaction": "Ubah Transaksi",
   "email-address": "Alamat Email",
   "email-is-required": "Email wajib di isi",
   "end-date": "Tanggal Selesai",

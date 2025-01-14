@@ -1,6 +1,7 @@
 {
   "absent": "Absent",
   "active": "Active",
+  "activity": "Activity",
   "add-task": "Add Task",
   "add-transaction": "Add Transaction",
   "all-reports": "All Reports",
@@ -307,6 +308,7 @@
   "edit-product": "Edit Product",
   "edit-service": "Edit Service",
   "edit-task": "Edit Task",
+  "edit-transaction": "Edit Transaction",
   "email-address": "Email Address",
   "email-is-required": "Email is required",
   "end-date": "End Date",
