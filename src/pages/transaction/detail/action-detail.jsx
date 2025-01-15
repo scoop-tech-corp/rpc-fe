@@ -17,11 +17,13 @@ import Transitions from 'components/@extended/Transitions';
 // import { useDispatch } from 'react-redux';
 // import { useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
+import useAuth from 'hooks/useAuth';
 
 const TransactionDetailAction = (props) => {
   const theme = useTheme();
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
   const anchorRef = useRef(null);
+  const { user } = useAuth();
   // const navigate = useNavigate();
   // const dispatch = useDispatch();
 
@@ -84,11 +86,7 @@ const TransactionDetailAction = (props) => {
                     }
                   }}
                 >
-                  <ListItemButton
-                    onClick={() => {
-                      props.onAction('edit');
-                    }}
-                  >
+                  <ListItemButton onClick={() => props.onAction('edit')}>
                     <ListItemText
                       primary={
                         <Typography color="textPrimary">
@@ -97,25 +95,30 @@ const TransactionDetailAction = (props) => {
                       }
                     />
                   </ListItemButton>
-                  <ListItemButton onClick={() => {}}>
-                    <ListItemText
-                      primary={
-                        <Typography color="textPrimary">
-                          <FormattedMessage id="accept-patient" />
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
 
-                  <ListItemButton onClick={() => {}}>
-                    <ListItemText
-                      primary={
-                        <Typography color="textPrimary">
-                          <FormattedMessage id="cancel-patient" />
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
+                  {['doctor', 'administrator'].includes(user?.role) && (
+                    <>
+                      <ListItemButton onClick={() => props.onAction('accept-patient')}>
+                        <ListItemText
+                          primary={
+                            <Typography color="textPrimary">
+                              <FormattedMessage id="accept-patient" />
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+
+                      <ListItemButton onClick={() => props.onAction('cancel-patient')}>
+                        <ListItemText
+                          primary={
+                            <Typography color="textPrimary">
+                              <FormattedMessage id="cancel-patient" />
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+                    </>
+                  )}
 
                   <ListItemButton onClick={() => {}}>
                     <ListItemText

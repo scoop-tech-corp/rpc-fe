@@ -1,22 +1,55 @@
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Box, Grid, InputLabel, Stack, Tab, Tabs } from '@mui/material';
-import { getTransactionDetail } from '../service';
+import { acceptTransaction, getTransactionDetail } from '../service';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { useDispatch } from 'react-redux';
+import { createMessageBackend } from 'service/service-global';
 
 import ModalC from 'components/ModalC';
 import TabPanel from 'components/TabPanelC';
 import PropTypes from 'prop-types';
 import TransactionDetailAction from './action-detail';
 import LogActivityDetailTransaction from './log-activity';
+import ConfirmationC from 'components/ConfirmationC';
+import FormReject from 'components/FormReject';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
   const [tabSelected, setTabSelected] = useState(0);
+  const [dialog, setDialog] = useState({ accept: false, reject: false });
   const [data, setData] = useState({ detail: {}, log: [] });
   const [filterLog, setFilterLog] = useState({}); // { dateRange: null }
   const onChangeTab = (value) => setTabSelected(value);
+  const dispatch = useDispatch();
 
   const onCancel = () => props.onClose(false);
+
+  // procedure => accept , cancel
+  const onConfirm = async (val, procedure) => {
+    if (val) {
+      await acceptTransaction({
+        transactionId: +data.detail.id,
+        status: procedure === 'accept' ? 1 : 0,
+        reason: procedure === 'cancel' ? val : ''
+      })
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialog({ accept: false, reject: false });
+            dispatch(snackbarSuccess(`Success ${procedure} patient`));
+            props.onClose(`${procedure}-patient`);
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialog({ accept: false, reject: false });
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else {
+      setDialog({ accept: false, reject: false });
+    }
+  };
 
   const fetchData = async () => {
     const resp = await getTransactionDetail({
@@ -45,16 +78,14 @@ const TransactionDetail = (props) => {
           element: (
             <TransactionDetailAction
               onAction={(action) => {
-                props.onClose(action);
+                if (action === 'accept-patient') {
+                  setDialog({ accept: true, reject: false });
+                } else if (action === 'cancel-patient') {
+                  setDialog({ accept: false, reject: true });
+                } else {
+                  props.onClose(action);
+                }
               }}
-              // id={props.id}
-              // status={dataDetail.productBundle?.status}
-              // getDetail={getDetail}
-              // onRefreshIndex={(e) => props.onRefreshIndex(e)}
-              // onCancelDetail={() => {
-              //   props.onClose({ isClose: true, isCloseWithHitIndex: true });
-              //   setTabSelected(0);
-              // }}
             />
           ),
           justifyContent: 'flex-start',
@@ -198,6 +229,19 @@ const TransactionDetail = (props) => {
           </TabPanel>
         </Box>
       </ModalC>
+      <ConfirmationC
+        open={dialog.accept}
+        title={<FormattedMessage id="accept-patient" />}
+        content={<FormattedMessage id="are-you-sure-want-to-accept-this-patient" />}
+        onClose={(response) => onConfirm(response, 'accept')}
+        btnTrueText="Ok"
+      />
+      <FormReject
+        open={dialog.reject}
+        title={<FormattedMessage id="confirm-and-please-fill-in-the-reasons-for-cancel-this-patient" />}
+        onSubmit={(response) => onConfirm(response, 'cancel')}
+        onClose={() => setDialog({ accept: false, reject: false })}
+      />
     </>
   );
 };

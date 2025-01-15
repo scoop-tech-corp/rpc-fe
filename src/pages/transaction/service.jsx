@@ -160,3 +160,20 @@ export const exportTransaction = async (payload) => {
     }
   });
 };
+
+export const acceptTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('status', payload.status);
+  formData.append('reason', payload.reason);
+
+  return await axios.post('transaction/accept', formData);
+};
+
+export const reassignTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('doctorId', payload.doctorId);
+
+  return await axios.post('transaction/reassign', formData);
+};

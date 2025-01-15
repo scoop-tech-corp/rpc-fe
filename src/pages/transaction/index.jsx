@@ -1,11 +1,17 @@
 import { FormattedMessage, useIntl } from 'react-intl';
-import { deleteTransaction, exportTransaction, getCategoryTransactionList, getTransactionDetail, getTransactionIndex } from './service';
-import { Button, Stack, Box, Tab, Tabs, Autocomplete, TextField, Grid, Link } from '@mui/material'; // useMediaQuery
+import { deleteTransaction, exportTransaction, getCategoryTransactionList, getTransactionIndex, reassignTransaction } from './service';
+import { Button, Stack, Box, Tab, Tabs, Autocomplete, TextField, Grid, Link, Tooltip, InputLabel } from '@mui/material'; // useMediaQuery
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { GlobalFilter } from 'utils/react-table';
 import { useEffect, useMemo, useState } from 'react';
-import { createMessageBackend, getCustomerGroupList, getLocationList, processDownloadExcel } from 'service/service-global';
+import {
+  createMessageBackend,
+  getCustomerGroupList,
+  getDoctorStaffByLocationList,
+  getLocationList,
+  processDownloadExcel
+} from 'service/service-global';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
@@ -19,7 +25,10 @@ import TabPanel from 'components/TabPanelC';
 import ConfirmationC from 'components/ConfirmationC';
 import useGetList from 'hooks/useGetList';
 import useAuth from 'hooks/useAuth';
+import IconButton from 'components/@extended/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import TransactionDetail from './detail';
+import ModalC from 'components/ModalC';
 
 const Transaction = () => {
   const intl = useIntl();
@@ -44,6 +53,7 @@ const Transaction = () => {
   const [filterServiceCategoryList, setFilterServiceCategoryList] = useState([]);
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
+  const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -125,9 +135,100 @@ const Transaction = () => {
     return user?.role === 'administrator' ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
   };
 
+  const ReassignModalC = (props) => {
+    const [doctor, setDoctor] = useState(null);
+
+    const onOk = async () => {
+      await reassignTransaction({ transactionId: props.data.transactionId, doctorId: doctor.value })
+        .then((resp) => {
+          if (resp.status === 200) {
+            props.onClose(true);
+            dispatch(snackbarSuccess('Success reassign data'));
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            props.onClose(false);
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    };
+
+    return (
+      <ModalC
+        title={'Reassign'}
+        okText="Save"
+        cancelText="Cancel"
+        open={props.open}
+        onOk={onOk}
+        onCancel={() => props.onClose(false)}
+        disabledOk={!doctor}
+        sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 435 } }}
+        maxWidth="xs"
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel htmlFor="doctor">
+                <FormattedMessage id="doctor" />
+              </InputLabel>
+              <Autocomplete
+                id="doctor"
+                options={props.data.listDoctor || []}
+                value={doctor}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, selected) => setDoctor(selected ? selected : null)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!doctor}
+                    helperText={!doctor ? <FormattedMessage id="doctor-is-required" /> : ''}
+                    variant="outlined"
+                  />
+                )}
+              />
+            </Stack>
+          </Grid>
+        </Grid>
+      </ModalC>
+    );
+  };
+
+  const columnAction = () => {
+    return ['administrator', 'staff'].includes(user?.role)
+      ? [
+          {
+            Header: <FormattedMessage id="action" />,
+            accessor: 'action',
+            style: { textAlign: 'center' },
+            isNotSorting: true,
+            Cell: (data) => {
+              const doReassign = async () => {
+                const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
+                setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
+              };
+
+              return (
+                <Stack spacing={0.1} direction={'row'} justifyContent="center">
+                  {data.row.original.status.toLowerCase() === 'ditolak dokter' && (
+                    <Tooltip title={'Reassign'} arrow>
+                      <IconButton size="large" color="success" onClick={doReassign}>
+                        <RefreshIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Stack>
+              );
+            }
+          }
+        ]
+      : [];
+  };
+
   const columns = useMemo(
     () => [
       ...columnCheckbox(),
+      ...columnAction(),
       {
         Header: <FormattedMessage id="registration-no" />,
         accessor: 'registrationNo',
@@ -167,7 +268,7 @@ const Transaction = () => {
             <ReactTable
               columns={columns}
               data={list || []}
-              colSpanPagination={11}
+              colSpanPagination={12}
               totalPagination={totalPagination}
               setPageNumber={params.goToPage}
               setPageRow={params.rowPerPage}
@@ -325,6 +426,8 @@ const Transaction = () => {
           onClose={async (action) => {
             if (action === 'edit') {
               setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });
+            } else if (['accept-patient', 'cancel-patient'].includes(action)) {
+              setParams((_params) => ({ ..._params }));
             }
 
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
@@ -339,6 +442,16 @@ const Transaction = () => {
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
+      />
+
+      <ReassignModalC
+        open={reassignDialog.isOpen}
+        data={reassignDialog.data}
+        onClose={(resp) => {
+          if (resp) setParams((_params) => ({ ..._params }));
+
+          setReassignDialog({ isOpen: false, data: { listDoctor: [], transactionId: null } });
+        }}
       />
     </>
   );
