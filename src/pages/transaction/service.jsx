@@ -25,14 +25,18 @@ export const getCategoryTransactionList = async () => {
   });
 };
 
-const SeriviceCategory = {
+export const ServiceCategory = {
   clinic: 'Pet Clinic',
   hotel: 'Pet Hotel',
   salon: 'Pet Salon',
   pecak: 'Pacak'
 };
 
-export const createTransaction = async (payload) => {
+export const getKeyServiceCategoryByValue = (value) => {
+  return Object.entries(ServiceCategory).find(([, val]) => val === value)?.[0];
+};
+
+const mapPayloadTransactionForm = (payload) => {
   const startDate = payload.startDate ? formateDateYYYMMDD(new Date(payload.startDate)) : '';
   const endDate = payload.endDate ? formateDateYYYMMDD(new Date(payload.endDate)) : '';
   const petDob = payload.petDateOfBirth ? formateDateYYYMMDD(new Date(payload.petDateOfBirth)) : '';
@@ -45,15 +49,58 @@ export const createTransaction = async (payload) => {
   const customer = isNewCustomer ? payload.customerName : payload.customerName.value;
   const location = payload.location.value;
 
+  return {
+    isNewPet: isNewPet(),
+    startDate,
+    endDate,
+    petDob,
+    isNewCustomer,
+    customer,
+    location
+  };
+};
+
+export const updateTransaction = async (payload) => {
+  const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
+
+  return await axios.put('transaction', {
+    id: payload.id,
+    registrationNo: payload.registrationNo,
+    isNewCustomer: isNewCustomer,
+    locationId: location,
+    customerId: payload.customerId,
+    customerName: customer,
+    registrant: payload.registrantName || '',
+    isNewPet, // 0 untuk No, 1 untuk Yes
+    petId: payload.petId, // !isNewPet ? payload.pets.value : '' untuk pet lama, pet baru tidak perlu diisi
+    petName: payload.petName || '',
+    petCategory: payload.petCategory?.value || '',
+    condition: payload.petCondition,
+    petGender: payload.petGender,
+    isSterile: payload.petSterile,
+    birthDate: petDob,
+    month: payload.petMonth,
+    year: payload.petYear,
+    serviceCategory: ServiceCategory[payload.configTransaction],
+    startDate,
+    endDate,
+    doctorId: payload.treatingDoctor?.value, // sementara hardcode dlu, ga dpt datanya
+    note: payload.notes
+  });
+};
+
+export const createTransaction = async (payload) => {
+  const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
+
   const formData = new FormData();
   formData.append('isNewCustomer', isNewCustomer);
   formData.append('locationId', location);
-  formData.append('customerId', customer);
-  formData.append('customerName', customer);
+  formData.append('customerId', isNewCustomer ? '' : customer);
+  formData.append('customerName', isNewCustomer ? customer : '');
   formData.append('registrant', payload.registrantName || '');
 
-  formData.append('isNewPet', isNewPet()); // 0 untuk No, 1 untuk Yes
-  formData.append('petId', !isNewPet() ? payload.pets.value : ''); // untuk pet lama, pet baru tidak perlu diisi
+  formData.append('isNewPet', isNewPet); // 0 untuk No, 1 untuk Yes
+  formData.append('petId', !isNewPet ? payload.pets.value : ''); // untuk pet lama, pet baru tidak perlu diisi
   formData.append('petName', payload.petName || '');
   formData.append('petCategory', payload.petCategory?.value || '');
   formData.append('condition', payload.petCondition);
@@ -62,7 +109,7 @@ export const createTransaction = async (payload) => {
   formData.append('birthDate', petDob);
   formData.append('month', payload.petMonth);
   formData.append('year', payload.petYear);
-  formData.append('serviceCategory', SeriviceCategory[payload.configTransaction]);
+  formData.append('serviceCategory', ServiceCategory[payload.configTransaction]);
   formData.append('startDate', startDate);
   formData.append('endDate', endDate);
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
@@ -87,9 +134,12 @@ export const getTransactionIndex = async (payload) => {
   });
 };
 
-export const getTransactionDetail = async (id) => {
+export const getTransactionDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
   return await axios.get('transaction/detail', {
-    params: { id }
+    params: { id: payload.id, dateFrom, dateTo }
   });
 };
 
@@ -109,4 +159,55 @@ export const exportTransaction = async (payload) => {
       serviceCategoryId: payload.serviceCategories.length ? payload.serviceCategories : ['']
     }
   });
+};
+
+export const acceptTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('status', payload.status);
+  formData.append('reason', payload.reason);
+
+  return await axios.post('transaction/accept', formData);
+};
+
+export const reassignTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('doctorId', payload.doctorId);
+
+  return await axios.post('transaction/reassign', formData);
+};
+
+export const checkHplStatus = async (payload) => {
+  const estimateDateofBirth = payload.estimateDateofBirth ? formateDateYYYMMDD(new Date(payload.estimateDateofBirth)) : '';
+
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('estimateDateofBirth', estimateDateofBirth);
+  return await axios.post('transaction/hplcheck', formData);
+};
+
+export const checkPetConditionTransaction = async (payload) => {
+  const estimateDateofBirth = payload.estimateDateofBirth ? formateDateYYYMMDD(new Date(payload.estimateDateofBirth)) : '';
+
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('numberVaccines', payload.numberVaccines || 0);
+  formData.append('isLiceFree', payload.isLiceFree ? 1 : 0);
+  formData.append('noteLiceFree', payload.noteLiceFree);
+  formData.append('isFungusFree', payload.isFungusFree ? 1 : 0);
+  formData.append('noteFungusFree', payload.noteFungusFree);
+  formData.append('isPregnant', payload.isPregnant ? 1 : 0);
+  formData.append('estimateDateofBirth', estimateDateofBirth);
+
+  formData.append('isRecomendInpatient', payload.isRecomendInpatient ? 1 : 0);
+  formData.append('noteInpatient', payload.noteInpatient);
+
+  formData.append('isParent', payload.isParent ? 1 : 0);
+  formData.append('isBreastfeeding', payload.isBreastfeeding ? 1 : 0);
+  formData.append('numberofChildren', payload.numberofChildren || 0);
+  formData.append('isAcceptToProcess', payload.reasonReject ? 0 : 1);
+  formData.append('reasonReject', payload.reasonReject);
+
+  return await axios.post('transaction/petcheck', formData);
 };
