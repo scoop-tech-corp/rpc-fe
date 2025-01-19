@@ -292,39 +292,43 @@ const CheckPetCondition = (props) => {
             </FormGroup>
           </Grid>
 
-          <Grid item xs={12}>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isBreastfeeding}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isBreastfeeding: event.target.checked }))}
-                    name="isBreastfeeding"
+          {formValue.isParent && (
+            <>
+              <Grid item xs={12}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formValue.isBreastfeeding}
+                        onChange={(event) => setFormValue((e) => ({ ...e, isBreastfeeding: event.target.checked }))}
+                        name="isBreastfeeding"
+                      />
+                    }
+                    label={<FormattedMessage id="breast-feeding" />}
                   />
-                }
-                label={<FormattedMessage id="breast-feeding" />}
-              />
-            </FormGroup>
-          </Grid>
+                </FormGroup>
+              </Grid>
 
-          <Grid item xs={12}>
-            <Stack>
-              <InputLabel>
-                <FormattedMessage id="number-of-children" />
-              </InputLabel>
-              <TextField
-                fullWidth
-                type="number"
-                id="numberofChildren"
-                name="numberofChildren"
-                value={formValue.numberofChildren}
-                inputProps={{ min: 0 }}
-                onChange={(event) => {
-                  setFormValue((e) => ({ ...e, numberofChildren: event.target.value }));
-                }}
-              />
-            </Stack>
-          </Grid>
+              <Grid item xs={12}>
+                <Stack>
+                  <InputLabel>
+                    <FormattedMessage id="number-of-children" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    id="numberofChildren"
+                    name="numberofChildren"
+                    value={formValue.numberofChildren}
+                    inputProps={{ min: 0 }}
+                    onChange={(event) => {
+                      setFormValue((e) => ({ ...e, numberofChildren: event.target.value }));
+                    }}
+                  />
+                </Stack>
+              </Grid>
+            </>
+          )}
         </Grid>
       </ModalC>
       <FormReject
