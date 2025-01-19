@@ -177,3 +177,37 @@ export const reassignTransaction = async (payload) => {
 
   return await axios.post('transaction/reassign', formData);
 };
+
+export const checkHplStatus = async (payload) => {
+  const estimateDateofBirth = payload.estimateDateofBirth ? formateDateYYYMMDD(new Date(payload.estimateDateofBirth)) : '';
+
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('estimateDateofBirth', estimateDateofBirth);
+  return await axios.post('transaction/hplcheck', formData);
+};
+
+export const checkPetConditionTransaction = async (payload) => {
+  const estimateDateofBirth = payload.estimateDateofBirth ? formateDateYYYMMDD(new Date(payload.estimateDateofBirth)) : '';
+
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('numberVaccines', payload.numberVaccines || 0);
+  formData.append('isLiceFree', payload.isLiceFree ? 1 : 0);
+  formData.append('noteLiceFree', payload.noteLiceFree);
+  formData.append('isFungusFree', payload.isFungusFree ? 1 : 0);
+  formData.append('noteFungusFree', payload.noteFungusFree);
+  formData.append('isPregnant', payload.isPregnant ? 1 : 0);
+  formData.append('estimateDateofBirth', estimateDateofBirth);
+
+  formData.append('isRecomendInpatient', payload.isRecomendInpatient ? 1 : 0);
+  formData.append('noteInpatient', payload.noteInpatient);
+
+  formData.append('isParent', payload.isParent ? 1 : 0);
+  formData.append('isBreastfeeding', payload.isBreastfeeding ? 1 : 0);
+  formData.append('numberofChildren', payload.numberofChildren || 0);
+  formData.append('isAcceptToProcess', payload.reasonReject ? 0 : 1);
+  formData.append('reasonReject', payload.reasonReject);
+
+  return await axios.post('transaction/petcheck', formData);
+};

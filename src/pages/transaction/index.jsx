@@ -27,8 +27,10 @@ import useGetList from 'hooks/useGetList';
 import useAuth from 'hooks/useAuth';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 import TransactionDetail from './detail';
 import ModalC from 'components/ModalC';
+import CheckPetCondition from './check-pet-condition';
 
 const Transaction = () => {
   const intl = useIntl();
@@ -54,6 +56,7 @@ const Transaction = () => {
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
+  const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -194,41 +197,51 @@ const Transaction = () => {
     );
   };
 
-  const columnAction = () => {
-    return ['administrator', 'staff'].includes(user?.role)
-      ? [
-          {
-            Header: <FormattedMessage id="action" />,
-            accessor: 'action',
-            style: { textAlign: 'center' },
-            isNotSorting: true,
-            Cell: (data) => {
-              const doReassign = async () => {
-                const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
-                setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
-              };
-
-              return (
-                <Stack spacing={0.1} direction={'row'} justifyContent="center">
-                  {data.row.original.status.toLowerCase() === 'ditolak dokter' && (
-                    <Tooltip title={'Reassign'} arrow>
-                      <IconButton size="large" color="success" onClick={doReassign}>
-                        <RefreshIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                </Stack>
-              );
-            }
-          }
-        ]
-      : [];
-  };
-
   const columns = useMemo(
     () => [
       ...columnCheckbox(),
-      ...columnAction(),
+      {
+        Header: <FormattedMessage id="action" />,
+        accessor: 'action',
+        style: { textAlign: 'center' },
+        isNotSorting: true,
+        Cell: (data) => {
+          const statusRow = data.row.original.status;
+          const isPetCheckRow = +data.row.original.isPetCheck;
+          const transactionIdRow = +data.row.original.id;
+
+          const doReassign = async () => {
+            const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
+            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
+          };
+
+          return (
+            <Stack spacing={0.1} direction={'row'} justifyContent="center">
+              {['administrator', 'staff'].includes(user?.role) && statusRow.toLowerCase() === 'ditolak dokter' && (
+                <Tooltip title={'Reassign'} arrow>
+                  <IconButton size="large" color="success" onClick={doReassign}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {Boolean(isPetCheckRow) && (
+                <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
+          );
+        }
+      },
       {
         Header: <FormattedMessage id="registration-no" />,
         accessor: 'registrationNo',
@@ -444,15 +457,27 @@ const Transaction = () => {
         btnFalseText="Cancel"
       />
 
-      <ReassignModalC
-        open={reassignDialog.isOpen}
-        data={reassignDialog.data}
-        onClose={(resp) => {
-          if (resp) setParams((_params) => ({ ..._params }));
+      {reassignDialog.isOpen && (
+        <ReassignModalC
+          open={reassignDialog.isOpen}
+          data={reassignDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setReassignDialog({ isOpen: false, data: { listDoctor: [], transactionId: null } });
+          }}
+        />
+      )}
 
-          setReassignDialog({ isOpen: false, data: { listDoctor: [], transactionId: null } });
-        }}
-      />
+      {checkConditionPetDialog.isOpen && (
+        <CheckPetCondition
+          open={checkConditionPetDialog.isOpen}
+          data={checkConditionPetDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setCheckConditionPetDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
     </>
   );
 };
