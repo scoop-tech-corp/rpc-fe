@@ -14,6 +14,13 @@ export const getStaffList = async () => {
   });
 };
 
+export const getStaffJobTitleList = async () => {
+  const getResp = await axios.get('staff/jobtitle');
+  return getResp.data.map((dt) => {
+    return { label: dt.jobName, value: +dt.jobTitleid };
+  });
+};
+
 export const getDoctorStaffByLocationList = async (locationId) => {
   const getResp = await axios.get('staff/list/location/doctor', {
     params: { locationId }

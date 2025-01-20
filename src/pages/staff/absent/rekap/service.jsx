@@ -17,7 +17,8 @@ export const getStaffRekapList = async (property) => {
       dateTo: dateTo,
       locationId: property.locationId,
       staff: property.staff,
-      statusPresent: property.statusPresent
+      statusPresent: property.statusPresent,
+      staffJob: property.staffJob
     }
   });
 };
