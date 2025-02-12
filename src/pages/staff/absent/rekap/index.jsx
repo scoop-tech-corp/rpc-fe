@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useTheme } from '@mui/material/styles';
 import { Stack } from '@mui/system';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { FormattedMessage } from 'react-intl';
 import { exportStaffRekap, getAbsentPresentList, getAbsentStaffList, getStaffRekapDetail, getStaffRekapList } from './service';
-import { Autocomplete, Button, Link, TextField, useMediaQuery } from '@mui/material';
-import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
+import { Autocomplete, Button, Grid, Link, TextField } from '@mui/material';
+import { createMessageBackend, getLocationList, getStaffJobTitleList, processDownloadExcel } from 'service/service-global';
 import { snackbarError } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
@@ -22,8 +21,6 @@ import StaffRekapDetail from './detail';
 let paramStaffRekapList = {};
 
 const StaffRekap = () => {
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
   const { user } = useAuth();
   const isSpecialRole = ['administrator', 'manager'];
@@ -37,6 +34,8 @@ const StaffRekap = () => {
   const [ddAbsentStaffList, setDdAbsentStaffList] = useState([]);
   const [selectedFilterPresent, setFilterPresent] = useState([]);
   const [ddAbsentPresentList, setDdAbsentPresentList] = useState([]);
+  const [selectedFilterJobTitle, setFilterJobTitle] = useState([]);
+  const [ddStaffJobTitleList, setDdStaffJobTitleList] = useState([]);
 
   const columns = useMemo(
     () => [
@@ -134,6 +133,12 @@ const StaffRekap = () => {
     fetchData();
   };
 
+  const onFilterJobTitle = (selected) => {
+    paramStaffRekapList.staffJob = selected.map((dt) => dt.value);
+    setFilterJobTitle(selected);
+    fetchData();
+  };
+
   const clearParamFetchData = () => {
     paramStaffRekapList = {
       rowPerPage: 5,
@@ -144,7 +149,8 @@ const StaffRekap = () => {
       dateTo: '',
       locationId: [],
       staff: [],
-      statusPresent: []
+      statusPresent: [],
+      staffJob: []
     };
   };
 
@@ -165,6 +171,7 @@ const StaffRekap = () => {
     return new Promise(async (resolve) => {
       const getLoc = await getLocationList();
       const getPresentStaff = await getAbsentPresentList();
+      const getJobTitleStaff = await getStaffJobTitleList();
       let getAbsentStaff = [];
 
       if (isSpecialRole.includes(user?.role)) getAbsentStaff = await getAbsentStaffList();
@@ -172,6 +179,7 @@ const StaffRekap = () => {
       setDdLocationList(getLoc);
       setDdAbsentStaffList(getAbsentStaff);
       setDdAbsentPresentList(getPresentStaff);
+      setDdStaffJobTitleList(getJobTitleStaff);
       resolve(true);
     });
   };
@@ -196,78 +204,102 @@ const StaffRekap = () => {
   return (
     <>
       <MainCard content={false}>
-        <ScrollX>
-          <Stack spacing={3}>
-            <Stack
-              direction={matchDownSM ? 'column' : 'row'}
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <DateRangePicker onChange={(value) => onFilterDateRange(value)} value={selectedDateRange} format="dd/MM/yyy" />
+        <Stack spacing={3}>
+          <Grid container spacing={2} width={'100%'}>
+            <Grid item sm={12} xs={12} md={9}>
+              <Grid container spacing={2}>
+                <Grid item sm={12} xs={12} md={4}>
+                  <DateRangePicker
+                    onChange={(value) => onFilterDateRange(value)}
+                    value={selectedDateRange}
+                    format="dd/MM/yyy"
+                    className={'fullWidth'}
+                  />
+                </Grid>
                 {isSpecialRole.includes(user?.role) && (
                   <>
-                    <Autocomplete
-                      id="filterLocation"
-                      multiple
-                      limitTags={1}
-                      options={ddLocationList}
-                      value={selectedFilterLocation}
-                      sx={{ width: 225 }}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, value) => onFilterLocation(value)}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                    />
-                    <Autocomplete
-                      id="filterAbsentStaff"
-                      multiple
-                      limitTags={1}
-                      options={ddAbsentStaffList}
-                      value={selectedFilterStaff}
-                      sx={{ width: 225 }}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, value) => onFilterStaff(value)}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-staff" />} />}
-                    />
+                    <Grid item sm={12} xs={12} md={4}>
+                      <Autocomplete
+                        id="filterLocation"
+                        multiple
+                        limitTags={1}
+                        options={ddLocationList}
+                        value={selectedFilterLocation}
+                        isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                        onChange={(_, value) => onFilterLocation(value)}
+                        renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                      />
+                    </Grid>
+                    <Grid item sm={12} xs={12} md={4}>
+                      <Autocomplete
+                        id="filterAbsentStaff"
+                        multiple
+                        limitTags={1}
+                        options={ddAbsentStaffList}
+                        value={selectedFilterStaff}
+                        isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                        onChange={(_, value) => onFilterStaff(value)}
+                        renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-staff" />} />}
+                      />
+                    </Grid>
                   </>
                 )}
-                <Autocomplete
-                  id="filterAbsentPresent"
-                  multiple
-                  limitTags={1}
-                  options={ddAbsentPresentList}
-                  value={selectedFilterPresent}
-                  sx={{ width: 225 }}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, value) => onFilterPresentStatus(value)}
-                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-present-status" />} />}
-                />
-              </Stack>
-              <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
-                  <RefreshIcon />
-                </IconButton>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
-                </Button>
-              </Stack>
-            </Stack>
+                <Grid item sm={12} xs={12} md={4}>
+                  <Autocomplete
+                    id="filterAbsentPresent"
+                    multiple
+                    limitTags={1}
+                    options={ddAbsentPresentList}
+                    value={selectedFilterPresent}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, value) => onFilterPresentStatus(value)}
+                    renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-present-status" />} />}
+                  />
+                </Grid>
+                <Grid item sm={12} xs={12} md={4}>
+                  <Autocomplete
+                    id="filterStaffJobTitle"
+                    multiple
+                    limitTags={1}
+                    options={ddStaffJobTitleList}
+                    value={selectedFilterJobTitle}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, value) => onFilterJobTitle(value)}
+                    renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-staff-job-title" />} />}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} sm={12} md={2}>
+              <Grid container spacing={1}>
+                <Grid item sm={12} md={3}>
+                  <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={() => fetchData()}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Grid>
+                <Grid item sm={12} md={9}>
+                  <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                    <FormattedMessage id="export" />
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
 
+          <ScrollX>
             <ReactTable
               columns={columns}
               data={staffRekapData.data}
               totalPagination={staffRekapData.totalPagination}
               setPageNumber={paramStaffRekapList.goToPage}
               setPageRow={paramStaffRekapList.rowPerPage}
-              colSpanPagination={11}
+              colSpanPagination={12}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
               onPageSize={onPageSizeChange}
             />
-          </Stack>
-        </ScrollX>
+          </ScrollX>
+        </Stack>
       </MainCard>
       <StaffRekapDetail open={openDetail.isOpen} data={openDetail.data} onClose={(e) => setOpenDetail({ isOpen: !e, data: null })} />
     </>

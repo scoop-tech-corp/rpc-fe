@@ -43,6 +43,13 @@ export const createStaff = async (property) => {
   });
   const newLocationId = property.locationId.map((dt) => dt.value);
 
+  let typeIdentifications = [...property.typeIdentifications];
+  typeIdentifications = typeIdentifications.map((dt) => ({
+    identificationNumber: dt.identificationNumber,
+    typeId: Object.hasOwn(dt.typeId, 'value') ? dt.typeId.value : dt.typeId,
+    image: dt.image
+  }));
+
   param.append('firstName', property.firstName);
   param.append('middleName', property.middleName);
   param.append('lastName', property.lastName);
@@ -56,15 +63,12 @@ export const createStaff = async (property) => {
   param.append('registrationNo', property.registrationNo);
   param.append('designation', property.designation);
   param.append('locationId', JSON.stringify(newLocationId));
+  param.append('lineManagerId', property.lineManagerId);
 
   param.append('annualSickAllowance', property.annualSickAllowance);
   param.append('annualLeaveAllowance', property.annualLeaveAllowance);
   param.append('payPeriodId', property.payPeriodId);
   param.append('payAmount', formateNumber(property.payAmount));
-
-  param.append('typeId', property.typeId);
-  param.append('identificationNumber', property.identificationNumber);
-  param.append('additionalInfo', property.additionalInfo);
 
   param.append('roleId', property.roleId);
 
@@ -79,7 +83,19 @@ export const createStaff = async (property) => {
   param.append('email', JSON.stringify(property.email));
   param.append('messenger', JSON.stringify(property.messenger));
 
-  param.append('image', property.image?.selectedFile);
+  param.append('additionalInfo', property.additionalInfo);
+  // param.append('typeId', property.typeId);
+  // param.append('identificationNumber', property.identificationNumber);
+
+  param.append('typeIdentifications', JSON.stringify(typeIdentifications));
+
+  typeIdentifications.forEach((dt) => {
+    if (dt.image.selectedFile) {
+      param.append('imageIdentifications[]', dt.image.selectedFile);
+    }
+  });
+
+  // param.append('image', property.image?.selectedFile);
 
   return await axios.post('staff', param, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -118,14 +134,15 @@ export const updateStaff = async (property) => {
     registrationNo: property.registrationNo,
     designation: property.designation,
     locationId: newLocationId,
+    lineManagerId: property.lineManagerId,
 
     annualSickAllowance: property.annualSickAllowance,
     annualLeaveAllowance: property.annualLeaveAllowance,
     payPeriodId: property.payPeriodId,
     payAmount: formateNumber(property.payAmount),
 
-    typeId: property.typeId,
-    identificationNumber: property.identificationNumber,
+    // typeId: property.typeId,
+    // identificationNumber: property.identificationNumber,
     additionalInfo: property.additionalInfo,
 
     roleId: property.roleId,
@@ -152,8 +169,20 @@ export const uploadImageStaff = async (property) => {
   const fd = new FormData();
   const url = 'staff/imageStaff';
 
+  let typeIdentifications = [...property.typeIdentifications];
+  typeIdentifications = typeIdentifications.map((dt) => ({
+    identificationNumber: dt.identificationNumber,
+    typeId: Object.hasOwn(dt.typeId, 'value') ? dt.typeId.value : dt.typeId,
+    image: dt.image
+  }));
+
   fd.append('id', property.id);
-  fd.append('image', property.image ? property.image.selectedFile : '');
+  typeIdentifications.forEach((dt) => {
+    if (dt.image.selectedFile) {
+      param.append('imageIdentifications[]', dt.image.selectedFile);
+    }
+  });
+  param.append('typeIdentifications', JSON.stringify(typeIdentifications));
 
   return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -234,6 +263,13 @@ export const createTypeId = async (typeName) => {
   return await axios.post('staff/typeid', parameter, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const getStaffListManager = async () => {
+  const getResp = await axios.get('staff/listmanager');
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: +dt.id };
+  });
+};
+
 // Validation Form Staff
 const coreValidationPosition = [
   { code: 0, message: 'Job title is required' },
@@ -241,7 +277,8 @@ const coreValidationPosition = [
   { code: 2, message: 'End Date is required' },
   { code: 3, message: 'Location is required' },
   { code: 4, message: 'Start Date must be smaller then End Date' },
-  { code: 5, message: 'End Date must be greater then Start Date' }
+  { code: 5, message: 'End Date must be greater then Start Date' },
+  { code: 6, message: 'Line manager is required' }
 ];
 
 const coreValidationBasicDetail = [
@@ -258,6 +295,7 @@ export const validationFormStaff = (procedure) => {
   let getJobTitle = getAllState().jobTitleId;
   let getStartDate = getAllState().startDate;
   let getEndDate = getAllState().endDate;
+  let getLineManager = getAllState().lineManagerId;
 
   let getFirstName = getAllState().firstName;
   let getMiddleName = getAllState().middleName;
@@ -269,6 +307,7 @@ export const validationFormStaff = (procedure) => {
   let getJobTitleError = '';
   let getStartDateError = '';
   let getEndDateError = '';
+  let getLineManagerError = '';
 
   let getFirstNameError = '';
   let getMiddleNameError = '';
@@ -322,9 +361,10 @@ export const validationFormStaff = (procedure) => {
     }
 
     if (!getLocation.length) getLocationError = coreValidationPosition.find((d) => d.code === 3);
+    if (!getLineManager) getLineManagerError = coreValidationPosition.find((d) => d.code === 6);
 
-    if (getJobTitleError || getStartDateError || getEndDateError || getLocationError) {
-      return { getJobTitleError, getStartDateError, getEndDateError, getLocationError };
+    if (getJobTitleError || getStartDateError || getEndDateError || getLocationError || getLineManagerError) {
+      return { getJobTitleError, getStartDateError, getEndDateError, getLocationError, getLineManagerError };
     } else {
       return false;
     }

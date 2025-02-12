@@ -85,7 +85,7 @@ export const createStaffLeave = async (property) => {
 };
 
 export const getLeaveTypeList = async (usersId) => {
-  await axios.get('staff/leave/leavetype', { params: { usersId } });
+  const resp = await axios.get('staff/leave/leavetype', { params: { usersId } });
 
   const getData = resp.data;
   let newMapping = [];

@@ -2,10 +2,10 @@ import { Box, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router';
-import { defaultImage, defaultStaffForm, useStaffFormStore } from './staff-form-store';
+import { defaultImage, defaultStaffForm, getAllState, useStaffFormStore } from './staff-form-store';
 import { jsonCentralized } from 'utils/func';
 import { getLocationList } from 'service/service-global';
-import { getRolesIdList, getStaffDetail } from '../service';
+import { getRolesIdList, getStaffDetail, getStaffListManager } from '../service';
 import { getProvinceLocation } from 'pages/location/location-list/detail/service';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
@@ -35,6 +35,7 @@ const StaffForm = () => {
 
       // const getJobTitle = await getJobTitleList();
       const getRolesId = await getRolesIdList();
+      const getStaffManager = await getStaffListManager();
 
       useStaffFormStore.setState({
         messengerType: getDataStatic.dataStaticMessenger,
@@ -45,7 +46,8 @@ const StaffForm = () => {
         typeIdList: getDataStatic.dataStaticTypeId,
         rolesIdList: getRolesId,
         provinceList: getProvince,
-        locationList: getLoc
+        locationList: getLoc,
+        staffManagerList: getStaffManager
       });
 
       resolve(true);
@@ -61,6 +63,14 @@ const StaffForm = () => {
         label: dt.locationName
       };
     });
+
+    const typeIdList = getAllState().typeIdList;
+    const newTypeIdentifications = getData.identify.map((dt) => ({
+      typeId: typeIdList.find((type) => type.value === +dt.typeId),
+      identificationNumber: dt.identification,
+      image: { ...defaultImage }, // upload one image
+      imagePath: dt.imagePath ? `${configGlobal.apiUrl}${dt.imagePath}` : ''
+    }));
 
     setStaffName(`${getData.firstName ?? ''} ${getData.middleName ?? ''} ${getData.lastName ?? ''}`);
     useStaffFormStore.setState({
@@ -83,10 +93,8 @@ const StaffForm = () => {
       payPeriodId: +getData.payPeriodId,
       payAmount: getData.payAmount,
 
-      typeId: +getData.typeId, // tipe kartu identitas
-      identificationNumber: getData.identificationNumber,
-      image: jsonCentralized(defaultImage),
-      imagePath: getData.images[0] ? `${configGlobal.apiUrl}${getData.images[0].imagePath}` : '',
+      lineManagerId: +getData.lineManagerId,
+      typeIdentifications: newTypeIdentifications,
       additionalInfo: getData.additionalInfo,
 
       generalCustomerCanSchedule: +getData.generalCustomerCanSchedule ? true : false,

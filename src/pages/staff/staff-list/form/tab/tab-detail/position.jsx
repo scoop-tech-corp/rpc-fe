@@ -16,7 +16,8 @@ const configCoreErr = {
   jobTitleErr: '',
   startDateErr: '',
   endDateErr: '',
-  locationErr: ''
+  locationErr: '',
+  lineManagerErr: ''
 };
 
 const Position = () => {
@@ -33,6 +34,10 @@ const Position = () => {
   const locationId = useStaffFormStore((state) => state.locationId);
   const locationList = useStaffFormStore((state) => state.locationList);
 
+  const lineManagerId = useStaffFormStore((state) => state.lineManagerId);
+  const staffManagerList = useStaffFormStore((state) => state.staffManagerList);
+  const lineManagerValue = staffManagerList.find((sm) => sm.value === lineManagerId) || null;
+
   const isTouchForm = useStaffFormStore((state) => state.staffFormTouch);
 
   const [positionErr, setPositonErr] = useState(configCoreErr);
@@ -48,7 +53,8 @@ const Position = () => {
         jobTitleErr: getRespValidForm.getJobTitleError ? getRespValidForm.getJobTitleError.message : '',
         startDateErr: getRespValidForm.getStartDateError ? getRespValidForm.getStartDateError.message : '',
         endDateErr: getRespValidForm.getEndDateError ? getRespValidForm.getEndDateError.message : '',
-        locationErr: getRespValidForm.getLocationError ? getRespValidForm.getLocationError.message : ''
+        locationErr: getRespValidForm.getLocationError ? getRespValidForm.getLocationError.message : '',
+        lineManagerErr: getRespValidForm.getLineManagerError ? getRespValidForm.getLineManagerError.message : ''
       });
       useStaffFormStore.setState({ staffFormError: true });
     }
@@ -197,6 +203,26 @@ const Position = () => {
                     {...params}
                     error={Boolean(positionErr.locationErr && positionErr.locationErr.length > 0)}
                     helperText={positionErr.locationErr}
+                    variant="outlined"
+                  />
+                )}
+              />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Stack spacing={1}>
+              <InputLabel>Line Manager</InputLabel>
+              <Autocomplete
+                id="line-manager"
+                options={staffManagerList}
+                value={lineManagerValue}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => onDropdownHandler(value, 'lineManagerId')}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={Boolean(positionErr.lineManagerErr && positionErr.lineManagerErr.length > 0)}
+                    helperText={positionErr.lineManagerErr}
                     variant="outlined"
                   />
                 )}

@@ -114,8 +114,8 @@ const FormRequestLeave = (props) => {
 
   const getLeaveType = async () => {
     // hit get leave type based user id
-    const getLeaveTypeList = await getLeaveTypeList(props.userId);
-    setLeaveTypeList(getLeaveTypeList);
+    const getLeaveTypeListData = await getLeaveTypeList(props.userId);
+    setLeaveTypeList(getLeaveTypeListData);
   };
 
   const getWorkingDays = async () => {
