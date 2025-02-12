@@ -31,6 +31,13 @@ const defaultDetailMessenger = {
   usage: 'Utama'
 };
 
+export const defaultIdentification = {
+  typeId: null, // tipe kartu identitas
+  identificationNumber: '',
+  image: defaultImage, // upload one image
+  imagePath: ''
+};
+
 export const defaultStaffForm = {
   firstName: '',
   middleName: '',
@@ -39,6 +46,7 @@ export const defaultStaffForm = {
   gender: '',
   status: 1,
 
+  lineManagerId: null,
   jobTitleId: null,
   startDate: null,
   endDate: null,
@@ -51,10 +59,7 @@ export const defaultStaffForm = {
   payPeriodId: '',
   payAmount: '',
 
-  typeId: '', // tipe kartu identitas
-  identificationNumber: '',
-  image: defaultImage, // upload one image
-  imagePath: '',
+  typeIdentifications: [defaultIdentification],
   additionalInfo: '',
 
   generalCustomerCanSchedule: false, // checkbox
@@ -75,6 +80,7 @@ export const defaultStaffForm = {
   locationList: [], // dropdown
   typeIdList: [], // dropdown
   payPeriodList: [], // dropdown
+  staffManagerList: [], // dropdown
   jobTitleList: [], // dropdown
 
   rolesIdList: [],
