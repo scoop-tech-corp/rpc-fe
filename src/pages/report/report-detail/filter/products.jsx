@@ -1,0 +1,108 @@
+import { AlignCenterOutlined, UndoOutlined } from '@ant-design/icons';
+import { Button, Grid, TextField } from '@mui/material';
+import { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useSearchParams } from 'react-router-dom';
+
+import MultiSelectAll from 'components/MultiSelectAll';
+
+export default function FilterProducts({ extData, filter, setFilter }) {
+  const [isReset, setIsReset] = useState(false);
+  let [searchParams] = useSearchParams();
+  // let detail = searchParams.get('detail');
+
+  // {
+  //   search: '',
+  //   brand: [],
+  //   supplier: [],
+  //   location: []
+  // }
+
+  return (
+    <>
+      <Grid container spacing={2} width={'100%'}>
+        <Grid item sm={12} xs={12} md={9}>
+          <Grid container spacing={2}>
+            <Grid item sm={12} xs={12} md={4}>
+              <TextField
+                fullWidth
+                label={<FormattedMessage id="search" />}
+                id="filter-search"
+                name="filter-search"
+                value={filter.search}
+                onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
+              />
+            </Grid>
+            <Grid item sm={12} xs={12} md={4}>
+              <MultiSelectAll
+                items={extData?.brand || []}
+                limitTags={1}
+                value={filter?.brand}
+                key={'filter-brand'}
+                selectAllLabel="Select All"
+                onChange={(val) => setFilter((e) => ({ ...e, brand: val }))}
+                isReset={isReset}
+                setIsReset={setIsReset}
+                label={<FormattedMessage id="brand" />}
+              />
+            </Grid>
+            <Grid item sm={12} xs={12} md={4}>
+              <MultiSelectAll
+                items={extData?.supplier || []}
+                limitTags={1}
+                value={filter?.supplier}
+                key={'filter-supplier'}
+                selectAllLabel="Select All"
+                onChange={(val) => setFilter((e) => ({ ...e, supplier: val }))}
+                isReset={isReset}
+                setIsReset={setIsReset}
+                label={<FormattedMessage id="supplier" />}
+              />
+            </Grid>
+            <Grid item sm={12} xs={12} md={4}>
+              <MultiSelectAll
+                items={extData?.location || []}
+                limitTags={1}
+                value={filter?.location}
+                key={'filter-location'}
+                selectAllLabel="Select All"
+                onChange={(val) => setFilter((e) => ({ ...e, location: val }))}
+                isReset={isReset}
+                setIsReset={setIsReset}
+                label={<FormattedMessage id="location" />}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} sm={12} md={2}>
+          <Grid container spacing={1}>
+            <Grid item sm={12} md={6}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                fullWidth={true}
+                startIcon={<UndoOutlined />}
+                onClick={() => {
+                  setFilter(() => ({
+                    search: '',
+                    brand: [],
+                    supplier: [],
+                    location: []
+                  }));
+                  setIsReset(true);
+                }}
+              >
+                <FormattedMessage id="reset" />
+              </Button>
+            </Grid>
+            <Grid item sm={12} md={6}>
+              <Button variant="outlined" startIcon={<AlignCenterOutlined />} fullWidth>
+                <FormattedMessage id="filter" />
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </>
+  );
+}

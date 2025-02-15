@@ -14,6 +14,8 @@ const urlStaffLate = 'report/staff/late';
 const urlStaffLeave = 'report/staff/leave';
 const urlStaffPerformance = 'report/staff/peformance';
 
+const urlProductsStockCount = 'report/products/stockcount';
+
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
@@ -423,6 +425,41 @@ export const exportReportStaffPerformance = async (payload) => {
       dateTo,
       locationId: location.length ? location : [''],
       staffId: staff.length ? staff : ['']
+    }
+  });
+};
+
+export const getReportProductsStockCount = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const brand = payload.brand.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+
+  return await axios.get(urlProductsStockCount, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      locationId: location.length ? location : [''],
+      brandId: brand.length ? brand : [''],
+      supplierId: supplier.length ? supplier : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportProductsStockCount = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const brand = payload.brand.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+
+  return await axios.get(`${urlProductsStockCount}/export`, {
+    responseType: 'blob',
+    params: {
+      locationId: location.length ? location : [''],
+      brandId: brand.length ? brand : [''],
+      supplierId: supplier.length ? supplier : [''],
+      search: payload.search
     }
   });
 };
