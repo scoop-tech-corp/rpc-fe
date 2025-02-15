@@ -2,7 +2,7 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import React, { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export default function ProductsStockCount({ data, filter, setFilter }) {
+export default function ProductsLowStock({ data, filter, setFilter }) {
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
 

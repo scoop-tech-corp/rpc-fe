@@ -22,6 +22,7 @@ import {
   exportReportCustomerReferralSpend,
   exportReportCustomerSubAccount,
   exportReportCustomerTotal,
+  exportReportProductsLowStock,
   exportReportProductsStockCount,
   exportReportStaffLate,
   exportReportStaffLeave,
@@ -34,6 +35,7 @@ import {
   getReportCustomerReferralSpend,
   getReportCustomerSubAccount,
   getReportCustomerTotal,
+  getReportProductsLowStock,
   getReportProductsStockCount,
   getReportStaffLate,
   getReportStaffLeave,
@@ -67,6 +69,7 @@ import StaffPerformance from './section/staff/performance';
 import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
 import FilterProducts from './filter/products';
 import ProductsStockCount from './section/products/stock-count';
+import ProductsLowStock from './section/products/low-stock';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -188,6 +191,7 @@ export default function Index() {
       if (detail === 'performance') respFetch = await getReportStaffPerformance(filter);
     } else if (type === 'products') {
       if (detail === 'stock-count') respFetch = await getReportProductsStockCount(filter);
+      if (detail === 'low-stock') respFetch = await getReportProductsLowStock(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -238,6 +242,7 @@ export default function Index() {
       else if (type === 'staff' && detail === 'leave') return await exportReportStaffLeave(filter);
       else if (type === 'staff' && detail === 'performance') return await exportReportStaffPerformance(filter);
       else if (type === 'products' && detail === 'stock-count') return await exportReportProductsStockCount(filter);
+      else if (type === 'products' && detail === 'low-stock') return await exportReportProductsLowStock(filter);
     };
 
     fetchExport()
@@ -317,6 +322,7 @@ export default function Index() {
     if (type === 'staff' && detail === 'performance') return 'staff-performance';
 
     if (type === 'products' && detail === 'stock-count') return 'product-stock-count';
+    if (type === 'products' && detail === 'low-stock') return 'low-stock';
 
     return '-';
   };
@@ -353,6 +359,7 @@ export default function Index() {
 
     if (type === 'products' && detail === 'stock-count')
       return <ProductsStockCount data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'products' && detail === 'low-stock') return <ProductsLowStock data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };

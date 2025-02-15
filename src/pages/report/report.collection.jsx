@@ -88,7 +88,7 @@ export const list = {
   ],
   products: [
     { id: 1, val: 'Stock count', url: 'stock-count', icon: <UnorderedListOutlined /> },
-    { id: 2, val: 'Low stock' },
+    { id: 2, val: 'Low stock', url: 'low-stock', icon: <UnorderedListOutlined /> },
     { id: 3, val: 'No stock' },
     { id: 4, val: 'Batches' },
     { id: 5, val: 'Expiry' },

@@ -84,6 +84,10 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                 startIcon={<UndoOutlined />}
                 onClick={() => {
                   setFilter(() => ({
+                    orderValue: '',
+                    orderColumn: '',
+                    goToPage: 1,
+                    rowPerPage: 5,
                     search: '',
                     brand: [],
                     supplier: [],
