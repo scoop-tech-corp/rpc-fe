@@ -22,6 +22,7 @@ import {
   exportReportCustomerReferralSpend,
   exportReportCustomerSubAccount,
   exportReportCustomerTotal,
+  exportReportProductsCost,
   exportReportProductsLowStock,
   exportReportProductsStockCount,
   exportReportStaffLate,
@@ -35,6 +36,7 @@ import {
   getReportCustomerReferralSpend,
   getReportCustomerSubAccount,
   getReportCustomerTotal,
+  getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsStockCount,
   getReportStaffLate,
@@ -70,6 +72,7 @@ import { getBrandList, getSupplierList } from 'pages/product/product-list/servic
 import FilterProducts from './filter/products';
 import ProductsStockCount from './section/products/stock-count';
 import ProductsLowStock from './section/products/low-stock';
+import ProductsCost from './section/products/cost';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -112,6 +115,18 @@ export default function Index() {
         staff: [],
         leaveType: []
       };
+
+    if (type === 'products' && detail === 'cost') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: '',
+        rowPerPage: '',
+        date: '',
+        location: [],
+        product: []
+      };
+    }
 
     if (type === 'products') {
       return {
@@ -192,6 +207,7 @@ export default function Index() {
     } else if (type === 'products') {
       if (detail === 'stock-count') respFetch = await getReportProductsStockCount(filter);
       if (detail === 'low-stock') respFetch = await getReportProductsLowStock(filter);
+      if (detail === 'cost') respFetch = await getReportProductsCost(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -243,6 +259,7 @@ export default function Index() {
       else if (type === 'staff' && detail === 'performance') return await exportReportStaffPerformance(filter);
       else if (type === 'products' && detail === 'stock-count') return await exportReportProductsStockCount(filter);
       else if (type === 'products' && detail === 'low-stock') return await exportReportProductsLowStock(filter);
+      else if (type === 'products' && detail === 'cost') return await exportReportProductsCost(filter);
     };
 
     fetchExport()
@@ -322,7 +339,8 @@ export default function Index() {
     if (type === 'staff' && detail === 'performance') return 'staff-performance';
 
     if (type === 'products' && detail === 'stock-count') return 'product-stock-count';
-    if (type === 'products' && detail === 'low-stock') return 'low-stock';
+    if (type === 'products' && detail === 'low-stock') return 'product-low-stock';
+    if (type === 'products' && detail === 'cost') return 'product-cost';
 
     return '-';
   };
@@ -360,6 +378,8 @@ export default function Index() {
     if (type === 'products' && detail === 'stock-count')
       return <ProductsStockCount data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'products' && detail === 'low-stock') return <ProductsLowStock data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'products' && detail === 'cost')
+      return <ProductsCost data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
 
     return '';
   };

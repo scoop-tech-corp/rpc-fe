@@ -572,6 +572,8 @@
   "product-send": "Product Send",
   "product-supplier": "Product Supplier",
   "product-stock-count": "Product Stock Count",
+  "product-low-stock": "Product Low Stock",
+  "product-cost": "Product Cost",
   "status": "Status",
   "staff-absent": "Staff Absent",
   "staff2": "Staff",

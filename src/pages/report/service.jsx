@@ -16,6 +16,7 @@ const urlStaffPerformance = 'report/staff/peformance';
 
 const urlProductsStockCount = 'report/products/stockcount';
 const urlProductsLowStock = 'report/products/lowstock';
+const urlProductsCost = 'report/products/cost';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -496,6 +497,47 @@ export const exportReportProductsStockCount = async (payload) => {
       brandId: brand.length ? brand : [''],
       supplierId: supplier.length ? supplier : [''],
       search: payload.search
+    }
+  });
+};
+
+export const getReportProductsCost = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const product = payload.product.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlProductsCost, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      productId: product.length ? product : ['']
+    }
+  });
+};
+
+export const exportReportProductsCost = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const product = payload.product.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlProductsCost}/export`, {
+    responseType: 'blob',
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      productId: product.length ? product : ['']
     }
   });
 };

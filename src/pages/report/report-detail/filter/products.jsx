@@ -5,60 +5,68 @@ import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 
 import MultiSelectAll from 'components/MultiSelectAll';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 
 export default function FilterProducts({ extData, filter, setFilter }) {
   const [isReset, setIsReset] = useState(false);
   let [searchParams] = useSearchParams();
-  // let detail = searchParams.get('detail');
-
-  // {
-  //   search: '',
-  //   brand: [],
-  //   supplier: [],
-  //   location: []
-  // }
+  let detail = searchParams.get('detail');
 
   return (
     <>
       <Grid container spacing={2} width={'100%'}>
         <Grid item sm={12} xs={12} md={9}>
           <Grid container spacing={2}>
-            <Grid item sm={12} xs={12} md={4}>
-              <TextField
-                fullWidth
-                label={<FormattedMessage id="search" />}
-                id="filter-search"
-                name="filter-search"
-                value={filter.search}
-                onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
-              />
-            </Grid>
-            <Grid item sm={12} xs={12} md={4}>
-              <MultiSelectAll
-                items={extData?.brand || []}
-                limitTags={1}
-                value={filter?.brand}
-                key={'filter-brand'}
-                selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, brand: val }))}
-                isReset={isReset}
-                setIsReset={setIsReset}
-                label={<FormattedMessage id="brand" />}
-              />
-            </Grid>
-            <Grid item sm={12} xs={12} md={4}>
-              <MultiSelectAll
-                items={extData?.supplier || []}
-                limitTags={1}
-                value={filter?.supplier}
-                key={'filter-supplier'}
-                selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, supplier: val }))}
-                isReset={isReset}
-                setIsReset={setIsReset}
-                label={<FormattedMessage id="supplier" />}
-              />
-            </Grid>
+            {detail === 'cost' && (
+              <Grid item sm={12} xs={12} md={4}>
+                <DateRangePicker
+                  onChange={(value) => setFilter((e) => ({ ...e, date: value }))}
+                  value={filter.date}
+                  format="dd/MM/yyy"
+                  className={'fullWidth'}
+                />
+              </Grid>
+            )}
+            {['stock-count', 'low-stocket'].includes(detail) && (
+              <>
+                <Grid item sm={12} xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label={<FormattedMessage id="search" />}
+                    id="filter-search"
+                    name="filter-search"
+                    value={filter.search}
+                    onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
+                  />
+                </Grid>
+                <Grid item sm={12} xs={12} md={4}>
+                  <MultiSelectAll
+                    items={extData?.brand || []}
+                    limitTags={1}
+                    value={filter?.brand}
+                    key={'filter-brand'}
+                    selectAllLabel="Select All"
+                    onChange={(val) => setFilter((e) => ({ ...e, brand: val }))}
+                    isReset={isReset}
+                    setIsReset={setIsReset}
+                    label={<FormattedMessage id="brand" />}
+                  />
+                </Grid>
+                <Grid item sm={12} xs={12} md={4}>
+                  <MultiSelectAll
+                    items={extData?.supplier || []}
+                    limitTags={1}
+                    value={filter?.supplier}
+                    key={'filter-supplier'}
+                    selectAllLabel="Select All"
+                    onChange={(val) => setFilter((e) => ({ ...e, supplier: val }))}
+                    isReset={isReset}
+                    setIsReset={setIsReset}
+                    label={<FormattedMessage id="supplier" />}
+                  />
+                </Grid>
+              </>
+            )}
             <Grid item sm={12} xs={12} md={4}>
               <MultiSelectAll
                 items={extData?.location || []}
