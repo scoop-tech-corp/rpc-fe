@@ -79,8 +79,8 @@ export const list = {
     { id: 7, val: 'Sub Account List', url: 'sub-account-list', icon: <UnorderedListOutlined /> }
   ],
   deposit: [
-    { id: 1, val: 'Summary' },
-    { id: 2, val: 'List' }
+    { id: 1, val: 'Summary', url: 'summary', icon: <UnorderedListOutlined /> },
+    { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   expenses: [
     { id: 1, val: 'Summary' },
@@ -89,7 +89,7 @@ export const list = {
   products: [
     { id: 1, val: 'Stock count', url: 'stock-count', icon: <UnorderedListOutlined /> },
     { id: 2, val: 'Low stock', url: 'low-stock', icon: <UnorderedListOutlined /> },
-    { id: 3, val: 'No stock' },
+    { id: 3, val: 'No stock', url: 'no-stock', icon: <UnorderedListOutlined /> },
     { id: 4, val: 'Batches' },
     { id: 5, val: 'Expiry' },
     { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> }

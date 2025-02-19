@@ -493,6 +493,7 @@
   "product-stock-count": "Jumlah Stok Produk",
   "product-low-stock": "Stok Rendah Produk",
   "product-cost": "Biaya Produk",
+  "product-no-stock": "Stok Kosong Produk",
   "promotion": "Promo",
   "province": "Provinsi",
   "province-is-required": "Provinsi wajib di isi",

@@ -27,7 +27,7 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            {['stock-count', 'low-stocket'].includes(detail) && (
+            {['stock-count', 'low-stock', 'no-stock'].includes(detail) && (
               <>
                 <Grid item sm={12} xs={12} md={4}>
                   <TextField
