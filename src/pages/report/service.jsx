@@ -19,6 +19,9 @@ const urlProductsLowStock = 'report/products/lowstock';
 const urlProductsCost = 'report/products/cost';
 const urlProductsNoStock = 'report/products/nostock';
 
+const urlDepositList = 'report/deposit/list';
+const urlDepositSummary = 'report/deposit/summary';
+
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
@@ -574,6 +577,82 @@ export const exportReportProductsNoStock = async (payload) => {
       brandId: brand.length ? brand : [''],
       supplierId: supplier.length ? supplier : [''],
       search: payload.search
+    }
+  });
+};
+
+export const getReportDepositList = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const method = payload.method.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlDepositList, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      methodId: method.length ? method : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportDepositList = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const method = payload.method.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlDepositList}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      methodId: method.length ? method : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const getReportDepositSummary = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const method = payload.method.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlDepositSummary, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      methodId: method.length ? method : ['']
+    }
+  });
+};
+
+export const exportReportDepositSummary = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const method = payload.method.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlDepositSummary}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      methodId: method.length ? method : ['']
     }
   });
 };

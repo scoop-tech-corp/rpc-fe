@@ -8,7 +8,8 @@ import {
   getServiceList,
   getCustomerGroupList,
   createMessageBackend,
-  processDownloadExcel
+  processDownloadExcel,
+  getPaymentMethodList
 } from 'service/service-global';
 import { useSearchParams } from 'react-router-dom';
 import { getTypeIdList } from 'pages/customer/service';
@@ -22,6 +23,8 @@ import {
   exportReportCustomerReferralSpend,
   exportReportCustomerSubAccount,
   exportReportCustomerTotal,
+  exportReportDepositList,
+  exportReportDepositSummary,
   exportReportProductsCost,
   exportReportProductsLowStock,
   exportReportProductsNoStock,
@@ -37,6 +40,8 @@ import {
   getReportCustomerReferralSpend,
   getReportCustomerSubAccount,
   getReportCustomerTotal,
+  getReportDepositList,
+  getReportDepositSummary,
   getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsNoStock,
@@ -76,6 +81,9 @@ import ProductsStockCount from './section/products/stock-count';
 import ProductsLowStock from './section/products/low-stock';
 import ProductsCost from './section/products/cost';
 import ProductsNoStock from './section/products/no-stock ';
+import FilterDeposit from './filter/deposit';
+import DepositList from './section/deposit/list';
+import DepositSummary from './section/deposit/summary';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -123,8 +131,8 @@ export default function Index() {
       return {
         orderValue: '',
         orderColumn: '',
-        goToPage: '',
-        rowPerPage: '',
+        goToPage: 1,
+        rowPerPage: 5,
         date: '',
         location: [],
         product: []
@@ -141,6 +149,19 @@ export default function Index() {
         brand: [],
         supplier: [],
         location: []
+      };
+    }
+
+    if (type === 'deposit') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        search: '',
+        location: [],
+        method: []
       };
     }
   });
@@ -161,6 +182,7 @@ export default function Index() {
     if (type === 'customer') getPrepareDataForCustomer();
     if (type === 'staff') getPrepareDataForStaff();
     if (type === 'products') getPrepareDataForProducts();
+    if (type === 'deposit') getPrepareDataForDeposit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -212,6 +234,9 @@ export default function Index() {
       if (detail === 'low-stock') respFetch = await getReportProductsLowStock(filter);
       if (detail === 'cost') respFetch = await getReportProductsCost(filter);
       if (detail === 'no-stock') respFetch = await getReportProductsNoStock(filter);
+    } else if (type === 'deposit') {
+      if (detail === 'list') respFetch = await getReportDepositList(filter);
+      if (detail === 'summary') respFetch = await getReportDepositSummary(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -265,6 +290,8 @@ export default function Index() {
       else if (type === 'products' && detail === 'low-stock') return await exportReportProductsLowStock(filter);
       else if (type === 'products' && detail === 'cost') return await exportReportProductsCost(filter);
       else if (type === 'products' && detail === 'no-stock') return await exportReportProductsNoStock(filter);
+      else if (type === 'deposit' && detail === 'list') return await exportReportDepositList(filter);
+      else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
     };
 
     fetchExport()
@@ -322,6 +349,17 @@ export default function Index() {
     }));
   };
 
+  const getPrepareDataForDeposit = async () => {
+    const getLoc = await getLocationList();
+    const getPaymentMethod = await getPaymentMethodList();
+
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      method: getPaymentMethod
+    }));
+  };
+
   const getTitle = () => {
     if (type === 'booking' && detail === 'by-location') return 'booking-by-location';
     if (type === 'booking' && detail === 'by-status') return 'booking-by-status';
@@ -348,6 +386,9 @@ export default function Index() {
     if (type === 'products' && detail === 'cost') return 'product-cost';
     if (type === 'products' && detail === 'no-stock') return 'product-no-stock';
 
+    if (type === 'deposit' && detail === 'list') return 'deposit-list';
+    if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
+
     return '-';
   };
 
@@ -356,6 +397,7 @@ export default function Index() {
     if (type === 'customer') return <FilterCustomer extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'staff') return <FilterStaff extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'products') return <FilterProducts extData={extData} filter={filter} setFilter={setFilter} />;
+    if (type === 'deposit') return <FilterDeposit extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -388,6 +430,9 @@ export default function Index() {
       return <ProductsCost data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
     if (type === 'products' && detail === 'no-stock')
       return <ProductsNoStock data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
+
+    if (type === 'deposit' && detail === 'list') return <DepositList data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };
