@@ -14,15 +14,15 @@ export default function DepositSummary({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="returned" />,
-        accessor: 'returned'
+        accessor: 'returnedAmount'
       },
       {
         Header: <FormattedMessage id="used" />,
-        accessor: 'used'
+        accessor: 'usedAmount'
       },
       {
         Header: <FormattedMessage id="remaining" />,
-        accessor: 'remaining'
+        accessor: 'remainingAmount'
       }
     ],
     []
@@ -30,21 +30,21 @@ export default function DepositSummary({ data, filter, setFilter }) {
   const dataDummy = [
     {
       locationName: 'Location 1',
-      returned: 4000,
-      used: 0,
-      remaining: 4000
+      returnedAmount: 4000,
+      usedAmount: 0,
+      remainingAmount: 4000
     },
     {
       locationName: 'Location 2',
-      returned: 4000,
-      used: 0,
-      remaining: 4000
+      returnedAmount: 4000,
+      usedAmount: 0,
+      remainingAmount: 4000
     },
     {
       locationName: 'Location 3',
-      returned: 4000,
-      used: 0,
-      remaining: 4000
+      returnedAmount: 4000,
+      usedAmount: 0,
+      remainingAmount: 4000
     }
     // Add more data as needed
   ];

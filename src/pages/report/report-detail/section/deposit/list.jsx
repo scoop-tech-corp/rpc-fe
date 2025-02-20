@@ -10,7 +10,7 @@ export default function DepositList({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="reference" />,
-        accessor: 'reference'
+        accessor: 'referenceNo'
       },
       {
         Header: <FormattedMessage id="customer" />,
@@ -26,67 +26,67 @@ export default function DepositList({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="method" />,
-        accessor: 'method'
+        accessor: 'paymentMethod'
       },
       {
         Header: <FormattedMessage id="received" />,
-        accessor: 'received'
+        accessor: 'receivedAmount'
       },
       {
         Header: <FormattedMessage id="used-as-payment" />,
-        accessor: 'usedAsPayment'
+        accessor: 'usedAmount'
       },
       {
         Header: <FormattedMessage id="returned" />,
-        accessor: 'returned'
+        accessor: 'returnedAmount'
       },
       {
         Header: <FormattedMessage id="remaining" />,
-        accessor: 'remaining'
+        accessor: 'remainingAmount'
       },
       {
         Header: <FormattedMessage id="invoice" />,
-        accessor: 'invoice'
+        accessor: 'invoiceNo'
       }
     ],
     []
   );
   const dataDummy = [
     {
-      reference: '#00357357',
+      referenceNo: '#00357357',
       customerName: 'Customer 1',
       date: '12 May 2024',
       locationName: 'Location 1',
-      method: 'Debit Card',
-      received: 4000,
-      usedAsPayment: 0,
-      returned: 4000,
-      remaining: 4000,
-      invoice: 'INV-1515153'
+      paymentMethod: 'Debit Card',
+      receivedAmount: 4000,
+      usedAmount: 0,
+      returnedAmount: 4000,
+      remainingAmount: 4000,
+      invoiceNo: 'INV-1515153'
     },
     {
-      reference: '#00357357',
+      referenceNo: '#00357357',
       customerName: 'Customer 1',
       date: '12 May 2024',
       locationName: 'Location 1',
-      method: 'Debit Card',
-      received: 4000,
-      usedAsPayment: 0,
-      returned: 4000,
-      remaining: 4000,
-      invoice: 'INV-1515153'
+      paymentMethod: 'Debit Card',
+      receivedAmount: 4000,
+      usedAmount: 0,
+      returnedAmount: 4000,
+      remainingAmount: 4000,
+      invoiceNo: 'INV-1515153'
     },
     {
-      reference: '#00357357',
+      referenceNo: '#00357357',
       customerName: 'Customer 1',
       date: '12 May 2024',
       locationName: 'Location 1',
-      method: 'Debit Card',
-      received: 4000,
-      usedAsPayment: 0,
-      returned: 4000,
-      remaining: 4000,
-      invoice: 'INV-1515153'
+      paymentMethod: 'Debit Card',
+      receivedAmount: 4000,
+      usedAmount: 0,
+      returnedAmount: 4000,
+      remainingAmount: 4000,
+      invoiceNo: 'INV-1515153'
     }
     // Add more data as needed
   ];
