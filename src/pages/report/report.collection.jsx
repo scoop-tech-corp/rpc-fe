@@ -104,7 +104,7 @@ export const list = {
     { id: 7, val: 'Payment list' },
     { id: 8, val: 'Unpaid' },
     { id: 9, val: 'Sales by service', url: 'by-service', icon: <UnorderedListOutlined /> },
-    { id: 10, val: 'Sales by product' },
+    { id: 10, val: 'Sales by product', url: 'by-product', icon: <UnorderedListOutlined /> },
     { id: 11, val: 'Net income' },
     { id: 12, val: 'Package summary' },
     { id: 13, val: 'Customer spend' },

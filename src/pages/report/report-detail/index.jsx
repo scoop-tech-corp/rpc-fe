@@ -29,6 +29,7 @@ import {
   exportReportProductsLowStock,
   exportReportProductsNoStock,
   exportReportProductsStockCount,
+  exportReportSalesByProduct,
   exportReportSalesByService,
   exportReportSalesItems,
   exportReportSalesSummary,
@@ -49,6 +50,7 @@ import {
   getReportProductsLowStock,
   getReportProductsNoStock,
   getReportProductsStockCount,
+  getReportSalesByProduct,
   getReportSalesByService,
   getReportSalesItems,
   getReportSalesSummary,
@@ -94,6 +96,7 @@ import FilterSales from './filter/sales';
 import SalesSummary from './sales/summary';
 import SalesItems from './sales/items';
 import SalesByService from './sales/by-service';
+import SalesByProduct from './sales/by-product';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -270,6 +273,7 @@ export default function Index() {
       if (detail === 'summary') respFetch = await getReportSalesSummary(filter);
       if (detail === 'items') respFetch = await getReportSalesItems(filter);
       if (detail === 'by-service') respFetch = await getReportSalesByService(filter);
+      if (detail === 'by-product') respFetch = await getReportSalesByProduct(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -328,6 +332,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
       else if (type === 'sales' && detail === 'items') return await exportReportSalesItems(filter);
       else if (type === 'sales' && detail === 'by-service') return await exportReportSalesByService(filter);
+      else if (type === 'sales' && detail === 'by-product') return await exportReportSalesByProduct(filter);
     };
 
     fetchExport()
@@ -449,6 +454,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'summary') return 'sales-summary';
     if (type === 'sales' && detail === 'items') return 'sales-items';
     if (type === 'sales' && detail === 'by-service') return 'sales-by-service';
+    if (type === 'sales' && detail === 'by-product') return 'sales-by-product';
 
     return '-';
   };
@@ -499,6 +505,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'by-service') return <SalesByService data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'by-product') return <SalesByProduct data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };
