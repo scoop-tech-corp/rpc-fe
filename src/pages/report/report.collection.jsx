@@ -95,10 +95,10 @@ export const list = {
     { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> }
   ],
   sales: [
-    { id: 1, val: 'Summary' },
+    { id: 1, val: 'Summary', url: 'summary', icon: <LineChartOutlined /> },
     { id: 2, val: 'Value by item type' },
     { id: 3, val: 'Details' },
-    { id: 4, val: 'Items' },
+    { id: 4, val: 'Items', url: 'items', icon: <UnorderedListOutlined /> },
     { id: 5, val: 'Discount summary' },
     { id: 6, val: 'Payment summary' },
     { id: 7, val: 'Payment list' },

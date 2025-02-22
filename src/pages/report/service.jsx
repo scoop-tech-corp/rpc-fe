@@ -22,6 +22,9 @@ const urlProductsNoStock = 'report/products/nostock';
 const urlDepositList = 'report/deposit/list';
 const urlDepositSummary = 'report/deposit/summary';
 
+const urlSalesSummary = 'report/sales/summary';
+const urlSalesItems = 'report/sales/items';
+
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
@@ -653,6 +656,106 @@ export const exportReportDepositSummary = async (payload) => {
       dateTo,
       locationId: location.length ? location : [''],
       methodId: method.length ? method : ['']
+    }
+  });
+};
+
+export const getReportSalesSummary = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesSummary, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : ['']
+    }
+  });
+};
+
+export const exportReportSalesSummary = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlSalesSummary}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : ['']
+    }
+  });
+};
+
+export const getReportSalesItems = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const itemType = payload.itemType.map((dt) => dt.value);
+  const productCategory = payload.productCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesItems, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      itemTypeId: itemType.length ? itemType : [''],
+      productCategoryId: productCategory.length ? productCategory : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportSalesItems = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const itemType = payload.itemType.map((dt) => dt.value);
+  const productCategory = payload.productCategory.map((dt) => dt.value);
+
+  return await axios.get(`${urlSalesItems}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      itemTypeId: itemType.length ? itemType : [''],
+      productCategoryId: productCategory.length ? productCategory : [''],
+      search: payload.search
     }
   });
 };

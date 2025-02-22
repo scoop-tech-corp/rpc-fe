@@ -29,6 +29,8 @@ import {
   exportReportProductsLowStock,
   exportReportProductsNoStock,
   exportReportProductsStockCount,
+  exportReportSalesItems,
+  exportReportSalesSummary,
   exportReportStaffLate,
   exportReportStaffLeave,
   exportReportStaffLogin,
@@ -46,6 +48,8 @@ import {
   getReportProductsLowStock,
   getReportProductsNoStock,
   getReportProductsStockCount,
+  getReportSalesItems,
+  getReportSalesSummary,
   getReportStaffLate,
   getReportStaffLeave,
   getReportStaffLogin,
@@ -84,6 +88,9 @@ import ProductsNoStock from './section/products/no-stock ';
 import FilterDeposit from './filter/deposit';
 import DepositList from './section/deposit/list';
 import DepositSummary from './section/deposit/summary';
+import FilterSales from './filter/sales';
+import SalesSummary from './sales/summary';
+import SalesItems from './sales/items';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -164,6 +171,23 @@ export default function Index() {
         method: []
       };
     }
+
+    if (type === 'sales') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        search: '',
+        location: [],
+        status: [],
+        payment: [],
+        staff: [],
+        itemType: [],
+        productCategory: []
+      };
+    }
   });
 
   useEffect(() => {
@@ -183,6 +207,7 @@ export default function Index() {
     if (type === 'staff') getPrepareDataForStaff();
     if (type === 'products') getPrepareDataForProducts();
     if (type === 'deposit') getPrepareDataForDeposit();
+    if (type === 'sales') getPrepareDataForSales();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -237,6 +262,9 @@ export default function Index() {
     } else if (type === 'deposit') {
       if (detail === 'list') respFetch = await getReportDepositList(filter);
       if (detail === 'summary') respFetch = await getReportDepositSummary(filter);
+    } else if (type === 'sales') {
+      if (detail === 'summary') respFetch = await getReportSalesSummary(filter);
+      if (detail === 'items') respFetch = await getReportSalesItems(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -292,6 +320,8 @@ export default function Index() {
       else if (type === 'products' && detail === 'no-stock') return await exportReportProductsNoStock(filter);
       else if (type === 'deposit' && detail === 'list') return await exportReportDepositList(filter);
       else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
+      else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
+      else if (type === 'sales' && detail === 'items') return await exportReportSalesItems(filter);
     };
 
     fetchExport()
@@ -360,6 +390,25 @@ export default function Index() {
     }));
   };
 
+  const getPrepareDataForSales = async () => {
+    const getLoc = await getLocationList();
+    const getStaff = await getStaffList();
+    const getStatus = []; // need API
+    const getPayment = []; // need API
+    const getItemType = []; // need API
+    const productCategory = []; // need API
+
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      staff: getStaff,
+      status: getStatus,
+      payment: getPayment,
+      itemType: getItemType,
+      productCategory: productCategory
+    }));
+  };
+
   const getTitle = () => {
     if (type === 'booking' && detail === 'by-location') return 'booking-by-location';
     if (type === 'booking' && detail === 'by-status') return 'booking-by-status';
@@ -389,6 +438,9 @@ export default function Index() {
     if (type === 'deposit' && detail === 'list') return 'deposit-list';
     if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
 
+    if (type === 'sales' && detail === 'summary') return 'sales-summary';
+    if (type === 'sales' && detail === 'items') return 'sales-items';
+
     return '-';
   };
 
@@ -398,6 +450,7 @@ export default function Index() {
     if (type === 'staff') return <FilterStaff extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'products') return <FilterProducts extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'deposit') return <FilterDeposit extData={extData} filter={filter} setFilter={setFilter} />;
+    if (type === 'sales') return <FilterSales extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -433,6 +486,9 @@ export default function Index() {
 
     if (type === 'deposit' && detail === 'list') return <DepositList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;
+
+    if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };
