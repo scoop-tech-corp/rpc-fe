@@ -24,6 +24,7 @@ const urlDepositSummary = 'report/deposit/summary';
 
 const urlSalesSummary = 'report/sales/summary';
 const urlSalesItems = 'report/sales/items';
+const urlSalesByService = 'report/sales/by-service';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -756,6 +757,47 @@ export const exportReportSalesItems = async (payload) => {
       itemTypeId: itemType.length ? itemType : [''],
       productCategoryId: productCategory.length ? productCategory : [''],
       search: payload.search
+    }
+  });
+};
+
+export const getReportSalesByService = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesByService, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      categoryId: category.length ? category : ['']
+    }
+  });
+};
+
+export const exportReportSalesByService = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlSalesByService}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      categoryId: category.length ? category : ['']
     }
   });
 };

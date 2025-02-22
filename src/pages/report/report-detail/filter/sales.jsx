@@ -119,6 +119,21 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 label={<FormattedMessage id="staff" />}
               />
             </Grid>
+            {['by-service'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.category || []}
+                  limitTags={1}
+                  value={filter?.category}
+                  key={'filter-category'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, category: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="category" />}
+                />
+              </Grid>
+            )}
           </Grid>
         </Grid>
         <Grid item xs={12} sm={12} md={2}>

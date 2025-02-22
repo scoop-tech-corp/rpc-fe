@@ -29,6 +29,7 @@ import {
   exportReportProductsLowStock,
   exportReportProductsNoStock,
   exportReportProductsStockCount,
+  exportReportSalesByService,
   exportReportSalesItems,
   exportReportSalesSummary,
   exportReportStaffLate,
@@ -48,6 +49,7 @@ import {
   getReportProductsLowStock,
   getReportProductsNoStock,
   getReportProductsStockCount,
+  getReportSalesByService,
   getReportSalesItems,
   getReportSalesSummary,
   getReportStaffLate,
@@ -91,6 +93,7 @@ import DepositSummary from './section/deposit/summary';
 import FilterSales from './filter/sales';
 import SalesSummary from './sales/summary';
 import SalesItems from './sales/items';
+import SalesByService from './sales/by-service';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -185,7 +188,8 @@ export default function Index() {
         payment: [],
         staff: [],
         itemType: [],
-        productCategory: []
+        productCategory: [],
+        category: []
       };
     }
   });
@@ -265,6 +269,7 @@ export default function Index() {
     } else if (type === 'sales') {
       if (detail === 'summary') respFetch = await getReportSalesSummary(filter);
       if (detail === 'items') respFetch = await getReportSalesItems(filter);
+      if (detail === 'by-service') respFetch = await getReportSalesByService(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -322,6 +327,7 @@ export default function Index() {
       else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
       else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
       else if (type === 'sales' && detail === 'items') return await exportReportSalesItems(filter);
+      else if (type === 'sales' && detail === 'by-service') return await exportReportSalesByService(filter);
     };
 
     fetchExport()
@@ -397,6 +403,7 @@ export default function Index() {
     const getPayment = []; // need API
     const getItemType = []; // need API
     const productCategory = []; // need API
+    const category = []; // need API
 
     setExtData((prevState) => ({
       ...prevState,
@@ -405,7 +412,8 @@ export default function Index() {
       status: getStatus,
       payment: getPayment,
       itemType: getItemType,
-      productCategory: productCategory
+      productCategory: productCategory,
+      category: category
     }));
   };
 
@@ -440,6 +448,7 @@ export default function Index() {
 
     if (type === 'sales' && detail === 'summary') return 'sales-summary';
     if (type === 'sales' && detail === 'items') return 'sales-items';
+    if (type === 'sales' && detail === 'by-service') return 'sales-by-service';
 
     return '-';
   };
@@ -489,6 +498,7 @@ export default function Index() {
 
     if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'by-service') return <SalesByService data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };
