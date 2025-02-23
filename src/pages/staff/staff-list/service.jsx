@@ -179,10 +179,10 @@ export const uploadImageStaff = async (property) => {
   fd.append('id', property.id);
   typeIdentifications.forEach((dt) => {
     if (dt.image.selectedFile) {
-      param.append('imageIdentifications[]', dt.image.selectedFile);
+      fd.append('imageIdentifications[]', dt.image.selectedFile);
     }
   });
-  param.append('typeIdentifications', JSON.stringify(typeIdentifications));
+  fd.append('typeIdentifications', JSON.stringify(typeIdentifications));
 
   return await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
