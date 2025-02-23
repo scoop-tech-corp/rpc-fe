@@ -22,6 +22,9 @@ import {
   exportReportCustomerReferralSpend,
   exportReportCustomerSubAccount,
   exportReportCustomerTotal,
+  exportReportProductsCost,
+  exportReportProductsLowStock,
+  exportReportProductsStockCount,
   exportReportStaffLate,
   exportReportStaffLeave,
   exportReportStaffLogin,
@@ -33,6 +36,9 @@ import {
   getReportCustomerReferralSpend,
   getReportCustomerSubAccount,
   getReportCustomerTotal,
+  getReportProductsCost,
+  getReportProductsLowStock,
+  getReportProductsStockCount,
   getReportStaffLate,
   getReportStaffLeave,
   getReportStaffLogin,
@@ -62,6 +68,11 @@ import StaffLogin from './section/staff/login';
 import StaffLate from './section/staff/late';
 import StaffLeave from './section/staff/leave';
 import StaffPerformance from './section/staff/performance';
+import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
+import FilterProducts from './filter/products';
+import ProductsStockCount from './section/products/stock-count';
+import ProductsLowStock from './section/products/low-stock';
+import ProductsCost from './section/products/cost';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -104,6 +115,31 @@ export default function Index() {
         staff: [],
         leaveType: []
       };
+
+    if (type === 'products' && detail === 'cost') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: '',
+        rowPerPage: '',
+        date: '',
+        location: [],
+        product: []
+      };
+    }
+
+    if (type === 'products') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        search: '',
+        brand: [],
+        supplier: [],
+        location: []
+      };
+    }
   });
 
   useEffect(() => {
@@ -121,6 +157,7 @@ export default function Index() {
     if (type === 'booking') getPrepareDataForBooking();
     if (type === 'customer') getPrepareDataForCustomer();
     if (type === 'staff') getPrepareDataForStaff();
+    if (type === 'products') getPrepareDataForProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -167,6 +204,10 @@ export default function Index() {
       if (detail === 'late') respFetch = await getReportStaffLate(filter);
       if (detail === 'leave') respFetch = await getReportStaffLeave(filter);
       if (detail === 'performance') respFetch = await getReportStaffPerformance(filter);
+    } else if (type === 'products') {
+      if (detail === 'stock-count') respFetch = await getReportProductsStockCount(filter);
+      if (detail === 'low-stock') respFetch = await getReportProductsLowStock(filter);
+      if (detail === 'cost') respFetch = await getReportProductsCost(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -216,6 +257,9 @@ export default function Index() {
       else if (type === 'staff' && detail === 'late') return await exportReportStaffLate(filter);
       else if (type === 'staff' && detail === 'leave') return await exportReportStaffLeave(filter);
       else if (type === 'staff' && detail === 'performance') return await exportReportStaffPerformance(filter);
+      else if (type === 'products' && detail === 'stock-count') return await exportReportProductsStockCount(filter);
+      else if (type === 'products' && detail === 'low-stock') return await exportReportProductsLowStock(filter);
+      else if (type === 'products' && detail === 'cost') return await exportReportProductsCost(filter);
     };
 
     fetchExport()
@@ -260,6 +304,19 @@ export default function Index() {
     }));
   };
 
+  const getPrepareDataForProducts = async () => {
+    const getLoc = await getLocationList();
+    const getBrand = await getBrandList();
+    const getSupplier = await getSupplierList();
+
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      brand: getBrand,
+      supplier: getSupplier
+    }));
+  };
+
   const getTitle = () => {
     if (type === 'booking' && detail === 'by-location') return 'booking-by-location';
     if (type === 'booking' && detail === 'by-status') return 'booking-by-status';
@@ -281,6 +338,10 @@ export default function Index() {
     if (type === 'staff' && detail === 'leave') return 'staff-leave';
     if (type === 'staff' && detail === 'performance') return 'staff-performance';
 
+    if (type === 'products' && detail === 'stock-count') return 'product-stock-count';
+    if (type === 'products' && detail === 'low-stock') return 'product-low-stock';
+    if (type === 'products' && detail === 'cost') return 'product-cost';
+
     return '-';
   };
 
@@ -288,6 +349,7 @@ export default function Index() {
     if (type === 'booking') return <FilterBooking extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'customer') return <FilterCustomer extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'staff') return <FilterStaff extData={extData} filter={filter} setFilter={setFilter} />;
+    if (type === 'products') return <FilterProducts extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -312,6 +374,12 @@ export default function Index() {
     if (type === 'staff' && detail === 'late') return <StaffLate data={mainData} setFilter={setFilter} />;
     if (type === 'staff' && detail === 'leave') return <StaffLeave data={mainData} setFilter={setFilter} />;
     if (type === 'staff' && detail === 'performance') return <StaffPerformance data={mainData} setFilter={setFilter} filter={filter} />;
+
+    if (type === 'products' && detail === 'stock-count')
+      return <ProductsStockCount data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'products' && detail === 'low-stock') return <ProductsLowStock data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'products' && detail === 'cost')
+      return <ProductsCost data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
 
     return '';
   };
