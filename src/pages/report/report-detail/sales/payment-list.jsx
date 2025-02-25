@@ -81,7 +81,7 @@ export default function SalesPaymentList({ data, filter, setFilter }) {
       <ReactTable
         columns={columns}
         data={dummyTableData}
-        totalPagination={totalPagination || 10}
+        totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
         onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
