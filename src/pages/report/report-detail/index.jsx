@@ -32,6 +32,7 @@ import {
   exportReportSalesByProduct,
   exportReportSalesByService,
   exportReportSalesItems,
+  exportReportSalesPaymentList,
   exportReportSalesSummary,
   exportReportStaffLate,
   exportReportStaffLeave,
@@ -53,6 +54,7 @@ import {
   getReportSalesByProduct,
   getReportSalesByService,
   getReportSalesItems,
+  getReportSalesPaymentList,
   getReportSalesSummary,
   getReportStaffLate,
   getReportStaffLeave,
@@ -97,6 +99,7 @@ import SalesSummary from './sales/summary';
 import SalesItems from './sales/items';
 import SalesByService from './sales/by-service';
 import SalesByProduct from './sales/by-product';
+import SalesPaymentList from './sales/payment-list';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -192,7 +195,8 @@ export default function Index() {
         staff: [],
         itemType: [],
         productCategory: [],
-        category: []
+        category: [],
+        method: []
       };
     }
   });
@@ -274,6 +278,7 @@ export default function Index() {
       if (detail === 'items') respFetch = await getReportSalesItems(filter);
       if (detail === 'by-service') respFetch = await getReportSalesByService(filter);
       if (detail === 'by-product') respFetch = await getReportSalesByProduct(filter);
+      if (detail === 'payment-list') respFetch = await getReportSalesPaymentList(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -333,6 +338,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'items') return await exportReportSalesItems(filter);
       else if (type === 'sales' && detail === 'by-service') return await exportReportSalesByService(filter);
       else if (type === 'sales' && detail === 'by-product') return await exportReportSalesByProduct(filter);
+      else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
     };
 
     fetchExport()
@@ -392,7 +398,8 @@ export default function Index() {
 
   const getPrepareDataForDeposit = async () => {
     const getLoc = await getLocationList();
-    const getPaymentMethod = await getPaymentMethodList();
+    // const getPaymentMethod = await getPaymentMethodList();
+    const getPaymentMethod = []; // need API;
 
     setExtData((prevState) => ({
       ...prevState,
@@ -407,8 +414,9 @@ export default function Index() {
     const getStatus = []; // need API
     const getPayment = []; // need API
     const getItemType = []; // need API
-    const productCategory = []; // need API
-    const category = []; // need API
+    const getProductCategory = []; // need API
+    const getCategory = []; // need API
+    const getMethod = []; // need API
 
     setExtData((prevState) => ({
       ...prevState,
@@ -417,8 +425,9 @@ export default function Index() {
       status: getStatus,
       payment: getPayment,
       itemType: getItemType,
-      productCategory: productCategory,
-      category: category
+      productCategory: getProductCategory,
+      category: getCategory,
+      method: getMethod
     }));
   };
 
@@ -455,6 +464,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'items') return 'sales-items';
     if (type === 'sales' && detail === 'by-service') return 'sales-by-service';
     if (type === 'sales' && detail === 'by-product') return 'sales-by-product';
+    if (type === 'sales' && detail === 'payment-list') return 'sales-payment-list';
 
     return '-';
   };
@@ -506,6 +516,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'by-service') return <SalesByService data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'by-product') return <SalesByProduct data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'payment-list') return <SalesPaymentList data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };

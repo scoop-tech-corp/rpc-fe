@@ -26,6 +26,7 @@ const urlSalesSummary = 'report/sales/summary';
 const urlSalesItems = 'report/sales/items';
 const urlSalesByService = 'report/sales/by-service';
 const urlSalesByProduct = 'report/sales/by-product';
+const urlSalesPaymentList = 'report/sales/payment-list';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -840,6 +841,61 @@ export const exportReportSalesByProduct = async (payload) => {
       dateTo,
       locationId: location.length ? location : [''],
       paymentId: payment.length ? payment : [''],
+      categoryId: category.length ? category : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const getReportSalesPaymentList = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const method = payload.method.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesPaymentList, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      methodId: method.length ? method : [''],
+      categoryId: category.length ? category : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportSalesPaymentList = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const method = payload.method.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlSalesPaymentList}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      methodId: method.length ? method : [''],
       categoryId: category.length ? category : [''],
       search: payload.search
     }
