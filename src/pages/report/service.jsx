@@ -27,6 +27,7 @@ const urlSalesItems = 'report/sales/items';
 const urlSalesByService = 'report/sales/by-service';
 const urlSalesByProduct = 'report/sales/by-product';
 const urlSalesPaymentList = 'report/sales/payment-list';
+const urlSalesUnpaid = 'report/sales/unpaid';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -897,6 +898,57 @@ export const exportReportSalesPaymentList = async (payload) => {
       staffId: staff.length ? staff : [''],
       methodId: method.length ? method : [''],
       categoryId: category.length ? category : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const getReportSalesUnpaid = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const customer = payload.customer.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesUnpaid, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      customerId: customer.length ? customer : [''],
+      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportSalesUnpaid = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const customer = payload.customer.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlSalesUnpaid}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      customerId: customer.length ? customer : [''],
+      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
       search: payload.search
     }
   });

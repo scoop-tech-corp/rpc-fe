@@ -34,6 +34,7 @@ import {
   exportReportSalesItems,
   exportReportSalesPaymentList,
   exportReportSalesSummary,
+  exportReportSalesUnpaid,
   exportReportStaffLate,
   exportReportStaffLeave,
   exportReportStaffLogin,
@@ -56,6 +57,7 @@ import {
   getReportSalesItems,
   getReportSalesPaymentList,
   getReportSalesSummary,
+  getReportSalesUnpaid,
   getReportStaffLate,
   getReportStaffLeave,
   getReportStaffLogin,
@@ -100,6 +102,7 @@ import SalesItems from './sales/items';
 import SalesByService from './sales/by-service';
 import SalesByProduct from './sales/by-product';
 import SalesPaymentList from './sales/payment-list';
+import SalesUnpaid from './sales/unpaid';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -196,7 +199,9 @@ export default function Index() {
         itemType: [],
         productCategory: [],
         category: [],
-        method: []
+        method: [],
+        customer: [],
+        invoiceCategory: []
       };
     }
   });
@@ -279,6 +284,7 @@ export default function Index() {
       if (detail === 'by-service') respFetch = await getReportSalesByService(filter);
       if (detail === 'by-product') respFetch = await getReportSalesByProduct(filter);
       if (detail === 'payment-list') respFetch = await getReportSalesPaymentList(filter);
+      if (detail === 'unpaid') respFetch = await getReportSalesUnpaid(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -339,6 +345,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'by-service') return await exportReportSalesByService(filter);
       else if (type === 'sales' && detail === 'by-product') return await exportReportSalesByProduct(filter);
       else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
+      else if (type === 'sales' && detail === 'unpaid') return await exportReportSalesUnpaid(filter);
     };
 
     fetchExport()
@@ -417,6 +424,8 @@ export default function Index() {
     const getProductCategory = []; // need API
     const getCategory = []; // need API
     const getMethod = []; // need API
+    const getCustomer = []; // need API
+    const getInvoiceCategory = []; // need API
 
     setExtData((prevState) => ({
       ...prevState,
@@ -427,7 +436,9 @@ export default function Index() {
       itemType: getItemType,
       productCategory: getProductCategory,
       category: getCategory,
-      method: getMethod
+      method: getMethod,
+      customer: getCustomer,
+      invoiceCategory: getInvoiceCategory
     }));
   };
 
@@ -465,6 +476,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'by-service') return 'sales-by-service';
     if (type === 'sales' && detail === 'by-product') return 'sales-by-product';
     if (type === 'sales' && detail === 'payment-list') return 'sales-payment-list';
+    if (type === 'sales' && detail === 'unpaid') return 'sales-unpaid';
 
     return '-';
   };
@@ -517,6 +529,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'by-service') return <SalesByService data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'by-product') return <SalesByProduct data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'payment-list') return <SalesPaymentList data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'unpaid') return <SalesUnpaid data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };

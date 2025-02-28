@@ -106,19 +106,22 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            <Grid item sm={12} xs={12} md={4}>
-              <MultiSelectAll
-                items={extData?.staff || []}
-                limitTags={1}
-                value={filter?.staff}
-                key={'filter-staff'}
-                selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, staff: val }))}
-                isReset={isReset}
-                setIsReset={setIsReset}
-                label={<FormattedMessage id="staff" />}
-              />
-            </Grid>
+            {['items', 'by-product', 'by-service', 'payment-list'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.staff || []}
+                  limitTags={1}
+                  value={filter?.staff}
+                  key={'filter-staff'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, staff: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="staff" />}
+                />
+              </Grid>
+            )}
+
             {['by-service'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
@@ -146,6 +149,36 @@ export default function FilterSales({ extData, filter, setFilter }) {
                   isReset={isReset}
                   setIsReset={setIsReset}
                   label={<FormattedMessage id="method" />}
+                />
+              </Grid>
+            )}
+            {['unpaid'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.customer || []}
+                  limitTags={1}
+                  value={filter?.customer}
+                  key={'filter-customer'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, customer: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="customer" />}
+                />
+              </Grid>
+            )}
+            {['unpaid'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.inventoryCategory || []}
+                  limitTags={1}
+                  value={filter?.inventoryCategory}
+                  key={'filter-inventory-category'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, inventoryCategory: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="inventory-category" />}
                 />
               </Grid>
             )}
