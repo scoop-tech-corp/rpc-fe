@@ -102,6 +102,9 @@
     "yup": "^0.32.11",
     "zustand": "^4.1.5"
   },
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",
     "predeploy": "npm run build",
