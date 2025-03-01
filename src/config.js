@@ -31,10 +31,7 @@ export const AUTH0_API = {
 };
 
 // API Production and UAT
-// const apiUrl = 'https://prod.radhiyanpetandcare.online/api';
-
-// API Development
-const apiUrl = 'https://uat.radhiyanpetandcare.online/api';
+const apiUrl = 'https://prod.radhiyanpetandcare.online/api';
 
 // const apiUrl = process?.env?.REACT_APP_MODE === 'local' ? 'http://localhost:8000' : 'https://uat.radhiyanpetandcare.online/api';
 // API LOCAL
