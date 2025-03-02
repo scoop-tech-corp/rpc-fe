@@ -11,19 +11,19 @@ export default function SalesPaymentList({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="sales" />,
-        accessor: 'sales'
+        accessor: 'saleId'
       },
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'locationName'
+        accessor: 'location'
       },
       {
         Header: <FormattedMessage id="method" />,
-        accessor: 'method'
+        accessor: 'paymentMethod'
       },
       {
         Header: <FormattedMessage id="paid" />,
-        accessor: 'paid'
+        accessor: 'paidAt'
       },
       {
         Header: <FormattedMessage id="created-by" />,
@@ -35,7 +35,7 @@ export default function SalesPaymentList({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="amount-rp" />,
-        accessor: 'amount',
+        accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       }
     ],
@@ -46,31 +46,31 @@ export default function SalesPaymentList({ data, filter, setFilter }) {
   const dummyTableData = useMemo(
     () => [
       {
-        sales: 'INV-12324',
-        locationName: 'RPC Duren',
-        method: 'Transfer',
-        paid: '2025-01-03 11:55',
+        saleId: 'INV-12324',
+        location: 'RPC Duren',
+        paymentMethod: 'Transfer',
+        paidAt: '2025-01-03 11:55',
         createdBy: 'Agus',
         createdAt: '2025-01-03 11:50',
-        amount: 100000
+        totalAmount: 100000
       },
       {
-        sales: 'INV-12324',
-        locationName: 'RPC Duren',
-        method: 'Transfer',
-        paid: '2025-01-03 11:55',
+        saleId: 'INV-12324',
+        location: 'RPC Duren',
+        paymentMethod: 'Transfer',
+        paidAt: '2025-01-03 11:55',
         createdBy: 'Agus',
         createdAt: '2025-01-03 11:50',
-        amount: 100000
+        totalAmount: 100000
       },
       {
-        sales: 'INV-12324',
-        locationName: 'RPC Duren',
-        method: 'Transfer',
-        paid: '2025-01-03 11:55',
+        saleId: 'INV-12324',
+        location: 'RPC Duren',
+        paymentMethod: 'Transfer',
+        paidAt: '2025-01-03 11:55',
         createdBy: 'Agus',
         createdAt: '2025-01-03 11:50',
-        amount: 100000
+        totalAmount: 100000
       }
     ],
     []
@@ -80,7 +80,7 @@ export default function SalesPaymentList({ data, filter, setFilter }) {
     <div>
       <ReactTable
         columns={columns}
-        data={dummyTableData}
+        data={tablesData}
         totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
