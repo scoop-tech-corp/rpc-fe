@@ -13,7 +13,7 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="sales" />,
-        accessor: 'sales',
+        accessor: 'saleId',
         Cell: (data) => {
           const onClickDetail = () => {};
 
@@ -22,7 +22,7 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'locationName'
+        accessor: 'location'
       },
       {
         Header: <FormattedMessage id="due-date" />,
@@ -30,15 +30,15 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="overdue" />,
-        accessor: 'overdue'
+        accessor: 'overDue'
       },
       {
         Header: <FormattedMessage id="customer" />,
-        accessor: 'customer'
+        accessor: 'customerName'
       },
       {
         Header: <FormattedMessage id="phone" />,
-        accessor: 'phoneNumber',
+        accessor: 'phoneNo',
         Cell: (data) => {
           return (
             <Link href={`https://api.whatsapp.com/send?phone=${data.value}&text=%20`} target="_blank">
@@ -50,22 +50,22 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="total-rp" />,
-        accessor: 'total',
+        accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       },
       {
         Header: <FormattedMessage id="paid-rp" />,
-        accessor: 'paid',
+        accessor: 'paidAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       },
       {
         Header: <FormattedMessage id="outstanding-rp" />,
-        accessor: 'outstanding',
+        accessor: 'outstandingAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       },
       {
         Header: <FormattedMessage id="reference" />,
-        accessor: 'reference'
+        accessor: 'refNum'
       }
     ],
     []
@@ -75,52 +75,52 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
   const dummyTableData = useMemo(
     () => [
       {
-        sales: 'INV-1234',
-        locationName: 'RPC Duren',
+        saleId: 'INV-1234',
+        location: 'RPC Duren',
         dueDate: '2022-01-01',
-        overdue: 'Active',
-        customer: 'Customer 1',
-        phoneNumber: '08123456789',
-        total: 80000,
-        paid: 80000,
-        outstanding: 80000,
-        reference: 'test Reference'
+        overDue: 'Active',
+        customerName: 'Customer 1',
+        phoneNo: '08123456789',
+        totalAmount: 80000,
+        paidAmount: 80000,
+        outstandingAmount: 80000,
+        refNum: 'test refNum'
       },
       {
-        sales: 'INV-1234',
-        locationName: 'RPC Duren',
+        saleId: 'INV-1234',
+        location: 'RPC Duren',
         dueDate: '2022-01-01',
-        overdue: 'Active',
-        customer: 'Customer 1',
-        phoneNumber: '08123456789',
-        total: 80000,
-        paid: 80000,
-        outstanding: 80000,
-        reference: 'test Reference'
+        overDue: 'Active',
+        customerName: 'Customer 1',
+        phoneNo: '08123456789',
+        totalAmount: 80000,
+        paidAmount: 80000,
+        outstandingAmount: 80000,
+        refNum: 'test refNum'
       },
       {
-        sales: 'INV-1234',
-        locationName: 'RPC Duren',
+        saleId: 'INV-1234',
+        location: 'RPC Duren',
         dueDate: '2022-01-01',
-        overdue: 'Active',
-        customer: 'Customer 1',
-        phoneNumber: '08123456789',
-        total: 80000,
-        paid: 80000,
-        outstanding: 80000,
-        reference: 'test Reference'
+        overDue: 'Active',
+        customerName: 'Customer 1',
+        phoneNo: '08123456789',
+        totalAmount: 80000,
+        paidAmount: 80000,
+        outstandingAmount: 80000,
+        refNum: 'test refNum'
       },
       {
-        sales: 'INV-1234',
-        locationName: 'RPC Duren',
+        saleId: 'INV-1234',
+        location: 'RPC Duren',
         dueDate: '2022-01-01',
-        overdue: 'Active',
-        customer: 'Customer 1',
-        phoneNumber: '08123456789',
-        total: 80000,
-        paid: 80000,
-        outstanding: 80000,
-        reference: 'test Reference'
+        overDue: 'Active',
+        customerName: 'Customer 1',
+        phoneNo: '08123456789',
+        totalAmount: 80000,
+        paidAmount: 80000,
+        outstandingAmount: 80000,
+        refNum: 'test refNum'
       }
     ],
     []
@@ -130,7 +130,7 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
     <div>
       <ReactTable
         columns={columns}
-        data={dummyTableData}
+        data={tablesData}
         totalPagination={totalPagination || 10}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
