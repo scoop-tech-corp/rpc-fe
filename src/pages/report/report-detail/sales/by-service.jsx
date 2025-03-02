@@ -11,7 +11,7 @@ export default function SalesByService({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="service" />,
-        accessor: 'service'
+        accessor: 'serviceName'
       },
       {
         Header: <FormattedMessage id="quantity" />,
@@ -19,7 +19,7 @@ export default function SalesByService({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="total-rp" />,
-        accessor: 'total',
+        accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       }
     ],
@@ -30,19 +30,19 @@ export default function SalesByService({ data, filter, setFilter }) {
   const dummyTableData = useMemo(
     () => [
       {
-        service: 'Rawat Inap',
+        serviceName: 'Rawat Inap',
         quantity: 10,
-        total: 13500000
+        totalAmount: 13500000
       },
       {
-        service: 'Rawat Inap',
+        serviceName: 'Rawat Inap',
         quantity: 10,
-        total: 13500000
+        totalAmount: 13500000
       },
       {
-        service: 'Rawat Inap',
+        serviceName: 'Rawat Inap',
         quantity: 10,
-        total: 13500000
+        totalAmount: 13500000
       }
     ],
     []
@@ -52,7 +52,7 @@ export default function SalesByService({ data, filter, setFilter }) {
     <div>
       <ReactTable
         columns={columns}
-        data={dummyTableData}
+        data={tablesData}
         totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
