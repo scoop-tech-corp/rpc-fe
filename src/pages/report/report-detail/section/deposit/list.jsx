@@ -95,7 +95,7 @@ export default function DepositList({ data, filter, setFilter }) {
     <div>
       <ReactTable
         columns={columns}
-        data={dataDummy}
+        data={tablesData}
         totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
