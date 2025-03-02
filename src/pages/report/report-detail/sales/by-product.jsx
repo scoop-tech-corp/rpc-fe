@@ -11,7 +11,7 @@ export default function SalesByProduct({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="product" />,
-        accessor: 'product'
+        accessor: 'productName'
       },
       {
         Header: <FormattedMessage id="quantity" />,
@@ -19,7 +19,7 @@ export default function SalesByProduct({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="total-rp" />,
-        accessor: 'total',
+        accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       }
     ],
@@ -30,19 +30,19 @@ export default function SalesByProduct({ data, filter, setFilter }) {
   const dummyTableData = useMemo(
     () => [
       {
-        product: 'Biodin Inj (1 ml)',
+        productName: 'Biodin Inj (1 ml)',
         quantity: 10,
-        total: 13500000
+        totalAmount: 13500000
       },
       {
-        product: 'Biodin Inj (1 ml)',
+        productName: 'Biodin Inj (1 ml)',
         quantity: 10,
-        total: 13500000
+        totalAmount: 13500000
       },
       {
-        product: 'Biodin Inj (1 ml)',
+        productName: 'Biodin Inj (1 ml)',
         quantity: 10,
-        total: 13500000
+        totalAmount: 13500000
       }
     ],
     []
@@ -52,7 +52,7 @@ export default function SalesByProduct({ data, filter, setFilter }) {
     <div>
       <ReactTable
         columns={columns}
-        data={dummyTableData}
+        data={tablesData}
         totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
