@@ -24,9 +24,9 @@ const urlDepositSummary = 'report/deposit/summary';
 
 const urlSalesSummary = 'report/sales/summary';
 const urlSalesItems = 'report/sales/items';
-const urlSalesByService = 'report/sales/by-service';
-const urlSalesByProduct = 'report/sales/by-product';
-const urlSalesPaymentList = 'report/sales/payment-list';
+const urlSalesByService = 'report/sales/salesbyservice';
+const urlSalesByProduct = 'report/sales/salesbyproduct';
+const urlSalesPaymentList = 'report/sales/paymentlist';
 const urlSalesUnpaid = 'report/sales/unpaid';
 
 export const exportReportCustomerGrowth = async (payload) => {

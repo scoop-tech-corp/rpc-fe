@@ -491,7 +491,6 @@ export default function Index() {
 
     return '';
   };
-
   const getSections = () => {
     if (type === 'booking' && detail === 'by-location') return <BookingByLocation data={[]} />;
     if (type === 'booking' && detail === 'by-status') return <BookingByStatus data={[]} />;

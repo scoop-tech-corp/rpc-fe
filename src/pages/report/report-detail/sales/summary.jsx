@@ -4,14 +4,18 @@ import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 
 export default function SalesSummary({ data, filter, setFilter }) {
-  const tablesData = data?.data || [];
+  const tablesData = data?.table.data || [];
+  const tableTotalData = data?.table.totalData;
   const totalPagination = data?.totalPagination;
+
+  const chartSeries = data?.charts.series || [];
+  const chartCategories = data?.charts.categories || [];
 
   const columns = useMemo(
     () => [
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'locationName',
+        accessor: 'location',
         Cell: ({ value }) => (React.isValidElement(value) ? value : value)
       },
       {
@@ -21,7 +25,7 @@ export default function SalesSummary({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="discount" />,
-        accessor: 'discountAmount',
+        accessor: 'discounts',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
@@ -31,12 +35,12 @@ export default function SalesSummary({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="taxes" />,
-        accessor: 'taxAmount',
+        accessor: 'taxesAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
         Header: <FormattedMessage id="charges" />,
-        accessor: 'chargeAmount',
+        accessor: 'chargesAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
@@ -52,30 +56,30 @@ export default function SalesSummary({ data, filter, setFilter }) {
   const dummyTableData = useMemo(
     () => [
       {
-        locationName: 'RPC SUMATERA UTARA',
+        location: 'RPC SUMATERA UTARA',
         grossAmount: 100,
-        discountAmount: 10,
+        discounts: 10,
         netAmount: 1_500_000,
-        taxAmount: 0,
-        chargeAmount: 0,
+        taxesAmount: 0,
+        chargesAmount: 0,
         totalAmount: 0
       },
       {
-        locationName: 'RPC ACEH',
+        location: 'RPC ACEH',
         grossAmount: 200,
-        discountAmount: 15,
+        discounts: 15,
         netAmount: 3_000_000,
-        taxAmount: 0,
-        chargeAmount: 0,
+        taxesAmount: 0,
+        chargesAmount: 0,
         totalAmount: 0
       },
       {
-        locationName: 'RPC HANKAM',
+        location: 'RPC HANKAM',
         grossAmount: 200,
-        discountAmount: 15,
+        discounts: 15,
         netAmount: 3_000_000,
-        taxAmount: 0,
-        chargeAmount: 0,
+        taxesAmount: 0,
+        chargesAmount: 0,
         totalAmount: 0
       }
     ],
@@ -104,7 +108,7 @@ export default function SalesSummary({ data, filter, setFilter }) {
   useEffect(() => {
     // Create the chart options using dummyChartData
     const options = {
-      series: dummyChartData.series,
+      series: chartSeries,
       chart: {
         height: 350,
         type: 'line',
@@ -142,7 +146,7 @@ export default function SalesSummary({ data, filter, setFilter }) {
         size: 1
       },
       xaxis: {
-        categories: dummyChartData.categories,
+        categories: chartCategories,
         title: {
           text: 'Month'
         }
@@ -170,8 +174,7 @@ export default function SalesSummary({ data, filter, setFilter }) {
     return () => {
       chart.destroy();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [chartSeries, chartCategories]);
 
   return (
     <div>
@@ -180,15 +183,15 @@ export default function SalesSummary({ data, filter, setFilter }) {
       <ReactTable
         columns={columns}
         data={[
-          ...dummyTableData,
+          ...tablesData,
           {
-            locationName: <strong>Total</strong>,
-            grossAmount: <strong>500</strong>,
-            discountAmount: <strong>40</strong>,
-            netAmount: <strong>7.500.000</strong>,
-            taxAmount: <strong>0</strong>,
-            chargeAmount: <strong>0</strong>,
-            totalAmount: <strong>0</strong>
+            location: <strong>Total</strong>,
+            grossAmount: <strong>{formatThousandSeparator(tableTotalData?.grossAmount || 0)}</strong>,
+            discounts: <strong>{tableTotalData?.discounts}</strong>,
+            netAmount: <strong>{formatThousandSeparator(tableTotalData?.netAmount || 0)}</strong>,
+            taxesAmount: <strong>{tableTotalData?.taxesAmount}</strong>,
+            chargesAmount: <strong>{tableTotalData?.chargesAmount}</strong>,
+            totalAmount: <strong>{formatThousandSeparator(tableTotalData?.totalAmount || 0)}</strong>
           }
         ]}
         totalPagination={totalPagination || 0}
