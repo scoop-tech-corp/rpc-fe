@@ -11,15 +11,15 @@ export default function SalesItems({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="sales-id" />,
-        accessor: 'id'
+        accessor: 'saleId'
       },
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'locationName'
+        accessor: 'location'
       },
       {
         Header: <FormattedMessage id="sale-date" />,
-        accessor: 'date'
+        accessor: 'saleDate'
       },
       {
         Header: <FormattedMessage id="status" />,
@@ -27,7 +27,7 @@ export default function SalesItems({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="item" />,
-        accessor: 'item'
+        accessor: 'items'
       },
       {
         Header: <FormattedMessage id="quantity" />,
@@ -50,31 +50,31 @@ export default function SalesItems({ data, filter, setFilter }) {
   const dummyTableData = useMemo(
     () => [
       {
-        id: 'INV-0001',
-        locationName: 'RPC Duren',
-        date: '12-05-2024',
+        saleId: 'INV-0001',
+        location: 'RPC Duren',
+        saleDate: '12-05-2024',
         status: 'Active',
-        item: 'Proplan Sachet',
+        items: 'Proplan Sachet',
         quantity: 2,
         price: 25000,
         payment: 'Paid'
       },
       {
-        id: 'INV-0001',
-        locationName: 'RPC Duren',
-        date: '12-05-2024',
+        saleId: 'INV-0001',
+        location: 'RPC Duren',
+        saleDate: '12-05-2024',
         status: 'Active',
-        item: 'Proplan Sachet',
+        items: 'Proplan Sachet',
         quantity: 2,
         price: 25000,
         payment: 'Paid'
       },
       {
-        id: 'INV-0001',
-        locationName: 'RPC Duren',
-        date: '12-05-2024',
+        saleId: 'INV-0001',
+        location: 'RPC Duren',
+        saleDate: '12-05-2024',
         status: 'Active',
-        item: 'Proplan Sachet',
+        items: 'Proplan Sachet',
         quantity: 2,
         price: 25000,
         payment: 'Paid'
@@ -87,7 +87,7 @@ export default function SalesItems({ data, filter, setFilter }) {
     <div>
       <ReactTable
         columns={columns}
-        data={dummyTableData}
+        data={tablesData}
         totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
