@@ -7,7 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 import MultiSelectAll from 'components/MultiSelectAll';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 
-export default function FilterProducts({ extData, filter, setFilter }) {
+export default function FilterDeposit({ extData, filter, setFilter }) {
   const [isReset, setIsReset] = useState(false);
   let [searchParams] = useSearchParams();
   let detail = searchParams.get('detail');
@@ -17,55 +17,25 @@ export default function FilterProducts({ extData, filter, setFilter }) {
       <Grid container spacing={2} width={'100%'}>
         <Grid item sm={12} xs={12} md={9}>
           <Grid container spacing={2}>
-            {detail === 'cost' && (
+            <Grid item sm={12} xs={12} md={4}>
+              <DateRangePicker
+                onChange={(value) => setFilter((e) => ({ ...e, date: value }))}
+                value={filter.date}
+                format="dd/MM/yyy"
+                className={'fullWidth'}
+              />
+            </Grid>
+            {['list'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
-                <DateRangePicker
-                  onChange={(value) => setFilter((e) => ({ ...e, date: value }))}
-                  value={filter.date}
-                  format="dd/MM/yyy"
-                  className={'fullWidth'}
+                <TextField
+                  fullWidth
+                  label={<FormattedMessage id="search" />}
+                  id="filter-search"
+                  name="filter-search"
+                  value={filter.search}
+                  onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
                 />
               </Grid>
-            )}
-            {['stock-count', 'low-stock', 'no-stock'].includes(detail) && (
-              <>
-                <Grid item sm={12} xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label={<FormattedMessage id="search" />}
-                    id="filter-search"
-                    name="filter-search"
-                    value={filter.search}
-                    onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
-                  />
-                </Grid>
-                <Grid item sm={12} xs={12} md={4}>
-                  <MultiSelectAll
-                    items={extData?.brand || []}
-                    limitTags={1}
-                    value={filter?.brand}
-                    key={'filter-brand'}
-                    selectAllLabel="Select All"
-                    onChange={(val) => setFilter((e) => ({ ...e, brand: val }))}
-                    isReset={isReset}
-                    setIsReset={setIsReset}
-                    label={<FormattedMessage id="brand" />}
-                  />
-                </Grid>
-                <Grid item sm={12} xs={12} md={4}>
-                  <MultiSelectAll
-                    items={extData?.supplier || []}
-                    limitTags={1}
-                    value={filter?.supplier}
-                    key={'filter-supplier'}
-                    selectAllLabel="Select All"
-                    onChange={(val) => setFilter((e) => ({ ...e, supplier: val }))}
-                    isReset={isReset}
-                    setIsReset={setIsReset}
-                    label={<FormattedMessage id="supplier" />}
-                  />
-                </Grid>
-              </>
             )}
             <Grid item sm={12} xs={12} md={4}>
               <MultiSelectAll
@@ -78,6 +48,19 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                 isReset={isReset}
                 setIsReset={setIsReset}
                 label={<FormattedMessage id="location" />}
+              />
+            </Grid>
+            <Grid item sm={12} xs={12} md={4}>
+              <MultiSelectAll
+                items={extData?.method || []}
+                limitTags={1}
+                value={filter?.method}
+                key={'filter-method'}
+                selectAllLabel="Select All"
+                onChange={(val) => setFilter((e) => ({ ...e, method: val }))}
+                isReset={isReset}
+                setIsReset={setIsReset}
+                label={<FormattedMessage id="method" />}
               />
             </Grid>
           </Grid>
@@ -96,10 +79,10 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                     orderColumn: '',
                     goToPage: 1,
                     rowPerPage: 5,
+                    date: '',
                     search: '',
-                    brand: [],
-                    supplier: [],
-                    location: []
+                    location: [],
+                    method: []
                   }));
                   setIsReset(true);
                 }}

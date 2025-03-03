@@ -79,8 +79,8 @@ export const list = {
     { id: 7, val: 'Sub Account List', url: 'sub-account-list', icon: <UnorderedListOutlined /> }
   ],
   deposit: [
-    { id: 1, val: 'Summary' },
-    { id: 2, val: 'List' }
+    { id: 1, val: 'Summary', url: 'summary', icon: <UnorderedListOutlined /> },
+    { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   expenses: [
     { id: 1, val: 'Summary' },
@@ -89,22 +89,22 @@ export const list = {
   products: [
     { id: 1, val: 'Stock count', url: 'stock-count', icon: <UnorderedListOutlined /> },
     { id: 2, val: 'Low stock', url: 'low-stock', icon: <UnorderedListOutlined /> },
-    { id: 3, val: 'No stock' },
+    { id: 3, val: 'No stock', url: 'no-stock', icon: <UnorderedListOutlined /> },
     { id: 4, val: 'Batches' },
     { id: 5, val: 'Expiry' },
     { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> }
   ],
   sales: [
-    { id: 1, val: 'Summary' },
+    { id: 1, val: 'Summary', url: 'summary', icon: <LineChartOutlined /> },
     { id: 2, val: 'Value by item type' },
     { id: 3, val: 'Details' },
-    { id: 4, val: 'Items' },
+    { id: 4, val: 'Items', url: 'items', icon: <UnorderedListOutlined /> },
     { id: 5, val: 'Discount summary' },
     { id: 6, val: 'Payment summary' },
-    { id: 7, val: 'Payment list' },
-    { id: 8, val: 'Unpaid' },
-    { id: 9, val: 'Sales by service' },
-    { id: 10, val: 'Sales by product' },
+    { id: 7, val: 'Payment list', url: 'payment-list', icon: <UnorderedListOutlined /> },
+    { id: 8, val: 'Unpaid', url: 'unpaid', icon: <UnorderedListOutlined /> },
+    { id: 9, val: 'Sales by service', url: 'by-service', icon: <UnorderedListOutlined /> },
+    { id: 10, val: 'Sales by product', url: 'by-product', icon: <UnorderedListOutlined /> },
     { id: 11, val: 'Net income' },
     { id: 12, val: 'Package summary' },
     { id: 13, val: 'Customer spend' },

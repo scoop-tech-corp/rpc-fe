@@ -14,6 +14,13 @@ export const getStaffList = async () => {
   });
 };
 
+export const getPaymentMethodList = async () => {
+  const getResp = await axios.get('payment-method/list');
+  return getResp.data.map((dt) => {
+    return { label: dt.paymentMethodName, value: +dt.id };
+  });
+};
+
 export const getStaffJobTitleList = async () => {
   const getResp = await axios.get('staff/jobtitle');
   return getResp.data.map((dt) => {
