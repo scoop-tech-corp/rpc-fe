@@ -1,4 +1,4 @@
-import { LineChartOutlined, PieChartOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { BarChartOutlined, LineChartOutlined, PieChartOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
 export const list = {
   bookings: [
@@ -105,7 +105,7 @@ export const list = {
     { id: 8, val: 'Unpaid', url: 'unpaid', icon: <UnorderedListOutlined /> },
     { id: 9, val: 'Sales by service', url: 'by-service', icon: <UnorderedListOutlined /> },
     { id: 10, val: 'Sales by product', url: 'by-product', icon: <UnorderedListOutlined /> },
-    { id: 11, val: 'Net income' },
+    { id: 11, val: 'Net income', url: 'net-income', icon: <BarChartOutlined /> },
     { id: 12, val: 'Package summary' },
     { id: 13, val: 'Customer spend' },
     { id: 14, val: 'Daily reconciliation' },

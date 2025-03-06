@@ -32,6 +32,7 @@ import {
   exportReportSalesByProduct,
   exportReportSalesByService,
   exportReportSalesItems,
+  exportReportSalesNetIncome,
   exportReportSalesPaymentList,
   exportReportSalesSummary,
   exportReportSalesUnpaid,
@@ -55,6 +56,7 @@ import {
   getReportSalesByProduct,
   getReportSalesByService,
   getReportSalesItems,
+  getReportSalesNetIncome,
   getReportSalesPaymentList,
   getReportSalesSummary,
   getReportSalesUnpaid,
@@ -103,6 +105,7 @@ import SalesByService from './sales/by-service';
 import SalesByProduct from './sales/by-product';
 import SalesPaymentList from './sales/payment-list';
 import SalesUnpaid from './sales/unpaid';
+import SalesNetIncome from './sales/net-income';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -285,6 +288,7 @@ export default function Index() {
       if (detail === 'by-product') respFetch = await getReportSalesByProduct(filter);
       if (detail === 'payment-list') respFetch = await getReportSalesPaymentList(filter);
       if (detail === 'unpaid') respFetch = await getReportSalesUnpaid(filter);
+      if (detail === 'net-income') respFetch = await getReportSalesNetIncome(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -346,6 +350,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'by-product') return await exportReportSalesByProduct(filter);
       else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
       else if (type === 'sales' && detail === 'unpaid') return await exportReportSalesUnpaid(filter);
+      else if (type === 'sales' && detail === 'net-income') return await exportReportSalesNetIncome(filter);
     };
 
     fetchExport()
@@ -477,6 +482,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'by-product') return 'sales-by-product';
     if (type === 'sales' && detail === 'payment-list') return 'sales-payment-list';
     if (type === 'sales' && detail === 'unpaid') return 'sales-unpaid';
+    if (type === 'sales' && detail === 'net-income') return 'sales-net-income';
 
     return '-';
   };
@@ -529,6 +535,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'by-product') return <SalesByProduct data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'payment-list') return <SalesPaymentList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'unpaid') return <SalesUnpaid data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'net-income') return <SalesNetIncome data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };

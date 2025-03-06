@@ -28,6 +28,7 @@ const urlSalesByService = 'report/sales/salesbyservice';
 const urlSalesByProduct = 'report/sales/salesbyproduct';
 const urlSalesPaymentList = 'report/sales/paymentlist';
 const urlSalesUnpaid = 'report/sales/unpaid';
+const urlSalesNetIncome = 'report/sales/net-income';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -951,5 +952,15 @@ export const exportReportSalesUnpaid = async (payload) => {
       invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
       search: payload.search
     }
+  });
+};
+
+export const getReportSalesNetIncome = async (payload) => {
+  return await axios.get(urlSalesNetIncome);
+};
+
+export const exportReportSalesNetIncome = async (payload) => {
+  return await axios.get(`${urlSalesNetIncome}/export`, {
+    responseType: 'blob'
   });
 };

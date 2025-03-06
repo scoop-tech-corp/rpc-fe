@@ -12,6 +12,8 @@ export default function FilterSales({ extData, filter, setFilter }) {
   let [searchParams] = useSearchParams();
   let detail = searchParams.get('detail');
 
+  if (detail === 'net-income') return null;
+
   return (
     <>
       <Grid container spacing={2} width={'100%'}>
