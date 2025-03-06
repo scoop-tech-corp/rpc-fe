@@ -12,11 +12,11 @@ export default function FilterSales({ extData, filter, setFilter }) {
   let [searchParams] = useSearchParams();
   let detail = searchParams.get('detail');
 
-  if (detail === 'net-income') return null;
+  const isFilterHidden = ['net-income', 'discount-summary'].includes(detail);
 
   return (
     <>
-      <Grid container spacing={2} width={'100%'}>
+      <Grid container spacing={2} width={'100%'} style={{ display: isFilterHidden ? 'none' : 'block' }}>
         <Grid item sm={12} xs={12} md={9}>
           <Grid container spacing={2}>
             <Grid item sm={12} xs={12} md={4}>

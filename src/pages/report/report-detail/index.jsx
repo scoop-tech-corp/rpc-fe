@@ -55,6 +55,7 @@ import {
   getReportProductsStockCount,
   getReportSalesByProduct,
   getReportSalesByService,
+  getReportSalesDiscountSummary,
   getReportSalesItems,
   getReportSalesNetIncome,
   getReportSalesPaymentList,
@@ -106,6 +107,7 @@ import SalesByProduct from './sales/by-product';
 import SalesPaymentList from './sales/payment-list';
 import SalesUnpaid from './sales/unpaid';
 import SalesNetIncome from './sales/net-income';
+import SalesDiscountSummary from './sales/discount-summary';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -289,6 +291,7 @@ export default function Index() {
       if (detail === 'payment-list') respFetch = await getReportSalesPaymentList(filter);
       if (detail === 'unpaid') respFetch = await getReportSalesUnpaid(filter);
       if (detail === 'net-income') respFetch = await getReportSalesNetIncome(filter);
+      if (detail === 'discount-summary') respFetch = await getReportSalesDiscountSummary(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -351,6 +354,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
       else if (type === 'sales' && detail === 'unpaid') return await exportReportSalesUnpaid(filter);
       else if (type === 'sales' && detail === 'net-income') return await exportReportSalesNetIncome(filter);
+      else if (type === 'sales' && detail === 'discount-summary') return await exportReportSalesNetIncome(filter);
     };
 
     fetchExport()
@@ -483,6 +487,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'payment-list') return 'sales-payment-list';
     if (type === 'sales' && detail === 'unpaid') return 'sales-unpaid';
     if (type === 'sales' && detail === 'net-income') return 'sales-net-income';
+    if (type === 'sales' && detail === 'discount-summary') return 'sales-discount-summary';
 
     return '-';
   };
@@ -536,6 +541,9 @@ export default function Index() {
     if (type === 'sales' && detail === 'payment-list') return <SalesPaymentList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'unpaid') return <SalesUnpaid data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'net-income') return <SalesNetIncome data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'discount-summary') {
+      return <SalesDiscountSummary data={mainData} setFilter={setFilter} filter={filter} />;
+    }
 
     return '';
   };
