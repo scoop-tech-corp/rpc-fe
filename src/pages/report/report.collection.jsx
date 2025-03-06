@@ -100,7 +100,7 @@ export const list = {
     { id: 3, val: 'Details' },
     { id: 4, val: 'Items', url: 'items', icon: <UnorderedListOutlined /> },
     { id: 5, val: 'Discount summary', url: 'discount-summary', icon: <BarChartOutlined /> },
-    { id: 6, val: 'Payment summary' },
+    { id: 6, val: 'Payment summary', url: 'payment-summary', icon: <PieChartOutlined /> },
     { id: 7, val: 'Payment list', url: 'payment-list', icon: <UnorderedListOutlined /> },
     { id: 8, val: 'Unpaid', url: 'unpaid', icon: <UnorderedListOutlined /> },
     { id: 9, val: 'Sales by service', url: 'by-service', icon: <UnorderedListOutlined /> },

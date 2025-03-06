@@ -12,7 +12,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
   let [searchParams] = useSearchParams();
   let detail = searchParams.get('detail');
 
-  const isFilterHidden = ['net-income', 'discount-summary'].includes(detail);
+  const isFilterHidden = ['net-income', 'discount-summary', 'payment-summary'].includes(detail);
 
   return (
     <>

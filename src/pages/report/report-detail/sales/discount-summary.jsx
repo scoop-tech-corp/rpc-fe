@@ -1,9 +1,6 @@
 import { Box, Grid } from '@mui/material';
-import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/dashboard/card';
-import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo, useEffect } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { useEffect, useMemo } from 'react';
 import { formatThousandSeparator } from 'utils/func';
 
 export default function SalesDiscountSummary({ data, filter, setFilter }) {
@@ -142,7 +139,7 @@ export default function SalesDiscountSummary({ data, filter, setFilter }) {
               count={formatThousandSeparator(data?.totalDiscount.total || '0')}
               isLoss={Boolean(data?.totalDiscount.isLoss)}
               percentage={Number(data?.totalDiscount.percentage)}
-              // color={data?.totalDiscount.isLoss ? 'warning' : 'success'}
+              color={data?.totalDiscount.isLoss ? 'warning' : 'success'}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
@@ -151,7 +148,7 @@ export default function SalesDiscountSummary({ data, filter, setFilter }) {
               count={formatThousandSeparator(data?.itemsDicounted.total || '0')}
               isLoss={Boolean(data?.itemsDicounted.isLoss)}
               percentage={Number(data?.itemsDicounted.percentage)}
-              // color={data?.totalDiscount.isLoss ? 'warning' : 'success'}
+              color={data?.itemsDicounted.isLoss ? 'warning' : 'success'}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
@@ -160,7 +157,7 @@ export default function SalesDiscountSummary({ data, filter, setFilter }) {
               count={formatThousandSeparator(data?.salesDiscounted.total || '0')}
               isLoss={Boolean(data?.salesDiscounted.isLoss)}
               percentage={Number(data?.salesDiscounted.percentage)}
-              // color={data?.totalDiscount.isLoss ? 'warning' : 'success'}
+              color={data?.salesDiscounted.isLoss ? 'warning' : 'success'}
             />
           </Grid>
         </Grid>

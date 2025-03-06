@@ -59,6 +59,7 @@ import {
   getReportSalesItems,
   getReportSalesNetIncome,
   getReportSalesPaymentList,
+  getReportSalesPaymentSummary,
   getReportSalesSummary,
   getReportSalesUnpaid,
   getReportStaffLate,
@@ -108,6 +109,7 @@ import SalesPaymentList from './sales/payment-list';
 import SalesUnpaid from './sales/unpaid';
 import SalesNetIncome from './sales/net-income';
 import SalesDiscountSummary from './sales/discount-summary';
+import SalesPaymentSummary from './sales/payment-summary';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -292,6 +294,7 @@ export default function Index() {
       if (detail === 'unpaid') respFetch = await getReportSalesUnpaid(filter);
       if (detail === 'net-income') respFetch = await getReportSalesNetIncome(filter);
       if (detail === 'discount-summary') respFetch = await getReportSalesDiscountSummary(filter);
+      if (detail === 'payment-summary') respFetch = await getReportSalesPaymentSummary(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -488,6 +491,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'unpaid') return 'sales-unpaid';
     if (type === 'sales' && detail === 'net-income') return 'sales-net-income';
     if (type === 'sales' && detail === 'discount-summary') return 'sales-discount-summary';
+    if (type === 'sales' && detail === 'payment-summary') return 'sales-payment-summary';
 
     return '-';
   };
@@ -544,6 +548,13 @@ export default function Index() {
     if (type === 'sales' && detail === 'discount-summary') {
       return <SalesDiscountSummary data={mainData} setFilter={setFilter} filter={filter} />;
     }
+    if (type === 'sales' && detail === 'payment-summary') {
+      return <SalesPaymentSummary data={mainData} setFilter={setFilter} filter={filter} />;
+    }
+
+    // if (type === 'sales' && detail === 'discount-summary') {
+    //   return <SalesDiscountSummary data={mainData} setFilter={setFilter} filter={filter} />;
+    // }
 
     return '';
   };
@@ -563,9 +574,11 @@ export default function Index() {
         locationBackConfig={{ setLocationBack: true, customUrl: '/report' }}
         action={
           <>
-            <Button variant="contained" startIcon={<ExportOutlined />} onClick={onExport}>
-              <FormattedMessage id="export" />
-            </Button>
+            {!['payment-summary', 'discount-summary'].includes(detail) && (
+              <Button variant="contained" startIcon={<ExportOutlined />} onClick={onExport}>
+                <FormattedMessage id="export" />
+              </Button>
+            )}
           </>
         }
       />
