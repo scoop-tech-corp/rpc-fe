@@ -1,26 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Map, Marker } from 'pigeon-maps';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { useDispatch } from 'react-redux';
-import { Icon } from 'leaflet';
 
-import iconMarker from 'leaflet/dist/images/marker-icon.png';
-import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 import axios from 'utils/axios';
 import PropTypes from 'prop-types';
-
-import './style.css';
-import 'leaflet/dist/leaflet.css';
 import useAuth from 'hooks/useAuth';
-
-const IconMarker = new Icon({
-  iconRetinaUrl: iconRetina,
-  iconUrl: iconMarker,
-  iconSize: [30, 30] // size of the icon
-});
 
 const configCoreErr = { statusErr: '' };
 
@@ -250,15 +238,9 @@ const FormAbsent = (props) => {
           <TextField fullWidth id="location" name="location" value={formValue.address} />
         </Stack>
         {formValue.location[0] !== null && formValue.location[1] !== null && (
-          <MapContainer center={formValue.location} zoom={14} scrollWheelZoom={false}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={formValue.location} icon={IconMarker}>
-              <Popup>You are here</Popup>
-            </Marker>
-          </MapContainer>
+          <Map height={400} defaultCenter={formValue.location}>
+            <Marker width={50} anchor={formValue.location} />
+          </Map>
         )}
       </Grid>
 

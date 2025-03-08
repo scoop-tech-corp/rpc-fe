@@ -1,13 +1,13 @@
-import { Button, Grid } from '@mui/material';
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { FormattedMessage } from 'react-intl';
 import { AlignCenterOutlined, UndoOutlined } from '@ant-design/icons';
+import { Button, Grid, TextField } from '@mui/material';
+import { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useSearchParams } from 'react-router-dom';
 
-import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import MultiSelectAll from 'components/MultiSelectAll';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 
-export default function FilterStaff({ extData, filter, setFilter }) {
+export default function FilterDeposit({ extData, filter, setFilter }) {
   const [isReset, setIsReset] = useState(false);
   let [searchParams] = useSearchParams();
   let detail = searchParams.get('detail');
@@ -25,6 +25,18 @@ export default function FilterStaff({ extData, filter, setFilter }) {
                 className={'fullWidth'}
               />
             </Grid>
+            {['list'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label={<FormattedMessage id="search" />}
+                  id="filter-search"
+                  name="filter-search"
+                  value={filter.search}
+                  onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
+                />
+              </Grid>
+            )}
             <Grid item sm={12} xs={12} md={4}>
               <MultiSelectAll
                 items={extData?.location || []}
@@ -40,47 +52,17 @@ export default function FilterStaff({ extData, filter, setFilter }) {
             </Grid>
             <Grid item sm={12} xs={12} md={4}>
               <MultiSelectAll
-                items={extData?.staff || []}
+                items={extData?.method || []}
                 limitTags={1}
-                value={filter?.staff}
-                key={'filter-staff'}
+                value={filter?.method}
+                key={'filter-method'}
                 selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, staff: val }))}
+                onChange={(val) => setFilter((e) => ({ ...e, method: val }))}
                 isReset={isReset}
                 setIsReset={setIsReset}
-                label={<FormattedMessage id="staff" />}
+                label={<FormattedMessage id="method" />}
               />
             </Grid>
-            {detail === 'late' && (
-              <Grid item sm={12} xs={12} md={4}>
-                <MultiSelectAll
-                  items={extData?.jobTitle || []}
-                  limitTags={1}
-                  value={filter?.jobTitle}
-                  key={'filter-job-title'}
-                  selectAllLabel="Select All"
-                  onChange={(val) => setFilter((e) => ({ ...e, jobTitle: val }))}
-                  isReset={isReset}
-                  setIsReset={setIsReset}
-                  label={<FormattedMessage id="job-title" />}
-                />
-              </Grid>
-            )}
-            {detail === 'leave' && (
-              <Grid item sm={12} xs={12} md={4}>
-                <MultiSelectAll
-                  items={extData?.leaveType || []}
-                  limitTags={1}
-                  value={filter?.leaveType}
-                  key={'filter-leave-type'}
-                  selectAllLabel="Select All"
-                  onChange={(val) => setFilter((e) => ({ ...e, leaveType: val }))}
-                  isReset={isReset}
-                  setIsReset={setIsReset}
-                  label={<FormattedMessage id="leave-type" />}
-                />
-              </Grid>
-            )}
           </Grid>
         </Grid>
         <Grid item xs={12} sm={12} md={2}>
@@ -92,7 +74,16 @@ export default function FilterStaff({ extData, filter, setFilter }) {
                 fullWidth={true}
                 startIcon={<UndoOutlined />}
                 onClick={() => {
-                  setFilter(() => ({ orderValue: '', orderColumn: '', date: '', location: [], staff: [], leaveType: [], staffJob: [] }));
+                  setFilter(() => ({
+                    orderValue: '',
+                    orderColumn: '',
+                    goToPage: 1,
+                    rowPerPage: 5,
+                    date: '',
+                    search: '',
+                    location: [],
+                    method: []
+                  }));
                   setIsReset(true);
                 }}
               >
