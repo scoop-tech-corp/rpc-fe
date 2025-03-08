@@ -5,14 +5,15 @@ import { useDispatch } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { createMessageBackend, detectUserPrivilage } from 'service/service-global';
 import { Button } from '@mui/material';
-import { PlusOutlined } from '@ant-design/icons';
-import { snackbarSuccess } from 'store/reducers/snackbar';
-import { createCustomer, updateCustomer, uploadImageCustomer } from 'pages/customer/service';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { createCustomer, deleteCustomerList, updateCustomer, uploadImageCustomer } from 'pages/customer/service';
 
 import PropTypes from 'prop-types';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 import useAuth from 'hooks/useAuth';
+import ConfirmationC from 'components/ConfirmationC';
 
 const CustomerFormHeader = (props) => {
   const allState = useCustomerFormStore((state) => state);
@@ -24,6 +25,7 @@ const CustomerFormHeader = (props) => {
 
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
+  const [dialogDelete, setDialogDelete] = useState(false);
 
   let { id } = useParams();
   const dispatch = useDispatch();
@@ -76,6 +78,26 @@ const CustomerFormHeader = (props) => {
     }
   };
 
+  const onConfirm = async (value) => {
+    if (value) {
+      await deleteCustomerList([id])
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialogDelete(false);
+            dispatch(snackbarSuccess('Success Delete Customer'));
+            navigate('/customer/list', { replace: true });
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else {
+      setDialogDelete(false);
+    }
+  };
+
   const isShowBtnSave = () => {
     if (id && userPrivilage == 4) return true;
     else if (!id && [2, 4].includes(userPrivilage)) return true;
@@ -101,18 +123,33 @@ const CustomerFormHeader = (props) => {
         locationBackConfig={{ setLocationBack: true, customUrl: '/customer/list' }}
         action={
           isShowBtnSave() && (
-            <Button
-              variant="contained"
-              startIcon={<PlusOutlined />}
-              onClick={onSubmit}
-              disabled={!isTouchForm || formError || customerFormError}
-            >
-              <FormattedMessage id="save" />
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                startIcon={<PlusOutlined />}
+                onClick={onSubmit}
+                disabled={!isTouchForm || formError || customerFormError}
+              >
+                <FormattedMessage id="save" />
+              </Button>
+              {id && (
+                <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialogDelete(true)}>
+                  <FormattedMessage id="delete" />
+                </Button>
+              )}
+            </>
           )
         }
       />
       <ErrorContainer open={!isTouchForm && isError} content={errContent} />
+      <ConfirmationC
+        open={dialogDelete}
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+        onClose={(response) => onConfirm(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
     </>
   );
 };
