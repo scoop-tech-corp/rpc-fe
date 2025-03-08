@@ -59,7 +59,7 @@ const ServiceStaticData = Loadable(lazy(() => import('pages/service/static-data'
 const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Product
-const ProductDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductDashboard = Loadable(lazy(() => import('pages/product/dashboard')));
 const ProductList = Loadable(lazy(() => import('pages/product/product-list/product-list')));
 const ProductSellForm = Loadable(lazy(() => import('pages/product/product-list/product-sell/form')));
 const ProductClinicForm = Loadable(lazy(() => import('pages/product/product-list/product-clinic/form')));
