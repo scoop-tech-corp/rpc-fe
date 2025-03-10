@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Grid, Stack } from '@mui/material';
+import { Grid, Link, Stack } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -15,7 +15,6 @@ const ProductDashboard = () => {
     productSoldQty: { total: '442000', isLoss: false, percentage: 59.3 },
     productSoldValue: { total: '442000', isLoss: false, percentage: 59.3 },
     barProductSales: {
-      categories: ['8', '7', '6', '5', '4', '3', '2', '1', '28', '27'],
       series: [
         {
           name: 'Previous',
@@ -25,7 +24,8 @@ const ProductDashboard = () => {
           name: 'Current',
           data: [20, 40, 20, 10, 80, 30, 15, 20, 18, 29]
         }
-      ]
+      ],
+      categories: ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1']
     },
     topSellers: [
       { id: 1, productName: 'Erline Booster 20Ml', total: 46550000 },
@@ -42,7 +42,12 @@ const ProductDashboard = () => {
 
   const columnTopSellers = useMemo(
     () => [
-      { Header: <FormattedMessage id="product" />, accessor: 'productName', isNotSorting: true },
+      {
+        Header: <FormattedMessage id="product" />,
+        accessor: 'productName',
+        isNotSorting: true,
+        Cell: (data) => <Link>{data.value}</Link>
+      },
       { Header: <FormattedMessage id="total" />, accessor: 'total', isNotSorting: true }
     ],
     []
@@ -83,7 +88,7 @@ const ProductDashboard = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <MainCard title={<FormattedMessage id="most-popular" />} content={false}>
+          <MainCard title={<FormattedMessage id="top-sellers-rp" />} content={false}>
             <Stack spacing={3}>
               <Stack sx={{ p: 3 }}>
                 <ReactTable columns={columnTopSellers} data={data?.topSellers || []} />
