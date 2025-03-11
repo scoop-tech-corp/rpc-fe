@@ -52,19 +52,21 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 label={<FormattedMessage id="location" />}
               />
             </Grid>
-            <Grid item sm={12} xs={12} md={4}>
-              <MultiSelectAll
-                items={extData?.status || []}
-                limitTags={1}
-                value={filter?.status}
-                key={'filter-status'}
-                selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, status: val }))}
-                isReset={isReset}
-                setIsReset={setIsReset}
-                label={<FormattedMessage id="status" />}
-              />
-            </Grid>
+            {['items', 'summary', 'payment-list', 'unpaid'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.status || []}
+                  limitTags={1}
+                  value={filter?.status}
+                  key={'filter-status'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, status: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="status" />}
+                />
+              </Grid>
+            )}
             <Grid item sm={12} xs={12} md={4}>
               <MultiSelectAll
                 items={extData?.payment || []}
@@ -108,7 +110,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            {['items', 'summary', 'by-product', 'by-service', 'payment-list'].includes(detail) && (
+            {['items', 'summary', 'payment-list'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.staff || []}
