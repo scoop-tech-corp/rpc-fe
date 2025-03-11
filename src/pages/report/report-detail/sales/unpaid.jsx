@@ -1,18 +1,19 @@
 import { Link } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { formatThousandSeparator } from 'utils/func';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { formatDateString, formatThousandSeparator } from 'utils/func';
 import iconWhatsapp from '../../../../../src/assets/images/ico-whatsapp.png';
 
 export default function SalesUnpaid({ data, filter, setFilter }) {
+  const { locale } = useIntl();
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
 
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="sales" />,
+        Header: <FormattedMessage id="sale-id" />,
         accessor: 'saleId',
         Cell: (data) => {
           const onClickDetail = () => {};
@@ -26,7 +27,8 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="due-date" />,
-        accessor: 'dueDate'
+        accessor: 'dueDate',
+        Cell: (data) => formatDateString(data.value, locale)
       },
       {
         Header: <FormattedMessage id="overdue" />,
@@ -68,7 +70,7 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
         accessor: 'refNum'
       }
     ],
-    []
+    [locale]
   );
 
   // Dummy data for the table

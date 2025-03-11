@@ -869,12 +869,12 @@ export const getReportSalesPaymentList = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      staffId: staff.length ? staff : [''],
-      methodId: method.length ? method : [''],
-      categoryId: category.length ? category : [''],
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      staffId: staff,
+      methodId: method,
+      categoryId: category,
       search: payload.search
     }
   });
@@ -923,11 +923,11 @@ export const getReportSalesUnpaid = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      customerId: customer.length ? customer : [''],
-      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      customerId: customer,
+      invoiceCategoryId: invoiceCategory,
       search: payload.search
     }
   });
