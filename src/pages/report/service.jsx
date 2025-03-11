@@ -605,8 +605,8 @@ export const getReportDepositList = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      methodId: method.length ? method : [''],
+      locationId: location,
+      methodId: method,
       search: payload.search
     }
   });
