@@ -317,7 +317,7 @@ export default function ProductsCost({ data, filter, setFilter }) {
         columns={columns}
         data={tablesData}
         totalPagination={totalPagination || 0}
-        colSpanPagination={14}
+        colSpanPagination={extData.location.length + 5}
         setPageNumber={filter.goToPage}
         onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
         setPageRow={filter.rowPerPage}

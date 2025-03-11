@@ -530,7 +530,8 @@ export const getReportProductsCost = async (payload) => {
       dateFrom,
       dateTo,
       locationId: location,
-      productId: product
+      productId: product,
+      search: payload.search
     }
   });
 };
