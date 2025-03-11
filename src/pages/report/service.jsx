@@ -491,9 +491,9 @@ export const getReportProductsStockCount = async (payload) => {
       orderColumn: payload.orderColumn,
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -529,8 +529,8 @@ export const getReportProductsCost = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      productId: product.length ? product : ['']
+      locationId: location,
+      productId: product
     }
   });
 };
@@ -567,9 +567,9 @@ export const getReportProductsNoStock = async (payload) => {
       orderColumn: payload.orderColumn,
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -782,9 +782,9 @@ export const getReportSalesByService = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      paymentId: payment.length ? payment : [''],
-      categoryId: category.length ? category : ['']
+      locationId: location,
+      paymentId: payment,
+      categoryId: category
     }
   });
 };
@@ -823,9 +823,9 @@ export const getReportSalesByProduct = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      paymentId: payment.length ? payment : [''],
-      categoryId: category.length ? category : [''],
+      locationId: location,
+      paymentId: payment,
+      categoryId: category,
       search: payload.search
     }
   });
