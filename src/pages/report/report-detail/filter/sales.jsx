@@ -108,7 +108,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            {['items', 'by-product', 'by-service', 'payment-list'].includes(detail) && (
+            {['items', 'summary', 'by-product', 'by-service', 'payment-list'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.staff || []}
