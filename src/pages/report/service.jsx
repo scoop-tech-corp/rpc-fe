@@ -683,10 +683,10 @@ export const getReportSalesSummary = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      staffId: staff.length ? staff : ['']
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      staffId: staff
     }
   });
 };
