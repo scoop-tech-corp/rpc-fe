@@ -456,9 +456,9 @@ export const getReportProductsLowStock = async (payload) => {
       orderColumn: payload.orderColumn,
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
