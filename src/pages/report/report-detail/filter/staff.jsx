@@ -51,6 +51,21 @@ export default function FilterStaff({ extData, filter, setFilter }) {
                 label={<FormattedMessage id="staff" />}
               />
             </Grid>
+            {detail === 'late' && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.jobTitle || []}
+                  limitTags={1}
+                  value={filter?.jobTitle}
+                  key={'filter-job-title'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, jobTitle: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="job-title" />}
+                />
+              </Grid>
+            )}
             {detail === 'leave' && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
@@ -77,7 +92,7 @@ export default function FilterStaff({ extData, filter, setFilter }) {
                 fullWidth={true}
                 startIcon={<UndoOutlined />}
                 onClick={() => {
-                  setFilter(() => ({ orderValue: '', orderColumn: '', date: '', location: [], staff: [], leaveType: [] }));
+                  setFilter(() => ({ orderValue: '', orderColumn: '', date: '', location: [], staff: [], leaveType: [], staffJob: [] }));
                   setIsReset(true);
                 }}
               >

@@ -333,6 +333,7 @@ export const exportReportStaffLogin = async (payload) => {
 export const getReportStaffLate = async (payload) => {
   const location = payload.location.map((dt) => dt.value);
   const staff = payload.staff.map((dt) => dt.value);
+  const jobTitle = payload.jobTitle.map((dt) => dt.value);
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
 
@@ -345,7 +346,8 @@ export const getReportStaffLate = async (payload) => {
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
       locationId: location,
-      staffId: staff
+      staffId: staff,
+      staffJob: jobTitle
     }
   });
 };
@@ -355,6 +357,7 @@ export const exportReportStaffLate = async (payload) => {
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
   const location = payload.location.map((dt) => dt.value);
   const staff = payload.staff.map((dt) => dt.value);
+  const jobTitle = payload.jobTitle.map((dt) => dt.value);
 
   return await axios.get(`${urlStaffLate}/export`, {
     responseType: 'blob',
@@ -362,7 +365,8 @@ export const exportReportStaffLate = async (payload) => {
       dateFrom,
       dateTo,
       locationId: location.length ? location : [''],
-      staffId: staff.length ? staff : ['']
+      staffId: staff.length ? staff : [''],
+      staffJob: jobTitle.length ? jobTitle : ['']
     }
   });
 };

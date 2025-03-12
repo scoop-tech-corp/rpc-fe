@@ -9,7 +9,8 @@ import {
   getCustomerGroupList,
   createMessageBackend,
   processDownloadExcel,
-  getPaymentMethodList
+  getPaymentMethodList,
+  getStaffJobTitleList
 } from 'service/service-global';
 import { useSearchParams } from 'react-router-dom';
 import { getTypeIdList } from 'pages/customer/service';
@@ -150,7 +151,8 @@ export default function Index() {
         date: '',
         location: [],
         staff: [],
-        leaveType: []
+        leaveType: [],
+        jobTitle: []
       };
 
     if (type === 'products' && detail === 'cost') {
@@ -390,11 +392,13 @@ export default function Index() {
   const getPrepareDataForStaff = async () => {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
+    const getStaffJob = await getStaffJobTitleList();
 
     setExtData((prevState) => ({
       ...prevState,
       location: getLoc,
       staff: getStaff,
+      jobTitle: getStaffJob,
       leaveType: [
         { label: 'Leave Allowance', value: 'Leave Allowance' },
         { label: 'Sick Allowance', value: 'Sick Allowance' }
