@@ -1,6 +1,7 @@
 import { ReactTable } from 'components/third-party/ReactTable';
 import React, { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { formatThousandSeparator } from 'utils/func';
 
 export default function DepositSummary({ data, filter, setFilter }) {
   const tablesData = data?.data || [];
@@ -13,16 +14,19 @@ export default function DepositSummary({ data, filter, setFilter }) {
         accessor: 'locationName'
       },
       {
-        Header: <FormattedMessage id="returned" />,
-        accessor: 'returnedAmount'
+        Header: <FormattedMessage id="returned-rp" />,
+        accessor: 'returnedAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
-        Header: <FormattedMessage id="used" />,
-        accessor: 'usedAmount'
+        Header: <FormattedMessage id="used-rp" />,
+        accessor: 'usedAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
-        Header: <FormattedMessage id="remaining" />,
-        accessor: 'remainingAmount'
+        Header: <FormattedMessage id="remaining-rp" />,
+        accessor: 'remainingAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       }
     ],
     []

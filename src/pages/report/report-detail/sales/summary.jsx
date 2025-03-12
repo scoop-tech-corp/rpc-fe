@@ -19,32 +19,32 @@ export default function SalesSummary({ data, filter, setFilter }) {
         Cell: ({ value }) => (React.isValidElement(value) ? value : value)
       },
       {
-        Header: <FormattedMessage id="gross-amount" />,
+        Header: <FormattedMessage id="gross-amount-rp" />,
         accessor: 'grossAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
-        Header: <FormattedMessage id="discount" />,
+        Header: <FormattedMessage id="discount-rp" />,
         accessor: 'discounts',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
-        Header: <FormattedMessage id="net-amount" />,
+        Header: <FormattedMessage id="net-amount-rp" />,
         accessor: 'netAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
-        Header: <FormattedMessage id="taxes" />,
+        Header: <FormattedMessage id="taxes-rp" />,
         accessor: 'taxesAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
-        Header: <FormattedMessage id="charges" />,
+        Header: <FormattedMessage id="charges-rp" />,
         accessor: 'chargesAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       },
       {
-        Header: <FormattedMessage id="total" />,
+        Header: <FormattedMessage id="total-rp" />,
         accessor: 'totalAmount',
         Cell: ({ value }) => (React.isValidElement(value) ? value : formatThousandSeparator(value))
       }

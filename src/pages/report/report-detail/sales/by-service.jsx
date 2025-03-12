@@ -1,3 +1,4 @@
+import { Link } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -11,7 +12,12 @@ export default function SalesByService({ data, filter, setFilter }) {
     () => [
       {
         Header: <FormattedMessage id="service" />,
-        accessor: 'serviceName'
+        accessor: 'serviceName',
+        Cell: (data) => {
+          const onClickDetail = () => {};
+
+          return <Link onClick={() => onClickDetail()}>{data.value}</Link>; // href={`????`}
+        }
       },
       {
         Header: <FormattedMessage id="quantity" />,

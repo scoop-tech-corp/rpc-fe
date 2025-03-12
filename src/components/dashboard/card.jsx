@@ -23,7 +23,7 @@ const AnalyticEcommerce = ({ color = 'primary', title, count, percentage, isLoss
             {count}
           </Typography>
         </Grid>
-        {percentage && (
+        {Boolean(percentage) && (
           <Grid item>
             <Chip
               variant="combined"
