@@ -32,6 +32,7 @@ import {
   exportReportProductsStockCount,
   exportReportSalesByProduct,
   exportReportSalesByService,
+  exportReportSalesDailyAudit,
   exportReportSalesItems,
   exportReportSalesNetIncome,
   exportReportSalesPaymentList,
@@ -56,6 +57,7 @@ import {
   getReportProductsStockCount,
   getReportSalesByProduct,
   getReportSalesByService,
+  getReportSalesDailyAudit,
   getReportSalesDiscountSummary,
   getReportSalesItems,
   getReportSalesNetIncome,
@@ -111,6 +113,7 @@ import SalesUnpaid from './sales/unpaid';
 import SalesNetIncome from './sales/net-income';
 import SalesDiscountSummary from './sales/discount-summary';
 import SalesPaymentSummary from './sales/payment-summary';
+import SalesDailyAudit from './sales/daily-audit';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -297,6 +300,7 @@ export default function Index() {
       if (detail === 'net-income') respFetch = await getReportSalesNetIncome(filter);
       if (detail === 'discount-summary') respFetch = await getReportSalesDiscountSummary(filter);
       if (detail === 'payment-summary') respFetch = await getReportSalesPaymentSummary(filter);
+      if (detail === 'daily-audit') respFetch = await getReportSalesDailyAudit(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -359,7 +363,9 @@ export default function Index() {
       else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
       else if (type === 'sales' && detail === 'unpaid') return await exportReportSalesUnpaid(filter);
       else if (type === 'sales' && detail === 'net-income') return await exportReportSalesNetIncome(filter);
-      else if (type === 'sales' && detail === 'discount-summary') return await exportReportSalesNetIncome(filter);
+      else if (type === 'sales' && detail === 'discount-summary') return;
+      else if (type === 'sales' && detail === 'payment-summary') return;
+      else if (type === 'sales' && detail === 'daily-audit') return await exportReportSalesDailyAudit(filter);
     };
 
     fetchExport()
@@ -496,6 +502,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'net-income') return 'sales-net-income';
     if (type === 'sales' && detail === 'discount-summary') return 'sales-discount-summary';
     if (type === 'sales' && detail === 'payment-summary') return 'sales-payment-summary';
+    if (type === 'sales' && detail === 'daily-audit') return 'sales-daily-audit';
 
     return '-';
   };
@@ -556,9 +563,9 @@ export default function Index() {
       return <SalesPaymentSummary data={mainData} setFilter={setFilter} filter={filter} />;
     }
 
-    // if (type === 'sales' && detail === 'discount-summary') {
-    //   return <SalesDiscountSummary data={mainData} setFilter={setFilter} filter={filter} />;
-    // }
+    if (type === 'sales' && detail === 'daily-audit') {
+      return <SalesDailyAudit data={mainData} setFilter={setFilter} filter={filter} />;
+    }
 
     return '';
   };

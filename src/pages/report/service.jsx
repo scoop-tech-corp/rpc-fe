@@ -29,6 +29,7 @@ const urlSalesByProduct = 'report/sales/salesbyproduct';
 const urlSalesPaymentList = 'report/sales/paymentlist';
 const urlSalesUnpaid = 'report/sales/unpaid';
 const urlSalesNetIncome = 'report/sales/netincome';
+const urlSalesDailyAudit = 'report/sales/dailyaudit';
 const urlSalesDiscountSummary = 'report/sales/discountsummary';
 const urlSalesPaymentsSummary = 'report/sales/paymentsummary';
 
@@ -958,6 +959,54 @@ export const exportReportSalesUnpaid = async (payload) => {
       customerId: customer.length ? customer : [''],
       invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
       search: payload.search
+    }
+  });
+};
+
+export const getReportSalesDailyAudit = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesDailyAudit, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      paymentId: payment,
+      staffId: staff,
+      invoiceCategoryId: invoiceCategory
+    }
+  });
+};
+
+export const exportReportSalesDailyAudit = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesDailyAudit, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : ['']
     }
   });
 };

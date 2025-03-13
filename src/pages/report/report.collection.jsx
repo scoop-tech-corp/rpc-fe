@@ -109,7 +109,7 @@ export const list = {
     { id: 12, val: 'Package summary' },
     { id: 13, val: 'Customer spend' },
     { id: 14, val: 'Daily reconciliation' },
-    { id: 15, val: 'Daily audit' },
+    { id: 15, val: 'Daily audit', url: 'daily-audit', icon: <UnorderedListOutlined /> },
     { id: 16, val: 'Refunds' }
   ],
   staff: [
