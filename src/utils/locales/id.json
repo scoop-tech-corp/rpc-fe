@@ -713,6 +713,7 @@
   "total": "Total",
   "total-service": "Jumlah Layanan",
   "total-amount": "Jumlah Nominal",
+  "total-excl-cc": "Jumlah (Excl CC)",
   "total-adjusment": "Jumlah Penyesuaian",
   "total-access-menu": "Jumlah Akses Menu",
   "total-after-adjustment": "Jumlah Setelah Penyesuaian",

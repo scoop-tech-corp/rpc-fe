@@ -67,7 +67,7 @@ export default function SalesDailyAudit({ data, filter, setFilter }) {
             Cell: (data) => formatThousandSeparator(data.value)
           },
           {
-            Header: <FormattedMessage id="total-amount" />,
+            Header: <FormattedMessage id="total-excl-cc" />,
             accessor: 'paymentSummary.totalAmount',
             Cell: (data) => formatThousandSeparator(data.value)
           }
