@@ -133,7 +133,7 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
       <ReactTable
         columns={columns}
         data={tablesData}
-        totalPagination={totalPagination || 10}
+        totalPagination={totalPagination || 0}
         colSpanPagination={14}
         setPageNumber={filter.goToPage}
         onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
