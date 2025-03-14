@@ -27,7 +27,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 className={'fullWidth'}
               />
             </Grid>
-            {['items', 'by-product', 'details'].includes(detail) && (
+            {['items', 'by-product', 'details', 'unpaid'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <TextField
                   fullWidth
