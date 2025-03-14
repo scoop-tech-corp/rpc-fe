@@ -27,7 +27,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 className={'fullWidth'}
               />
             </Grid>
-            {['items', 'by-product'].includes(detail) && (
+            {['items', 'by-product', 'details'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <TextField
                   fullWidth
@@ -52,7 +52,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 label={<FormattedMessage id="location" />}
               />
             </Grid>
-            {['items', 'summary', 'payment-list', 'unpaid'].includes(detail) && (
+            {['items', 'summary', 'payment-list', 'unpaid', 'details'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.status || []}
@@ -110,7 +110,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            {['items', 'summary', 'payment-list', 'daily-audit'].includes(detail) && (
+            {['items', 'summary', 'payment-list', 'daily-audit', 'details'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.staff || []}
@@ -171,7 +171,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            {['unpaid', 'daily-audit'].includes(detail) && (
+            {['unpaid', 'daily-audit', 'details'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.invoiceCategory || []}

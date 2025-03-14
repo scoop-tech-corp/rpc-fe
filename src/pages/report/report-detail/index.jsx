@@ -33,6 +33,7 @@ import {
   exportReportSalesByProduct,
   exportReportSalesByService,
   exportReportSalesDailyAudit,
+  exportReportSalesDetails,
   exportReportSalesItems,
   exportReportSalesNetIncome,
   exportReportSalesPaymentList,
@@ -58,6 +59,7 @@ import {
   getReportSalesByProduct,
   getReportSalesByService,
   getReportSalesDailyAudit,
+  getReportSalesDetails,
   getReportSalesDiscountSummary,
   getReportSalesItems,
   getReportSalesNetIncome,
@@ -114,6 +116,7 @@ import SalesNetIncome from './sales/net-income';
 import SalesDiscountSummary from './sales/discount-summary';
 import SalesPaymentSummary from './sales/payment-summary';
 import SalesDailyAudit from './sales/daily-audit';
+import SalesDetails from './sales/details';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -301,6 +304,7 @@ export default function Index() {
       if (detail === 'discount-summary') respFetch = await getReportSalesDiscountSummary(filter);
       if (detail === 'payment-summary') respFetch = await getReportSalesPaymentSummary(filter);
       if (detail === 'daily-audit') respFetch = await getReportSalesDailyAudit(filter);
+      if (detail === 'details') respFetch = await getReportSalesDetails(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -366,6 +370,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'discount-summary') return;
       else if (type === 'sales' && detail === 'payment-summary') return;
       else if (type === 'sales' && detail === 'daily-audit') return await exportReportSalesDailyAudit(filter);
+      else if (type === 'sales' && detail === 'details') return await exportReportSalesDetails(filter);
     };
 
     fetchExport()
@@ -503,6 +508,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'discount-summary') return 'sales-discount-summary';
     if (type === 'sales' && detail === 'payment-summary') return 'sales-payment-summary';
     if (type === 'sales' && detail === 'daily-audit') return 'sales-daily-audit';
+    if (type === 'sales' && detail === 'details') return 'sales-details';
 
     return '-';
   };
@@ -566,6 +572,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'daily-audit') {
       return <SalesDailyAudit data={mainData} setFilter={setFilter} filter={filter} />;
     }
+    if (type === 'sales' && detail === 'details') return <SalesDetails data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };
