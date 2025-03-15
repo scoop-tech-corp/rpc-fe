@@ -46,7 +46,7 @@ export default function SalesDiscountSummary({ data, filter, setFilter }) {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <AnalyticEcommerce
-              title="Item Discounted (Rp)"
+              title="Sales Discounted (Rp)"
               count={formatThousandSeparator(data?.salesDiscounted.total || '0')}
               isLoss={Boolean(data?.salesDiscounted.isLoss)}
               percentage={Number(data?.salesDiscounted.percentage)}

@@ -366,7 +366,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'by-product') return await exportReportSalesByProduct(filter);
       else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
       else if (type === 'sales' && detail === 'unpaid') return await exportReportSalesUnpaid(filter);
-      else if (type === 'sales' && detail === 'net-income') return await exportReportSalesNetIncome(filter);
+      else if (type === 'sales' && detail === 'net-income') return;
       else if (type === 'sales' && detail === 'discount-summary') return;
       else if (type === 'sales' && detail === 'payment-summary') return;
       else if (type === 'sales' && detail === 'daily-audit') return await exportReportSalesDailyAudit(filter);
@@ -592,7 +592,7 @@ export default function Index() {
         locationBackConfig={{ setLocationBack: true, customUrl: '/report' }}
         action={
           <>
-            {!['payment-summary', 'discount-summary'].includes(detail) && (
+            {!['payment-summary', 'discount-summary', 'net-income'].includes(detail) && (
               <Button variant="contained" startIcon={<ExportOutlined />} onClick={onExport}>
                 <FormattedMessage id="export" />
               </Button>
