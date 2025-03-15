@@ -55,9 +55,11 @@ export default function SalesDetails({ data, filter, setFilter }) {
         Cell: (data) => (
           <div>
             <ul style={{ padding: 0 }}>
-              <li>
-                {data.value.amount} {data.value.method} {data.value.date}
-              </li>
+              {data.value.map((item, index) => (
+                <li key={item + index}>
+                  {item.amount} {item.method} {item.date}
+                </li>
+              ))}
             </ul>
           </div>
         )
@@ -81,11 +83,13 @@ export default function SalesDetails({ data, filter, setFilter }) {
         status: 'Active',
         items: ['Proplan Sachet', 'Aboket'],
         totalAmount: 0,
-        paymentMethod: {
-          amount: 47000,
-          method: 'Cash',
-          date: '2022-05-12'
-        },
+        paymentMethod: [
+          {
+            amount: 47000,
+            method: 'Cash',
+            date: '2022-05-12'
+          }
+        ],
         payment: 'Paid'
       },
       {
@@ -96,11 +100,18 @@ export default function SalesDetails({ data, filter, setFilter }) {
         status: 'Active',
         items: ['Proplan Sachet', 'Aboket'],
         totalAmount: 0,
-        paymentMethod: {
-          amount: 47000,
-          method: 'Cash',
-          date: '2022-05-12'
-        },
+        paymentMethod: [
+          {
+            amount: 47000,
+            method: 'Cash',
+            date: '2022-05-12'
+          },
+          {
+            amount: 20000,
+            method: 'Debit',
+            date: '12/5/2022'
+          }
+        ],
         payment: 'Paid'
       },
       {
@@ -111,11 +122,13 @@ export default function SalesDetails({ data, filter, setFilter }) {
         status: 'Active',
         items: ['Proplan Sachet', 'Aboket'],
         totalAmount: 0,
-        paymentMethod: {
-          amount: 47000,
-          method: 'Cash',
-          date: '2022-05-12'
-        },
+        paymentMethod: [
+          {
+            amount: 47000,
+            method: 'Cash',
+            date: '2022-05-12'
+          }
+        ],
         payment: 'Paid'
       },
       {
@@ -126,11 +139,13 @@ export default function SalesDetails({ data, filter, setFilter }) {
         status: 'Active',
         items: ['Proplan Sachet', 'Aboket'],
         totalAmount: 0,
-        paymentMethod: {
-          amount: 47000,
-          method: 'Cash',
-          date: '2022-05-12'
-        },
+        paymentMethod: [
+          {
+            amount: 47000,
+            method: 'Cash',
+            date: '2022-05-12'
+          }
+        ],
         payment: 'Paid'
       }
     ],
