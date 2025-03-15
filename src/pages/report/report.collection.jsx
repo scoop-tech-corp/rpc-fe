@@ -97,7 +97,7 @@ export const list = {
   sales: [
     { id: 1, val: 'Summary', url: 'summary', icon: <LineChartOutlined /> },
     { id: 2, val: 'Value by item type' },
-    { id: 3, val: 'Details' },
+    { id: 3, val: 'Details', url: 'details', icon: <UnorderedListOutlined /> },
     { id: 4, val: 'Items', url: 'items', icon: <UnorderedListOutlined /> },
     { id: 5, val: 'Discount summary', url: 'discount-summary', icon: <BarChartOutlined /> },
     { id: 6, val: 'Payment summary', url: 'payment-summary', icon: <PieChartOutlined /> },
@@ -109,7 +109,7 @@ export const list = {
     { id: 12, val: 'Package summary' },
     { id: 13, val: 'Customer spend' },
     { id: 14, val: 'Daily reconciliation' },
-    { id: 15, val: 'Daily audit' },
+    { id: 15, val: 'Daily audit', url: 'daily-audit', icon: <UnorderedListOutlined /> },
     { id: 16, val: 'Refunds' }
   ],
   staff: [
