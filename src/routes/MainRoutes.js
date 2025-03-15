@@ -96,6 +96,7 @@ const Report = Loadable(lazy(() => import('pages/report')));
 const ReportDetail = Loadable(lazy(() => import('pages/report/report-detail')));
 
 // Menus
+const TimeKeeperAbsent = Loadable(lazy(() => import('pages/menus/time-keeper-absent')));
 const MenuGroup = Loadable(lazy(() => import('pages/menus/group')));
 const MenuGroupChildren = Loadable(lazy(() => import('pages/menus/children')));
 const MenuGroupGrandChildren = Loadable(lazy(() => import('pages/menus/grand-children')));
@@ -242,6 +243,7 @@ const MainRoutes = {
         {
           path: 'menu',
           children: [
+            { path: 'time-keeper', element: <TimeKeeperAbsent /> },
             { path: 'group', element: <MenuGroup /> },
             { path: 'children', element: <MenuGroupChildren /> },
             { path: 'grand-children', element: <MenuGroupGrandChildren /> },
