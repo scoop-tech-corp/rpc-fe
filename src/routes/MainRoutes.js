@@ -7,7 +7,7 @@ import Loadable from 'components/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
 import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
 import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
-import TransactionPacak from 'pages/transaction/pages/pacak';
+import TransactionBreeding from 'pages/transaction/pages/breeding';
 // import { Outlet } from 'react-router-dom';
 
 // render - sample page
@@ -134,7 +134,7 @@ const MainRoutes = {
             { path: 'pet-clinic', element: <TransactionPetClinic /> },
             { path: 'pet-hotel', element: <TransactionPetHotel /> },
             { path: 'pet-salon', element: <TransactionPetSalon /> },
-            { path: 'pacak', element: <TransactionPacak /> }
+            { path: 'breeding', element: <TransactionBreeding /> }
           ]
         },
         {
