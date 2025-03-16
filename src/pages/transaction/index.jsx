@@ -1,6 +1,6 @@
 import { FormattedMessage, useIntl } from 'react-intl';
-import { deleteTransaction, exportTransaction, getCategoryTransactionList, getTransactionIndex, reassignTransaction } from './service';
-import { Button, Stack, Box, Tab, Tabs, Autocomplete, TextField, Grid, Link, Tooltip, InputLabel } from '@mui/material'; // useMediaQuery
+import { deleteTransaction, exportTransaction, getCategoryTransactionList, getTransactionIndex, TabList, TransactionType } from './service';
+import { Button, Stack, Box, Tab, Tabs, Autocomplete, TextField, Grid, Link, Tooltip } from '@mui/material'; // useMediaQuery
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { GlobalFilter } from 'utils/react-table';
@@ -15,6 +15,8 @@ import {
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
+import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
+import { useSearchParams } from 'react-router-dom';
 
 import MainCard from 'components/MainCard';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -29,18 +31,24 @@ import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import TransactionDetail from './detail';
-import ModalC from 'components/ModalC';
 import CheckPetCondition from './check-pet-condition';
+import PropTypes from 'prop-types';
+import ReassignModalC from './reassign';
 
-const Transaction = () => {
-  const intl = useIntl();
-  const dispatch = useDispatch();
+const Transaction = (props) => {
+  const { type } = props;
   const { user } = useAuth();
+  let [searchParams, setSearchParams] = useSearchParams();
+  const tabQueryParam = searchParams.get('tab') || 'ongoing';
+
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getTransactionIndex,
-    { status: 'ongoing', locationId: [], customerGroupId: [], serviceCategories: [] },
+    { status: tabQueryParam, locationId: [], customerGroupId: [], serviceCategories: [TransactionType[type]] },
     'search'
   );
+
+  const intl = useIntl();
+  const dispatch = useDispatch();
 
   const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
@@ -51,8 +59,6 @@ const Transaction = () => {
   const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
   const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
 
-  const [selectedFilterServiceCategory, setFilterServiceCategory] = useState([]);
-  const [filterServiceCategoryList, setFilterServiceCategoryList] = useState([]);
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
@@ -98,22 +104,26 @@ const Transaction = () => {
 
     const getLocation = await getLocationList();
     const getCustomerGroup = await getCustomerGroupList();
-    const getCateTransaction = await getCategoryTransactionList();
+    const x = await getCategoryTransactionList();
+    console.log(';x', x);
 
     setFilterLocationList(getLocation);
     setFilterCustomerGroupList(getCustomerGroup);
-    setFilterServiceCategoryList(getCateTransaction);
 
     loaderGlobalConfig.setLoader(false);
     loaderService.setManualLoader(false);
   };
 
   useEffect(() => {
+    setSearchParams({ tab: tabQueryParam });
+    setTabSelected(TabList[tabQueryParam]);
+
     getDataDropdown();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const columnCheckbox = () => {
-    return user?.role === 'administrator'
+    return user?.role === CONSTANT_ADMINISTRATOR
       ? [
           {
             title: 'Row Selection',
@@ -135,66 +145,7 @@ const Transaction = () => {
   };
 
   const columnCustomerGroup = () => {
-    return user?.role === 'administrator' ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
-  };
-
-  const ReassignModalC = (props) => {
-    const [doctor, setDoctor] = useState(null);
-
-    const onOk = async () => {
-      await reassignTransaction({ transactionId: props.data.transactionId, doctorId: doctor.value })
-        .then((resp) => {
-          if (resp.status === 200) {
-            props.onClose(true);
-            dispatch(snackbarSuccess('Success reassign data'));
-          }
-        })
-        .catch((err) => {
-          if (err) {
-            props.onClose(false);
-            dispatch(snackbarError(createMessageBackend(err)));
-          }
-        });
-    };
-
-    return (
-      <ModalC
-        title={'Reassign'}
-        okText="Save"
-        cancelText="Cancel"
-        open={props.open}
-        onOk={onOk}
-        onCancel={() => props.onClose(false)}
-        disabledOk={!doctor}
-        sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 435 } }}
-        maxWidth="xs"
-      >
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Stack spacing={1}>
-              <InputLabel htmlFor="doctor">
-                <FormattedMessage id="doctor" />
-              </InputLabel>
-              <Autocomplete
-                id="doctor"
-                options={props.data.listDoctor || []}
-                value={doctor}
-                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                onChange={(_, selected) => setDoctor(selected ? selected : null)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={!doctor}
-                    helperText={!doctor ? <FormattedMessage id="doctor-is-required" /> : ''}
-                    variant="outlined"
-                  />
-                )}
-              />
-            </Stack>
-          </Grid>
-        </Grid>
-      </ModalC>
-    );
+    return user?.role === CONSTANT_ADMINISTRATOR ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
   };
 
   const columns = useMemo(
@@ -217,7 +168,7 @@ const Transaction = () => {
 
           return (
             <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              {['administrator', 'staff'].includes(user?.role) && statusRow.toLowerCase() === 'ditolak dokter' && (
+              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'ditolak dokter' && (
                 <Tooltip title={'Reassign'} arrow>
                   <IconButton size="large" color="success" onClick={doReassign}>
                     <RefreshIcon />
@@ -297,7 +248,7 @@ const Transaction = () => {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="transaction" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id={`transaction-${type}`} />} isBreadcrumb={true} />
       <MainCard content={true} boxShadow>
         <Grid container spacing={2} width={'100%'} marginBottom={'20px'}>
           <Grid item sm={12} xs={12} md={8}>
@@ -311,7 +262,7 @@ const Transaction = () => {
                   style={{ height: '41.3px' }}
                 />
               </Grid>
-              {user?.role === 'administrator' && (
+              {user?.role === CONSTANT_ADMINISTRATOR && (
                 <>
                   <Grid item sm={12} xs={12} md={6}>
                     <Autocomplete
@@ -345,22 +296,6 @@ const Transaction = () => {
                       renderInput={(params) => <TextField {...params} label={<FormattedMessage id="customer-group" />} />}
                     />
                   </Grid>
-                  <Grid item sm={12} xs={12} md={6}>
-                    <Autocomplete
-                      id="filterServiceCategory"
-                      multiple
-                      limitTags={1}
-                      options={filterServiceCategoryList}
-                      value={selectedFilterServiceCategory}
-                      className={'fullWidth'}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, selected) => {
-                        setFilterServiceCategory(selected);
-                        setParams((prevParams) => ({ ...prevParams, serviceCategories: selected.map((dt) => dt.value) }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="service-category" />} />}
-                    />
-                  </Grid>
                 </>
               )}
             </Grid>
@@ -371,7 +306,7 @@ const Transaction = () => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                {user?.role === 'administrator' && (
+                {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
                   <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                     <FormattedMessage id="transaction" />
                   </Button>
@@ -399,6 +334,7 @@ const Transaction = () => {
             value={tabSelected}
             onChange={(_, value) => {
               const tabs = ['ongoing', 'finished'];
+              setSearchParams({ tab: tabs[value] });
 
               setTabSelected(value);
               setSelectedRow([]);
@@ -480,6 +416,10 @@ const Transaction = () => {
       )}
     </>
   );
+};
+
+Transaction.propTypes = {
+  type: PropTypes.string
 };
 
 export default Transaction;

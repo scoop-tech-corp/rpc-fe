@@ -1,8 +1,10 @@
 import { ReactTable } from 'components/third-party/ReactTable';
 import React, { useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { formatDateString, formatThousandSeparator } from 'utils/func';
 
 export default function DepositList({ data, filter, setFilter }) {
+  const { locale } = useIntl();
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
 
@@ -18,7 +20,8 @@ export default function DepositList({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="date" />,
-        accessor: 'date'
+        accessor: 'date',
+        Cell: (data) => formatDateString(data.value, locale)
       },
       {
         Header: <FormattedMessage id="location" />,
@@ -29,27 +32,31 @@ export default function DepositList({ data, filter, setFilter }) {
         accessor: 'paymentMethod'
       },
       {
-        Header: <FormattedMessage id="received" />,
-        accessor: 'receivedAmount'
+        Header: <FormattedMessage id="received-rp" />,
+        accessor: 'receivedAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
-        Header: <FormattedMessage id="used-as-payment" />,
-        accessor: 'usedAmount'
+        Header: <FormattedMessage id="used-as-payment-rp" />,
+        accessor: 'usedAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
-        Header: <FormattedMessage id="returned" />,
-        accessor: 'returnedAmount'
+        Header: <FormattedMessage id="returned-rp" />,
+        accessor: 'returnedAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
-        Header: <FormattedMessage id="remaining" />,
-        accessor: 'remainingAmount'
+        Header: <FormattedMessage id="remaining-rp" />,
+        accessor: 'remainingAmount',
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
         Header: <FormattedMessage id="invoice" />,
         accessor: 'invoiceNo'
       }
     ],
-    []
+    [locale]
   );
   const dataDummy = [
     {

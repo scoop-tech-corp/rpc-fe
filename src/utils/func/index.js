@@ -9,10 +9,10 @@ export const formatThousandSeparator = (number, separator = ',') => {
 export const uppercaseWord = (word) => {
   return word
     ? word
-        .toLowerCase()
-        .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
     : '';
 };
 
@@ -50,6 +50,22 @@ export const formateDateDDMMYYY = (date, additional = { isWithTime: { show: fals
 
   // Generate dd-mm-yyyy date string
   return day + additional.separator + month + additional.separator + year;
+};
+
+// from 2025-02-20 to 20 Feb 2025
+export const formatDateString = (dateString, locale = 'en') => {
+  const locales = {
+    id: 'id-ID',
+    en: 'en-US'
+  };
+
+  const date = new Date(dateString);
+
+  // Ambil nama bulan sesuai locale
+  const monthName = new Intl.DateTimeFormat(locales[locale], { month: 'short' }).format(date);
+
+  // Format manual menjadi "DD MMM YYYY"
+  return `${date.getDate()} ${monthName} ${date.getFullYear()}`;
 };
 
 export const isContainsUppercaseForWord = (str) => Boolean(str.match(/[A-Z]/));

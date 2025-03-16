@@ -28,6 +28,11 @@ const urlSalesByService = 'report/sales/salesbyservice';
 const urlSalesByProduct = 'report/sales/salesbyproduct';
 const urlSalesPaymentList = 'report/sales/paymentlist';
 const urlSalesUnpaid = 'report/sales/unpaid';
+const urlSalesNetIncome = 'report/sales/netincome';
+const urlSalesDailyAudit = 'report/sales/dailyaudit';
+const urlSalesDiscountSummary = 'report/sales/discountsummary';
+const urlSalesPaymentsSummary = 'report/sales/paymentsummary';
+const urlSalesDetails = 'report/sales/details';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -457,9 +462,9 @@ export const getReportProductsLowStock = async (payload) => {
       orderColumn: payload.orderColumn,
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -492,9 +497,9 @@ export const getReportProductsStockCount = async (payload) => {
       orderColumn: payload.orderColumn,
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -530,8 +535,9 @@ export const getReportProductsCost = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      productId: product.length ? product : ['']
+      locationId: location,
+      productId: product,
+      search: payload.search
     }
   });
 };
@@ -568,9 +574,9 @@ export const getReportProductsNoStock = async (payload) => {
       orderColumn: payload.orderColumn,
       goToPage: payload.goToPage,
       rowPerPage: payload.rowPerPage,
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -606,8 +612,8 @@ export const getReportDepositList = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      methodId: method.length ? method : [''],
+      locationId: location,
+      methodId: method,
       search: payload.search
     }
   });
@@ -645,8 +651,8 @@ export const getReportDepositSummary = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      methodId: method.length ? method : ['']
+      locationId: location,
+      methodId: method
     }
   });
 };
@@ -684,10 +690,10 @@ export const getReportSalesSummary = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      staffId: staff.length ? staff : ['']
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      staffId: staff
     }
   });
 };
@@ -731,12 +737,12 @@ export const getReportSalesItems = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      staffId: staff.length ? staff : [''],
-      itemTypeId: itemType.length ? itemType : [''],
-      productCategoryId: productCategory.length ? productCategory : [''],
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      staffId: staff,
+      itemTypeId: itemType,
+      productCategoryId: productCategory,
       search: payload.search
     }
   });
@@ -783,9 +789,9 @@ export const getReportSalesByService = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      paymentId: payment.length ? payment : [''],
-      categoryId: category.length ? category : ['']
+      locationId: location,
+      paymentId: payment,
+      categoryId: category
     }
   });
 };
@@ -824,9 +830,9 @@ export const getReportSalesByProduct = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      paymentId: payment.length ? payment : [''],
-      categoryId: category.length ? category : [''],
+      locationId: location,
+      paymentId: payment,
+      categoryId: category,
       search: payload.search
     }
   });
@@ -870,12 +876,12 @@ export const getReportSalesPaymentList = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      staffId: staff.length ? staff : [''],
-      methodId: method.length ? method : [''],
-      categoryId: category.length ? category : [''],
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      staffId: staff,
+      methodId: method,
+      categoryId: category,
       search: payload.search
     }
   });
@@ -924,11 +930,11 @@ export const getReportSalesUnpaid = async (payload) => {
       rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      statusId: status.length ? status : [''],
-      paymentId: payment.length ? payment : [''],
-      customerId: customer.length ? customer : [''],
-      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      customerId: customer,
+      invoiceCategoryId: invoiceCategory,
       search: payload.search
     }
   });
@@ -956,4 +962,125 @@ export const exportReportSalesUnpaid = async (payload) => {
       search: payload.search
     }
   });
+};
+
+export const getReportSalesDailyAudit = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesDailyAudit, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      paymentId: payment,
+      staffId: staff,
+      invoiceCategoryId: invoiceCategory
+    }
+  });
+};
+
+export const exportReportSalesDailyAudit = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesDailyAudit, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : ['']
+    }
+  });
+};
+
+export const getReportSalesDetails = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesDetails, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      statusId: status,
+      paymentId: payment,
+      staffId: staff,
+      invoiceCategoryId: invoiceCategory,
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportSalesDetails = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const invoiceCategory = payload.invoiceCategory.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesDetails, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      statusId: status.length ? status : [''],
+      paymentId: payment.length ? payment : [''],
+      staffId: staff.length ? staff : [''],
+      invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const getReportSalesNetIncome = async (payload) => {
+  return await axios.get(urlSalesNetIncome);
+};
+
+export const exportReportSalesNetIncome = async (payload) => {
+  return await axios.get(`${urlSalesNetIncome}/export`, {
+    responseType: 'blob'
+  });
+};
+
+export const getReportSalesDiscountSummary = async (payload) => {
+  const res = await axios.get(urlSalesDiscountSummary);
+  return res;
+};
+
+export const getReportSalesPaymentSummary = async (payload) => {
+  return await axios.get(urlSalesPaymentsSummary);
 };
