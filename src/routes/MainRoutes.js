@@ -5,13 +5,16 @@ import { Navigate } from 'react-router-dom';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'components/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
+import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
+import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
+import TransactionPacak from 'pages/transaction/pages/pacak';
 // import { Outlet } from 'react-router-dom';
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Calendar = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const Transaction = Loadable(lazy(() => import('pages/transaction')));
+const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
 // Customer
@@ -122,10 +125,18 @@ const MainRoutes = {
       children: [
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'calendar', element: <Calendar /> },
-        { path: 'transaction', element: <Transaction /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },
+        {
+          path: 'transaction',
+          children: [
+            { path: 'pet-clinic', element: <TransactionPetClinic /> },
+            { path: 'pet-hotel', element: <TransactionPetHotel /> },
+            { path: 'pet-salon', element: <TransactionPetSalon /> },
+            { path: 'pacak', element: <TransactionPacak /> }
+          ]
+        },
         {
           path: 'customer',
           children: [

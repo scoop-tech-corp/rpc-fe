@@ -211,3 +211,15 @@ export const checkPetConditionTransaction = async (payload) => {
 
   return await axios.post('transaction/petcheck', formData);
 };
+
+export const TransactionType = {
+  'pet-clinic': 'Pet Clinic',
+  'pet-hotel': 'Pet Hotel',
+  'pet-salon': 'Pet Salon',
+  pacak: 'Pacak'
+};
+
+export const TabList = {
+  ongoing: 0,
+  finished: 1
+};
