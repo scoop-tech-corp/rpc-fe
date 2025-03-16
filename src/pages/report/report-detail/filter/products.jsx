@@ -27,18 +27,36 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
+
+            <Grid item sm={12} xs={12} md={4}>
+              <MultiSelectAll
+                items={extData?.location || []}
+                limitTags={1}
+                value={filter?.location}
+                key={'filter-location'}
+                selectAllLabel="Select All"
+                onChange={(val) => setFilter((e) => ({ ...e, location: val }))}
+                isReset={isReset}
+                setIsReset={setIsReset}
+                label={<FormattedMessage id="location" />}
+              />
+            </Grid>
+
+            {['stock-count', 'low-stock', 'no-stock', 'cost'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label={detail === 'cost' ? <FormattedMessage id="product" /> : <FormattedMessage id="search" />}
+                  id="filter-search"
+                  name="filter-search"
+                  value={filter.search}
+                  onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
+                />
+              </Grid>
+            )}
+
             {['stock-count', 'low-stock', 'no-stock'].includes(detail) && (
               <>
-                <Grid item sm={12} xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label={<FormattedMessage id="search" />}
-                    id="filter-search"
-                    name="filter-search"
-                    value={filter.search}
-                    onChange={(event) => setFilter((e) => ({ ...e, search: event.target.value }))}
-                  />
-                </Grid>
                 <Grid item sm={12} xs={12} md={4}>
                   <MultiSelectAll
                     items={extData?.brand || []}
@@ -67,19 +85,6 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                 </Grid>
               </>
             )}
-            <Grid item sm={12} xs={12} md={4}>
-              <MultiSelectAll
-                items={extData?.location || []}
-                limitTags={1}
-                value={filter?.location}
-                key={'filter-location'}
-                selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, location: val }))}
-                isReset={isReset}
-                setIsReset={setIsReset}
-                label={<FormattedMessage id="location" />}
-              />
-            </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} sm={12} md={2}>

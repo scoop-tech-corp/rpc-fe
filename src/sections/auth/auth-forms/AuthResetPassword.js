@@ -1,46 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Button, FormHelperText, Grid, InputAdornment, InputLabel, OutlinedInput, Stack } from '@mui/material';
 
-// material-ui
-import {
-  Box,
-  Button,
-  FormControl,
-  FormHelperText,
-  Grid,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-  Typography
-} from '@mui/material';
-
-// third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-
-// project import
-import useAuth from 'hooks/useAuth';
-import useScriptRef from 'hooks/useScriptRef';
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
-import { strengthColor, strengthIndicator } from 'utils/password-strength';
-import { openSnackbar } from 'store/reducers/snackbar';
-
-// assets
+// import { strengthColor, strengthIndicator } from 'utils/password-strength';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { changePassword } from 'pages/auth/service';
+import { createMessageBackend } from 'service/service-global';
 
 // ============================|| STATIC - RESET PASSWORD ||============================ //
 
-const AuthResetPassword = () => {
-  const scriptedRef = useScriptRef();
+const AuthResetPassword = (props) => {
+  const { email } = props;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const [level, setLevel] = useState();
 
-  const { isLoggedIn } = useAuth();
-
-  const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -49,15 +30,6 @@ const AuthResetPassword = () => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
-  const changePassword = (value) => {
-    const temp = strengthIndicator(value);
-    setLevel(strengthColor(temp));
-  };
-
-  useEffect(() => {
-    changePassword('');
-  }, []);
 
   return (
     <>
@@ -77,36 +49,20 @@ const AuthResetPassword = () => {
             })
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-          try {
-            // password reset
-            if (scriptedRef.current) {
+          await changePassword({ email: email, password: values.password, confirmPassword: values.confirmPassword }).then(
+            () => {
               setStatus({ success: true });
               setSubmitting(false);
-
-              dispatch(
-                openSnackbar({
-                  open: true,
-                  message: 'Successfuly reset password.',
-                  variant: 'alert',
-                  alert: {
-                    color: 'success'
-                  },
-                  close: false
-                })
-              );
-
-              setTimeout(() => {
-                navigate(isLoggedIn ? '/auth/login' : '/login', { replace: true });
-              }, 1500);
-            }
-          } catch (err) {
-            console.error(err);
-            if (scriptedRef.current) {
+              dispatch(snackbarSuccess('Successfuly reset password'));
+              navigate('/login', { replace: true });
+            },
+            (err) => {
+              dispatch(snackbarError('Something wrong happend'));
               setStatus({ success: false });
-              setErrors({ submit: err.message });
+              setErrors({ submit: createMessageBackend(err, true, true) });
               setSubmitting(false);
             }
-          }
+          );
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
@@ -125,7 +81,6 @@ const AuthResetPassword = () => {
                     onBlur={handleBlur}
                     onChange={(e) => {
                       handleChange(e);
-                      changePassword(e.target.value);
                     }}
                     endAdornment={
                       <InputAdornment position="end">
@@ -148,7 +103,7 @@ const AuthResetPassword = () => {
                     </FormHelperText>
                   )}
                 </Stack>
-                <FormControl fullWidth sx={{ mt: 2 }}>
+                {/* <FormControl fullWidth sx={{ mt: 2 }}>
                   <Grid container spacing={2} alignItems="center">
                     <Grid item>
                       <Box sx={{ bgcolor: level?.color, width: 85, height: 8, borderRadius: '7px' }} />
@@ -159,7 +114,7 @@ const AuthResetPassword = () => {
                       </Typography>
                     </Grid>
                   </Grid>
-                </FormControl>
+                </FormControl> */}
               </Grid>
               <Grid item xs={12}>
                 <Stack spacing={1}>

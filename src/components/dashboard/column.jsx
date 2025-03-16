@@ -83,7 +83,7 @@ const columnChartOptions = {
 // ==============================|| APEXCHART - COLUMN ||============================== //
 
 const ApexColumnChart = (props) => {
-  const { categoriesProps, seriesProps } = props;
+  const { categoriesProps, seriesProps, colorsProps } = props;
   const theme = useTheme();
   const line = theme.palette.divider;
   const { mode } = useConfig();
@@ -104,12 +104,12 @@ const ApexColumnChart = (props) => {
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
-      colors: [],
+      colors: colorsProps ? colorsProps : [],
       xaxis: { categories: categoriesProps || prevState.xaxis.categories },
       grid: { borderColor: line },
       tooltip: { theme: mode === 'dark' ? 'dark' : 'light' }
     }));
-  }, [mode, line, categoriesProps]);
+  }, [mode, line, categoriesProps, colorsProps]);
 
   useEffect(() => {
     setSeries((prevState) => seriesProps || prevState);
@@ -124,7 +124,8 @@ const ApexColumnChart = (props) => {
 
 ApexColumnChart.propTypes = {
   categoriesProps: PropTypes.array, // PropTypes.arrayOf(PropTypes.string)
-  seriesProps: PropTypes.array
+  seriesProps: PropTypes.array,
+  colorsProps: PropTypes.array
 };
 
 export default ApexColumnChart;

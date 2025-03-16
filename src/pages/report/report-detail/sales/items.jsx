@@ -1,9 +1,10 @@
 import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo, useEffect } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { formatThousandSeparator } from 'utils/func';
+import React, { useMemo } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { formatDateString, formatThousandSeparator } from 'utils/func';
 
 export default function SalesItems({ data, filter, setFilter }) {
+  const { locale } = useIntl();
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
 
@@ -19,14 +20,15 @@ export default function SalesItems({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="sale-date" />,
-        accessor: 'saleDate'
+        accessor: 'saleDate',
+        Cell: (data) => formatDateString(data.value, locale)
       },
       {
         Header: <FormattedMessage id="status" />,
         accessor: 'status'
       },
       {
-        Header: <FormattedMessage id="item" />,
+        Header: <FormattedMessage id="items" />,
         accessor: 'items'
       },
       {
@@ -34,8 +36,13 @@ export default function SalesItems({ data, filter, setFilter }) {
         accessor: 'quantity'
       },
       {
-        Header: <FormattedMessage id="price" />,
+        Header: <FormattedMessage id="unit-price-rp" />,
         accessor: 'price',
+        Cell: (data) => formatThousandSeparator(data.value)
+      },
+      {
+        Header: <FormattedMessage id="total-rp" />,
+        accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
       },
       {
@@ -43,7 +50,7 @@ export default function SalesItems({ data, filter, setFilter }) {
         accessor: 'payment'
       }
     ],
-    []
+    [locale]
   );
 
   // Dummy data for the table
@@ -57,6 +64,7 @@ export default function SalesItems({ data, filter, setFilter }) {
         items: 'Proplan Sachet',
         quantity: 2,
         price: 25000,
+        totalAmount: 29000,
         payment: 'Paid'
       },
       {
@@ -67,6 +75,7 @@ export default function SalesItems({ data, filter, setFilter }) {
         items: 'Proplan Sachet',
         quantity: 2,
         price: 25000,
+        totalAmount: 25000,
         payment: 'Paid'
       },
       {
@@ -77,6 +86,7 @@ export default function SalesItems({ data, filter, setFilter }) {
         items: 'Proplan Sachet',
         quantity: 2,
         price: 25000,
+        totalAmount: 25000,
         payment: 'Paid'
       }
     ],
