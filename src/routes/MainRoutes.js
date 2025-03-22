@@ -5,13 +5,16 @@ import { Navigate } from 'react-router-dom';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'components/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
+import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
+import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
+import TransactionBreeding from 'pages/transaction/pages/breeding';
 // import { Outlet } from 'react-router-dom';
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Calendar = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const Transaction = Loadable(lazy(() => import('pages/transaction')));
+const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
 // Customer
@@ -96,6 +99,7 @@ const Report = Loadable(lazy(() => import('pages/report')));
 const ReportDetail = Loadable(lazy(() => import('pages/report/report-detail')));
 
 // Menus
+const TimeKeeperAbsent = Loadable(lazy(() => import('pages/menus/time-keeper-absent')));
 const MenuGroup = Loadable(lazy(() => import('pages/menus/group')));
 const MenuGroupChildren = Loadable(lazy(() => import('pages/menus/children')));
 const MenuGroupGrandChildren = Loadable(lazy(() => import('pages/menus/grand-children')));
@@ -121,10 +125,18 @@ const MainRoutes = {
       children: [
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'calendar', element: <Calendar /> },
-        { path: 'transaction', element: <Transaction /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },
+        {
+          path: 'transaction',
+          children: [
+            { path: 'pet-clinic', element: <TransactionPetClinic /> },
+            { path: 'pet-hotel', element: <TransactionPetHotel /> },
+            { path: 'pet-salon', element: <TransactionPetSalon /> },
+            { path: 'breeding', element: <TransactionBreeding /> }
+          ]
+        },
         {
           path: 'customer',
           children: [
@@ -242,6 +254,7 @@ const MainRoutes = {
         {
           path: 'menu',
           children: [
+            { path: 'time-keeper', element: <TimeKeeperAbsent /> },
             { path: 'group', element: <MenuGroup /> },
             { path: 'children', element: <MenuGroupChildren /> },
             { path: 'grand-children', element: <MenuGroupGrandChildren /> },
