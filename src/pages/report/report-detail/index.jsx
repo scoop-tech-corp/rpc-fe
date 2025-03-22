@@ -1,20 +1,19 @@
+import { ExportOutlined } from '@ant-design/icons';
 import { Button, Stack } from '@mui/material';
+import { getTypeIdList } from 'pages/customer/service';
 import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ExportOutlined } from '@ant-design/icons';
-import {
-  getLocationList,
-  getStaffList,
-  getServiceList,
-  getCustomerGroupList,
-  createMessageBackend,
-  processDownloadExcel,
-  getPaymentMethodList,
-  getStaffJobTitleList
-} from 'service/service-global';
-import { useSearchParams } from 'react-router-dom';
-import { getTypeIdList } from 'pages/customer/service';
 import { useDispatch } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
+import {
+  createMessageBackend,
+  getCustomerGroupList,
+  getLocationList,
+  getServiceList,
+  getStaffJobTitleList,
+  getStaffList,
+  processDownloadExcel
+} from 'service/service-global';
 import { snackbarError } from 'store/reducers/snackbar';
 import {
   exportReportCustomerGrowth,
@@ -36,7 +35,6 @@ import {
   exportReportSalesDailyAudit,
   exportReportSalesDetails,
   exportReportSalesItems,
-  exportReportSalesNetIncome,
   exportReportSalesPaymentList,
   exportReportSalesSummary,
   exportReportSalesUnpaid,
@@ -75,51 +73,51 @@ import {
   getReportStaffPerformance
 } from '../service';
 
-import useAuth from 'hooks/useAuth';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import useAuth from 'hooks/useAuth';
+import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
 import FilterBooking from './filter/bookings';
+import FilterCustomer from './filter/customer';
+import FilterDeposit from './filter/deposit';
+import FilterProducts from './filter/products';
+import FilterSales from './filter/sales';
+import FilterStaff from './filter/staff';
+import SalesByProduct from './sales/by-product';
+import SalesByService from './sales/by-service';
+import SalesDailyAudit from './sales/daily-audit';
+import SalesDetails from './sales/details';
+import SalesDiscountSummary from './sales/discount-summary';
+import SalesItems from './sales/items';
+import SalesNetIncome from './sales/net-income';
+import SalesPaymentList from './sales/payment-list';
+import SalesPaymentSummary from './sales/payment-summary';
+import SalesSummary from './sales/summary';
+import SalesUnpaid from './sales/unpaid';
+import BookingByCancelationReason from './section/bookings/by-cancelation-reason';
+import BookingByDiagnosisList from './section/bookings/by-diagnosis-list';
+import BookingByList from './section/bookings/by-list';
 import BookingByLocation from './section/bookings/by-location';
 import BookingByStatus from './section/bookings/by-status';
-import BookingByCancelationReason from './section/bookings/by-cancelation-reason';
-import BookingByList from './section/bookings/by-list';
-import BookingByDiagnosisList from './section/bookings/by-diagnosis-list';
-import FilterCustomer from './filter/customer';
-import CustomerGrowth from './section/customer/growth';
 import CustomerGrowthByGroup from './section/customer/growt-by-group';
-import CustomerTotal from './section/customer/total';
+import CustomerGrowth from './section/customer/growth';
 import CustomerLeaving from './section/customer/leaving';
 import CustomerList from './section/customer/list';
 import CustomerReferralSpend from './section/customer/referral-spend';
 import CustomerSubAccountList from './section/customer/sub-account-list';
-import FilterStaff from './filter/staff';
-import StaffLogin from './section/staff/login';
-import StaffLate from './section/staff/late';
-import StaffLeave from './section/staff/leave';
-import StaffPerformance from './section/staff/performance';
-import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
-import FilterProducts from './filter/products';
-import ProductsStockCount from './section/products/stock-count';
-import ProductsLowStock from './section/products/low-stock';
-import ProductsCost from './section/products/cost';
-import ProductsNoStock from './section/products/no-stock ';
-import FilterDeposit from './filter/deposit';
+import CustomerTotal from './section/customer/total';
 import DepositList from './section/deposit/list';
 import DepositSummary from './section/deposit/summary';
-import FilterSales from './filter/sales';
-import SalesSummary from './sales/summary';
-import SalesItems from './sales/items';
-import SalesByService from './sales/by-service';
-import SalesByProduct from './sales/by-product';
-import SalesPaymentList from './sales/payment-list';
-import SalesUnpaid from './sales/unpaid';
-import SalesNetIncome from './sales/net-income';
-import SalesDiscountSummary from './sales/discount-summary';
-import SalesPaymentSummary from './sales/payment-summary';
-import SalesDailyAudit from './sales/daily-audit';
-import SalesDetails from './sales/details';
+import ProductsCost from './section/products/cost';
+import ProductsLowStock from './section/products/low-stock';
+import ProductsNoStock from './section/products/no-stock ';
 import ProductsReminders from './section/products/reminders';
+import ProductsStockCount from './section/products/stock-count';
+import StaffLate from './section/staff/late';
+import StaffLeave from './section/staff/leave';
+import StaffLogin from './section/staff/login';
+import StaffPerformance from './section/staff/performance';
 
 export default function Index() {
   let [searchParams] = useSearchParams();

@@ -1,10 +1,9 @@
-import { Box, Grid, Link, Stack, Typography } from '@mui/material';
-import MainCard from 'components/MainCard';
+import { Box, Grid, Link } from '@mui/material';
 import AnalyticEcommerce from 'components/dashboard/card';
 import { ReactTable } from 'components/third-party/ReactTable';
 import ProductSellDetail from 'pages/product/product-list/product-sell/detail';
 import { getProductSellDetail } from 'pages/product/product-list/service';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList } from 'service/service-global';
