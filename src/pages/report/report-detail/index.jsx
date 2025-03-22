@@ -29,6 +29,7 @@ import {
   exportReportProductsCost,
   exportReportProductsLowStock,
   exportReportProductsNoStock,
+  exportReportProductsReminders,
   exportReportProductsStockCount,
   exportReportSalesByProduct,
   exportReportSalesByService,
@@ -55,6 +56,7 @@ import {
   getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsNoStock,
+  getReportProductsReminders,
   getReportProductsStockCount,
   getReportSalesByProduct,
   getReportSalesByService,
@@ -117,6 +119,7 @@ import SalesDiscountSummary from './sales/discount-summary';
 import SalesPaymentSummary from './sales/payment-summary';
 import SalesDailyAudit from './sales/daily-audit';
 import SalesDetails from './sales/details';
+import ProductsReminders from './section/products/reminders';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -182,7 +185,8 @@ export default function Index() {
         search: '',
         brand: [],
         supplier: [],
-        location: []
+        location: [],
+        customer: []
       };
     }
 
@@ -290,6 +294,7 @@ export default function Index() {
       if (detail === 'low-stock') respFetch = await getReportProductsLowStock(filter);
       if (detail === 'cost') respFetch = await getReportProductsCost(filter);
       if (detail === 'no-stock') respFetch = await getReportProductsNoStock(filter);
+      if (detail === 'reminders') respFetch = await getReportProductsReminders(filter);
     } else if (type === 'deposit') {
       if (detail === 'list') respFetch = await getReportDepositList(filter);
       if (detail === 'summary') respFetch = await getReportDepositSummary(filter);
@@ -358,6 +363,7 @@ export default function Index() {
       else if (type === 'products' && detail === 'low-stock') return await exportReportProductsLowStock(filter);
       else if (type === 'products' && detail === 'cost') return await exportReportProductsCost(filter);
       else if (type === 'products' && detail === 'no-stock') return await exportReportProductsNoStock(filter);
+      else if (type === 'products' && detail === 'reminders') return await exportReportProductsReminders(filter);
       else if (type === 'deposit' && detail === 'list') return await exportReportDepositList(filter);
       else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
       else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
@@ -421,12 +427,14 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getBrand = await getBrandList();
     const getSupplier = await getSupplierList();
+    const getCustomer = []; // need API
 
     setExtData((prevState) => ({
       ...prevState,
       location: getLoc,
       brand: getBrand,
-      supplier: getSupplier
+      supplier: getSupplier,
+      customer: getCustomer
     }));
   };
 
@@ -494,6 +502,7 @@ export default function Index() {
     if (type === 'products' && detail === 'low-stock') return 'product-low-stock';
     if (type === 'products' && detail === 'cost') return 'product-cost';
     if (type === 'products' && detail === 'no-stock') return 'product-no-stock';
+    if (type === 'products' && detail === 'reminders') return 'product-reminders';
 
     if (type === 'deposit' && detail === 'list') return 'deposit-list';
     if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
@@ -551,6 +560,8 @@ export default function Index() {
       return <ProductsCost data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
     if (type === 'products' && detail === 'no-stock')
       return <ProductsNoStock data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
+    if (type === 'products' && detail === 'reminders')
+      return <ProductsReminders data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
 
     if (type === 'deposit' && detail === 'list') return <DepositList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;

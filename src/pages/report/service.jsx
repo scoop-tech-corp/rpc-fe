@@ -18,6 +18,7 @@ const urlProductsStockCount = 'report/products/stockcount';
 const urlProductsLowStock = 'report/products/lowstock';
 const urlProductsCost = 'report/products/cost';
 const urlProductsNoStock = 'report/products/nostock';
+const urlProductsReminders = 'report/products/reminders';
 
 const urlDepositList = 'report/deposit/list';
 const urlDepositSummary = 'report/deposit/summary';
@@ -594,6 +595,49 @@ export const exportReportProductsNoStock = async (payload) => {
       brandId: brand.length ? brand : [''],
       supplierId: supplier.length ? supplier : [''],
       search: payload.search
+    }
+  });
+};
+
+export const getReportProductsReminders = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customer = payload.customer.map((dt) => dt.value);
+
+  return await axios.get(urlProductsReminders, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      search: payload.search,
+      customerId: customer
+    }
+  });
+};
+
+export const exportReportProductsReminders = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const customer = payload.customer.map((dt) => dt.value);
+
+  return await axios.get(`${urlProductsReminders}/export`, {
+    responseType: 'blob',
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      search: payload.search,
+      customerId: customer.length ? customer : ['']
     }
   });
 };
