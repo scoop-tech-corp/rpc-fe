@@ -10,7 +10,7 @@ import { formatThousandSeparator } from 'utils/func';
 export default function SalesNetIncome({ data, filter, setFilter }) {
   const tablesData = data?.table.data || [];
   const totalPagination = data?.table.totalPagination;
-
+  console.log({ data });
   const totalRevenue = data?.totalRevenue.total || 0;
   const totalExpenses = data?.totalExpenses.total || 0;
   const netIncome = data?.netIncome.total || 0;
@@ -122,8 +122,8 @@ export default function SalesNetIncome({ data, filter, setFilter }) {
             ...tablesData,
             {
               period: 'TOTAL',
-              revenue: formatThousandSeparator(totalRevenue),
-              expenses: formatThousandSeparator(totalExpenses),
+              revenueAmount: formatThousandSeparator(totalRevenue),
+              expensesAmount: formatThousandSeparator(totalExpenses),
               netIncome: formatThousandSeparator(netIncome)
             }
           ]}
