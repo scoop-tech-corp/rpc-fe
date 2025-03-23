@@ -65,7 +65,7 @@ export default function PromotionDashboard() {
       },
       {
         Header: <FormattedMessage id="total" />,
-        accessor: 'total',
+        accessor: 'promotions',
         Cell: (data) => formatThousandSeparator(data?.value || 0)
       }
     ],
