@@ -65,7 +65,7 @@ const ApexPieChart = ({ labelsProps = null, seriesProps = null }) => {
 
   return (
     <div id="chart">
-      <ReactApexChart options={options} series={series} type="donut" />
+      <ReactApexChart options={options} series={series} type="donut" height={450} />
     </div>
   );
 };
