@@ -92,7 +92,8 @@ export const list = {
     { id: 3, val: 'No stock', url: 'no-stock', icon: <UnorderedListOutlined /> },
     { id: 4, val: 'Batches' },
     { id: 5, val: 'Expiry' },
-    { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> }
+    { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> },
+    { id: 7, val: 'Reminders', url: 'reminders', icon: <UnorderedListOutlined /> }
   ],
   sales: [
     { id: 1, val: 'Summary', url: 'summary', icon: <LineChartOutlined /> },

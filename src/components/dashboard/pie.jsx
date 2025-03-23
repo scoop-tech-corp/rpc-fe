@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 
 // ==============================|| APEXCHART - PIE ||============================== //
 
-const ApexPieChart = ({ labelsProps = null, seriesProps = null }) => {
+const ApexPieChart = ({ labelsProps = null, seriesProps = null, height = 'auto' }) => {
   const [series, setSeries] = useState([44, 55, 13, 43, 22]);
   const [options, setOptions] = useState({
     chart: {
@@ -65,7 +65,7 @@ const ApexPieChart = ({ labelsProps = null, seriesProps = null }) => {
 
   return (
     <div id="chart">
-      <ReactApexChart options={options} series={series} type="donut" />
+      <ReactApexChart options={options} series={series} type="donut" height={height} />
     </div>
   );
 };
