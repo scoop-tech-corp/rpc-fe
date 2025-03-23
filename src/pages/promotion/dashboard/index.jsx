@@ -162,7 +162,7 @@ export default function PromotionDashboard() {
 
       <Box sx={{ marginTop: 2 }}>
         <MainCard title={<FormattedMessage id="promo-by-category" />} content={false}>
-          <ApexPieChart labelsProps={pieChartData.labels} seriesProps={pieChartData.series} />
+          <ApexPieChart labelsProps={pieChartData.labels} seriesProps={pieChartData.series} height={450} />
         </MainCard>
       </Box>
 

@@ -64,7 +64,7 @@ export default function SalesDiscountSummary({ data, filter, setFilter }) {
 
       <Box sx={{ margin: 2 }}>
         <MainCard title={<FormattedMessage id="discount-value-by-staff-rp" />} content={false}>
-          <ApexPieChart labelsProps={pieChart.labels} seriesProps={pieChart.series} />
+          <ApexPieChart labelsProps={pieChart.labels} seriesProps={pieChart.series} height={450} />
         </MainCard>
       </Box>
     </div>
