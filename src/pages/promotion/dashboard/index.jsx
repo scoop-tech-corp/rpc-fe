@@ -1,18 +1,33 @@
-import { Box, Grid } from '@mui/material';
+import { Box, Grid, Link } from '@mui/material';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/dashboard/card';
 import ApexColumnChart from 'components/dashboard/column';
 import ApexPieChart from 'components/dashboard/pie';
 import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
+import { getPromotionDashboard } from './services';
 
+const CONSTANT_CARD_ANALYTIC_DATA = { isLoss: 0, percentage: 0, total: '0' };
 export default function PromotionDashboard() {
   const { formatMessage } = useIntl();
-  const tablesData = [];
   const totalPagination = 0;
+  const [barChartData, setBarChartData] = useState({
+    series: [],
+    categories: []
+  });
+  const [pieChartData, setPieChartData] = useState({
+    labels: [],
+    series: []
+  });
+  const [chartAnalyticData, setChartAnalyticData] = useState({
+    promoSold: { ...CONSTANT_CARD_ANALYTIC_DATA },
+    promoSoldQuantity: { ...CONSTANT_CARD_ANALYTIC_DATA },
+    promoSoldValue: { ...CONSTANT_CARD_ANALYTIC_DATA }
+  });
+  const [tableTopUsedPromotion, setTableTopUsedPromotion] = useState([]);
 
   const pieChart = useMemo(() => {
     return {
@@ -40,8 +55,13 @@ export default function PromotionDashboard() {
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="product" />,
-        accessor: 'product'
+        Header: <FormattedMessage id="promotion" />,
+        accessor: 'promotionName',
+        Cell: (data) => {
+          const onClickDetail = () => {};
+
+          return <Link onClick={() => onClickDetail()}>{data.value}</Link>;
+        }
       },
       {
         Header: <FormattedMessage id="total" />,
@@ -54,26 +74,49 @@ export default function PromotionDashboard() {
 
   const dummyData = [
     {
-      product: 'Product 1',
-      total: 4_200_000
+      promotionName: 'Product 1',
+      promotions: 120
     },
     {
-      product: 'Product 2',
-      total: 4_200_000
+      promotionName: 'Product 2',
+      promotions: 120
     },
     {
-      product: 'Product 3',
-      total: 4_200_000
+      promotionName: 'Product 3',
+      promotions: 120
     },
     {
-      product: 'Product 4',
-      total: 4_200_000
+      promotionName: 'Product 4',
+      promotions: 120
     },
     {
-      product: 'Product 5',
-      total: 4_200_000
+      promotionName: 'Product 5',
+      promotions: 120
     }
   ];
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await getPromotionDashboard();
+
+      setTableTopUsedPromotion(response.data.mostPopular);
+      setBarChartData({
+        series: response.data.charts.series,
+        categories: response.data.charts.categories
+      });
+      setPieChartData({
+        labels: response.data.promotionsByCategory.labels,
+        series: response.data.promotionsByCategory.series
+      });
+      setChartAnalyticData({
+        promoSold: response.data.promotions,
+        promoSoldQuantity: response.data.promotionsQty,
+        promoSoldValue: response.data.promotionsValue
+      });
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -84,28 +127,28 @@ export default function PromotionDashboard() {
           <Grid item xs={12} sm={6} md={4}>
             <AnalyticEcommerce
               title={formatMessage({ id: 'promo-sold' })}
-              count={formatThousandSeparator(4_200_000)}
-              isLoss={Boolean(true)}
-              percentage={20}
-              color={true ? 'warning' : 'success'}
+              count={formatThousandSeparator(chartAnalyticData.promoSold.total)}
+              isLoss={Boolean(chartAnalyticData.promoSold.isLoss)}
+              percentage={chartAnalyticData.promoSold.percentage}
+              color={chartAnalyticData.promoSold.isLoss ? 'warning' : 'success'}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <AnalyticEcommerce
               title={formatMessage({ id: 'promo-sold-quantity' })}
-              count={formatThousandSeparator(4_200_000)}
-              isLoss={Boolean(false)}
-              percentage={20}
-              color={false ? 'warning' : 'success'}
+              count={formatThousandSeparator(chartAnalyticData.promoSoldQuantity.total)}
+              isLoss={Boolean(chartAnalyticData.promoSoldQuantity.isLoss)}
+              percentage={chartAnalyticData.promoSoldQuantity.percentage}
+              color={chartAnalyticData.promoSoldQuantity.isLoss ? 'warning' : 'success'}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <AnalyticEcommerce
               title={formatMessage({ id: 'promo-sold-value' })}
-              count={formatThousandSeparator(4_200_000)}
-              isLoss={true}
-              percentage={20}
-              color={true ? 'warning' : 'success'}
+              count={formatThousandSeparator(chartAnalyticData.promoSoldValue.total)}
+              isLoss={Boolean(chartAnalyticData.promoSoldValue.isLoss)}
+              percentage={chartAnalyticData.promoSoldValue.percentage}
+              color={chartAnalyticData.promoSoldValue.isLoss ? 'warning' : 'success'}
             />
           </Grid>
         </Grid>
@@ -113,21 +156,21 @@ export default function PromotionDashboard() {
 
       <Box sx={{ marginTop: 2 }}>
         <MainCard title={<FormattedMessage id="promo-sales-rp" />}>
-          <ApexColumnChart categoriesProps={barChart.categories} seriesProps={barChart.series} />
+          <ApexColumnChart categoriesProps={barChartData.categories} seriesProps={barChartData.series} />
         </MainCard>
       </Box>
 
       <Box sx={{ marginTop: 2 }}>
-        <MainCard title={<FormattedMessage id="promo-sales-rp" />} content={false}>
-          <ApexPieChart labelsProps={pieChart.labels} seriesProps={pieChart.series} />
+        <MainCard title={<FormattedMessage id="promo-by-category" />} content={false}>
+          <ApexPieChart labelsProps={pieChartData.labels} seriesProps={pieChartData.series} />
         </MainCard>
       </Box>
 
       <Box sx={{ marginTop: 2 }}>
-        <MainCard title={<FormattedMessage id="top-sellers-rp" />}>
+        <MainCard title={<FormattedMessage id="top-used-promotion-rp" />}>
           <ReactTable
             columns={columns}
-            data={dummyData}
+            data={tableTopUsedPromotion}
             totalPagination={totalPagination || 0}
             colSpanPagination={14}
             // setPageNumber={filter.goToPage}
