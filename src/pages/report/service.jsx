@@ -1040,12 +1040,9 @@ export const exportReportSalesDailyAudit = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
 
-  return await axios.get(urlSalesDailyAudit, {
+  return await axios.get(`${urlSalesDailyAudit}/export`, {
+    responseType: 'blob',
     params: {
-      orderValue: payload.orderValue,
-      orderColumn: payload.orderColumn,
-      goToPage: payload.goToPage,
-      rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
       locationId: location.length ? location : [''],
@@ -1092,12 +1089,9 @@ export const exportReportSalesDetails = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
 
-  return await axios.get(urlSalesDetails, {
+  return await axios.get(`${urlSalesDetails}/export`, {
+    responseType: 'blob',
     params: {
-      orderValue: payload.orderValue,
-      orderColumn: payload.orderColumn,
-      goToPage: payload.goToPage,
-      rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
       locationId: location.length ? location : [''],
