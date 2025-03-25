@@ -17,7 +17,7 @@ export default function FilterProducts({ extData, filter, setFilter }) {
       <Grid container spacing={2} width={'100%'}>
         <Grid item sm={12} xs={12} md={9}>
           <Grid container spacing={2}>
-            {detail === 'cost' && (
+            {['cost', 'reminders'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <DateRangePicker
                   onChange={(value) => setFilter((e) => ({ ...e, date: value }))}
@@ -42,11 +42,11 @@ export default function FilterProducts({ extData, filter, setFilter }) {
               />
             </Grid>
 
-            {['stock-count', 'low-stock', 'no-stock', 'cost'].includes(detail) && (
+            {['stock-count', 'low-stock', 'no-stock', 'cost', 'reminders'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <TextField
                   fullWidth
-                  label={detail === 'cost' ? <FormattedMessage id="product" /> : <FormattedMessage id="search" />}
+                  label={['cost', 'reminders'].includes(detail) ? <FormattedMessage id="product" /> : <FormattedMessage id="search" />}
                   id="filter-search"
                   name="filter-search"
                   value={filter.search}
@@ -85,6 +85,23 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                 </Grid>
               </>
             )}
+
+            {/* create filter customer for reminders detail */}
+            {['reminders'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.customer || []}
+                  limitTags={1}
+                  value={filter?.customer}
+                  key={'filter-customer'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, customer: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="customer" />}
+                />
+              </Grid>
+            )}
           </Grid>
         </Grid>
         <Grid item xs={12} sm={12} md={2}>
@@ -104,7 +121,8 @@ export default function FilterProducts({ extData, filter, setFilter }) {
                     search: '',
                     brand: [],
                     supplier: [],
-                    location: []
+                    location: [],
+                    customer: []
                   }));
                   setIsReset(true);
                 }}
