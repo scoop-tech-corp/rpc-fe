@@ -16,6 +16,7 @@ import {
 } from 'service/service-global';
 import { snackbarError } from 'store/reducers/snackbar';
 import {
+  exportReportBookingByDiagnosisSpeciesGender,
   exportReportCustomerGrowth,
   exportReportCustomerGrowthGroup,
   exportReportCustomerLeaving,
@@ -42,6 +43,7 @@ import {
   exportReportStaffLeave,
   exportReportStaffLogin,
   exportReportStaffPerformance,
+  getReportBookingByDiagnosisSpeciesGender,
   getReportCustomerGrowth,
   getReportCustomerGrowthGroup,
   getReportCustomerLeaving,
@@ -118,6 +120,7 @@ import StaffLate from './section/staff/late';
 import StaffLeave from './section/staff/leave';
 import StaffLogin from './section/staff/login';
 import StaffPerformance from './section/staff/performance';
+import BookingByDiagnosisSpeciesGender from './section/bookings/by-diagnosis-species-gender';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -134,7 +137,23 @@ export default function Index() {
   });
 
   const [filter, setFilter] = useState(() => {
-    if (type === 'booking') return { location: [], staff: [], service: [], category: [], facility: [], date: '' };
+    if (type === 'booking') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        location: [],
+        staff: [],
+        service: [],
+        category: [],
+        facility: [],
+        gender: [],
+        diagnose: [],
+        species: []
+      };
+    }
     if (type === 'customer') {
       return {
         orderValue: '',
@@ -308,6 +327,8 @@ export default function Index() {
       if (detail === 'payment-summary') respFetch = await getReportSalesPaymentSummary(filter);
       if (detail === 'daily-audit') respFetch = await getReportSalesDailyAudit(filter);
       if (detail === 'details') respFetch = await getReportSalesDetails(filter);
+    } else if (type === 'booking') {
+      if (detail === 'by-diagnosis-species-gender') respFetch = await getReportBookingByDiagnosisSpeciesGender(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -375,6 +396,8 @@ export default function Index() {
       else if (type === 'sales' && detail === 'payment-summary') return;
       else if (type === 'sales' && detail === 'daily-audit') return await exportReportSalesDailyAudit(filter);
       else if (type === 'sales' && detail === 'details') return await exportReportSalesDetails(filter);
+      else if (type === 'booking' && detail === 'by-diagnosis-species-gender')
+        return await exportReportBookingByDiagnosisSpeciesGender(filter);
     };
 
     fetchExport()
@@ -390,8 +413,19 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
     const getService = await getServiceList();
+    const getGender = []; // need API
+    const getDiagnose = []; // need API
+    const getSpecies = []; // need API
 
-    setExtData((prevState) => ({ ...prevState, location: getLoc, staff: getStaff, service: getService }));
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      staff: getStaff,
+      service: getService,
+      gender: getGender,
+      diagnose: getDiagnose,
+      species: getSpecies
+    }));
   };
 
   const getPrepareDataForCustomer = async () => {
@@ -536,7 +570,8 @@ export default function Index() {
     if (type === 'booking' && detail === 'by-cancellation-reason') return <BookingByCancelationReason data={[]} />;
     if (type === 'booking' && detail === 'list') return <BookingByList data={[]} />;
     if (type === 'booking' && detail === 'diagnosis-list') return <BookingByDiagnosisList data={[]} />;
-    if (type === 'booking' && detail === 'by-diagnosis-species-gender') return 'booking-by-diagnosis-species-gender';
+    if (type === 'booking' && detail === 'by-diagnosis-species-gender')
+      return <BookingByDiagnosisSpeciesGender data={mainData} setFilter={setFilter} filter={filter} />;
 
     if (type === 'customer' && detail === 'growth') return <CustomerGrowth data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'growth-by-group') return <CustomerGrowthByGroup data={mainData} setFilter={setFilter} />;

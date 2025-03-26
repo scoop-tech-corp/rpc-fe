@@ -35,6 +35,8 @@ const urlSalesDiscountSummary = 'report/sales/discountsummary';
 const urlSalesPaymentsSummary = 'report/sales/paymentsummary';
 const urlSalesDetails = 'report/sales/details';
 
+const urlBookingByDiagnosisSpeciesGender = 'report/booking/diagnosespeciesgender';
+
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
@@ -1121,4 +1123,49 @@ export const getReportSalesDiscountSummary = async (payload) => {
 
 export const getReportSalesPaymentSummary = async (payload) => {
   return await axios.get(urlSalesPaymentsSummary);
+};
+
+export const getReportBookingByDiagnosisSpeciesGender = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const gender = payload.gender.map((dt) => dt.value);
+  const diagnose = payload.diagnose.map((dt) => dt.value);
+  const species = payload.species.map((dt) => dt.value);
+
+  return await axios.get(urlBookingByDiagnosisSpeciesGender, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      genderId: gender,
+      diagnoseId: diagnose,
+      speciesId: species
+    }
+  });
+};
+
+export const exportReportBookingByDiagnosisSpeciesGender = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const gender = payload.gender.map((dt) => dt.value);
+  const diagnose = payload.diagnose.map((dt) => dt.value);
+  const species = payload.species.map((dt) => dt.value);
+
+  return await axios.get(`${urlBookingByDiagnosisSpeciesGender}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      genderId: gender.length ? gender : [''],
+      diagnoseId: diagnose.length ? diagnose : [''],
+      speciesId: species.length ? species : ['']
+    }
+  });
 };
