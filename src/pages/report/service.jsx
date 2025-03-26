@@ -23,6 +23,9 @@ const urlProductsReminders = 'report/products/reminders';
 const urlDepositList = 'report/deposit/list';
 const urlDepositSummary = 'report/deposit/summary';
 
+const urlExpensesList = 'report/expenses/list';
+const urlExpensesSummary = 'report/expenses/summary';
+
 const urlSalesSummary = 'report/sales/summary';
 const urlSalesItems = 'report/sales/items';
 const urlSalesByService = 'report/sales/salesbyservice';
@@ -716,6 +719,65 @@ export const exportReportDepositSummary = async (payload) => {
       dateTo,
       locationId: location.length ? location : [''],
       methodId: method.length ? method : ['']
+    }
+  });
+};
+
+export const getReportExpensesList = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const submiter = payload.submiter.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(urlExpensesList, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      paymentId: payment,
+      statusId: status,
+      submiterId: submiter,
+      supplierId: supplier,
+      recipientId: recipient,
+      categoryId: category,
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportExpensesList = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const submiter = payload.submiter.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(`${urlExpensesList}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      statusId: status.length ? status : [''],
+      submiterId: submiter.length ? submiter : [''],
+      supplierId: supplier.length ? supplier : [''],
+      recipientId: recipient.length ? recipient : [''],
+      categoryId: category.length ? category : [''],
+      search: payload.search
     }
   });
 };

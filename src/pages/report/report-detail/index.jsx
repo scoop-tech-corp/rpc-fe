@@ -26,6 +26,7 @@ import {
   exportReportCustomerTotal,
   exportReportDepositList,
   exportReportDepositSummary,
+  exportReportExpensesList,
   exportReportProductsCost,
   exportReportProductsLowStock,
   exportReportProductsNoStock,
@@ -53,6 +54,7 @@ import {
   getReportCustomerTotal,
   getReportDepositList,
   getReportDepositSummary,
+  getReportExpensesList,
   getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsNoStock,
@@ -121,6 +123,8 @@ import StaffLeave from './section/staff/leave';
 import StaffLogin from './section/staff/login';
 import StaffPerformance from './section/staff/performance';
 import BookingByDiagnosisSpeciesGender from './section/bookings/by-diagnosis-species-gender';
+import FilterExpenses from './filter/expenses';
+import ExpensesList from './section/expenses/list';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -240,6 +244,24 @@ export default function Index() {
         invoiceCategory: []
       };
     }
+
+    if (type === 'expenses') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        search: '',
+        location: [],
+        payment: [],
+        status: [],
+        submiter: [],
+        supplier: [],
+        recipient: [],
+        category: []
+      };
+    }
   });
 
   useEffect(() => {
@@ -260,6 +282,7 @@ export default function Index() {
     if (type === 'products') getPrepareDataForProducts();
     if (type === 'deposit') getPrepareDataForDeposit();
     if (type === 'sales') getPrepareDataForSales();
+    if (type === 'expenses') getPrepareDataForExpenses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -329,6 +352,8 @@ export default function Index() {
       if (detail === 'details') respFetch = await getReportSalesDetails(filter);
     } else if (type === 'booking') {
       if (detail === 'by-diagnosis-species-gender') respFetch = await getReportBookingByDiagnosisSpeciesGender(filter);
+    } else if (type === 'expenses') {
+      if (detail === 'list') respFetch = await getReportExpensesList(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -398,6 +423,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'details') return await exportReportSalesDetails(filter);
       else if (type === 'booking' && detail === 'by-diagnosis-species-gender')
         return await exportReportBookingByDiagnosisSpeciesGender(filter);
+      else if (type === 'expenses' && detail === 'list') return await exportReportExpensesList(filter);
     };
 
     fetchExport()
@@ -509,6 +535,27 @@ export default function Index() {
     }));
   };
 
+  const getPrepareDataForExpenses = async () => {
+    const getLoc = await getLocationList();
+    const getPayment = []; // need API
+    const getStatus = []; // need API
+    const getSubmiter = []; // need API
+    const getSupplier = []; // need API
+    const getRecipient = []; // need API
+    const getCategory = []; // need API
+
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      payment: getPayment,
+      status: getStatus,
+      submiter: getSubmiter,
+      supplier: getSupplier,
+      recipient: getRecipient,
+      category: getCategory
+    }));
+  };
+
   const getTitle = () => {
     if (type === 'booking' && detail === 'by-location') return 'booking-by-location';
     if (type === 'booking' && detail === 'by-status') return 'booking-by-status';
@@ -539,6 +586,8 @@ export default function Index() {
     if (type === 'deposit' && detail === 'list') return 'deposit-list';
     if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
 
+    if (type === 'expenses' && detail === 'list') return 'expenses-list';
+
     if (type === 'sales' && detail === 'summary') return 'sales-summary';
     if (type === 'sales' && detail === 'items') return 'sales-items';
     if (type === 'sales' && detail === 'by-service') return 'sales-by-service';
@@ -561,6 +610,7 @@ export default function Index() {
     if (type === 'products') return <FilterProducts extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'deposit') return <FilterDeposit extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'sales') return <FilterSales extData={extData} filter={filter} setFilter={setFilter} />;
+    if (type === 'expenses') return <FilterExpenses extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -598,6 +648,8 @@ export default function Index() {
 
     if (type === 'deposit' && detail === 'list') return <DepositList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;
+
+    if (type === 'expenses' && detail === 'list') return <ExpensesList data={mainData} setFilter={setFilter} filter={filter} />;
 
     if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
