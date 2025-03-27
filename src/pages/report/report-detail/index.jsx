@@ -27,6 +27,7 @@ import {
   exportReportDepositList,
   exportReportDepositSummary,
   exportReportExpensesList,
+  exportReportExpensesSummary,
   exportReportProductsCost,
   exportReportProductsLowStock,
   exportReportProductsNoStock,
@@ -55,6 +56,7 @@ import {
   getReportDepositList,
   getReportDepositSummary,
   getReportExpensesList,
+  getReportExpensesSummary,
   getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsNoStock,
@@ -125,6 +127,7 @@ import StaffPerformance from './section/staff/performance';
 import BookingByDiagnosisSpeciesGender from './section/bookings/by-diagnosis-species-gender';
 import FilterExpenses from './filter/expenses';
 import ExpensesList from './section/expenses/list';
+import ExpensesSummary from './section/expenses/summary';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -256,6 +259,7 @@ export default function Index() {
         location: [],
         payment: [],
         status: [],
+        staff: [],
         submiter: [],
         supplier: [],
         recipient: [],
@@ -354,6 +358,7 @@ export default function Index() {
       if (detail === 'by-diagnosis-species-gender') respFetch = await getReportBookingByDiagnosisSpeciesGender(filter);
     } else if (type === 'expenses') {
       if (detail === 'list') respFetch = await getReportExpensesList(filter);
+      if (detail === 'summary') respFetch = await getReportExpensesSummary(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -424,6 +429,7 @@ export default function Index() {
       else if (type === 'booking' && detail === 'by-diagnosis-species-gender')
         return await exportReportBookingByDiagnosisSpeciesGender(filter);
       else if (type === 'expenses' && detail === 'list') return await exportReportExpensesList(filter);
+      else if (type === 'expenses' && detail === 'summary') return await exportReportExpensesSummary(filter);
     };
 
     fetchExport()
@@ -539,6 +545,7 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getPayment = []; // need API
     const getStatus = []; // need API
+    const getStaff = []; // need API
     const getSubmiter = []; // need API
     const getSupplier = []; // need API
     const getRecipient = []; // need API
@@ -549,6 +556,7 @@ export default function Index() {
       location: getLoc,
       payment: getPayment,
       status: getStatus,
+      staff: getStaff,
       submiter: getSubmiter,
       supplier: getSupplier,
       recipient: getRecipient,
@@ -587,6 +595,7 @@ export default function Index() {
     if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
 
     if (type === 'expenses' && detail === 'list') return 'expenses-list';
+    if (type === 'expenses' && detail === 'summary') return 'expenses-summary';
 
     if (type === 'sales' && detail === 'summary') return 'sales-summary';
     if (type === 'sales' && detail === 'items') return 'sales-items';
@@ -650,6 +659,7 @@ export default function Index() {
     if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;
 
     if (type === 'expenses' && detail === 'list') return <ExpensesList data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'expenses' && detail === 'summary') return <ExpensesSummary data={mainData} setFilter={setFilter} filter={filter} />;
 
     if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;

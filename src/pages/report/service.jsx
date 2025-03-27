@@ -782,6 +782,63 @@ export const exportReportExpensesList = async (payload) => {
   });
 };
 
+export const getReportExpensesSummary = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(urlExpensesSummary, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      paymentId: payment,
+      statusId: status,
+      staffId: staff,
+      supplierId: supplier,
+      recipientId: recipient,
+      categoryId: category
+    }
+  });
+};
+
+export const exportReportExpensesSummary = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(`${urlExpensesSummary}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      statusId: status.length ? status : [''],
+      staffId: staff.length ? staff : [''],
+      supplierId: supplier.length ? supplier : [''],
+      recipientId: recipient.length ? recipient : [''],
+      categoryId: category.length ? category : ['']
+    }
+  });
+};
+
 export const getReportSalesSummary = async (payload) => {
   const location = payload.location.map((dt) => dt.value);
   const status = payload.status.map((dt) => dt.value);

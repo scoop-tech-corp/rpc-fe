@@ -43,7 +43,7 @@ export default function FilterExpenses({ extData, filter, setFilter }) {
             </Grid>
 
             {/* Payment */}
-            {['list'].includes(detail) && (
+            {['list', 'summary'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.payment || []}
@@ -60,7 +60,7 @@ export default function FilterExpenses({ extData, filter, setFilter }) {
             )}
 
             {/* Status */}
-            {['list'].includes(detail) && (
+            {['list', 'summary'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.status || []}
@@ -93,8 +93,25 @@ export default function FilterExpenses({ extData, filter, setFilter }) {
               </Grid>
             )}
 
+            {/* Staff */}
+            {['summary'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.staff || []}
+                  limitTags={1}
+                  value={filter?.staff}
+                  key={'filter-staff'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, staff: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="staff" />}
+                />
+              </Grid>
+            )}
+
             {/* Supplier */}
-            {['list'].includes(detail) && (
+            {['list', 'summary'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.supplier || []}
@@ -111,7 +128,7 @@ export default function FilterExpenses({ extData, filter, setFilter }) {
             )}
 
             {/* Recipient */}
-            {['list'].includes(detail) && (
+            {['list', 'summary'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.recipient || []}
@@ -128,7 +145,7 @@ export default function FilterExpenses({ extData, filter, setFilter }) {
             )}
 
             {/* Category */}
-            {['list'].includes(detail) && (
+            {['list', 'summary'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.category || []}
@@ -178,6 +195,7 @@ export default function FilterExpenses({ extData, filter, setFilter }) {
                     location: [],
                     payment: [],
                     status: [],
+                    staff: [],
                     submiter: [],
                     supplier: [],
                     recipient: [],
