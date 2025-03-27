@@ -83,8 +83,8 @@ export const list = {
     { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   expenses: [
-    { id: 1, val: 'Summary' },
-    { id: 2, val: 'List' }
+    { id: 1, val: 'Summary', url: 'summary', icon: <UnorderedListOutlined /> },
+    { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   products: [
     { id: 1, val: 'Stock count', url: 'stock-count', icon: <UnorderedListOutlined /> },

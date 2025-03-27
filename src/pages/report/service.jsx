@@ -23,6 +23,9 @@ const urlProductsReminders = 'report/products/reminders';
 const urlDepositList = 'report/deposit/list';
 const urlDepositSummary = 'report/deposit/summary';
 
+const urlExpensesList = 'report/expenses/list';
+const urlExpensesSummary = 'report/expenses/summary';
+
 const urlSalesSummary = 'report/sales/summary';
 const urlSalesItems = 'report/sales/items';
 const urlSalesByService = 'report/sales/salesbyservice';
@@ -34,6 +37,8 @@ const urlSalesDailyAudit = 'report/sales/dailyaudit';
 const urlSalesDiscountSummary = 'report/sales/discountsummary';
 const urlSalesPaymentsSummary = 'report/sales/paymentsummary';
 const urlSalesDetails = 'report/sales/details';
+
+const urlBookingByDiagnosisSpeciesGender = 'report/booking/diagnosespeciesgender';
 
 export const exportReportCustomerGrowth = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
@@ -718,6 +723,122 @@ export const exportReportDepositSummary = async (payload) => {
   });
 };
 
+export const getReportExpensesList = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const submiter = payload.submiter.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(urlExpensesList, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      paymentId: payment,
+      statusId: status,
+      submiterId: submiter,
+      supplierId: supplier,
+      recipientId: recipient,
+      categoryId: category,
+      search: payload.search
+    }
+  });
+};
+
+export const exportReportExpensesList = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const submiter = payload.submiter.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(`${urlExpensesList}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      statusId: status.length ? status : [''],
+      submiterId: submiter.length ? submiter : [''],
+      supplierId: supplier.length ? supplier : [''],
+      recipientId: recipient.length ? recipient : [''],
+      categoryId: category.length ? category : [''],
+      search: payload.search
+    }
+  });
+};
+
+export const getReportExpensesSummary = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(urlExpensesSummary, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      paymentId: payment,
+      statusId: status,
+      staffId: staff,
+      supplierId: supplier,
+      recipientId: recipient,
+      categoryId: category
+    }
+  });
+};
+
+export const exportReportExpensesSummary = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const payment = payload.payment.map((dt) => dt.value);
+  const status = payload.status.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const supplier = payload.supplier.map((dt) => dt.value);
+  const recipient = payload.recipient.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(`${urlExpensesSummary}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      paymentId: payment.length ? payment : [''],
+      statusId: status.length ? status : [''],
+      staffId: staff.length ? staff : [''],
+      supplierId: supplier.length ? supplier : [''],
+      recipientId: recipient.length ? recipient : [''],
+      categoryId: category.length ? category : ['']
+    }
+  });
+};
+
 export const getReportSalesSummary = async (payload) => {
   const location = payload.location.map((dt) => dt.value);
   const status = payload.status.map((dt) => dt.value);
@@ -1040,12 +1161,9 @@ export const exportReportSalesDailyAudit = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
 
-  return await axios.get(urlSalesDailyAudit, {
+  return await axios.get(`${urlSalesDailyAudit}/export`, {
+    responseType: 'blob',
     params: {
-      orderValue: payload.orderValue,
-      orderColumn: payload.orderColumn,
-      goToPage: payload.goToPage,
-      rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
       locationId: location.length ? location : [''],
@@ -1092,12 +1210,9 @@ export const exportReportSalesDetails = async (payload) => {
   const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
   const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
 
-  return await axios.get(urlSalesDetails, {
+  return await axios.get(`${urlSalesDetails}/export`, {
+    responseType: 'blob',
     params: {
-      orderValue: payload.orderValue,
-      orderColumn: payload.orderColumn,
-      goToPage: payload.goToPage,
-      rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
       locationId: location.length ? location : [''],
@@ -1127,4 +1242,49 @@ export const getReportSalesDiscountSummary = async (payload) => {
 
 export const getReportSalesPaymentSummary = async (payload) => {
   return await axios.get(urlSalesPaymentsSummary);
+};
+
+export const getReportBookingByDiagnosisSpeciesGender = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const gender = payload.gender.map((dt) => dt.value);
+  const diagnose = payload.diagnose.map((dt) => dt.value);
+  const species = payload.species.map((dt) => dt.value);
+
+  return await axios.get(urlBookingByDiagnosisSpeciesGender, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      genderId: gender,
+      diagnoseId: diagnose,
+      speciesId: species
+    }
+  });
+};
+
+export const exportReportBookingByDiagnosisSpeciesGender = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const gender = payload.gender.map((dt) => dt.value);
+  const diagnose = payload.diagnose.map((dt) => dt.value);
+  const species = payload.species.map((dt) => dt.value);
+
+  return await axios.get(`${urlBookingByDiagnosisSpeciesGender}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      genderId: gender.length ? gender : [''],
+      diagnoseId: diagnose.length ? diagnose : [''],
+      speciesId: species.length ? species : ['']
+    }
+  });
 };
