@@ -39,6 +39,7 @@ import {
   exportReportSalesDetails,
   exportReportSalesItems,
   exportReportSalesPaymentList,
+  exportReportSalesStaffServiceSales,
   exportReportSalesSummary,
   exportReportSalesUnpaid,
   exportReportStaffLate,
@@ -71,6 +72,7 @@ import {
   getReportSalesNetIncome,
   getReportSalesPaymentList,
   getReportSalesPaymentSummary,
+  getReportSalesStaffServiceSales,
   getReportSalesSummary,
   getReportSalesUnpaid,
   getReportStaffLate,
@@ -128,6 +130,7 @@ import BookingByDiagnosisSpeciesGender from './section/bookings/by-diagnosis-spe
 import FilterExpenses from './filter/expenses';
 import ExpensesList from './section/expenses/list';
 import ExpensesSummary from './section/expenses/summary';
+import SalesStaffServiceSales from './sales/staff-service-sales';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -239,6 +242,7 @@ export default function Index() {
         status: [],
         payment: [],
         staff: [],
+        service: [],
         itemType: [],
         productCategory: [],
         category: [],
@@ -354,6 +358,7 @@ export default function Index() {
       if (detail === 'payment-summary') respFetch = await getReportSalesPaymentSummary(filter);
       if (detail === 'daily-audit') respFetch = await getReportSalesDailyAudit(filter);
       if (detail === 'details') respFetch = await getReportSalesDetails(filter);
+      if (detail === 'staff-service-sales') respFetch = await getReportSalesStaffServiceSales(filter);
     } else if (type === 'booking') {
       if (detail === 'by-diagnosis-species-gender') respFetch = await getReportBookingByDiagnosisSpeciesGender(filter);
     } else if (type === 'expenses') {
@@ -426,6 +431,7 @@ export default function Index() {
       else if (type === 'sales' && detail === 'payment-summary') return;
       else if (type === 'sales' && detail === 'daily-audit') return await exportReportSalesDailyAudit(filter);
       else if (type === 'sales' && detail === 'details') return await exportReportSalesDetails(filter);
+      else if (type === 'sales' && detail === 'staff-service-sales') return await exportReportSalesStaffServiceSales(filter);
       else if (type === 'booking' && detail === 'by-diagnosis-species-gender')
         return await exportReportBookingByDiagnosisSpeciesGender(filter);
       else if (type === 'expenses' && detail === 'list') return await exportReportExpensesList(filter);
@@ -518,6 +524,7 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
     const getStatus = []; // need API
+    const getService = []; // need API
     const getPayment = []; // need API
     const getItemType = []; // need API
     const getProductCategory = []; // need API
@@ -530,6 +537,7 @@ export default function Index() {
       ...prevState,
       location: getLoc,
       staff: getStaff,
+      service: getService,
       status: getStatus,
       payment: getPayment,
       itemType: getItemType,
@@ -608,6 +616,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'payment-summary') return 'sales-payment-summary';
     if (type === 'sales' && detail === 'daily-audit') return 'sales-daily-audit';
     if (type === 'sales' && detail === 'details') return 'sales-details';
+    if (type === 'sales' && detail === 'staff-service-sales') return 'sales-staff-service-sales';
 
     return '-';
   };
@@ -679,6 +688,8 @@ export default function Index() {
       return <SalesDailyAudit data={mainData} setFilter={setFilter} filter={filter} />;
     }
     if (type === 'sales' && detail === 'details') return <SalesDetails data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'staff-service-sales')
+      return <SalesStaffServiceSales data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };

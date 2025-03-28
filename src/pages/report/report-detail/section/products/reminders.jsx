@@ -25,7 +25,12 @@ export default function ProductsReminders({ data, filter, setFilter }) {
       },
       {
         Header: <FormattedMessage id="product" />,
-        accessor: 'productName'
+        accessor: 'productName',
+        Cell: (data) => {
+          const onClickDetail = () => {};
+
+          return <Link onClick={() => onClickDetail()}>{data.value}</Link>;
+        }
       },
       {
         Header: <FormattedMessage id="phone-number" />,

@@ -111,7 +111,8 @@ export const list = {
     { id: 13, val: 'Customer spend' },
     { id: 14, val: 'Daily reconciliation' },
     { id: 15, val: 'Daily audit', url: 'daily-audit', icon: <UnorderedListOutlined /> },
-    { id: 16, val: 'Refunds' }
+    { id: 16, val: 'Refunds' },
+    { id: 17, val: 'Staff Service Sales', url: 'staff-service-sales', icon: <UnorderedListOutlined /> }
   ],
   staff: [
     { id: 1, val: 'Staff Login', url: 'login', icon: <UnorderedListOutlined /> },
