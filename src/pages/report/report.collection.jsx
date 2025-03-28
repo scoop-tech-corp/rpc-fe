@@ -83,8 +83,8 @@ export const list = {
     { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   expenses: [
-    { id: 1, val: 'Summary' },
-    { id: 2, val: 'List' }
+    { id: 1, val: 'Summary', url: 'summary', icon: <UnorderedListOutlined /> },
+    { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   products: [
     { id: 1, val: 'Stock count', url: 'stock-count', icon: <UnorderedListOutlined /> },
@@ -111,7 +111,8 @@ export const list = {
     { id: 13, val: 'Customer spend' },
     { id: 14, val: 'Daily reconciliation' },
     { id: 15, val: 'Daily audit', url: 'daily-audit', icon: <UnorderedListOutlined /> },
-    { id: 16, val: 'Refunds' }
+    { id: 16, val: 'Refunds' },
+    { id: 17, val: 'Staff Service Sales', url: 'staff-service-sales', icon: <UnorderedListOutlined /> }
   ],
   staff: [
     { id: 1, val: 'Staff Login', url: 'login', icon: <UnorderedListOutlined /> },
