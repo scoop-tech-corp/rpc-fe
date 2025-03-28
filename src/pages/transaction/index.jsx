@@ -1,5 +1,5 @@
 import { FormattedMessage, useIntl } from 'react-intl';
-import { deleteTransaction, exportTransaction, getCategoryTransactionList, getTransactionIndex, TabList, TransactionType } from './service';
+import { deleteTransaction, exportTransaction, getTransactionIndex, TabList, TransactionType } from './service';
 import { Button, Stack, Box, Tab, Tabs, Autocomplete, TextField, Grid, Link, Tooltip } from '@mui/material'; // useMediaQuery
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -104,8 +104,6 @@ const Transaction = (props) => {
 
     const getLocation = await getLocationList();
     const getCustomerGroup = await getCustomerGroupList();
-    const x = await getCategoryTransactionList();
-    console.log(';x', x);
 
     setFilterLocationList(getLocation);
     setFilterCustomerGroupList(getCustomerGroup);
@@ -361,6 +359,7 @@ const Transaction = (props) => {
         <FormTransaction
           open={formTransactionConfig.isOpen}
           id={formTransactionConfig.id}
+          type={TransactionType[type]}
           onClose={(e) => {
             setFormTransactionConfig({ isOpen: false, id: null });
             if (e) setParams((_params) => ({ ..._params }));
