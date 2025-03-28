@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 
-import MultiSelectAll from 'components/MultiSelectAll';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
+import MultiSelectAll from 'components/MultiSelectAll';
 
 export default function FilterSales({ extData, filter, setFilter }) {
   const [isReset, setIsReset] = useState(false);
@@ -67,19 +67,23 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            <Grid item sm={12} xs={12} md={4}>
-              <MultiSelectAll
-                items={extData?.payment || []}
-                limitTags={1}
-                value={filter?.payment}
-                key={'filter-payment'}
-                selectAllLabel="Select All"
-                onChange={(val) => setFilter((e) => ({ ...e, payment: val }))}
-                isReset={isReset}
-                setIsReset={setIsReset}
-                label={<FormattedMessage id="payment" />}
-              />
-            </Grid>
+
+            {!['staff-service-sales'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.payment || []}
+                  limitTags={1}
+                  value={filter?.payment}
+                  key={'filter-payment'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, payment: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="payment" />}
+                />
+              </Grid>
+            )}
+
             {['items'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
@@ -110,7 +114,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                 />
               </Grid>
             )}
-            {['items', 'summary', 'payment-list', 'daily-audit', 'details'].includes(detail) && (
+            {['items', 'summary', 'payment-list', 'daily-audit', 'details', 'staff-service-sales'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.staff || []}
@@ -126,7 +130,23 @@ export default function FilterSales({ extData, filter, setFilter }) {
               </Grid>
             )}
 
-            {['by-service', 'by-product'].includes(detail) && (
+            {['staff-service-sales'].includes(detail) && (
+              <Grid item sm={12} xs={12} md={4}>
+                <MultiSelectAll
+                  items={extData?.service || []}
+                  limitTags={1}
+                  value={filter?.service}
+                  key={'filter-service'}
+                  selectAllLabel="Select All"
+                  onChange={(val) => setFilter((e) => ({ ...e, service: val }))}
+                  isReset={isReset}
+                  setIsReset={setIsReset}
+                  label={<FormattedMessage id="service" />}
+                />
+              </Grid>
+            )}
+
+            {['by-service', 'by-product', 'staff-service-sales'].includes(detail) && (
               <Grid item sm={12} xs={12} md={4}>
                 <MultiSelectAll
                   items={extData?.category || []}
@@ -208,6 +228,7 @@ export default function FilterSales({ extData, filter, setFilter }) {
                     status: [],
                     payment: [],
                     staff: [],
+                    service: [],
                     itemType: [],
                     productCategory: [],
                     category: [],

@@ -37,6 +37,7 @@ const urlSalesDailyAudit = 'report/sales/dailyaudit';
 const urlSalesDiscountSummary = 'report/sales/discountsummary';
 const urlSalesPaymentsSummary = 'report/sales/paymentsummary';
 const urlSalesDetails = 'report/sales/details';
+const urlSalesStaffServiceSales = 'report/sales/staffservicesales';
 
 const urlBookingByDiagnosisSpeciesGender = 'report/booking/diagnosespeciesgender';
 
@@ -1221,6 +1222,51 @@ export const exportReportSalesDetails = async (payload) => {
       staffId: staff.length ? staff : [''],
       invoiceCategoryId: invoiceCategory.length ? invoiceCategory : [''],
       search: payload.search
+    }
+  });
+};
+
+export const getReportSalesStaffServiceSales = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const service = payload.service.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(urlSalesStaffServiceSales, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      staffId: staff,
+      serviceId: service,
+      categoryId: category
+    }
+  });
+};
+
+export const exportReportSalesStaffServiceSales = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = payload.location.map((dt) => dt.value);
+  const staff = payload.staff.map((dt) => dt.value);
+  const service = payload.service.map((dt) => dt.value);
+  const category = payload.category.map((dt) => dt.value);
+
+  return await axios.get(`${urlSalesStaffServiceSales}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      staffId: staff.length ? staff : [''],
+      serviceId: service.length ? service : [''],
+      categoryId: category.length ? category : ['']
     }
   });
 };
