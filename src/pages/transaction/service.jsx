@@ -29,7 +29,7 @@ export const ServiceCategory = {
   clinic: 'Pet Clinic',
   hotel: 'Pet Hotel',
   salon: 'Pet Salon',
-  pecak: 'Pacak'
+  pacak: 'Pacak'
 };
 
 export const getKeyServiceCategoryByValue = (value) => {

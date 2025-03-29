@@ -30,6 +30,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { create } from 'zustand';
+import { jsonCentralized } from 'utils/func';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
@@ -37,7 +38,6 @@ import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import FormPet from './form-pet';
 import ErrorContainer from 'components/@extended/ErrorContainer';
-import { jsonCentralized } from 'utils/func';
 
 const CONSTANT_PET_FORM = {
   petId: '',
@@ -76,7 +76,7 @@ export const dropdownList = create(() =>
 export const getDropdownAll = () => dropdownList.getState();
 
 const FormTransaction = (props) => {
-  const { id } = props;
+  const { id, type } = props;
   const customerList = dropdownList((state) => state.customerList);
 
   const [isEditForm, setIsEditForm] = useState(false);
@@ -109,7 +109,7 @@ const FormTransaction = (props) => {
       await createTransaction(formValue).then(responseSuccess).catch(responseError);
     }
   };
-  const clearForm = () => setFormValue(() => ({ ...CONSTANT_FORM_VALUE }));
+  const clearForm = () => setFormValue((prevState) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prevState.configTransaction }));
   const onCancel = () => props.onClose(false);
 
   const onFieldHandler = (event) => {
@@ -224,8 +224,13 @@ const FormTransaction = (props) => {
     }
   };
 
+  const decideFormTransactionType = () => {
+    setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(type) }));
+  };
+
   useEffect(() => {
     getData();
+    decideFormTransactionType();
 
     return () => {
       dropdownList.setState(
@@ -632,19 +637,6 @@ const FormTransaction = (props) => {
 
           <Grid item xs={12}>
             <MainCard title={<FormattedMessage id="type-category" />}>
-              <RadioGroup
-                name="configTransaction"
-                value={formValue.configTransaction}
-                style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: '20px' }}
-                onChange={(e) => {
-                  setFormValue((prevState) => ({ ...prevState, configTransaction: e.target.value }));
-                }}
-              >
-                <FormControlLabel value="clinic" control={<Radio />} label={'Pet Clinic'} style={{ height: '20px' }} />
-                <FormControlLabel value="hotel" control={<Radio />} label={'Pet Hotel'} style={{ height: '20px' }} />
-                <FormControlLabel value="salon" control={<Radio />} label={'Pet Salon'} style={{ height: '20px' }} />
-                <FormControlLabel value="pacak" control={<Radio />} label={'Pacak'} style={{ height: '20px' }} />
-              </RadioGroup>
 
               <Grid container spacing={3}>
                 {formValue.configTransaction === 'hotel' && (
@@ -755,10 +747,7 @@ const FormTransaction = (props) => {
                 value: `${newPet.petName}-${dropdownList.customerPetList.length}`,
                 formPetValue: newPet
               };
-              // setDropdownList((prevState) => ({
-              //   ...prevState,
-              //   customerPetList: [selectedPet, ...prevState.customerPetList]
-              // }));
+
               dropdownList.setState((prevState) => ({ ...prevState, customerPetList: [selectedPet, ...prevState.customerPetList] }));
               setFormValue((prevState) => ({ ...prevState, ...newPet, pets: selectedPet }));
             }
