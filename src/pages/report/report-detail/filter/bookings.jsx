@@ -94,7 +94,7 @@ export default function FilterBooking({ extData, filter, setFilter }) {
             )}
           </Grid>
         </Grid>
-        <Grid item sm={12} xs={12} md={9}>
+        <Grid item sm={12} xs={12} md={2}>
           <Grid container spacing={1}>
             <Grid item sm={12} md={6}>
               <Button
