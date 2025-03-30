@@ -44,7 +44,7 @@ export const getCustomerByLocationList = async (locationId) => {
   });
 
   return getResp.data.map((dt) => {
-    return { label: `${dt.memberNo || 'member-no-notfound-' + dt.id} - ${dt.firstName}`, value: +dt.id };
+    return { label: `${dt.memberNo || dt.id} - ${dt.firstName}`, value: +dt.id };
   });
 };
 
