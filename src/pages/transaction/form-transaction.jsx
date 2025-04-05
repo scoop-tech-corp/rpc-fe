@@ -639,7 +639,7 @@ const FormTransaction = (props) => {
           <Grid item xs={12}>
             <MainCard title={<FormattedMessage id="type-category" />}>
               <Grid container spacing={3}>
-                {['hotel', 'pacak'].includes(formValue.configTransaction) && (
+                {['hotel', 'pacak', 'clinic'].includes(formValue.configTransaction) && (
                   <>
                     <Grid item xs={12}>
                       <Stack spacing={1}>
