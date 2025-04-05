@@ -97,14 +97,15 @@ const CheckPetCondition = (props) => {
       <ModalC
         title={<FormattedMessage id="check-pet-condition" />}
         open={props.open}
-        onOk={onSubmit}
+        onOk={() => onSubmit()}
         disabledOk={disabledOke}
         onCancel={onCancel}
         fullWidth
         maxWidth="sm"
         otherDialogAction={
           <>
-            <Button variant="outlined" onClick={() => setFormReject(true)} disabled={disabledOke}>
+            {/* disabled={disabledOke} */}
+            <Button variant="outlined" onClick={() => setFormReject(true)}>
               {<FormattedMessage id="reject" />}
             </Button>
           </>

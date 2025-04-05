@@ -207,7 +207,7 @@ export const checkPetConditionTransaction = async (payload) => {
   formData.append('isBreastfeeding', payload.isBreastfeeding ? 1 : 0);
   formData.append('numberofChildren', payload.numberofChildren || 0);
   formData.append('isAcceptToProcess', payload.reasonReject ? 0 : 1);
-  formData.append('reasonReject', payload.reasonReject);
+  if (payload.reasonReject) formData.append('reasonReject', payload.reasonReject);
 
   return await axios.post('transaction/petcheck', formData);
 };
