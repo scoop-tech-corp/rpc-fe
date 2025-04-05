@@ -78,6 +78,7 @@ export const getDropdownAll = () => dropdownList.getState();
 const FormTransaction = (props) => {
   const { id, type } = props;
   const customerList = dropdownList((state) => state.customerList);
+  const customerPetList = dropdownList((state) => state.customerPetList);
 
   const [isEditForm, setIsEditForm] = useState(false);
   const [formValue, setFormValue] = useState({ ...CONSTANT_FORM_VALUE });
@@ -402,7 +403,7 @@ const FormTransaction = (props) => {
                           <Grid item xs={11} sm={11} md={11}>
                             <Autocomplete
                               id="pets"
-                              options={getDropdownAll().customerPetList}
+                              options={customerPetList}
                               value={formValue.pets}
                               isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                               onChange={(_, value) => onDropdownHandler(value, 'pets')}
@@ -637,9 +638,8 @@ const FormTransaction = (props) => {
 
           <Grid item xs={12}>
             <MainCard title={<FormattedMessage id="type-category" />}>
-
               <Grid container spacing={3}>
-                {formValue.configTransaction === 'hotel' && (
+                {['hotel', 'pacak'].includes(formValue.configTransaction) && (
                   <>
                     <Grid item xs={12}>
                       <Stack spacing={1}>
@@ -744,7 +744,7 @@ const FormTransaction = (props) => {
 
               const selectedPet = {
                 label: newPet.petName,
-                value: `${newPet.petName}-${dropdownList.customerPetList.length}`,
+                value: `${newPet.petName}-${customerPetList.length}`,
                 formPetValue: newPet
               };
 
