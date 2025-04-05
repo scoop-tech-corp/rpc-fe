@@ -472,12 +472,12 @@ const FormRestockBody = () => {
                     <FormattedMessage id="supplier" />
                   </InputLabel>
                 </Grid>
-                <Grid item xs={12} md={1}>
+                <Grid item xs={12} md={2}>
                   <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setOpenFormSupplier(true)}>
                     <FormattedMessage id="add" />
                   </Button>
                 </Grid>
-                <Grid item xs={12} md={11}>
+                <Grid item xs={12} md={10}>
                   <Autocomplete
                     id="dropdown-supplier"
                     options={supplierList}

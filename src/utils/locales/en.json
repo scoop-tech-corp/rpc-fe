@@ -604,6 +604,7 @@
   "product-details": "Product Details",
   "product-list": "Product List",
   "product-location": "Product Location",
+  "product-location-is-required": "Product Location is required",
   "product-name": "Product Name",
   "product-name-is-required": "Product Name is required",
   "product-inventory": "Product Inventory",
