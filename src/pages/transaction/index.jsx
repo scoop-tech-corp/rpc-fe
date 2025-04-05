@@ -147,7 +147,9 @@ const Transaction = (props) => {
   };
 
   const columnServiceCategory = () => {
-    return type !== 'pet-clinic' ? [{ Header: <FormattedMessage id="service-category" />, accessor: 'serviceCategory' }] : [];
+    return !['pet-salon', 'pet-clinic'].includes(type)
+      ? [{ Header: <FormattedMessage id="service-category" />, accessor: 'serviceCategory' }]
+      : [];
   };
 
   const columns = useMemo(
