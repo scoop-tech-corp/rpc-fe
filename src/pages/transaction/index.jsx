@@ -146,6 +146,10 @@ const Transaction = (props) => {
     return user?.role === CONSTANT_ADMINISTRATOR ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
   };
 
+  const columnServiceCategory = () => {
+    return type !== 'pet-clinic' ? [{ Header: <FormattedMessage id="service-category" />, accessor: 'serviceCategory' }] : [];
+  };
+
   const columns = useMemo(
     () => [
       ...columnCheckbox(),
@@ -210,7 +214,7 @@ const Transaction = (props) => {
       },
       { Header: <FormattedMessage id="customer-name" />, accessor: 'firstName' },
       ...columnCustomerGroup(),
-      { Header: <FormattedMessage id="service-category" />, accessor: 'serviceCategory' },
+      ...columnServiceCategory(),
       { Header: <FormattedMessage id="start-date" />, accessor: 'startDate' },
       { Header: <FormattedMessage id="end-date" />, accessor: 'endDate' },
       { Header: 'Status', accessor: 'status' },
