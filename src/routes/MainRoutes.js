@@ -18,7 +18,7 @@ const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages
 const Message = Loadable(lazy(() => import('pages/message')));
 
 // Customer
-const CustomerDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerDashboard = Loadable(lazy(() => import('pages/customer/dashboard')));
 const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
 const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/customer/template')));
