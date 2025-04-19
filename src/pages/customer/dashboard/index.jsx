@@ -26,52 +26,6 @@ export default function CustomerDashboard() {
     supportRequested: { ...CONSTANT_CARD_ANALYTIC_DATA }
   });
 
-  const areaChart = {
-    series: [
-      {
-        name: 'Previous',
-        data: [20, 40, 60, 80, 100, 120, 40, 60, 80, 100, 120, 200]
-      },
-      {
-        name: 'Current',
-        date: [10, 30, 50, 70, 90, 110, 30, 50, 70, 90, 110, 130]
-      }
-    ],
-    categories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-  };
-
-  // const areaChart = useMemo(() => {
-  //   return {
-  //     series: [
-  //       {
-  //         name: 'Previous',
-  //         data: [200, 400, 600, 800, 1000, 1200, 400, 600, 800, 1000, 1200, 2000]
-  //       },
-  //       {
-  //         name: 'Current',
-  //         date: [300, 500, 700, 900, 1100, 1300, 500, 700, 900, 1100, 1300, 3000]
-  //       }
-  //     ],
-  //     categories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-  //   };
-  // }, []);
-
-  const barChart = useMemo(() => {
-    return {
-      series: [
-        {
-          name: 'Previous',
-          data: [20, 40, 60, 80, 100, 120, 40, 60, 80, 100, 120, 200]
-        },
-        {
-          name: 'Current',
-          data: [30, 50, 70, 90, 110, 20, 50, 70, 90, 110, 110, 180]
-        }
-      ],
-      categories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    };
-  }, []);
-
   useEffect(() => {
     async function fetchData() {
       const response = await getCustomerDashboard();
