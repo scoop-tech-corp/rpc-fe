@@ -633,6 +633,7 @@
   "product-type": "Product Type",
   "product-type-is-required": "Product Type is required",
   "product-details-is-required": "Product details is required",
+  "product-details-duplicate": "Product details duplicate (Cannot add a product that already exists)",
   "profile": "Profile",
   "progress": "Progress",
   "promotion": "Promotion",
