@@ -1,20 +1,17 @@
-import { Box, Grid, Link } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
+import ApexAreaChart from 'components/dashboard/area';
 import AnalyticEcommerce from 'components/dashboard/card';
 import ApexColumnChart from 'components/dashboard/column';
-import ApexPieChart from 'components/dashboard/pie';
-import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
-import { getPromotionDashboard } from './services';
-import ApexAreaChart from 'components/dashboard/area';
+import { getCustomerDashboard } from './services';
 
 const CONSTANT_CARD_ANALYTIC_DATA = { isLoss: 0, percentage: 0, total: '0' };
 export default function CustomerDashboard() {
   const { formatMessage } = useIntl();
-  const totalPagination = 0;
   const [barChartData, setBarChartData] = useState({
     series: [],
     categories: []
@@ -28,7 +25,6 @@ export default function CustomerDashboard() {
     feedback: { ...CONSTANT_CARD_ANALYTIC_DATA },
     supportRequested: { ...CONSTANT_CARD_ANALYTIC_DATA }
   });
-  const [tableTopUsedPromotion, setTableTopUsedPromotion] = useState([]);
 
   const areaChart = {
     series: [
@@ -76,68 +72,19 @@ export default function CustomerDashboard() {
     };
   }, []);
 
-  const columns = useMemo(
-    () => [
-      {
-        Header: <FormattedMessage id="promotion" />,
-        accessor: 'promotionName',
-        Cell: (data) => {
-          const onClickDetail = () => {};
-
-          return <Link onClick={() => onClickDetail()}>{data.value}</Link>;
-        }
-      },
-      {
-        Header: <FormattedMessage id="total" />,
-        accessor: 'promotions',
-        Cell: (data) => formatThousandSeparator(data?.value || 0)
-      }
-    ],
-    []
-  );
-
-  const dummyData = [
-    {
-      promotionName: 'Product 1',
-      promotions: 120
-    },
-    {
-      promotionName: 'Product 2',
-      promotions: 120
-    },
-    {
-      promotionName: 'Product 3',
-      promotions: 120
-    },
-    {
-      promotionName: 'Product 4',
-      promotions: 120
-    },
-    {
-      promotionName: 'Product 5',
-      promotions: 120
-    }
-  ];
-
   useEffect(() => {
-    // async function fetchData() {
-    //   const response = await getPromotionDashboard();
-    //   setTableTopUsedPromotion(response.data.mostPopular);
-    //   setBarChartData({
-    //     series: response.data.charts.series,
-    //     categories: response.data.charts.categories
-    //   });
-    //   setPieChartData({
-    //     labels: response.data.promotionsByCategory.labels,
-    //     series: response.data.promotionsByCategory.series
-    //   });
-    //   setChartAnalyticData({
-    //     promoSold: response.data.promotions,
-    //     promoSoldQuantity: response.data.promotionsQty,
-    //     promoSoldValue: response.data.promotionsValue
-    //   });
-    // }
-    // fetchData();
+    async function fetchData() {
+      const response = await getCustomerDashboard();
+      setBarChartData(response.data.chartsCustomerGrowth);
+      setAreaChartData(response.data.chartsTotalCustomer);
+
+      setChartAnalyticData({
+        newCustomer: response.data.newCustomer,
+        feedback: response.data.feedback,
+        supportRequested: response.data.supportRequested
+      });
+    }
+    fetchData();
   }, []);
 
   return (
@@ -151,7 +98,7 @@ export default function CustomerDashboard() {
               title={formatMessage({ id: 'new-customer' })}
               count={formatThousandSeparator(chartAnalyticData.newCustomer.total)}
               isLoss={Boolean(chartAnalyticData.newCustomer.isLoss)}
-              percentage={chartAnalyticData.newCustomer.percentage}
+              percentage={Number(chartAnalyticData.newCustomer.percentage)}
               color={chartAnalyticData.newCustomer.isLoss ? 'warning' : 'success'}
             />
           </Grid>
@@ -160,7 +107,7 @@ export default function CustomerDashboard() {
               title={formatMessage({ id: 'feedback' })}
               count={formatThousandSeparator(chartAnalyticData.feedback.total)}
               isLoss={Boolean(chartAnalyticData.feedback.isLoss)}
-              percentage={chartAnalyticData.feedback.percentage}
+              percentage={Number(chartAnalyticData.feedback.percentage)}
               color={chartAnalyticData.feedback.isLoss ? 'warning' : 'success'}
             />
           </Grid>
@@ -169,7 +116,7 @@ export default function CustomerDashboard() {
               title={formatMessage({ id: 'support-requested' })}
               count={formatThousandSeparator(chartAnalyticData.supportRequested.total)}
               isLoss={Boolean(chartAnalyticData.supportRequested.isLoss)}
-              percentage={chartAnalyticData.supportRequested.percentage}
+              percentage={Number(chartAnalyticData.supportRequested.percentage)}
               color={chartAnalyticData.supportRequested.isLoss ? 'warning' : 'success'}
             />
           </Grid>
@@ -178,21 +125,15 @@ export default function CustomerDashboard() {
 
       <Box sx={{ marginTop: 2 }}>
         <MainCard title={<FormattedMessage id="customer-growth" />}>
-          <ApexColumnChart categoriesProps={barChart.categories} seriesProps={barChart.series} />
+          <ApexColumnChart categoriesProps={barChartData.categories} seriesProps={barChartData.series} />
         </MainCard>
       </Box>
 
       <Box sx={{ marginTop: 2 }}>
-        <MainCard title={<FormattedMessage id="customer-growths" />}>
-          <ApexAreaChart categoriesProps={areaChart.categories} seriesProps={areaChart.series} />
+        <MainCard title={<FormattedMessage id="total-customer" />}>
+          <ApexAreaChart categoriesProps={areaChartData.categories} seriesProps={areaChartData.series} />
         </MainCard>
       </Box>
-
-      {/* <Box sx={{ marginTop: 2 }}>
-        <MainCard title={<FormattedMessage id="promo-by-category" />} content={false}>
-          <ApexPieChart labelsProps={pieChartData.labels} seriesProps={pieChartData.series} height={450} />
-        </MainCard>
-      </Box> */}
     </>
   );
 }

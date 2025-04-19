@@ -1,5 +1,5 @@
 import axios from 'utils/axios';
 
-export const getPromotionDashboard = async () => {
-  return await axios.get('promotion/dashboard');
+export const getCustomerDashboard = async () => {
+  return await axios.get('customer/dashboard');
 };
