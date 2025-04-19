@@ -11,7 +11,7 @@ import useConfig from 'hooks/useConfig';
 import PropTypes from 'prop-types';
 
 // chart options
-const columnChartOptions = {
+const areaChartOptions = {
   chart: {
     type: 'area',
     height: 350,
@@ -38,21 +38,9 @@ const columnChartOptions = {
   xaxis: {
     categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan']
   },
-  // yaxis: {
-  //   title: {
-  //     text: '$ (thousands)'
-  //   }
-  // },
   fill: {
     opacity: 1
   },
-  // tooltip: {
-  //   y: {
-  //     formatter(val) {
-  //       return `$ ${val} thousands`;
-  //     }
-  //   }
-  // },
   legend: {
     show: true,
     fontFamily: `'Roboto', sans-serif`,
@@ -85,9 +73,9 @@ const columnChartOptions = {
   ]
 };
 
-// ==============================|| APEXCHART - COLUMN ||============================== //
+// ==============================|| APEXCHART - AREA ||============================== //
 
-const ApexColumnChart = (props) => {
+const ApexAreaChart = (props) => {
   const { categoriesProps, seriesProps, colorsProps } = props;
   const theme = useTheme();
   const line = theme.palette.divider;
@@ -104,7 +92,7 @@ const ApexColumnChart = (props) => {
     }
   ]);
 
-  const [options, setOptions] = useState(columnChartOptions);
+  const [options, setOptions] = useState(areaChartOptions);
 
   useEffect(() => {
     setOptions((prevState) => ({
@@ -120,12 +108,6 @@ const ApexColumnChart = (props) => {
     setSeries((prevState) => seriesProps || prevState);
   }, [seriesProps]);
 
-  useEffect(() => {
-    console.log('seriesProps', seriesProps);
-    console.log('categoriesProps', categoriesProps);
-    setSeries((prevState) => seriesProps || prevState);
-  }, [seriesProps]);
-
   return (
     <div id="chart">
       <ReactApexChart options={options} series={series} type="area" height={350} />
@@ -133,10 +115,10 @@ const ApexColumnChart = (props) => {
   );
 };
 
-ApexColumnChart.propTypes = {
+ApexAreaChart.propTypes = {
   categoriesProps: PropTypes.array, // PropTypes.arrayOf(PropTypes.string)
   seriesProps: PropTypes.array,
   colorsProps: PropTypes.array
 };
 
-export default ApexColumnChart;
+export default ApexAreaChart;
