@@ -1,29 +1,32 @@
-import { Button, Stack, TextField, useMediaQuery } from '@mui/material';
+import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { ReactTable } from 'components/third-party/ReactTable';
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ReactTable } from 'components/third-party/ReactTable';
-import { getProductRestockDetail, productRestockApproval } from '../service';
-import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { getProductRestockDetail, productRestockConfirmReceive } from '../service';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
-import ConfirmationC from 'components/ConfirmationC';
-import FormReject from 'components/FormReject';
+import { formatThousandSeparator } from 'utils/func';
 
 const ProductRestockConfirmationReceived = (props) => {
-  const [productRestockConfirmationReceivedData, setProductRestockApprovalData] = useState([]);
+  const [productRestockConfirmationReceivedData, setProductRestockConfirmationReceivedData] = useState([]);
+  const [restockFinished, setRestockFinished] = useState('yes');
+
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(true);
-  const [isDialogApprovalAll, setIsDialogApprovalAll] = useState(false);
-  const [isDialogRejectAll, setIsDialogRejectAll] = useState(false);
   const dispatch = useDispatch();
 
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const handleChangeRestockFinished = (event) => {
+    setRestockFinished(event.target.value);
+  };
   const getDetail = async () => {
-    await getProductRestockDetail(props.id).then((resp) => {
+    await getProductRestockDetail(props.id, 'receive').then((resp) => {
       const getData =
         resp && Array.isArray(resp.data)
           ? resp.data.map((dt) => {
@@ -31,41 +34,50 @@ const ProductRestockConfirmationReceived = (props) => {
                 ...dt,
                 productRestockDetailId: dt.id,
                 reStockQuantity: dt.orderQuantity,
-                rejected: 0,
-                errRejected: '',
-                accepted: 0,
-                errAccepted: '',
-                reasonReject: '',
-                errReasonRejected: ''
+                rejected: +dt.rejected,
+                accepted: +dt.accepted,
+                received: 0,
+                errReceived: '',
+                cancelled: 0,
+                errCancelled: '',
+                reasonCancelled: '',
+                errReasonCancelled: '',
+                expiredDate: '',
+                errExpiredDate: '',
+                sku: '',
+                errSku: '',
+                image: '',
+                errImage: '',
+                imageOriginalName: ''
               };
             })
           : [];
-      setProductRestockApprovalData(getData);
+
+      setProductRestockConfirmationReceivedData(getData);
     });
   };
 
-  const onActionRestock = async (isAcceptedAll = 0, isRejectedAll = 0, reasonRejectAll = '') => {
-    await productRestockApproval({
+  const onActionRestock = async () => {
+    await productRestockConfirmReceive({
       id: props.id,
-      productRestocks: isAcceptedAll || isRejectedAll ? [] : productRestockConfirmationReceivedData,
-      isAcceptedAll,
-      isRejectedAll,
-      reasonRejectAll
+      productRestocks: productRestockConfirmationReceivedData.map((dt) => ({
+        productRestockDetailId: dt.productRestockDetailId,
+        accepted: dt.accepted,
+        received: dt.received,
+        canceled: dt.cancelled,
+        expiredDate: dt.expiredDate,
+        sku: dt.sku,
+        reasonCancel: dt.reasonCancelled,
+        imagePath: dt.image,
+        originalName: dt.imageOriginalName
+      })),
+      isFinished: restockFinished === 'yes' ? 1 : 0
     })
       .then((resp) => {
         if (resp && resp.status === 200) {
-          let msg = '';
-          if (isRejectedAll) {
-            msg = 'Reject all restock has been successfully';
-          } else if (isAcceptedAll) {
-            msg = 'Accepted all restock has been successfully';
-          } else {
-            msg = 'Submit product restock approval has been successfully';
-          }
+          let msg = 'Submit product restock confirmation received has been successfully';
 
           dispatch(snackbarSuccess(msg));
-          setIsDialogApprovalAll(false);
-          setIsDialogRejectAll(false);
           props.onClose(true);
         }
       })
@@ -74,47 +86,73 @@ const ProductRestockConfirmationReceived = (props) => {
       });
   };
 
-  const onApprovalAll = async (respConfirm) => {
-    if (respConfirm) {
-      onActionRestock(1);
-    } else {
-      setIsDialogApprovalAll(false);
-    }
-  };
-  const onRejectAll = (value) => onActionRestock(0, 1, value);
   const onSubmit = () => onActionRestock();
 
   const onFieldTableHandler = (idxRow, key, e) => {
-    setProductRestockApprovalData((prevState) => {
+    setProductRestockConfirmationReceivedData((prevState) => {
       const newData = [...prevState];
-      newData[idxRow][key] = key == 'reasonReject' ? e.target.value : +e.target.value;
+
+      if (['reasonCancelled', 'expiredDate', 'sku'].includes(key)) {
+        newData[idxRow][key] = e.target.value;
+      } else if (key == 'image') {
+        const file = e.target.files?.[0];
+        newData[idxRow]['imageOriginalName'] = file.name;
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result;
+          newData[idxRow][key] = base64String;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        newData[idxRow][key] = +e.target.value;
+      }
 
       let isErrTable = false;
 
       newData.forEach((dt) => {
-        dt.errReasonRejected = '';
-        dt.errRejected = '';
-        dt.errAccepted = '';
+        dt.errReasonCancelled = '';
+        dt.errCancelled = '';
+        dt.errReceived = '';
+        dt.errExpiredDate = '';
+        dt.errSku = '';
+        dt.errImage = '';
 
-        if (dt.rejected && !dt.reasonReject) {
-          dt.errReasonRejected = 'harus di isi';
+        if (dt.cancelled && !dt.reasonCancelled) {
+          dt.errReasonCancelled = 'harus di isi';
           isErrTable = true;
         }
 
-        if (dt.rejected) {
-          const diff = dt.reStockQuantity - dt.rejected;
-          if (dt.accepted != diff) {
-            dt.errAccepted = `harus di isi ${diff}`;
+        if (dt.cancelled) {
+          const diff = dt.accepted - dt.cancelled;
+          if (dt.received != diff) {
+            dt.errReceived = `harus di isi ${diff}`;
             isErrTable = true;
           }
         }
 
-        if (dt.accepted) {
-          const diff = dt.reStockQuantity - dt.accepted;
-          if (dt.rejected != diff) {
-            dt.errRejected = `harus di isi ${diff}`;
+        if (dt.received) {
+          const diff = dt.accepted - dt.received;
+          if (dt.cancelled != diff) {
+            dt.errCancelled = `harus di isi ${diff}`;
             isErrTable = true;
           }
+        }
+
+        if (!dt.expiredDate) {
+          dt.errExpiredDate = 'harus di isi';
+          isErrTable = true;
+        }
+
+        if (!dt.sku) {
+          dt.errSku = 'harus di isi';
+          isErrTable = true;
+        }
+
+        if (!dt.imageOriginalName) {
+          dt.errImage = 'harus di isi';
+          isErrTable = true;
         }
       });
 
@@ -139,7 +177,8 @@ const ProductRestockConfirmationReceived = (props) => {
       {
         Header: <FormattedMessage id="unit-cost" />,
         accessor: 'unitCost',
-        isNotSorting: true
+        isNotSorting: true,
+        Cell: (data) => formatThousandSeparator(data.value)
       },
       {
         Header: <FormattedMessage id="order-quantity" />,
@@ -149,66 +188,149 @@ const ProductRestockConfirmationReceived = (props) => {
       {
         Header: <FormattedMessage id="rejected" />,
         accessor: 'rejected',
-        isNotSorting: true,
-        Cell: (data) => {
-          const reject = +data.row.original.rejected;
-          const errReject = data.row.original.errRejected;
-          const idx = data.row.index;
-          return (
-            <TextField
-              fullWidth
-              type="number"
-              id="rejected"
-              name="rejected"
-              value={reject}
-              onChange={(e) => onFieldTableHandler(idx, 'rejected', e)}
-              inputProps={{ min: 0 }}
-              error={Boolean(errReject && errReject.length > 0)}
-              helperText={errReject}
-            />
-          );
-        }
+        isNotSorting: true
       },
       {
         Header: <FormattedMessage id="accepted" />,
         accessor: 'accepted',
+        isNotSorting: true
+      },
+      {
+        Header: <FormattedMessage id="received" />,
+        accessor: 'received',
         isNotSorting: true,
         Cell: (data) => {
-          const accepted = +data.row.original.accepted;
-          const errAccepted = data.row.original.errAccepted;
+          const receive = +data.row.original.received;
+          const errReceive = data.row.original.errReceived;
           const idx = data.row.index;
           return (
             <TextField
               fullWidth
               type="number"
-              id="accepted"
-              name="accepted"
-              value={accepted}
-              onChange={(e) => onFieldTableHandler(idx, 'accepted', e)}
+              id="received"
+              name="received"
+              value={receive}
+              onChange={(e) => onFieldTableHandler(idx, 'received', e)}
               inputProps={{ min: 0 }}
-              error={Boolean(errAccepted && errAccepted.length > 0)}
-              helperText={errAccepted}
+              error={Boolean(errReceive && errReceive.length > 0)}
+              helperText={errReceive}
             />
           );
         }
       },
       {
-        Header: <FormattedMessage id="rejected-reason" />,
-        accessor: 'reasonReject',
+        Header: <FormattedMessage id="cancelled" />,
+        accessor: 'cancelled',
         isNotSorting: true,
         Cell: (data) => {
-          const reasonReject = data.row.original.reasonReject;
-          const errReasonRejected = data.row.original.errReasonRejected;
+          const cancelled = +data.row.original.cancelled;
+          const errCancelled = data.row.original.errCancelled;
           const idx = data.row.index;
           return (
             <TextField
               fullWidth
-              id="reasonReject"
-              name="reasonReject"
-              value={reasonReject}
-              onChange={(e) => onFieldTableHandler(idx, 'reasonReject', e)}
-              error={Boolean(errReasonRejected && errReasonRejected.length > 0)}
-              helperText={errReasonRejected}
+              type="number"
+              id="cancelled"
+              name="cancelled"
+              value={cancelled}
+              onChange={(e) => onFieldTableHandler(idx, 'cancelled', e)}
+              inputProps={{ min: 0 }}
+              error={Boolean(errCancelled && errCancelled.length > 0)}
+              helperText={errCancelled}
+            />
+          );
+        }
+      },
+      {
+        Header: <FormattedMessage id="cancelled-reason" />,
+        accessor: 'reasonCancelled',
+        isNotSorting: true,
+        Cell: (data) => {
+          const reasonCancelled = data.row.original.reasonCancelled;
+          const errReasonCancelled = data.row.original.errReasonCancelled;
+          const idx = data.row.index;
+          return (
+            <TextField
+              fullWidth
+              id="reasonCancelled"
+              name="reasonCancelled"
+              value={reasonCancelled}
+              onChange={(e) => onFieldTableHandler(idx, 'reasonCancelled', e)}
+              error={Boolean(errReasonCancelled && errReasonCancelled.length > 0)}
+              helperText={errReasonCancelled}
+            />
+          );
+        }
+      },
+      {
+        Header: <FormattedMessage id="expired-date" />,
+        accessor: 'expiredDate',
+        isNotSorting: true,
+        Cell: (data) => {
+          const expiredDate = data.row.original.expiredDate;
+          const errExpiredDate = data.row.original.errExpiredDate;
+          const idx = data.row.index;
+
+          return (
+            <TextField
+              fullWidth
+              id="expiredDate"
+              name="expiredDate"
+              type="date"
+              value={expiredDate}
+              onChange={(e) => onFieldTableHandler(idx, 'expiredDate', e)}
+              error={Boolean(errExpiredDate && errExpiredDate.length > 0)}
+              helperText={errExpiredDate}
+            />
+          );
+        }
+      },
+      {
+        Header: <FormattedMessage id="sku" />,
+        accessor: 'sku',
+        isNotSorting: true,
+        Cell: (data) => {
+          const sku = data.row.original.sku;
+          const errSku = data.row.original.errSku;
+          const idx = data.row.index;
+
+          return (
+            <TextField
+              fullWidth
+              type="text"
+              id="sku"
+              name="sku"
+              value={sku}
+              onChange={(e) => onFieldTableHandler(idx, 'sku', e)}
+              error={Boolean(errSku && errSku.length > 0)}
+              helperText={errSku}
+              sx={{
+                minWidth: '150px'
+              }}
+            />
+          );
+        }
+      },
+      {
+        Header: <FormattedMessage id="image" />,
+        accessor: 'image',
+        isNotSorting: true,
+        Cell: (data) => {
+          const errImage = data.row.original.errImage;
+          const idx = data.row.index;
+
+          return (
+            <TextField
+              fullWidth
+              type="file"
+              id="image"
+              name="image"
+              onChange={(e) => onFieldTableHandler(idx, 'image', e)}
+              error={Boolean(errImage && errImage.length > 0)}
+              helperText={errImage}
+              sx={{
+                minWidth: '150px'
+              }}
             />
           );
         }
@@ -233,32 +355,24 @@ const ProductRestockConfirmationReceived = (props) => {
         fullWidth
         maxWidth="xl"
       >
-        <Stack spacing={3}>
-          <Stack spacing={1} direction={matchDownSM ? 'column' : 'row'} style={{ width: matchDownSM ? '100%' : '' }}>
-            <Button variant="contained" onClick={() => setIsDialogApprovalAll(true)} color="success">
-              <FormattedMessage id="approve-all" />
-            </Button>
-            <Button variant="contained" onClick={() => setIsDialogRejectAll(true)} color="error">
-              <FormattedMessage id="reject-all" />
-            </Button>
-          </Stack>
-          <ReactTable columns={columns} data={productRestockConfirmationReceivedData} />
-        </Stack>
+        <Box display="flex" alignItems="center" gap={2}>
+          <FormControl>
+            <FormLabel
+              sx={{
+                fontSize: 14,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <FormattedMessage id="restock-finished" />
+            </FormLabel>
+          </FormControl>
+          <RadioGroup row value={restockFinished} onChange={handleChangeRestockFinished}>
+            <FormControlLabel value="yes" control={<Radio />} label={<FormattedMessage id="yes" />} />
+            <FormControlLabel value="no" control={<Radio />} label={<FormattedMessage id="no" />} />
+          </RadioGroup>
+        </Box>
+        <ReactTable columns={columns} data={productRestockConfirmationReceivedData} />
       </ModalC>
-      <ConfirmationC
-        open={isDialogApprovalAll}
-        title={<FormattedMessage id="approve-all" />}
-        content={<FormattedMessage id="are-you-sure-want-to-accept-all-product?" />}
-        onClose={(response) => onApprovalAll(response)}
-        btnTrueText="Ok"
-        btnFalseText="Cancel"
-      />
-      <FormReject
-        open={isDialogRejectAll}
-        title={<FormattedMessage id="confirmation-and-please-fill-in-the-reason-for-product-rejection" />}
-        onSubmit={(value) => onRejectAll(value)}
-        onClose={() => setIsDialogRejectAll(false)}
-      />
     </>
   );
 };

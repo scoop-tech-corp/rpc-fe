@@ -118,28 +118,30 @@ const ProductRestock = () => {
         return (
           <>
             <Stack spacing={1} flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-              <IconButton
-                size="large"
-                color="warning"
-                onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
-                disabled={isDisabled()}
-              >
-                <EditOutlined />
-              </IconButton>
+              {getStatus !== 5 && (
+                <IconButton
+                  size="large"
+                  color="warning"
+                  onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
+                  disabled={isDisabled()}
+                >
+                  <EditOutlined />
+                </IconButton>
+              )}
               {getStatus == 1 && ['administrator', 'office'].includes(user?.role) && (
                 <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
                   <ChecklistIcon />
                 </IconButton>
               )}
               {getStatus == 3 && (
-                <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                <Tooltip title={<FormattedMessage id="send-to-supplier" />} arrow>
                   <IconButton size="large" color="primary" onClick={() => setDialogSend({ isOpen: true, id: getId })}>
                     <SendIcon />
                   </IconButton>
                 </Tooltip>
               )}
               {getStatus == 4 && (
-                <Tooltip title={<FormattedMessage id="send-to-supplier" />} arrow>
+                <Tooltip title={<FormattedMessage id="confirm-received" />} arrow>
                   <IconButton size="large" color="primary" onClick={() => setOpenConfirmationReceived({ isOpen: true, id: getId })}>
                     <DomainVerificationIcon />
                   </IconButton>
