@@ -127,6 +127,15 @@ export const productRestockApproval = async (property) => {
   return await axios.post(productRestockUrl + '/approval', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const productRestockConfirmReceive = async (propery) => {
+  const fd = new FormData();
+  fd.append('productRestockId', propery.id);
+  fd.append('productRestocks', JSON.stringify(propery.productRestocks));
+  fd.append('isFinished', propery.isFinished);
+
+  return await axios.post(productRestockUrl + '/receive', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
 export const productRestockSendSupplier = async (productRestockId) => {
   const fd = new FormData();
   fd.append('productRestockId', productRestockId);
