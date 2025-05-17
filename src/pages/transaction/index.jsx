@@ -1,5 +1,14 @@
 import { FormattedMessage, useIntl } from 'react-intl';
-import { deleteTransaction, exportTransaction, getTransactionIndex, TabList, TransactionType } from './service';
+import {
+  deletePetShopTransaction,
+  deleteTransaction,
+  exportPetShopTransaction,
+  exportTransaction,
+  getPetShopTransactionIndex,
+  getTransactionIndex,
+  TabList,
+  TransactionType
+} from './service';
 import { Button, Stack, Box, Tab, Tabs, Autocomplete, TextField, Grid, Link, Tooltip } from '@mui/material'; // useMediaQuery
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -16,7 +25,7 @@ import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useNavigation, useSearchParams } from 'react-router-dom';
 
 import MainCard from 'components/MainCard';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -39,10 +48,14 @@ const Transaction = (props) => {
   const { type } = props;
   const { user } = useAuth();
   let [searchParams, setSearchParams] = useSearchParams();
-  const tabQueryParam = searchParams.get('tab') || 'ongoing';
+  const tabQueryParam = useMemo(() => {
+    if (type !== 'pet-shop') {
+      return searchParams.get('tab') || 'ongoing';
+    }
+  }, [searchParams, type]);
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
-    getTransactionIndex,
+    type === 'pet-shop' ? getPetShopTransactionIndex : getTransactionIndex,
     { status: tabQueryParam, locationId: [], customerGroupId: [], serviceCategories: [TransactionType[type]] },
     'search'
   );
@@ -63,39 +76,70 @@ const Transaction = (props) => {
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const navigate = useNavigate();
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
   };
 
+  const onClickCreatePetShopTransaction = () => {
+    navigate('/transaction/pet-shop/create');
+  };
+
   const onConfirm = async (value) => {
     if (value) {
-      await deleteTransaction(selectedRow)
-        .then((resp) => {
-          if (resp.status === 200) {
-            setDialog(false);
-            dispatch(snackbarSuccess('Success Delete Transaction'));
-            setParams((_params) => ({ ..._params }));
-          }
-        })
-        .catch((err) => {
-          if (err) {
-            dispatch(snackbarError(createMessageBackend(err)));
-          }
-        });
+      if (type === 'pet-shop') {
+        await deletePetShopTransaction(selectedRow)
+          .then((resp) => {
+            if (resp.status === 200) {
+              setDialog(false);
+              dispatch(snackbarSuccess('Success Delete Transaction'));
+              setParams((_params) => ({ ..._params }));
+            }
+          })
+          .catch((err) => {
+            if (err) {
+              dispatch(snackbarError(createMessageBackend(err)));
+            }
+          });
+      } else {
+        await deleteTransaction(selectedRow)
+          .then((resp) => {
+            if (resp.status === 200) {
+              setDialog(false);
+              dispatch(snackbarSuccess('Success Delete Transaction'));
+              setParams((_params) => ({ ..._params }));
+            }
+          })
+          .catch((err) => {
+            if (err) {
+              dispatch(snackbarError(createMessageBackend(err)));
+            }
+          });
+      }
     } else {
       setDialog(false);
     }
   };
 
   const onExport = async () => {
-    await exportTransaction(params)
-      .then(processDownloadExcel)
-      .catch((err) => {
-        if (err) {
-          dispatch(snackbarError(createMessageBackend(err)));
-        }
-      });
+    if (type === 'pet-shop') {
+      await exportPetShopTransaction()
+        .then(processDownloadExcel)
+        .catch((err) => {
+          if (err) {
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else {
+      await exportTransaction(params)
+        .then(processDownloadExcel)
+        .catch((err) => {
+          if (err) {
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    }
   };
 
   const getDataDropdown = async () => {
@@ -113,8 +157,10 @@ const Transaction = (props) => {
   };
 
   useEffect(() => {
-    setSearchParams({ tab: tabQueryParam });
-    setTabSelected(TabList[tabQueryParam]);
+    if (type !== 'pet-shop') {
+      setSearchParams({ tab: tabQueryParam });
+      setTabSelected(TabList[tabQueryParam]);
+    }
 
     getDataDropdown();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,56 +193,101 @@ const Transaction = (props) => {
   };
 
   const columnServiceCategory = () => {
-    return !['pet-salon', 'pet-clinic'].includes(type)
+    return !['pet-salon', 'pet-clinic', 'pet-shop'].includes(type)
       ? [{ Header: <FormattedMessage id="service-category" />, accessor: 'serviceCategory' }]
       : [];
+  };
+
+  const columnAction = () => {
+    return !['pet-shop'].includes(type)
+      ? [
+          {
+            Header: <FormattedMessage id="action" />,
+            accessor: 'action',
+            style: { textAlign: 'center' },
+            isNotSorting: true,
+            Cell: (data) => {
+              const statusRow = data.row.original.status;
+              const isPetCheckRow = +data.row.original.isPetCheck;
+              const transactionIdRow = +data.row.original.id;
+
+              const doReassign = async () => {
+                const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
+                setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
+              };
+
+              return (
+                <Stack spacing={0.1} direction={'row'} justifyContent="center">
+                  {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'ditolak dokter' && (
+                    <Tooltip title={'Reassign'} arrow>
+                      <IconButton size="large" color="success" onClick={doReassign}>
+                        <RefreshIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+
+                  {Boolean(isPetCheckRow) && (
+                    <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
+                      <IconButton
+                        size="large"
+                        color="success"
+                        onClick={() => {
+                          setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                        }}
+                      >
+                        <ChecklistIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Stack>
+              );
+            }
+          }
+        ]
+      : [];
+  };
+
+  const columnStartEndDate = () => {
+    return !['pet-shop'].includes(type)
+      ? [
+          { Header: <FormattedMessage id="start-date" />, accessor: 'startDate' },
+          { Header: <FormattedMessage id="end-date" />, accessor: 'endDate' }
+        ]
+      : [];
+  };
+
+  const columnStatus = () => {
+    return !['pet-shop'].includes(type) ? [{ Header: 'Status', accessor: 'status' }] : [];
+  };
+
+  const columnPicDoctor = () => {
+    return !['pet-shop'].includes(type) ? [{ Header: 'PIC Dokter', accessor: 'picDoctor' }] : [];
+  };
+
+  const columnBranch = () => {
+    return ['pet-shop'].includes(type) ? [{ Header: <FormattedMessage id="branch" />, accessor: 'locationName' }] : [];
+  };
+
+  const columnTotalItem = () => {
+    return ['pet-shop'].includes(type) ? [{ Header: <FormattedMessage id="total-item" />, accessor: 'totalItem' }] : [];
+  };
+
+  const columnTotalUsePromo = () => {
+    return ['pet-shop'].includes(type) ? [{ Header: <FormattedMessage id="total-use-promo" />, accessor: 'totalUsePromo' }] : [];
+  };
+
+  const columnAmountTransaction = () => {
+    return ['pet-shop'].includes(type) ? [{ Header: <FormattedMessage id="amount-transaction" />, accessor: 'totalAmount' }] : [];
+  };
+
+  const columnCustomerName = () => {
+    return [{ Header: <FormattedMessage id="customer-name" />, accessor: ['pet-shop'].includes(type) ? 'customerName' : 'firstName' }];
   };
 
   const columns = useMemo(
     () => [
       ...columnCheckbox(),
-      {
-        Header: <FormattedMessage id="action" />,
-        accessor: 'action',
-        style: { textAlign: 'center' },
-        isNotSorting: true,
-        Cell: (data) => {
-          const statusRow = data.row.original.status;
-          const isPetCheckRow = +data.row.original.isPetCheck;
-          const transactionIdRow = +data.row.original.id;
-
-          const doReassign = async () => {
-            const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
-            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
-          };
-
-          return (
-            <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'ditolak dokter' && (
-                <Tooltip title={'Reassign'} arrow>
-                  <IconButton size="large" color="success" onClick={doReassign}>
-                    <RefreshIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-
-              {Boolean(isPetCheckRow) && (
-                <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
-                  <IconButton
-                    size="large"
-                    color="success"
-                    onClick={() => {
-                      setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
-                    }}
-                  >
-                    <ChecklistIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Stack>
-          );
-        }
-      },
+      ...columnAction(),
       {
         Header: <FormattedMessage id="registration-no" />,
         accessor: 'registrationNo',
@@ -214,13 +305,16 @@ const Transaction = (props) => {
           );
         }
       },
-      { Header: <FormattedMessage id="customer-name" />, accessor: 'firstName' },
+      ...columnBranch(),
+      ...columnCustomerName(),
       ...columnCustomerGroup(),
+      ...columnTotalItem(),
+      ...columnTotalUsePromo(),
+      ...columnAmountTransaction(),
       ...columnServiceCategory(),
-      { Header: <FormattedMessage id="start-date" />, accessor: 'startDate' },
-      { Header: <FormattedMessage id="end-date" />, accessor: 'endDate' },
-      { Header: 'Status', accessor: 'status' },
-      { Header: 'PIC Dokter', accessor: 'picDoctor' },
+      ...columnStartEndDate(),
+      ...columnStatus(),
+      ...columnPicDoctor(),
       { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' }
     ],
@@ -315,6 +409,11 @@ const Transaction = (props) => {
                     <FormattedMessage id="transaction" />
                   </Button>
                 )}
+                {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && type === 'pet-shop' && (
+                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickCreatePetShopTransaction}>
+                    <FormattedMessage id="transaction" />
+                  </Button>
+                )}
               </Stack>
               {selectedRow.length > 0 && (
                 <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
@@ -333,25 +432,28 @@ const Transaction = (props) => {
           </Grid>
         </Grid>
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <Tabs
-            value={tabSelected}
-            onChange={(_, value) => {
-              const tabs = ['ongoing', 'finished'];
-              setSearchParams({ tab: tabs[value] });
+        {/* Hide tab for pet shop */}
+        {type !== 'pet-shop' && (
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
+            <Tabs
+              value={tabSelected}
+              onChange={(_, value) => {
+                const tabs = ['ongoing', 'finished'];
+                setSearchParams({ tab: tabs[value] });
 
-              setTabSelected(value);
-              setSelectedRow([]);
-              setParams((prevParams) => ({ ...prevParams, status: tabs[value] }));
-            }}
-            variant="scrollable"
-            scrollButtons="auto"
-            aria-label="transaction list tab"
-          >
-            <Tab label={<FormattedMessage id="ongoing" />} id="transaction-list-tab-0" aria-controls="transaction-list-tabpanel-0" />
-            <Tab label={<FormattedMessage id="finished" />} id="transaction-list-tab-1" aria-controls="transaction-list-tabpanel-1" />
-          </Tabs>
-        </Box>
+                setTabSelected(value);
+                setSelectedRow([]);
+                setParams((prevParams) => ({ ...prevParams, status: tabs[value] }));
+              }}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="transaction list tab"
+            >
+              <Tab label={<FormattedMessage id="ongoing" />} id="transaction-list-tab-0" aria-controls="transaction-list-tabpanel-0" />
+              <Tab label={<FormattedMessage id="finished" />} id="transaction-list-tab-1" aria-controls="transaction-list-tabpanel-1" />
+            </Tabs>
+          </Box>
+        )}
         <Box sx={{ mt: 2.5 }}>
           <TabPanel value={tabSelected} index={0} name="transaction-list">
             {renderContent()}
