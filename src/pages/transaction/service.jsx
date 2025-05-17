@@ -132,32 +132,6 @@ export const createTransaction = async (payload) => {
 };
 
 export const createPetShopTransaction = async (payload) => {
-  // {
-  //   "isNewCustomer": false,
-  //   "customerId": 9,
-  //   "registrant": "Kasir Yusuf",
-  //   "locationId": 11,
-  //   "serviceCategory": "Pet Shop",
-  //   "notes": "Demam Tinggi",
-  //   "paymentMethod":1,
-  //   "productList": [
-  //     {
-  //       "productId": 2,
-  //       "quantity": 4,
-  //       "price": 25000,
-  //       "note": "Test",
-  //       "promoId": null
-  //     },
-  //     {
-  //       "productId": 3,
-  //       "quantity": 4,
-  //       "price": 35000,
-  //       "note": "www",
-  //       "promoId": null
-  //     }
-  //   ]
-  // }
-
   return await axios.post('transaction/petshop', {
     isNewCustomer: false,
     customerId: payload.customerId,
