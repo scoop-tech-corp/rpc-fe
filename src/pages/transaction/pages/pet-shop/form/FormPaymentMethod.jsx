@@ -7,7 +7,7 @@ import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 
 import { createPaymentMethod } from 'pages/transaction/service';
 import PropTypes from 'prop-types';
-import ModalC from './ModalC';
+import ModalC from '../../../../../components/ModalC';
 
 const FormPaymentMethod = (props) => {
   const [paymentMethod, setPaymentMethod] = useState('');

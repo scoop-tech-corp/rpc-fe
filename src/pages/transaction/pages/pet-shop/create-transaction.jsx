@@ -3,7 +3,6 @@ import { Autocomplete, Box, Button, FormControl, Grid, InputLabel, MenuItem, Sel
 import ErrorContainer from 'components/@extended/ErrorContainer';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
-import FormPaymentMethod from 'components/FormPaymentMethod';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import MainCard from 'components/MainCard';
 import ModalC from 'components/ModalC';
@@ -24,6 +23,7 @@ import { createMessageBackend, getCustomerByLocationList } from 'service/service
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { formatThousandSeparator, jsonCentralized } from 'utils/func';
 import { create } from 'zustand';
+import FormPaymentMethod from './form/FormPaymentMethod';
 
 const CONSTANT_FORM_VALUE = {
   customer: '',
