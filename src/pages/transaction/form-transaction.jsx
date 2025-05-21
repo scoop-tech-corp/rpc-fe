@@ -31,10 +31,10 @@ import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { create } from 'zustand';
 import { jsonCentralized } from 'utils/func';
+import { createTransactionPetClinic } from './pages/pet-clinic/service';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
-import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
 import FormPet from './form-pet';
 import ErrorContainer from 'components/@extended/ErrorContainer';
@@ -61,6 +61,7 @@ const CONSTANT_FORM_VALUE = {
   registrantName: '',
   pets: null, // hewan peliharaan,
   configTransaction: '',
+  typeOfCare: '',
   startDate: null,
   endDate: null,
   treatingDoctor: null,
@@ -107,7 +108,19 @@ const FormTransaction = (props) => {
         .then(responseSuccess)
         .catch(responseError);
     } else {
-      await createTransaction(formValue).then(responseSuccess).catch(responseError);
+      try {
+        const apiCall = formValue.configTransaction === 'clinic' ? createTransactionPetClinic : createTransaction;
+        const response = await apiCall(formValue);
+        responseSuccess(response);
+      } catch (error) {
+        responseError(error);
+      }
+
+      // if (formValue.configTransaction === 'clinic') {
+      //   await createTransactionPetClinic(formValue).then(responseSuccess).catch(responseError);
+      // } else {
+      //   await createTransaction(formValue).then(responseSuccess).catch(responseError);
+      // }
     }
   };
   const clearForm = () => setFormValue((prevState) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prevState.configTransaction }));
@@ -636,90 +649,198 @@ const FormTransaction = (props) => {
             </>
           )}
 
-          <Grid item xs={12}>
-            <MainCard title={<FormattedMessage id="type-category" />}>
-              <Grid container spacing={3}>
-                {['hotel', 'pacak', 'clinic'].includes(formValue.configTransaction) && (
-                  <>
-                    <Grid item xs={12}>
-                      <Stack spacing={1}>
-                        <InputLabel htmlFor="start-date">
-                          <FormattedMessage id="start-date" />
-                        </InputLabel>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DesktopDatePicker
-                            inputFormat="DD/MM/YYYY"
-                            value={formValue.startDate}
-                            onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </LocalizationProvider>
-                      </Stack>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Stack spacing={1}>
-                        <InputLabel htmlFor="end-date">
-                          <FormattedMessage id="end-date" />
-                        </InputLabel>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DesktopDatePicker
-                            inputFormat="DD/MM/YYYY"
-                            value={formValue.endDate}
-                            onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </LocalizationProvider>
-                      </Stack>
-                    </Grid>
-                  </>
-                )}
-
-                <Grid item xs={12}>
-                  <Stack spacing={1}>
-                    <InputLabel htmlFor="treating-doctor">
-                      <FormattedMessage id="treating-doctor" />
-                    </InputLabel>
-                    <Autocomplete
-                      id="treating-doctor"
-                      options={getDropdownAll().doctorList}
-                      value={formValue.treatingDoctor}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, selected) => {
-                        setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }));
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          // error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
-                          // helperText={dt.error.countryErr}
-                          // variant="outlined"
-                        />
-                      )}
+          {['hotel', 'pacak', 'clinic'].includes(formValue.configTransaction) && (
+            <>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="start-date">
+                    <FormattedMessage id="start-date" />
+                  </InputLabel>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DesktopDatePicker
+                      inputFormat="DD/MM/YYYY"
+                      value={formValue.startDate}
+                      onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
+                      renderInput={(params) => <TextField {...params} />}
                     />
-                  </Stack>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Stack spacing={1}>
-                    <InputLabel>
-                      <FormattedMessage id="notes" />
-                    </InputLabel>
-                    <TextField
-                      multiline
-                      fullWidth
-                      rows={5}
-                      id="notes"
-                      name="notes"
-                      value={formValue.notes}
-                      onChange={(event) => {
-                        setFormValue((prevState) => ({ ...prevState, notes: event.target.value }));
-                      }}
-                    />
-                  </Stack>
-                </Grid>
+                  </LocalizationProvider>
+                </Stack>
               </Grid>
-            </MainCard>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="end-date">
+                    <FormattedMessage id="end-date" />
+                  </InputLabel>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DesktopDatePicker
+                      inputFormat="DD/MM/YYYY"
+                      value={formValue.endDate}
+                      onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </LocalizationProvider>
+                </Stack>
+              </Grid>
+            </>
+          )}
+
+          {['clinic'].includes(formValue.configTransaction) && (
+            <Grid item xs={12}>
+              <Stack spacing={1}>
+                <InputLabel>
+                  <FormattedMessage id="type-of-care" />
+                </InputLabel>
+                <FormControl style={{ width: '100%' }}>
+                  <Select
+                    id="typeOfCare"
+                    name="typeOfCare"
+                    value={formValue.typeOfCare}
+                    onChange={(event) => onFieldHandler(event)}
+                    placeholder="Select type"
+                  >
+                    <MenuItem value="">
+                      <em>
+                        <FormattedMessage id="select-type" />
+                      </em>
+                    </MenuItem>
+                    <MenuItem value={1}>
+                      <FormattedMessage id="outpatient-care" />
+                    </MenuItem>
+                    <MenuItem value={2}>
+                      <FormattedMessage id="inpatient-care" />
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
+            </Grid>
+          )}
+
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel htmlFor="treating-doctor">
+                <FormattedMessage id="treating-doctor" />
+              </InputLabel>
+              <Autocomplete
+                id="treating-doctor"
+                options={getDropdownAll().doctorList}
+                value={formValue.treatingDoctor}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, selected) => {
+                  setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }));
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    // error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
+                    // helperText={dt.error.countryErr}
+                    // variant="outlined"
+                  />
+                )}
+              />
+            </Stack>
           </Grid>
+
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="notes" />
+              </InputLabel>
+              <TextField
+                multiline
+                fullWidth
+                rows={5}
+                id="notes"
+                name="notes"
+                value={formValue.notes}
+                onChange={(event) => {
+                  setFormValue((prevState) => ({ ...prevState, notes: event.target.value }));
+                }}
+              />
+            </Stack>
+          </Grid>
+
+          {/* <Grid item xs={12}> */}
+          {/* <Grid container spacing={3}> */}
+          {/* {['hotel', 'pacak', 'clinic'].includes(formValue.configTransaction) && (
+                <>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="start-date">
+                        <FormattedMessage id="start-date" />
+                      </InputLabel>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDatePicker
+                          inputFormat="DD/MM/YYYY"
+                          value={formValue.startDate}
+                          onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </LocalizationProvider>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="end-date">
+                        <FormattedMessage id="end-date" />
+                      </InputLabel>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDatePicker
+                          inputFormat="DD/MM/YYYY"
+                          value={formValue.endDate}
+                          onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </LocalizationProvider>
+                    </Stack>
+                  </Grid>
+                </>
+                )} */}
+
+          {/* <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="treating-doctor">
+                    <FormattedMessage id="treating-doctor" />
+                  </InputLabel>
+                  <Autocomplete
+                    id="treating-doctor"
+                    options={getDropdownAll().doctorList}
+                    value={formValue.treatingDoctor}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, selected) => {
+                      setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }));
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        // error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
+                        // helperText={dt.error.countryErr}
+                        // variant="outlined"
+                      />
+                    )}
+                  />
+                </Stack> */}
+          {/* </Grid> */}
+
+          {/* <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel>
+                    <FormattedMessage id="notes" />
+                  </InputLabel>
+                  <TextField
+                    multiline
+                    fullWidth
+                    rows={5}
+                    id="notes"
+                    name="notes"
+                    value={formValue.notes}
+                    onChange={(event) => {
+                      setFormValue((prevState) => ({ ...prevState, notes: event.target.value }));
+                    }}
+                  />
+                </Stack>
+              </Grid> */}
+          {/* </Grid> */}
+          {/* </Grid> */}
         </Grid>
       </ModalC>
 
@@ -759,8 +880,9 @@ const FormTransaction = (props) => {
 };
 
 FormTransaction.propTypes = {
+  id: PropTypes.number,
   open: PropTypes.bool,
-  data: PropTypes.object,
+  type: PropTypes.string,
   onClose: PropTypes.func
 };
 
