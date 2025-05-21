@@ -21,9 +21,11 @@ import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import SendIcon from '@mui/icons-material/Send';
+import DomainVerificationIcon from '@mui/icons-material/DomainVerification';
 import ProductRestockDetail from './detail';
 import useAuth from 'hooks/useAuth';
 import ProductRestockApproval from './approval';
+import ProductRestockConfirmationReceived from './confirmation-received';
 
 let paramProductRestockList = {};
 
@@ -47,6 +49,7 @@ const ProductRestock = () => {
   const [dialog, setDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState({ isOpen: false, id: null });
   const [openApprove, setOpenApprove] = useState({ isOpen: false, id: null });
+  const [openConfirmationReceived, setOpenConfirmationReceived] = useState({ isOpen: false, id: null });
   const [dialogSend, setDialogSend] = useState({ isOpen: false, id: null });
 
   const allColumn = [
@@ -91,7 +94,7 @@ const ProductRestock = () => {
           case 4:
             return <Chip color="default" label={<FormattedMessage id="send-to-supplier" />} size="small" variant="light" />;
           case 5:
-            return <Chip label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
+            return <Chip color="primary" label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
         }
       }
     },
@@ -107,28 +110,40 @@ const ProductRestock = () => {
         const getStatus = +data.row.original.status;
         const getNumberId = data.row.original.numberId;
 
-        const isDisabled = () => Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
+        const isDisabled = () => {
+          if (['administrator'].includes(user?.role)) return false;
+          return Boolean(getStatus !== 0 && getNumberId.toLowerCase() !== 'draft');
+        };
 
         return (
           <>
             <Stack spacing={1} flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-              <IconButton
-                size="large"
-                color="warning"
-                onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
-                disabled={isDisabled()}
-              >
-                <EditOutlined />
-              </IconButton>
+              {getStatus !== 5 && (
+                <IconButton
+                  size="large"
+                  color="warning"
+                  onClick={() => navigate(`/product/restock/form/${getId}`, { replace: true })}
+                  disabled={isDisabled()}
+                >
+                  <EditOutlined />
+                </IconButton>
+              )}
               {getStatus == 1 && ['administrator', 'office'].includes(user?.role) && (
                 <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
                   <ChecklistIcon />
                 </IconButton>
               )}
               {getStatus == 3 && (
-                <Tooltip title={<FormattedMessage id="approved" />} arrow>
+                <Tooltip title={<FormattedMessage id="send-to-supplier" />} arrow>
                   <IconButton size="large" color="primary" onClick={() => setDialogSend({ isOpen: true, id: getId })}>
                     <SendIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {getStatus == 4 && (
+                <Tooltip title={<FormattedMessage id="confirm-received" />} arrow>
+                  <IconButton size="large" color="primary" onClick={() => setOpenConfirmationReceived({ isOpen: true, id: getId })}>
+                    <DomainVerificationIcon />
                   </IconButton>
                 </Tooltip>
               )}
@@ -408,6 +423,16 @@ const ProductRestock = () => {
           id={openApprove.id}
           onClose={(resp) => {
             setOpenApprove({ isOpen: false, id: null });
+            if (resp) fetchData();
+          }}
+        />
+      )}
+      {openConfirmationReceived.isOpen && (
+        <ProductRestockConfirmationReceived
+          open={openConfirmationReceived.isOpen}
+          id={openConfirmationReceived.id}
+          onClose={(resp) => {
+            setOpenConfirmationReceived({ isOpen: false, id: null });
             if (resp) fetchData();
           }}
         />
