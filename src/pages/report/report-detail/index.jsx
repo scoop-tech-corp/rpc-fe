@@ -1,22 +1,22 @@
+import { ExportOutlined } from '@ant-design/icons';
 import { Button, Stack } from '@mui/material';
+import { getTypeIdList } from 'pages/customer/service';
 import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ExportOutlined } from '@ant-design/icons';
-import {
-  getLocationList,
-  getStaffList,
-  getServiceList,
-  getCustomerGroupList,
-  createMessageBackend,
-  processDownloadExcel,
-  getPaymentMethodList,
-  getStaffJobTitleList
-} from 'service/service-global';
-import { useSearchParams } from 'react-router-dom';
-import { getTypeIdList } from 'pages/customer/service';
 import { useDispatch } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
+import {
+  createMessageBackend,
+  getCustomerGroupList,
+  getLocationList,
+  getServiceList,
+  getStaffJobTitleList,
+  getStaffList,
+  processDownloadExcel
+} from 'service/service-global';
 import { snackbarError } from 'store/reducers/snackbar';
 import {
+  exportReportBookingByDiagnosisSpeciesGender,
   exportReportCustomerGrowth,
   exportReportCustomerGrowthGroup,
   exportReportCustomerLeaving,
@@ -26,23 +26,27 @@ import {
   exportReportCustomerTotal,
   exportReportDepositList,
   exportReportDepositSummary,
+  exportReportExpensesList,
+  exportReportExpensesSummary,
   exportReportProductsCost,
   exportReportProductsLowStock,
   exportReportProductsNoStock,
+  exportReportProductsReminders,
   exportReportProductsStockCount,
   exportReportSalesByProduct,
   exportReportSalesByService,
   exportReportSalesDailyAudit,
   exportReportSalesDetails,
   exportReportSalesItems,
-  exportReportSalesNetIncome,
   exportReportSalesPaymentList,
+  exportReportSalesStaffServiceSales,
   exportReportSalesSummary,
   exportReportSalesUnpaid,
   exportReportStaffLate,
   exportReportStaffLeave,
   exportReportStaffLogin,
   exportReportStaffPerformance,
+  getReportBookingByDiagnosisSpeciesGender,
   getReportCustomerGrowth,
   getReportCustomerGrowthGroup,
   getReportCustomerLeaving,
@@ -52,9 +56,12 @@ import {
   getReportCustomerTotal,
   getReportDepositList,
   getReportDepositSummary,
+  getReportExpensesList,
+  getReportExpensesSummary,
   getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsNoStock,
+  getReportProductsReminders,
   getReportProductsStockCount,
   getReportSalesByProduct,
   getReportSalesByService,
@@ -65,6 +72,7 @@ import {
   getReportSalesNetIncome,
   getReportSalesPaymentList,
   getReportSalesPaymentSummary,
+  getReportSalesStaffServiceSales,
   getReportSalesSummary,
   getReportSalesUnpaid,
   getReportStaffLate,
@@ -73,50 +81,56 @@ import {
   getReportStaffPerformance
 } from '../service';
 
-import useAuth from 'hooks/useAuth';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import useAuth from 'hooks/useAuth';
+import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
 import FilterBooking from './filter/bookings';
+import FilterCustomer from './filter/customer';
+import FilterDeposit from './filter/deposit';
+import FilterProducts from './filter/products';
+import FilterSales from './filter/sales';
+import FilterStaff from './filter/staff';
+import SalesByProduct from './sales/by-product';
+import SalesByService from './sales/by-service';
+import SalesDailyAudit from './sales/daily-audit';
+import SalesDetails from './sales/details';
+import SalesDiscountSummary from './sales/discount-summary';
+import SalesItems from './sales/items';
+import SalesNetIncome from './sales/net-income';
+import SalesPaymentList from './sales/payment-list';
+import SalesPaymentSummary from './sales/payment-summary';
+import SalesSummary from './sales/summary';
+import SalesUnpaid from './sales/unpaid';
+import BookingByCancelationReason from './section/bookings/by-cancelation-reason';
+import BookingByDiagnosisList from './section/bookings/by-diagnosis-list';
+import BookingByList from './section/bookings/by-list';
 import BookingByLocation from './section/bookings/by-location';
 import BookingByStatus from './section/bookings/by-status';
-import BookingByCancelationReason from './section/bookings/by-cancelation-reason';
-import BookingByList from './section/bookings/by-list';
-import BookingByDiagnosisList from './section/bookings/by-diagnosis-list';
-import FilterCustomer from './filter/customer';
-import CustomerGrowth from './section/customer/growth';
 import CustomerGrowthByGroup from './section/customer/growt-by-group';
-import CustomerTotal from './section/customer/total';
+import CustomerGrowth from './section/customer/growth';
 import CustomerLeaving from './section/customer/leaving';
 import CustomerList from './section/customer/list';
 import CustomerReferralSpend from './section/customer/referral-spend';
 import CustomerSubAccountList from './section/customer/sub-account-list';
-import FilterStaff from './filter/staff';
-import StaffLogin from './section/staff/login';
-import StaffLate from './section/staff/late';
-import StaffLeave from './section/staff/leave';
-import StaffPerformance from './section/staff/performance';
-import { getBrandList, getSupplierList } from 'pages/product/product-list/service';
-import FilterProducts from './filter/products';
-import ProductsStockCount from './section/products/stock-count';
-import ProductsLowStock from './section/products/low-stock';
-import ProductsCost from './section/products/cost';
-import ProductsNoStock from './section/products/no-stock ';
-import FilterDeposit from './filter/deposit';
+import CustomerTotal from './section/customer/total';
 import DepositList from './section/deposit/list';
 import DepositSummary from './section/deposit/summary';
-import FilterSales from './filter/sales';
-import SalesSummary from './sales/summary';
-import SalesItems from './sales/items';
-import SalesByService from './sales/by-service';
-import SalesByProduct from './sales/by-product';
-import SalesPaymentList from './sales/payment-list';
-import SalesUnpaid from './sales/unpaid';
-import SalesNetIncome from './sales/net-income';
-import SalesDiscountSummary from './sales/discount-summary';
-import SalesPaymentSummary from './sales/payment-summary';
-import SalesDailyAudit from './sales/daily-audit';
-import SalesDetails from './sales/details';
+import ProductsCost from './section/products/cost';
+import ProductsLowStock from './section/products/low-stock';
+import ProductsNoStock from './section/products/no-stock ';
+import ProductsReminders from './section/products/reminders';
+import ProductsStockCount from './section/products/stock-count';
+import StaffLate from './section/staff/late';
+import StaffLeave from './section/staff/leave';
+import StaffLogin from './section/staff/login';
+import StaffPerformance from './section/staff/performance';
+import BookingByDiagnosisSpeciesGender from './section/bookings/by-diagnosis-species-gender';
+import FilterExpenses from './filter/expenses';
+import ExpensesList from './section/expenses/list';
+import ExpensesSummary from './section/expenses/summary';
+import SalesStaffServiceSales from './sales/staff-service-sales';
 
 export default function Index() {
   let [searchParams] = useSearchParams();
@@ -133,7 +147,23 @@ export default function Index() {
   });
 
   const [filter, setFilter] = useState(() => {
-    if (type === 'booking') return { location: [], staff: [], service: [], category: [], facility: [], date: '' };
+    if (type === 'booking') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        location: [],
+        staff: [],
+        service: [],
+        category: [],
+        facility: [],
+        gender: [],
+        diagnose: [],
+        species: []
+      };
+    }
     if (type === 'customer') {
       return {
         orderValue: '',
@@ -182,7 +212,8 @@ export default function Index() {
         search: '',
         brand: [],
         supplier: [],
-        location: []
+        location: [],
+        customer: []
       };
     }
 
@@ -211,12 +242,32 @@ export default function Index() {
         status: [],
         payment: [],
         staff: [],
+        service: [],
         itemType: [],
         productCategory: [],
         category: [],
         method: [],
         customer: [],
         invoiceCategory: []
+      };
+    }
+
+    if (type === 'expenses') {
+      return {
+        orderValue: '',
+        orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
+        date: '',
+        search: '',
+        location: [],
+        payment: [],
+        status: [],
+        staff: [],
+        submiter: [],
+        supplier: [],
+        recipient: [],
+        category: []
       };
     }
   });
@@ -239,6 +290,7 @@ export default function Index() {
     if (type === 'products') getPrepareDataForProducts();
     if (type === 'deposit') getPrepareDataForDeposit();
     if (type === 'sales') getPrepareDataForSales();
+    if (type === 'expenses') getPrepareDataForExpenses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -290,6 +342,7 @@ export default function Index() {
       if (detail === 'low-stock') respFetch = await getReportProductsLowStock(filter);
       if (detail === 'cost') respFetch = await getReportProductsCost(filter);
       if (detail === 'no-stock') respFetch = await getReportProductsNoStock(filter);
+      if (detail === 'reminders') respFetch = await getReportProductsReminders(filter);
     } else if (type === 'deposit') {
       if (detail === 'list') respFetch = await getReportDepositList(filter);
       if (detail === 'summary') respFetch = await getReportDepositSummary(filter);
@@ -305,6 +358,12 @@ export default function Index() {
       if (detail === 'payment-summary') respFetch = await getReportSalesPaymentSummary(filter);
       if (detail === 'daily-audit') respFetch = await getReportSalesDailyAudit(filter);
       if (detail === 'details') respFetch = await getReportSalesDetails(filter);
+      if (detail === 'staff-service-sales') respFetch = await getReportSalesStaffServiceSales(filter);
+    } else if (type === 'booking') {
+      if (detail === 'by-diagnosis-species-gender') respFetch = await getReportBookingByDiagnosisSpeciesGender(filter);
+    } else if (type === 'expenses') {
+      if (detail === 'list') respFetch = await getReportExpensesList(filter);
+      if (detail === 'summary') respFetch = await getReportExpensesSummary(filter);
     }
 
     setMainData(respFetch?.data || []);
@@ -358,6 +417,7 @@ export default function Index() {
       else if (type === 'products' && detail === 'low-stock') return await exportReportProductsLowStock(filter);
       else if (type === 'products' && detail === 'cost') return await exportReportProductsCost(filter);
       else if (type === 'products' && detail === 'no-stock') return await exportReportProductsNoStock(filter);
+      else if (type === 'products' && detail === 'reminders') return await exportReportProductsReminders(filter);
       else if (type === 'deposit' && detail === 'list') return await exportReportDepositList(filter);
       else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
       else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
@@ -371,6 +431,11 @@ export default function Index() {
       else if (type === 'sales' && detail === 'payment-summary') return;
       else if (type === 'sales' && detail === 'daily-audit') return await exportReportSalesDailyAudit(filter);
       else if (type === 'sales' && detail === 'details') return await exportReportSalesDetails(filter);
+      else if (type === 'sales' && detail === 'staff-service-sales') return await exportReportSalesStaffServiceSales(filter);
+      else if (type === 'booking' && detail === 'by-diagnosis-species-gender')
+        return await exportReportBookingByDiagnosisSpeciesGender(filter);
+      else if (type === 'expenses' && detail === 'list') return await exportReportExpensesList(filter);
+      else if (type === 'expenses' && detail === 'summary') return await exportReportExpensesSummary(filter);
     };
 
     fetchExport()
@@ -386,8 +451,19 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
     const getService = await getServiceList();
+    const getGender = []; // need API
+    const getDiagnose = []; // need API
+    const getSpecies = []; // need API
 
-    setExtData((prevState) => ({ ...prevState, location: getLoc, staff: getStaff, service: getService }));
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      staff: getStaff,
+      service: getService,
+      gender: getGender,
+      diagnose: getDiagnose,
+      species: getSpecies
+    }));
   };
 
   const getPrepareDataForCustomer = async () => {
@@ -421,12 +497,14 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getBrand = await getBrandList();
     const getSupplier = await getSupplierList();
+    const getCustomer = []; // need API
 
     setExtData((prevState) => ({
       ...prevState,
       location: getLoc,
       brand: getBrand,
-      supplier: getSupplier
+      supplier: getSupplier,
+      customer: getCustomer
     }));
   };
 
@@ -446,6 +524,7 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
     const getStatus = []; // need API
+    const getService = []; // need API
     const getPayment = []; // need API
     const getItemType = []; // need API
     const getProductCategory = []; // need API
@@ -458,6 +537,7 @@ export default function Index() {
       ...prevState,
       location: getLoc,
       staff: getStaff,
+      service: getService,
       status: getStatus,
       payment: getPayment,
       itemType: getItemType,
@@ -466,6 +546,29 @@ export default function Index() {
       method: getMethod,
       customer: getCustomer,
       invoiceCategory: getInvoiceCategory
+    }));
+  };
+
+  const getPrepareDataForExpenses = async () => {
+    const getLoc = await getLocationList();
+    const getPayment = []; // need API
+    const getStatus = []; // need API
+    const getStaff = []; // need API
+    const getSubmiter = []; // need API
+    const getSupplier = []; // need API
+    const getRecipient = []; // need API
+    const getCategory = []; // need API
+
+    setExtData((prevState) => ({
+      ...prevState,
+      location: getLoc,
+      payment: getPayment,
+      status: getStatus,
+      staff: getStaff,
+      submiter: getSubmiter,
+      supplier: getSupplier,
+      recipient: getRecipient,
+      category: getCategory
     }));
   };
 
@@ -494,9 +597,13 @@ export default function Index() {
     if (type === 'products' && detail === 'low-stock') return 'product-low-stock';
     if (type === 'products' && detail === 'cost') return 'product-cost';
     if (type === 'products' && detail === 'no-stock') return 'product-no-stock';
+    if (type === 'products' && detail === 'reminders') return 'product-reminders';
 
     if (type === 'deposit' && detail === 'list') return 'deposit-list';
     if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
+
+    if (type === 'expenses' && detail === 'list') return 'expenses-list';
+    if (type === 'expenses' && detail === 'summary') return 'expenses-summary';
 
     if (type === 'sales' && detail === 'summary') return 'sales-summary';
     if (type === 'sales' && detail === 'items') return 'sales-items';
@@ -509,6 +616,7 @@ export default function Index() {
     if (type === 'sales' && detail === 'payment-summary') return 'sales-payment-summary';
     if (type === 'sales' && detail === 'daily-audit') return 'sales-daily-audit';
     if (type === 'sales' && detail === 'details') return 'sales-details';
+    if (type === 'sales' && detail === 'staff-service-sales') return 'sales-staff-service-sales';
 
     return '-';
   };
@@ -520,6 +628,7 @@ export default function Index() {
     if (type === 'products') return <FilterProducts extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'deposit') return <FilterDeposit extData={extData} filter={filter} setFilter={setFilter} />;
     if (type === 'sales') return <FilterSales extData={extData} filter={filter} setFilter={setFilter} />;
+    if (type === 'expenses') return <FilterExpenses extData={extData} filter={filter} setFilter={setFilter} />;
 
     return '';
   };
@@ -529,7 +638,8 @@ export default function Index() {
     if (type === 'booking' && detail === 'by-cancellation-reason') return <BookingByCancelationReason data={[]} />;
     if (type === 'booking' && detail === 'list') return <BookingByList data={[]} />;
     if (type === 'booking' && detail === 'diagnosis-list') return <BookingByDiagnosisList data={[]} />;
-    if (type === 'booking' && detail === 'by-diagnosis-species-gender') return 'booking-by-diagnosis-species-gender';
+    if (type === 'booking' && detail === 'by-diagnosis-species-gender')
+      return <BookingByDiagnosisSpeciesGender data={mainData} setFilter={setFilter} filter={filter} />;
 
     if (type === 'customer' && detail === 'growth') return <CustomerGrowth data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'growth-by-group') return <CustomerGrowthByGroup data={mainData} setFilter={setFilter} />;
@@ -551,9 +661,14 @@ export default function Index() {
       return <ProductsCost data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
     if (type === 'products' && detail === 'no-stock')
       return <ProductsNoStock data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
+    if (type === 'products' && detail === 'reminders')
+      return <ProductsReminders data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
 
     if (type === 'deposit' && detail === 'list') return <DepositList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;
+
+    if (type === 'expenses' && detail === 'list') return <ExpensesList data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'expenses' && detail === 'summary') return <ExpensesSummary data={mainData} setFilter={setFilter} filter={filter} />;
 
     if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
@@ -573,6 +688,8 @@ export default function Index() {
       return <SalesDailyAudit data={mainData} setFilter={setFilter} filter={filter} />;
     }
     if (type === 'sales' && detail === 'details') return <SalesDetails data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'staff-service-sales')
+      return <SalesStaffServiceSales data={mainData} setFilter={setFilter} filter={filter} />;
 
     return '';
   };

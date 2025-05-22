@@ -1,40 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Grid, Link, Stack } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
+import { ReactTable } from 'components/third-party/ReactTable';
+import { getProductDashboard } from './service';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import AnalyticEcommerce from 'components/dashboard/card';
 import MainCard from 'components/MainCard';
 import ApexColumnChart from 'components/dashboard/column';
-import { ReactTable } from 'components/third-party/ReactTable';
 import ApexPieChart from 'components/dashboard/pie';
 
 const ProductDashboard = () => {
-  const [data] = useState({
-    productSold: { total: '442000', isLoss: false, percentage: 59.3 },
-    productSoldQty: { total: '442000', isLoss: false, percentage: 59.3 },
-    productSoldValue: { total: '442000', isLoss: false, percentage: 59.3 },
-    barProductSales: {
-      series: [
-        {
-          name: 'Previous',
-          data: [10, 10, 10, 10, 30, 20, 15, 20, 18, 29]
-        },
-        {
-          name: 'Current',
-          data: [20, 40, 20, 10, 80, 30, 15, 20, 18, 29]
-        }
-      ],
-      categories: ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1']
-    },
-    topSellers: [
-      { id: 1, productName: 'Erline Booster 20Ml', total: 46550000 },
-      { id: 2, productName: 'Biodin inj (1ml)', total: 15650000 }
-    ],
-    pieSalesByCategory: {
-      labels: ['Layanan Kesehatan Hewan', 'Pet Salon', 'Rawat Inap Zona', 'Vaksinasi'],
-      series: [150, 40, 60, 70]
-    },
+  const [data, setData] = useState({
+    productSold: { total: '0', isLoss: false, percentage: 0 },
+    productSoldQty: { total: '0', isLoss: false, percentage: 0 },
+    productSoldValue: { total: '0', isLoss: false, percentage: 0 },
+    barProductSales: { series: [], categories: [] },
+    topSellers: [],
+    pieSalesByCategory: { labels: [], series: [] },
     listed: { total: '442000', isLoss: false, percentage: 59.3 },
     lowStock: { total: '442000', isLoss: false, percentage: 59.3 },
     noStock: { total: '442000', isLoss: false, percentage: 59.3 }
@@ -52,6 +35,28 @@ const ProductDashboard = () => {
     ],
     []
   );
+
+  useEffect(() => {
+    // getProductDashboard
+    const fetchData = async () => {
+      const resp = await getProductDashboard();
+      const { productSold, productSoldQty, productSoldValue, topSeller, salesByCategory, charts } = resp.data;
+
+      setData((prevState) => {
+        return {
+          ...prevState,
+          productSold: { isLoss: productSold.isLoss, percentage: productSold.percentage, total: productSold.total },
+          productSoldQty: { isLoss: productSoldQty.isLoss, percentage: productSoldQty.percentage, total: productSoldQty.total },
+          productSoldValue: { isLoss: productSoldValue.isLoss, percentage: productSoldValue.percentage, total: productSoldValue.total },
+          pieSalesByCategory: { labels: salesByCategory.labels, series: salesByCategory.series },
+          barProductSales: { categories: charts.categories, series: charts.series },
+          topSellers: topSeller
+        };
+      });
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
