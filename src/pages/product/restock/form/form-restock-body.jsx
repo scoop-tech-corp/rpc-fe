@@ -69,6 +69,12 @@ const FormRestockBody = () => {
   const [openEdit, setOpenEdit] = useState({ isOpen: false, data: null });
   const intl = useIntl();
 
+  const checkDuplicateProductAndSupplierExist = () => {
+    const getProductDetails = [...getAllState().productDetails];
+    const newPD = getProductDetails.filter((pd) => pd.status == '' && pd.productId == productId.value && pd.supplierId == supplierId.value);
+    return newPD.length > 0;
+  };
+
   const onCheckValidation = () => {
     const getProductLoc = getAllState().productLocation;
     const getProductType = getAllState().productType;
@@ -226,6 +232,15 @@ const FormRestockBody = () => {
   };
 
   const onAddProduct = () => {
+    if (checkDuplicateProductAndSupplierExist()) {
+      setProductRestockErr((prev) => ({
+        ...prev,
+        productDetailsErr: intl.formatMessage({ id: 'product-details-duplicate' })
+      }));
+      useFormRestockStore.setState({ formRestockError: true });
+      return;
+    }
+
     const newRequireDate = requireDate ? formateDateYYYMMDD(new Date(requireDate)) : '';
 
     const tempProductDetail = {
@@ -472,12 +487,12 @@ const FormRestockBody = () => {
                     <FormattedMessage id="supplier" />
                   </InputLabel>
                 </Grid>
-                <Grid item xs={12} md={1}>
+                <Grid item xs={12} md={2}>
                   <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setOpenFormSupplier(true)}>
                     <FormattedMessage id="add" />
                   </Button>
                 </Grid>
-                <Grid item xs={12} md={11}>
+                <Grid item xs={12} md={10}>
                   <Autocomplete
                     id="dropdown-supplier"
                     options={supplierList}

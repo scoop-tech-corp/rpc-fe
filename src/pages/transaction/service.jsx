@@ -1,5 +1,6 @@
 import { formateDateYYYMMDD } from 'utils/func';
 import axios from 'utils/axios';
+import { getProductClinic, getProductSell } from 'pages/product/product-list/service';
 
 export const getTransactionCategoryList = async () => {
   const getResp = await axios.get('transaction/category');
@@ -25,11 +26,23 @@ export const getCategoryTransactionList = async () => {
   });
 };
 
+export const getPaymentMethodTransactionList = async () => {
+  const getResp = await axios.get('transaction/paymentmethod');
+
+  return getResp.data.data.map((dt) => {
+    return { label: dt.name, value: +dt.id };
+  });
+};
+
+export const createPaymentMethod = async (payload) => {
+  return await axios.post('transaction/paymentmethod', payload);
+};
+
 export const ServiceCategory = {
   clinic: 'Pet Clinic',
   hotel: 'Pet Hotel',
   salon: 'Pet Salon',
-  pecak: 'Pacak'
+  pacak: 'Pacak'
 };
 
 export const getKeyServiceCategoryByValue = (value) => {
@@ -118,6 +131,25 @@ export const createTransaction = async (payload) => {
   return await axios.post('transaction', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const createPetShopTransaction = async (payload) => {
+  return await axios.post('transaction/petshop', {
+    isNewCustomer: false,
+    customerId: payload.customerId,
+    registrant: payload.registrant,
+    locationId: payload.locationId,
+    serviceCategory: 'Pet Shop',
+    notes: payload.notes,
+    paymentMethod: payload.paymentMethod,
+    productList: payload.productList.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.price,
+      note: item.note,
+      promoId: item.promoId
+    }))
+  });
+};
+
 export const getTransactionIndex = async (payload) => {
   return await axios.get('transaction', {
     params: {
@@ -130,6 +162,20 @@ export const getTransactionIndex = async (payload) => {
       customerGroupId: payload.customerGroupId,
       serviceCategories: payload.serviceCategories,
       status: payload.status // ongoing or finished
+    }
+  });
+};
+
+export const getPetShopTransactionIndex = async (payload) => {
+  return await axios.get('/transaction/petshop', {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      search: payload.search,
+      locationId: payload.locationId,
+      customerGroupId: payload.customerGroupId
     }
   });
 };
@@ -149,6 +195,12 @@ export const deleteTransaction = async (id) => {
   });
 };
 
+export const deletePetShopTransaction = async (id) => {
+  return await axios.delete('transaction/petshop', {
+    data: { id }
+  });
+};
+
 export const exportTransaction = async (payload) => {
   return await axios.get('transaction/export', {
     responseType: 'blob',
@@ -159,6 +211,24 @@ export const exportTransaction = async (payload) => {
       serviceCategoryId: payload.serviceCategories.length ? payload.serviceCategories : ['']
     }
   });
+};
+
+export const submitPromoDiscount = async (payload) => {
+  return await axios.post('transaction/petshop/discount', payload);
+};
+
+export const exportPetShopTransaction = async (payload) => {
+  return await axios.get('transaction/petshop/export', {
+    responseType: 'blob',
+    params: {
+      locationId: payload?.locationId?.length ? payload.locationId : [''],
+      customerGroupId: payload?.customerGroupId?.length ? payload.customerGroupId : ['']
+    }
+  });
+};
+
+export const getPromoList = async (payload) => {
+  return await axios.post('promotion/discount/checkpromo', payload);
 };
 
 export const acceptTransaction = async (payload) => {
@@ -207,16 +277,65 @@ export const checkPetConditionTransaction = async (payload) => {
   formData.append('isBreastfeeding', payload.isBreastfeeding ? 1 : 0);
   formData.append('numberofChildren', payload.numberofChildren || 0);
   formData.append('isAcceptToProcess', payload.reasonReject ? 0 : 1);
-  formData.append('reasonReject', payload.reasonReject);
+  if (payload.reasonReject) formData.append('reasonReject', payload.reasonReject);
 
   return await axios.post('transaction/petcheck', formData);
+};
+
+export const getTransactionListDataWeight = async () => {
+  const getResp = await axios.get('transaction/listdata/weight');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataTemperature = async () => {
+  const getResp = await axios.get('transaction/listdata/temperature');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataBreath = async () => {
+  const getResp = await axios.get('transaction/listdata/breath');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataSound = async () => {
+  const getResp = await axios.get('transaction/listdata/sound');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataHeart = async () => {
+  const getResp = await axios.get('transaction/listdata/heart');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataVaginal = async () => {
+  const getResp = await axios.get('transaction/listdata/vaginal');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
 };
 
 export const TransactionType = {
   'pet-clinic': 'Pet Clinic',
   'pet-hotel': 'Pet Hotel',
   'pet-salon': 'Pet Salon',
-  pacak: 'Pacak'
+  pacak: 'Pacak',
+  'pet-shop': 'Pet Shop'
 };
 
 export const TabList = {

@@ -32,7 +32,8 @@ const ProductRestockDetailHistory = (props) => {
       {
         Header: 'Details',
         accessor: 'details',
-        isNotSorting: true
+        isNotSorting: true,
+        Cell: (data) => data.value
       }
     ],
     []

@@ -17,7 +17,7 @@ import ModalC from 'components/ModalC';
 
 const FormTransfer = (props) => {
   const [transferNo, setTransferNo] = useState('');
-  const [transferDate] = useState(formateDateDDMMYYY(new Date(), { isWithTime: { show: true } }));
+  const [transferDate] = useState(formateDateDDMMYYY(new Date(), { isWithTime: { show: true, withSecond: false }, separator: '-' }));
   const [transferName, setTransferName] = useState('');
   const [branchOrigin] = useState(props.data.inventory.locationName);
   const [branchDestination, setBranchDestination] = useState(null);
@@ -121,7 +121,7 @@ const FormTransfer = (props) => {
     getLocationProductTransfer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log('transferDate ADI', transferDate);
   return (
     <ModalC
       title={<FormattedMessage id="transfer-product" />}

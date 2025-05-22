@@ -16,6 +16,7 @@ import FormReject from 'components/FormReject';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
+  const { type } = props;
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState({ accept: false, reject: false });
   const [data, setData] = useState({ detail: {}, log: [] });
@@ -249,7 +250,8 @@ const TransactionDetail = (props) => {
 TransactionDetail.propTypes = {
   open: PropTypes.bool,
   data: PropTypes.object,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  type: PropTypes.string
 };
 
 export default TransactionDetail;

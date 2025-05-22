@@ -79,18 +79,49 @@ export const createServiceList = async (property) => {
   return await axios.post(serviceListUrl, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const updateServiceList = async (property) => {
-  const fd = new FormData();
-  Object.entries(property).forEach(([key, value]) => {
-    if (['listPrice', 'categories', 'facility', 'listStaff', 'productRequired', 'location', 'listPrice', 'followup'].includes(key)) {
-      fd.append(key, JSON.stringify(value));
-    } else {
-      fd.append(key, value);
-    }
-  });
-  setFormDataImage(property.photos, fd);
-  fd.delete('photos');
-  return await axios.post(`${serviceListUrl}/?_method=PUT`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const updateServiceList = async (payload) => {
+  console.log('payload', payload);
+  // const fd = new FormData();
+  // Object.entries(property).forEach(([key, value]) => {
+  //   if (['listPrice', 'categories', 'facility', 'listStaff', 'productRequired', 'location', 'listPrice', 'followup'].includes(key)) {
+  //     fd.append(key, JSON.stringify(value));
+  //   } else {
+  //     fd.append(key, value);
+  //   }
+  // });
+  // setFormDataImage(property.photos, fd);
+  // fd.delete('photos');
+  const new_payload = {
+    id: payload.id,
+    type: payload.type,
+    fullName: payload.fullName,
+    simpleName: payload.simpleName,
+    policy: payload.policy,
+    surcharges: payload.surcharges,
+    staffPerBooking: payload.staffPerBooking,
+    color: payload.color,
+    listPrice: payload.listPrice,
+    listStaff: payload.listStaff,
+    location: payload.location,
+    productRequired: payload.productRequired,
+    facility: payload.facility,
+    photos: payload.photos,
+    dataSupport: payload.dataSupport,
+
+    name: payload.name,
+    status: payload.status,
+    introduction: payload.introduction,
+    productSellFormTouch: payload.productSellFormTouch,
+    description: payload.description,
+    optionPolicy1: payload.optionPolicy1,
+    optionPolicy2: payload.optionPolicy2,
+    optionPolicy3: payload.optionPolicy3,
+    categories: payload.categories,
+    followup: payload.followup
+  };
+
+  return await axios.put(serviceListUrl, new_payload);
+
 };
 
 export const getServiceListById = async (params) => {

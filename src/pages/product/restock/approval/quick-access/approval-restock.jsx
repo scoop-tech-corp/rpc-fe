@@ -69,7 +69,7 @@ const ApprovalRestock = (props) => {
             case 4:
               return <Chip color="default" label={<FormattedMessage id="send-to-supplier" />} size="small" variant="light" />;
             case 5:
-              return <Chip label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
+              return <Chip color="primary" label={<FormattedMessage id="product-received" />} size="small" variant="light" />;
           }
         }
       },
@@ -86,9 +86,11 @@ const ApprovalRestock = (props) => {
 
           return (
             <>
-              <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
-                <ChecklistIcon />
-              </IconButton>
+              {getStatus !== 4 && (
+                <IconButton size="large" color="primary" onClick={() => setOpenApprove({ isOpen: true, id: getId })}>
+                  <ChecklistIcon />
+                </IconButton>
+              )}
               {getStatus == 3 && (
                 <Tooltip title={<FormattedMessage id="approved" />} arrow>
                   <IconButton size="large" color="primary" onClick={() => setDialogSend({ isOpen: true, id: getId })}>

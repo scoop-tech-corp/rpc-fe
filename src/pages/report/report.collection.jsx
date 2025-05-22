@@ -83,8 +83,8 @@ export const list = {
     { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   expenses: [
-    { id: 1, val: 'Summary' },
-    { id: 2, val: 'List' }
+    { id: 1, val: 'Summary', url: 'summary', icon: <UnorderedListOutlined /> },
+    { id: 2, val: 'List', url: 'list', icon: <UnorderedListOutlined /> }
   ],
   products: [
     { id: 1, val: 'Stock count', url: 'stock-count', icon: <UnorderedListOutlined /> },
@@ -92,7 +92,8 @@ export const list = {
     { id: 3, val: 'No stock', url: 'no-stock', icon: <UnorderedListOutlined /> },
     { id: 4, val: 'Batches' },
     { id: 5, val: 'Expiry' },
-    { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> }
+    { id: 6, val: 'Cost', url: 'cost', icon: <UnorderedListOutlined /> },
+    { id: 7, val: 'Reminders', url: 'reminders', icon: <UnorderedListOutlined /> }
   ],
   sales: [
     { id: 1, val: 'Summary', url: 'summary', icon: <LineChartOutlined /> },
@@ -110,7 +111,8 @@ export const list = {
     { id: 13, val: 'Customer spend' },
     { id: 14, val: 'Daily reconciliation' },
     { id: 15, val: 'Daily audit', url: 'daily-audit', icon: <UnorderedListOutlined /> },
-    { id: 16, val: 'Refunds' }
+    { id: 16, val: 'Refunds' },
+    { id: 17, val: 'Staff Service Sales', url: 'staff-service-sales', icon: <UnorderedListOutlined /> }
   ],
   staff: [
     { id: 1, val: 'Staff Login', url: 'login', icon: <UnorderedListOutlined /> },
