@@ -46,7 +46,6 @@ import useAuth from 'hooks/useAuth';
 import IconButton from 'components/@extended/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ChecklistIcon from '@mui/icons-material/Checklist';
-import CheckPetCondition from 'pages/transaction/check-pet-condition';
 import TransactionDetail from 'pages/transaction/detail';
 import FormTransaction from 'pages/transaction/form-transaction';
 import ReassignModalC from 'pages/transaction/reassign';
@@ -59,7 +58,7 @@ const TransactionPetClinic = () => {
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getTransactionPetClinicIndex,
-    { status: tabQueryParam === 'finished' ? tabQueryParam : '', locationId: [], customerGroupId: [], typeOfCare: '' },
+    { status: tabQueryParam === 'finished' ? tabQueryParam : '', locationId: [], customerGroupId: [], typeOfCare: '1' },
     'search'
   );
 
