@@ -27,7 +27,7 @@ export const getCategoryTransactionList = async () => {
 };
 
 export const getPaymentMethodTransactionList = async () => {
-  const getResp = await axios.get('transaction/paymentmethod');
+  const getResp = await axios.get('transaction/listdata/paymentmethod');
 
   return getResp.data.data.map((dt) => {
     return { label: dt.name, value: +dt.id };
@@ -35,7 +35,7 @@ export const getPaymentMethodTransactionList = async () => {
 };
 
 export const createPaymentMethod = async (payload) => {
-  return await axios.post('transaction/paymentmethod', payload);
+  return await axios.post('transaction/listdata/paymentmethod', payload);
 };
 
 export const ServiceCategory = {
@@ -146,7 +146,8 @@ export const createPetShopTransaction = async (payload) => {
       price: item.price,
       note: item.note,
       promoId: item.promoId
-    }))
+    })),
+    selectedPromos: payload.selectedPromos
   });
 };
 
