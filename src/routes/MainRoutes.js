@@ -45,6 +45,7 @@ const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/promotion/dashboard')));
 const PromotionDiscount = Loadable(lazy(() => import('pages/promotion/discount')));
+const PromotionDiscountForm = Loadable(lazy(() => import('pages/promotion/discount/form')));
 const PromotionPartner = Loadable(lazy(() => import('pages/promotion/partner')));
 const PromotionPartnerForm = Loadable(lazy(() => import('pages/promotion/partner/form')));
 const PromotionStaticData = Loadable(lazy(() => import('pages/promotion/static-data')));
@@ -184,7 +185,8 @@ const MainRoutes = {
             { path: 'partner', element: <PromotionPartner /> },
             { path: 'partner/form', element: <PromotionPartnerForm /> },
             { path: 'partner/form/:id', element: <PromotionPartnerForm /> },
-            { path: 'material-data', element: <PromotionStaticData /> }
+            { path: 'material-data', element: <PromotionStaticData /> },
+            { path: 'discount/form', element: <PromotionDiscountForm /> }
           ]
         },
         {
