@@ -43,6 +43,7 @@ import TransactionDetail from './detail';
 import CheckPetCondition from './check-pet-condition';
 import PropTypes from 'prop-types';
 import ReassignModalC from './reassign';
+import TransactionDetailPetShop from './pages/pet-shop/detail';
 
 const Transaction = (props) => {
   const { type } = props;
@@ -475,7 +476,16 @@ const Transaction = (props) => {
         />
       )}
 
-      {detailTransactionConfig.isOpen && (
+      {detailTransactionConfig.isOpen && type === 'pet-shop' ? (
+        <TransactionDetailPetShop
+          // open={detailTransactionConfig.isOpen}
+          open={true}
+          data={detailTransactionConfig.data}
+          onClose={async () => {
+            console.log('awgkawgawugb');
+          }}
+        />
+      ) : detailTransactionConfig.isOpen ? (
         <TransactionDetail
           open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
@@ -489,7 +499,7 @@ const Transaction = (props) => {
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
           }}
         />
-      )}
+      ) : null}
 
       <ConfirmationC
         open={dialog}
