@@ -1,6 +1,5 @@
-import { formateDateYYYMMDD } from 'utils/func';
 import axios from 'utils/axios';
-import { getProductClinic, getProductSell } from 'pages/product/product-list/service';
+import { formateDateYYYMMDD } from 'utils/func';
 
 export const getTransactionCategoryList = async () => {
   const getResp = await axios.get('transaction/category');
@@ -281,6 +280,54 @@ export const checkPetConditionTransaction = async (payload) => {
   if (payload.reasonReject) formData.append('reasonReject', payload.reasonReject);
 
   return await axios.post('transaction/petcheck', formData);
+};
+
+export const getTransactionListDataWeight = async () => {
+  const getResp = await axios.get('transaction/listdata/weight');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataTemperature = async () => {
+  const getResp = await axios.get('transaction/listdata/temperature');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataBreath = async () => {
+  const getResp = await axios.get('transaction/listdata/breath');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataSound = async () => {
+  const getResp = await axios.get('transaction/listdata/sound');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataHeart = async () => {
+  const getResp = await axios.get('transaction/listdata/heart');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
+};
+
+export const getTransactionListDataVaginal = async () => {
+  const getResp = await axios.get('transaction/listdata/vaginal');
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: `${dt.id}` };
+  });
 };
 
 export const TransactionType = {

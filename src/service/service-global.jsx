@@ -68,6 +68,25 @@ export const getCustomerGroupList = async () => {
   });
 };
 
+export const getProductSellClinicByLocation = async (key, locationIds = []) => {
+  // key => sell / clinic
+  const getResp = await axios.get(`product/${key}/list/location`, {
+    params: { locationId: locationIds.length ? locationIds : [''] }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: dt.fullName };
+  });
+};
+
+export const getServiceListByLocation = async (locationIds = []) => {
+  const getResp = await axios.get('service/list/location', { params: { locationId: locationIds.length ? locationIds : [''] } });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: dt.fullName };
+  });
+};
+
 export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
   if (sourcePhoto.length) {
     const tempFileName = [];
