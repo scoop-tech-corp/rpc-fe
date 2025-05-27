@@ -29,7 +29,7 @@ export const getCategoryTransactionList = async () => {
 export const getPaymentMethodTransactionList = async () => {
   const getResp = await axios.get('transaction/listdata/paymentmethod');
 
-  return getResp.data.data.map((dt) => {
+  return getResp.data.map((dt) => {
     return { label: dt.name, value: +dt.id };
   });
 };
