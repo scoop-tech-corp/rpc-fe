@@ -16,13 +16,16 @@ const FormPaymentMethod = (props) => {
   const onSubmit = async () => {
     await createPaymentMethod({ name: paymentMethod })
       .then((resp) => {
-        if (resp && resp.status === 200) {
+        if (resp && resp.status === 201) {
           dispatch(snackbarSuccess(`${paymentMethod} payment method has been created successfully`));
           props.onClose(true);
         }
       })
       .catch((err) => {
         if (err) dispatch(snackbarError(createMessageBackend(err)));
+      })
+      .finally(() => {
+        setPaymentMethod('');
       });
   };
 

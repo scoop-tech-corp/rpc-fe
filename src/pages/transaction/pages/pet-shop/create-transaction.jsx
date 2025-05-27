@@ -70,6 +70,7 @@ export const getDropdownAll = () => dropdownList.getState();
 export default function CreateTransactionPetShop() {
   const [formValue, setFormValue] = useState(CONSTANT_FORM_VALUE);
   const customerList = dropdownList((state) => state.customerList);
+  const paymentMethodList = dropdownList((state) => state.paymentMethodList);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
   const [isError, setIsError] = useState(false);
   const [formErrors, setFormErrors] = useState({
@@ -382,7 +383,12 @@ export default function CreateTransactionPetShop() {
         isNotSorting: true,
         Cell: ({ row }) => row.index + 1
       },
-      { Header: <FormattedMessage id="product-name" />, accessor: 'productName', isNotSorting: true },
+      {
+        Header: <FormattedMessage id="product-name" />,
+        accessor: 'productName',
+        isNotSorting: true,
+        Cell: (data) => data.value.split('-')[0]
+      },
       {
         Header: <FormattedMessage id="category" />,
         accessor: 'category',
@@ -453,12 +459,12 @@ export default function CreateTransactionPetShop() {
       },
       { Header: <FormattedMessage id="quantity" />, accessor: 'quantity', isNotSorting: true },
       { Header: <FormattedMessage id="bonus" />, accessor: 'bonus', isNotSorting: true },
-      { Header: <FormattedMessage id="discount" />, accessor: 'discount_percent', Cell: (data) => `${data.value}%`, isNotSorting: true },
+      { Header: <FormattedMessage id="discount" />, accessor: 'discount', Cell: (data) => `${data.value}%`, isNotSorting: true },
       {
         Header: <FormattedMessage id="unit-price" />,
         accessor: 'unit_price',
         Cell: (data) => {
-          const unitPrice = data.value || data.row.original.bundle_price;
+          const unitPrice = data?.value || data.row.original.total;
 
           return formatThousandSeparator(unitPrice);
         },
@@ -1028,7 +1034,7 @@ export default function CreateTransactionPetShop() {
                   <Grid item xs={11}>
                     <Autocomplete
                       id="paymentMethod"
-                      options={getDropdownAll().paymentMethodList}
+                      options={paymentMethodList}
                       value={formValue.paymentMethod}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, selected) => {
