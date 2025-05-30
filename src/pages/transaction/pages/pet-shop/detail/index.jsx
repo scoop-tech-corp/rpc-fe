@@ -14,6 +14,7 @@ import LogActivityDetailTransaction from 'pages/transaction/detail/log-activity'
 import { ReactTable } from 'components/third-party/ReactTable';
 import { formatThousandSeparator } from 'utils/func';
 import SingleFileUpload from 'components/third-party/dropzone/SingleFile';
+import { getTransactionDetail, getTransactionPetShopDetail } from 'pages/transaction/service';
 
 const TransactionDetailPetShop = (props) => {
   const { id } = props.data;
@@ -106,12 +107,12 @@ const TransactionDetailPetShop = (props) => {
   };
 
   const fetchData = async () => {
-    // const resp = await getTransactionDetail({
-    //   id,
-    //   ...filterLog
-    // });
+    const resp = await getTransactionPetShopDetail({
+      id,
+      ...filterLog
+    });
     // const getData = resp.data;
-    // setData({ detail: getData.detail, log: getData.transactionLogs });
+    // setData({ detail: getData.transaction, log: getData?.transactionLogs || [] });
     setData({
       detail: {
         isNewCustomer: true,

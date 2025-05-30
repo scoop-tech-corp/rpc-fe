@@ -189,6 +189,15 @@ export const getTransactionDetail = async (payload) => {
   });
 };
 
+export const getTransactionPetShopDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/petshop/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
 export const deleteTransaction = async (id) => {
   return await axios.delete('transaction', {
     data: { id }

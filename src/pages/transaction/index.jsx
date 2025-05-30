@@ -412,7 +412,7 @@ const Transaction = (props) => {
                 )}
                 {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && type === 'pet-shop' && (
                   <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickCreatePetShopTransaction}>
-                    <FormattedMessage id="transaction" />
+                    <FormattedMessage id="new" />
                   </Button>
                 )}
               </Stack>
@@ -478,11 +478,10 @@ const Transaction = (props) => {
 
       {detailTransactionConfig.isOpen && type === 'pet-shop' ? (
         <TransactionDetailPetShop
-          // open={detailTransactionConfig.isOpen}
-          open={true}
+          open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
           onClose={async () => {
-            console.log('awgkawgawugb');
+            setDetailTransactionConfig({ isOpen: false, data: { id: null } });
           }}
         />
       ) : detailTransactionConfig.isOpen ? (
