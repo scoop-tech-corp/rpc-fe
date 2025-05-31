@@ -1,7 +1,7 @@
-import { Fragment, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import {
   Autocomplete,
+  Box,
   Button,
   FormControl,
   FormControlLabel,
@@ -16,14 +16,15 @@ import {
   Stack,
   TextField
 } from '@mui/material';
-import { useCustomerFormStore } from '../customer-form-store';
-import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { getPetCategoryList } from 'pages/customer/service';
+import { Fragment, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useCustomerFormStore } from '../customer-form-store';
 
-import MainCard from 'components/MainCard';
 import IconButton from 'components/@extended/IconButton';
+import MainCard from 'components/MainCard';
 import FormPetCategory from '../components/FormPetCategory';
 
 const TabPetInformation = () => {
@@ -57,6 +58,7 @@ const TabPetInformation = () => {
             petMonth: '',
             petYear: '',
             color: '',
+            remark: '',
             command: '',
             error: {
               petNameErr: '',
@@ -194,10 +196,10 @@ const TabPetInformation = () => {
                       </Grid>
                       <Grid item xs={12} sm={4}>
                         <Stack spacing={1}>
-                          <InputLabel htmlFor="race">{<FormattedMessage id="race" />}</InputLabel>
+                          <InputLabel htmlFor="breed">{<FormattedMessage id="breed" />}</InputLabel>
                           <TextField
                             fullWidth
-                            id="races"
+                            id="breed"
                             name="races"
                             value={dt.races}
                             onChange={(event) => onFieldHandler(event, i)}
@@ -359,6 +361,13 @@ const TabPetInformation = () => {
                         <Stack spacing={1}>
                           <InputLabel htmlFor="color">{<FormattedMessage id="color" />}</InputLabel>
                           <TextField fullWidth id="color" name="color" value={dt.color} onChange={(event) => onFieldHandler(event, i)} />
+                        </Stack>
+                      </Grid>
+
+                      <Grid item xs={12} sm={4}>
+                        <Stack spacing={1}>
+                          <InputLabel htmlFor="remark">{<FormattedMessage id="remark" />}</InputLabel>
+                          <TextField fullWidth id="remark" name="remark" value={dt.remark} onChange={(event) => onFieldHandler(event, i)} />
                         </Stack>
                       </Grid>
                     </Grid>

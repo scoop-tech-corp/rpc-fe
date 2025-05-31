@@ -79,6 +79,7 @@ export const createCustomer = async (property) => {
   param.append('nickName', property.nickName);
   param.append('titleCustomerId', property.titleCustomerId ? +property.titleCustomerId : '');
   param.append('customerGroupId', property.customerGroupId ? +property.customerGroupId : '');
+  param.append('colorType', property.colorType);
 
   param.append('locationId', property.locationId);
   param.append('notes', property.notes);
@@ -126,6 +127,7 @@ export const updateCustomer = async (property) => {
       petMonth: dt.petMonth,
       petYear: dt.petYear,
       dateOfBirth: dateOfBirth,
+      remark: dt.remark,
       petGender: dt.petGender,
       isSteril: dt.isSteril,
       command: dt.command
@@ -170,6 +172,7 @@ export const updateCustomer = async (property) => {
     memberNo: property.memberNo,
     firstName: property.firstName,
     middleName: property.middleName,
+    colorType: property.colorType,
     lastName: property.lastName,
     nickName: property.nickName,
     gender: property.gender,
