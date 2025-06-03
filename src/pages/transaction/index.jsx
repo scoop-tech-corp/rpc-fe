@@ -125,7 +125,7 @@ const Transaction = (props) => {
 
   const onExport = async () => {
     if (type === 'pet-shop') {
-      await exportPetShopTransaction()
+      await exportPetShopTransaction(params)
         .then(processDownloadExcel)
         .catch((err) => {
           if (err) {
@@ -412,7 +412,7 @@ const Transaction = (props) => {
                 )}
                 {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && type === 'pet-shop' && (
                   <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickCreatePetShopTransaction}>
-                    <FormattedMessage id="new" />
+                    <FormattedMessage id="transaction" />
                   </Button>
                 )}
               </Stack>
@@ -482,6 +482,7 @@ const Transaction = (props) => {
           data={detailTransactionConfig.data}
           onClose={async () => {
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
+            setParams((_params) => ({ ..._params }));
           }}
         />
       ) : detailTransactionConfig.isOpen ? (

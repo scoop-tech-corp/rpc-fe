@@ -236,6 +236,20 @@ export const exportPetShopTransaction = async (payload) => {
   });
 };
 
+export const confirmPaymentPetShopTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.transactionId);
+  formData.append('proof', payload.proof);
+
+  return await axios.post('transaction/petshop/confirmPayment', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
+
+export const generateInvoicePetShopTransaction = async (id) => {
+  return await axios.get(`transaction/petshop/generateInvoice/${id}`);
+};
+
 export const getPromoList = async (payload) => {
   return await axios.post('promotion/discount/checkpromo', payload);
 };
