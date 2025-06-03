@@ -38,6 +38,7 @@ import PropTypes from 'prop-types';
 import IconButton from 'components/@extended/IconButton';
 import FormPet from './form-pet';
 import ErrorContainer from 'components/@extended/ErrorContainer';
+import { createTransactionPetHotel, updateTransactionPetHotel } from './pages/pet-hotel/service';
 
 const CONSTANT_PET_FORM = {
   petId: '',
@@ -104,12 +105,26 @@ const FormTransaction = (props) => {
     };
 
     if (isEditForm) {
-      await updateTransaction({ id, ...formValue })
-        .then(responseSuccess)
-        .catch(responseError);
+      if (type === 'pet-hotel') {
+        await updateTransactionPetHotel({ id, ...formValue })
+          .then(responseSuccess)
+          .catch(responseError);
+      } else {
+        await updateTransaction({ id, ...formValue })
+          .then(responseSuccess)
+          .catch(responseError);
+      }
     } else {
       try {
-        const apiCall = formValue.configTransaction === 'clinic' ? createTransactionPetClinic : createTransaction;
+        let apiCall = createTransaction;
+        if (formValue.configTransaction === 'clinic') {
+          apiCall = createTransactionPetClinic;
+        } else if (formValue.configTransaction === 'pet-hotel') {
+          apiCall = createTransactionPetHotel;
+        } else {
+          apiCall = createTransaction;
+        }
+
         const response = await apiCall(formValue);
         responseSuccess(response);
       } catch (error) {

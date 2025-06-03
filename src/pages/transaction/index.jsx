@@ -44,6 +44,7 @@ import CheckPetCondition from './check-pet-condition';
 import PropTypes from 'prop-types';
 import ReassignModalC from './reassign';
 import TransactionDetailPetShop from './pages/pet-shop/detail';
+import { deleteTransactionPetHotel, exportTransactionPetHotel, getTransactionPetHotelIndex } from './pages/pet-hotel/service';
 
 const Transaction = (props) => {
   const { type } = props;
@@ -55,8 +56,19 @@ const Transaction = (props) => {
     }
   }, [searchParams, type]);
 
+  const getTransactionFetcherByType = (type) => {
+    switch (type) {
+      case 'pet-shop':
+        return getPetShopTransactionIndex;
+      case 'pet-hotel':
+        return getTransactionPetHotelIndex;
+      default:
+        return getTransactionIndex;
+    }
+  };
+
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
-    type === 'pet-shop' ? getPetShopTransactionIndex : getTransactionIndex,
+    getTransactionFetcherByType(type),
     { status: tabQueryParam, locationId: [], customerGroupId: [], serviceCategories: [TransactionType[type]] },
     'search'
   );
@@ -103,6 +115,20 @@ const Transaction = (props) => {
               dispatch(snackbarError(createMessageBackend(err)));
             }
           });
+      } else if (type === 'pet-hotel') {
+        await deleteTransactionPetHotel(selectedRow)
+          .then((resp) => {
+            if (resp.status === 200) {
+              setDialog(false);
+              dispatch(snackbarSuccess('Success Delete Transaction'));
+              setParams((_params) => ({ ..._params }));
+            }
+          })
+          .catch((err) => {
+            if (err) {
+              dispatch(snackbarError(createMessageBackend(err)));
+            }
+          });
       } else {
         await deleteTransaction(selectedRow)
           .then((resp) => {
@@ -126,6 +152,14 @@ const Transaction = (props) => {
   const onExport = async () => {
     if (type === 'pet-shop') {
       await exportPetShopTransaction()
+        .then(processDownloadExcel)
+        .catch((err) => {
+          if (err) {
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else if (type === 'pet-hotel') {
+      await exportTransactionPetHotel()
         .then(processDownloadExcel)
         .catch((err) => {
           if (err) {
@@ -523,6 +557,7 @@ const Transaction = (props) => {
 
       {checkConditionPetDialog.isOpen && (
         <CheckPetCondition
+          type={type}
           open={checkConditionPetDialog.isOpen}
           data={checkConditionPetDialog.data}
           onClose={(resp) => {
