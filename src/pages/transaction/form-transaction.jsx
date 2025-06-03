@@ -119,7 +119,7 @@ const FormTransaction = (props) => {
         let apiCall = createTransaction;
         if (formValue.configTransaction === 'clinic') {
           apiCall = createTransactionPetClinic;
-        } else if (formValue.configTransaction === 'pet-hotel') {
+        } else if (type === 'Pet Hotel') {
           apiCall = createTransactionPetHotel;
         } else {
           apiCall = createTransaction;

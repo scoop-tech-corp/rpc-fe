@@ -21,13 +21,12 @@ export const createTransactionPetHotel = async (payload) => {
   formData.append('birthDate', petDob);
   formData.append('month', payload.petMonth);
   formData.append('year', payload.petYear);
-  formData.append('serviceCategory', ServiceCategory[payload.configTransaction]);
   formData.append('startDate', startDate);
   formData.append('endDate', endDate);
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
 
-  return await axios.post('transaction', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('transaction/pethotel', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const updateTransactionPetHotel = async (payload) => {
