@@ -13,6 +13,7 @@ import TransactionDetailAction from './action-detail';
 import LogActivityDetailTransaction from './log-activity';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
+import { getTransactionPetHotelDetail } from '../pages/pet-hotel/service';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
@@ -53,7 +54,13 @@ const TransactionDetail = (props) => {
   };
 
   const fetchData = async () => {
-    const resp = await getTransactionDetail({
+    let apiGetDetail = getTransactionDetail;
+
+    if (type === 'pet-hotel') {
+      apiGetDetail = getTransactionPetHotelDetail;
+    }
+
+    const resp = await apiGetDetail({
       id,
       ...filterLog
     });
@@ -120,14 +127,17 @@ const TransactionDetail = (props) => {
                   {+data.detail.isNewCustomer ? <FormattedMessage id="customer-new" /> : <FormattedMessage id="customer-old" />}
                 </Stack>
               </Grid>
-              <Grid item xs={12} sm={6} md={6}>
-                <Stack spacing={1}>
-                  <InputLabel>
-                    <FormattedMessage id="type-category" />
-                  </InputLabel>
-                  {data.detail.serviceCategory}
-                </Stack>
-              </Grid>
+
+              {data?.detail?.serviceCategory && (
+                <Grid item xs={12} sm={6} md={6}>
+                  <Stack spacing={1}>
+                    <InputLabel>
+                      <FormattedMessage id="type-category" />
+                    </InputLabel>
+                    {data.detail.serviceCategory}
+                  </Stack>
+                </Grid>
+              )}
 
               <Grid item xs={12} sm={6} md={6}>
                 <Stack spacing={1}>

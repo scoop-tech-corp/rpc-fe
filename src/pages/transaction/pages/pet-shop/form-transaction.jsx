@@ -10,6 +10,7 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { getProductClinicDropdown, getProductSellDropdown } from 'pages/product/product-list/service';
 import {
   createPetShopTransaction,
+  generateInvoicePetShopTransaction,
   getLocationTransactionList,
   getPaymentMethodTransactionList,
   getPromoList,
@@ -18,7 +19,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { createMessageBackend, getCustomerByLocationList } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { formatThousandSeparator, jsonCentralized } from 'utils/func';
@@ -67,7 +68,9 @@ export const dropdownList = create(() =>
 );
 export const getDropdownAll = () => dropdownList.getState();
 
-export default function CreateTransactionPetShop() {
+export default function FormTransactionPetShop() {
+  const pathname = useParams();
+  console.log({ pathname });
   const [formValue, setFormValue] = useState(CONSTANT_FORM_VALUE);
   const customerList = dropdownList((state) => state.customerList);
   const paymentMethodList = dropdownList((state) => state.paymentMethodList);
@@ -482,7 +485,7 @@ export default function CreateTransactionPetShop() {
   );
 
   const onBack = () => navigate('/transaction/pet-shop');
-  const onSubmit = async () => {
+  const onSubmit = async (withPrint = false) => {
     const responseError = (err) => {
       dispatch(snackbarError(createMessageBackend(err)));
       const { msg, detail } = createMessageBackend(err, true);
@@ -522,6 +525,7 @@ export default function CreateTransactionPetShop() {
         selectedPromos: selectedPromoData
       });
 
+      if (withPrint) onPrint(resp.data.transactionId);
       responseSuccess(resp);
       onBack();
     } catch (error) {
@@ -533,7 +537,18 @@ export default function CreateTransactionPetShop() {
 
   const onSubmitAndPrint = async () => {
     onSubmit();
-    // onPrint();
+  };
+
+  const onPrint = async (id) => {
+    try {
+      const resp = await generateInvoicePetShopTransaction(id);
+      processDownloadPDF(resp, 'nota_petshop');
+      dispatch(snackbarSuccess(`Success export pet shop transaction`));
+    } catch (err) {
+      if (err) {
+        dispatch(snackbarError(createMessageBackend(err)));
+      }
+    }
   };
 
   const clearForm = () => {

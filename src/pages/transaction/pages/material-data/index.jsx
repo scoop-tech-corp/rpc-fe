@@ -179,7 +179,7 @@ const TransactionDataStatic = () => {
 
               <Stack direction="row" spacing={1}>
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onnAddTransactionMaterialData}>
-                  <FormattedMessage id="transaction" />
+                  <FormattedMessage id="new" />
                 </Button>
 
                 {selectedRow.length > 0 && (
