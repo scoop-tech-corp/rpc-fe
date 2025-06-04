@@ -50,7 +50,6 @@ export const updateTransactionPetHotel = async (payload) => {
     birthDate: petDob,
     month: payload.petMonth,
     year: payload.petYear,
-    serviceCategory: ServiceCategory[payload.configTransaction],
     startDate,
     endDate,
     doctorId: payload.treatingDoctor?.value, // sementara hardcode dlu, ga dpt datanya

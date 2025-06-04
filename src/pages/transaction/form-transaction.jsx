@@ -38,7 +38,7 @@ import PropTypes from 'prop-types';
 import IconButton from 'components/@extended/IconButton';
 import FormPet from './form-pet';
 import ErrorContainer from 'components/@extended/ErrorContainer';
-import { createTransactionPetHotel, updateTransactionPetHotel } from './pages/pet-hotel/service';
+import { createTransactionPetHotel, getTransactionPetHotelDetail, updateTransactionPetHotel } from './pages/pet-hotel/service';
 
 const CONSTANT_PET_FORM = {
   petId: '',
@@ -212,7 +212,13 @@ const FormTransaction = (props) => {
 
   const getDetail = async () => {
     if (id) {
-      const respDetail = await getTransactionDetail({ id });
+      let apiGetDetail = getTransactionDetail;
+
+      if (type === 'pet-hotel') {
+        apiGetDetail = getTransactionPetHotelDetail;
+      }
+
+      const respDetail = await apiGetDetail({ id });
       const data = respDetail.data.detail;
       setIsEditForm(true);
 
@@ -243,7 +249,8 @@ const FormTransaction = (props) => {
         petDateOfBirth: data.dateOfBirth, // belum ada
         petMonth: data.petMonth, // belum ada
         petYear: data.petYear, // belum ada
-        configTransaction: getKeyServiceCategoryByValue(data.serviceCategory),
+        configTransaction:
+          type === 'pet-hotel' ? getKeyServiceCategoryByValue('Pet Hotel') : getKeyServiceCategoryByValue(data.serviceCategory),
         startDate: data.startDate,
         endDate: data.endDate,
         treatingDoctor, // need id
@@ -253,7 +260,11 @@ const FormTransaction = (props) => {
   };
 
   const decideFormTransactionType = () => {
-    setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(type) }));
+    if (type === 'pet-hotel') {
+      setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue('Pet Hotel') }));
+    } else {
+      setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(type) }));
+    }
   };
 
   useEffect(() => {
