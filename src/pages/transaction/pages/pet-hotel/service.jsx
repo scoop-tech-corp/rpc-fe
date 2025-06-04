@@ -58,6 +58,15 @@ export const updateTransactionPetHotel = async (payload) => {
   });
 };
 
+export const getTransactionPetHotelDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/pethotel/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
 export const getTransactionPetHotelIndex = async (payload) => {
   return await axios.get('/transaction/pethotel', {
     params: {

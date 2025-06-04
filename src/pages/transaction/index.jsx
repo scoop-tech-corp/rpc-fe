@@ -228,7 +228,7 @@ const Transaction = (props) => {
   };
 
   const columnServiceCategory = () => {
-    return !['pet-salon', 'pet-clinic', 'pet-shop'].includes(type)
+    return !['pet-salon', 'pet-clinic', 'pet-shop', 'pet-hotel'].includes(type)
       ? [{ Header: <FormattedMessage id="service-category" />, accessor: 'serviceCategory' }]
       : [];
   };
@@ -501,8 +501,8 @@ const Transaction = (props) => {
       {formTransactionConfig.isOpen && (
         <FormTransaction
           open={formTransactionConfig.isOpen}
-          id={formTransactionConfig.id}
-          type={TransactionType[type]}
+          id={Number(formTransactionConfig.id)}
+          type={type}
           onClose={(e) => {
             setFormTransactionConfig({ isOpen: false, id: null });
             if (e) setParams((_params) => ({ ..._params }));
@@ -523,6 +523,7 @@ const Transaction = (props) => {
         <TransactionDetail
           open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
+          type={type}
           onClose={async (action) => {
             if (action === 'edit') {
               setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });

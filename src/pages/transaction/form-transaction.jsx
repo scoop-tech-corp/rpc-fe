@@ -119,7 +119,7 @@ const FormTransaction = (props) => {
         let apiCall = createTransaction;
         if (formValue.configTransaction === 'clinic') {
           apiCall = createTransactionPetClinic;
-        } else if (type === 'Pet Hotel') {
+        } else if (type === 'pet-hotel') {
           apiCall = createTransactionPetHotel;
         } else {
           apiCall = createTransaction;
@@ -243,7 +243,6 @@ const FormTransaction = (props) => {
         petDateOfBirth: data.dateOfBirth, // belum ada
         petMonth: data.petMonth, // belum ada
         petYear: data.petYear, // belum ada
-
         configTransaction: getKeyServiceCategoryByValue(data.serviceCategory),
         startDate: data.startDate,
         endDate: data.endDate,
