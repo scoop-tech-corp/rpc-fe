@@ -125,7 +125,7 @@ const Transaction = (props) => {
 
   const onExport = async () => {
     if (type === 'pet-shop') {
-      await exportPetShopTransaction()
+      await exportPetShopTransaction(params)
         .then(processDownloadExcel)
         .catch((err) => {
           if (err) {
@@ -478,11 +478,11 @@ const Transaction = (props) => {
 
       {detailTransactionConfig.isOpen && type === 'pet-shop' ? (
         <TransactionDetailPetShop
-          // open={detailTransactionConfig.isOpen}
-          open={true}
+          open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
           onClose={async () => {
-            console.log('awgkawgawugb');
+            setDetailTransactionConfig({ isOpen: false, data: { id: null } });
+            setParams((_params) => ({ ..._params }));
           }}
         />
       ) : detailTransactionConfig.isOpen ? (

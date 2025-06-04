@@ -189,6 +189,15 @@ export const getTransactionDetail = async (payload) => {
   });
 };
 
+export const getTransactionPetShopDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/petshop/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
 export const deleteTransaction = async (id) => {
   return await axios.delete('transaction', {
     data: { id }
@@ -225,6 +234,20 @@ export const exportPetShopTransaction = async (payload) => {
       customerGroupId: payload?.customerGroupId?.length ? payload.customerGroupId : ['']
     }
   });
+};
+
+export const confirmPaymentPetShopTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.transactionId);
+  formData.append('proof', payload.proof);
+
+  return await axios.post('transaction/petshop/confirmPayment', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
+
+export const generateInvoicePetShopTransaction = async (id) => {
+  return await axios.get(`transaction/petshop/generateInvoice/${id}`);
 };
 
 export const getPromoList = async (payload) => {

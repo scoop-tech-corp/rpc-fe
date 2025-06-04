@@ -158,6 +158,21 @@ export const processDownloadExcel = (resp) => {
   a.click();
 };
 
+export const processDownloadPDF = (resp, fileName = 'download') => {
+  const blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+  const downloadUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = downloadUrl;
+  a.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+
+  // Cleanup
+  document.body.removeChild(a);
+  URL.revokeObjectURL(downloadUrl);
+};
+
 export const swapKeysAndValuesForObject = (obj) => {
   const swapped = Object.entries(obj).map(([key, value]) => [value, key]);
 

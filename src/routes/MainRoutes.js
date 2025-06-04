@@ -9,7 +9,7 @@ import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
 import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
 import TransactionBreeding from 'pages/transaction/pages/breeding';
 import TransactionPetShop from 'pages/transaction/pages/pet-shop';
-import CreateTransactionPetShop from 'pages/transaction/pages/pet-shop/create-transaction';
+import FormTransactionPetShop from 'pages/transaction/pages/pet-shop/form-transaction';
 import TransactionDataStatic from 'pages/transaction/pages/material-data';
 // import { Outlet } from 'react-router-dom';
 
@@ -140,7 +140,8 @@ const MainRoutes = {
             { path: 'pet-salon', element: <TransactionPetSalon /> },
             { path: 'breeding', element: <TransactionBreeding /> },
             { path: 'pet-shop', element: <TransactionPetShop /> },
-            { path: 'pet-shop/create', element: <CreateTransactionPetShop /> },
+            { path: 'pet-shop/create', element: <FormTransactionPetShop /> },
+            { path: 'pet-shop/edit/:id', element: <FormTransactionPetShop /> },
             { path: 'material-data', element: <TransactionDataStatic /> }
           ]
         },
