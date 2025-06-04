@@ -171,6 +171,7 @@ const CustomerForm = () => {
       nickName: getData.nickName ?? '',
       titleCustomerId: +getData.titleCustomerId,
       customerGroupId: +getData.customerGroupId,
+      colorType: getData.colorType,
       locationId: +getData.locationId,
       notes: getData.notes ?? '',
       gender: getData.gender,

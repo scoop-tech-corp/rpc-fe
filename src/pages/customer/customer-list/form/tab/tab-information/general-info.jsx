@@ -1,4 +1,4 @@
-import { Grid, InputLabel, Stack, TextField, Autocomplete } from '@mui/material';
+import { Grid, InputLabel, Stack, TextField, Autocomplete, FormControl, Select, MenuItem, Box, FormHelperText } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getAllState, useCustomerFormStore } from '../../customer-form-store';
 import { PlusOutlined } from '@ant-design/icons';
@@ -23,6 +23,7 @@ const GeneralInfo = () => {
   const lastName = useCustomerFormStore((state) => state.lastName);
   const nickName = useCustomerFormStore((state) => state.nickName);
   const notes = useCustomerFormStore((state) => state.notes);
+  const colorType = useCustomerFormStore((state) => state.colorType);
 
   const titleList = useCustomerFormStore((state) => state.titleCustomerList);
   const titleCustomerId = useCustomerFormStore((state) => state.titleCustomerId);
@@ -272,6 +273,83 @@ const GeneralInfo = () => {
             <Stack spacing={1}>
               <InputLabel htmlFor="notes">{<FormattedMessage id="notes" />}</InputLabel>
               <TextField fullWidth id="notes" name="notes" value={notes} onChange={onFieldHandler} inputProps={{ maxLength: 100 }} />
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Stack spacing={1}>
+              <InputLabel htmlFor="colorType">
+                <FormattedMessage id="color" />
+              </InputLabel>
+              <FormControl sx={{ m: 1, minWidth: 120 }}>
+                <Select id={`colorType`} name="colorType" value={colorType} onChange={onFieldHandler}>
+                  <MenuItem value="">
+                    <em>
+                      <FormattedMessage id="select-color" />
+                    </em>
+                  </MenuItem>
+                  <MenuItem value={'green'}>
+                    <Stack gap={1} flexDirection="row" alignItems="center">
+                      <Box
+                        sx={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: '#4dff4d',
+                          borderRadius: '50%'
+                        }}
+                      ></Box>
+                      <Box>
+                        <FormattedMessage id="customer-green" />
+                      </Box>
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem value={'yellow'}>
+                    <Stack gap={1} flexDirection="row" alignItems="center">
+                      <Box
+                        sx={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: '#fff04d',
+                          borderRadius: '50%'
+                        }}
+                      ></Box>
+                      <Box>
+                        <FormattedMessage id="customer-yellow" />
+                      </Box>
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem value={'red'}>
+                    <Stack gap={1} flexDirection="row" alignItems="center">
+                      <Box
+                        sx={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: '#ff4d4f',
+                          borderRadius: '50%'
+                        }}
+                      ></Box>
+                      <Box>
+                        <FormattedMessage id="customer-red" />
+                      </Box>
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem value={'black'}>
+                    <Stack gap={1} flexDirection="row" alignItems="center">
+                      <Box
+                        sx={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: '#1c1c1c',
+                          borderRadius: '50%'
+                        }}
+                      ></Box>
+                      <Box>
+                        <FormattedMessage id="customer-black" />
+                      </Box>
+                    </Stack>
+                  </MenuItem>
+                </Select>
+              </FormControl>
             </Stack>
           </Grid>
         </Grid>
