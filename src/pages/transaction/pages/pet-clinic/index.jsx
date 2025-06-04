@@ -50,6 +50,7 @@ import TransactionDetail from 'pages/transaction/detail';
 import FormTransaction from 'pages/transaction/form-transaction';
 import ReassignModalC from 'pages/transaction/reassign';
 import CheckPetConditionPetClinic from './components/check-pet-condition';
+import ServiceAndRecipe from './components/service-recipe';
 
 const TransactionPetClinic = () => {
   const { user } = useAuth();
@@ -80,6 +81,7 @@ const TransactionPetClinic = () => {
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: {} });
+  const [serviceAndRecipeDialog, setServiceAndRecipeDialog] = useState({ isOpen: false, data: {} });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -175,10 +177,11 @@ const TransactionPetClinic = () => {
           const statusRow = data.row.original.status;
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
+          const locationIdRow = +data.row.original.locationId;
 
           const doReassign = async () => {
-            const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
-            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
+            const getLocations = await getDoctorStaffByLocationList(locationIdRow);
+            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: transactionIdRow } });
           };
 
           return (
@@ -198,6 +201,20 @@ const TransactionPetClinic = () => {
                     color="success"
                     onClick={() => {
                       setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow.toLowerCase() === 'input service dan obat' && (
+                <Tooltip title={<FormattedMessage id="service-and-recipe" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setServiceAndRecipeDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -474,6 +491,17 @@ const TransactionPetClinic = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setCheckConditionPetDialog({ isOpen: false, data: {} });
+          }}
+        />
+      )}
+
+      {serviceAndRecipeDialog.isOpen && (
+        <ServiceAndRecipe
+          open={serviceAndRecipeDialog.isOpen}
+          data={serviceAndRecipeDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setServiceAndRecipeDialog({ isOpen: false, data: {} });
           }}
         />
       )}
