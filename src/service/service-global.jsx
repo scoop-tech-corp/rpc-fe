@@ -75,7 +75,7 @@ export const getProductSellClinicByLocation = async (key, locationIds = []) => {
   });
 
   return getResp.data.map((dt) => {
-    return { label: dt.fullName, value: dt.fullName };
+    return { label: dt.fullName, value: dt.fullName, id: +dt.id };
   });
 };
 
@@ -83,7 +83,7 @@ export const getServiceListByLocation = async (locationIds = []) => {
   const getResp = await axios.get('service/list/location', { params: { locationId: locationIds.length ? locationIds : [''] } });
 
   return getResp.data.map((dt) => {
-    return { label: dt.fullName, value: dt.fullName };
+    return { label: dt.fullName, value: dt.fullName, id: +dt.id };
   });
 };
 
