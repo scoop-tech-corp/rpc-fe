@@ -19,6 +19,7 @@ import {
 } from 'pages/transaction/service';
 import PropTypes from 'prop-types';
 import { formatThousandSeparator } from 'utils/func';
+import configGlobal from '../../../../../config';
 
 const TransactionDetailPetShop = (props) => {
   const { id } = props.data;
@@ -381,7 +382,12 @@ const TransactionDetailPetShop = (props) => {
                   </InputLabel>
                   <div>
                     {data.detail?.proofOfPayment ? (
-                      <img width={100} height={150} src={data.detail.proofOfPayment} alt="proof-of-payment" />
+                      <img
+                        width={100}
+                        height={150}
+                        src={`${configGlobal.apiUrl}/storage/${data.detail.proofOfPayment}`}
+                        alt="proof-of-payment"
+                      />
                     ) : (
                       <FormattedMessage id="no-proof-of-payment-yet" />
                     )}
