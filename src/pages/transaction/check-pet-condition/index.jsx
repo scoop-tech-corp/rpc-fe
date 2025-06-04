@@ -11,6 +11,7 @@ import { checkHplStatus, checkPetConditionTransaction } from '../service';
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 import FormReject from 'components/FormReject';
+import { checkPetConditionTransactionPetHotel } from '../pages/pet-hotel/service';
 
 const CONSTANT_FORM_ERROR = {
   numberVaccinesErr: ''
@@ -33,7 +34,7 @@ const CONSTANT_FORM_VALUE = {
 };
 
 const CheckPetCondition = (props) => {
-  const { data } = props;
+  const { data, type } = props;
   const [formError, setFormError] = useState({ ...CONSTANT_FORM_ERROR });
   const [formValue, setFormValue] = useState({ ...CONSTANT_FORM_VALUE });
   const [disabledOke, setDisabledOk] = useState(true);
@@ -47,16 +48,30 @@ const CheckPetCondition = (props) => {
     if (reasonReject) {
       payload = { ...payload, reasonReject };
     }
-    await checkPetConditionTransaction(payload)
-      .then((resp) => {
-        if (resp && resp.status === 200) {
-          dispatch(snackbarSuccess('Success check pet condition'));
-          props.onClose(true);
-        }
-      })
-      .catch((err) => {
-        dispatch(snackbarError(createMessageBackend(err)));
-      });
+
+    if (type === 'pet-hotel') {
+      await checkPetConditionTransactionPetHotel(payload)
+        .then((resp) => {
+          if (resp && resp.status === 200) {
+            dispatch(snackbarSuccess('Success check pet condition'));
+            props.onClose(true);
+          }
+        })
+        .catch((err) => {
+          dispatch(snackbarError(createMessageBackend(err)));
+        });
+    } else {
+      await checkPetConditionTransaction(payload)
+        .then((resp) => {
+          if (resp && resp.status === 200) {
+            dispatch(snackbarSuccess('Success check pet condition'));
+            props.onClose(true);
+          }
+        })
+        .catch((err) => {
+          dispatch(snackbarError(createMessageBackend(err)));
+        });
+    }
   };
 
   const onCancel = () => props.onClose(false);

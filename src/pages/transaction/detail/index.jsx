@@ -13,6 +13,7 @@ import TransactionDetailAction from './action-detail';
 import LogActivityDetailTransaction from './log-activity';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
+import { getTransactionPetHotelDetail } from '../pages/pet-hotel/service';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
@@ -53,7 +54,13 @@ const TransactionDetail = (props) => {
   };
 
   const fetchData = async () => {
-    const resp = await getTransactionDetail({
+    let apiGetDetail = getTransactionDetail;
+
+    if (type === 'pet-hotel') {
+      apiGetDetail = getTransactionPetHotelDetail;
+    }
+
+    const resp = await apiGetDetail({
       id,
       ...filterLog
     });
