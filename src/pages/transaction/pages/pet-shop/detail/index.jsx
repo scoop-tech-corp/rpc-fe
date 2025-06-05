@@ -20,6 +20,8 @@ import {
 import PropTypes from 'prop-types';
 import { formatThousandSeparator } from 'utils/func';
 import configGlobal from '../../../../../config';
+import { useNavigate } from 'react-router';
+import useAuth from 'hooks/useAuth';
 
 const TransactionDetailPetShop = (props) => {
   const { id } = props.data;
@@ -30,89 +32,13 @@ const TransactionDetailPetShop = (props) => {
   const [filterLog, setFilterLog] = useState({}); // { dateRange: null }
   const [confirmPaymentDialog, setConfirmPaymentDialog] = useState({ open: false });
   const [file, setFile] = useState(null);
-  // const navigate = useNavigate();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // const [productsDetail, setProductsDetail] = useState([
-  //   {
-  //     item_name: 'whiskas',
-  //     category: 'Product Sell',
-  //     quantity: 2,
-  //     bonus: 1,
-  //     discount: 0,
-  //     unit_price: 25000,
-  //     total: 50000,
-  //     note: ''
-  //   },
-  //   {
-  //     item_name: 'Bundling Package: Lifecat & Purina',
-  //     category: '',
-  //     quantity: 1,
-  //     bonus: 0,
-  //     discount: 0,
-  //     total: 100000,
-  //     note: '',
-  //     included_items: [
-  //       {
-  //         name: 'Lifecat',
-  //         normal_price: 80000
-  //       },
-  //       {
-  //         name: 'Purina',
-  //         normal_price: 60000
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     item_name: 'Cat Litter',
-  //     category: 'Product Sell',
-  //     quantity: 1,
-  //     bonus: 0,
-  //     discount: 10,
-  //     unit_price: 25000,
-  //     total: 22500,
-  //     note: '10% discount (save Rp2,500)'
-  //   },
-  //   {
-  //     item_name: 'Cat Shampoo',
-  //     category: 'Product Sell',
-  //     quantity: 2,
-  //     bonus: 0,
-  //     discount: 0,
-  //     unit_price: 25000,
-  //     total: 50000,
-  //     note: ''
-  //   }
-  // ]);
   const onChangeTab = (value) => setTabSelected(value);
   const dispatch = useDispatch();
 
   const onCancel = () => props.onClose(false);
-
-  // procedure => accept , cancel
-  const onConfirm = async (val, procedure) => {
-    if (val) {
-      // await acceptTransaction({
-      //   transactionId: +data.detail.id,
-      //   status: procedure === 'accept' ? 1 : 0,
-      //   reason: procedure === 'cancel' ? val : ''
-      // })
-      //   .then((resp) => {
-      //     if (resp.status === 200) {
-      //       setDialog({ accept: false, reject: false });
-      //       dispatch(snackbarSuccess(`Success ${procedure} patient`));
-      //       props.onClose(`${procedure}-patient`);
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     if (err) {
-      //       setDialog({ accept: false, reject: false });
-      //       dispatch(snackbarError(createMessageBackend(err)));
-      //     }
-      //   });
-    } else {
-      // setDialog({ accept: false, reject: false });
-    }
-  };
 
   const onExport = async () => {
     try {
@@ -247,16 +173,18 @@ const TransactionDetailPetShop = (props) => {
         action={{
           element: (
             <Stack direction="row" gap={1} marginLeft="auto">
-              <Button
-                variant="contained"
-                aria-controls={props.open ? 'quick-access' : undefined}
-                aria-haspopup="true"
-                onClick={() => {
-                  // navigate(`/transaction/pet-shop/edit/${id}`);
-                }}
-              >
-                <FormattedMessage id="edit" />
-              </Button>
+              {['administrator', 'office'].includes(user?.role) && (
+                <Button
+                  variant="contained"
+                  aria-controls={props.open ? 'quick-access' : undefined}
+                  aria-haspopup="true"
+                  onClick={() => {
+                    navigate(`/transaction/pet-shop/edit/${id}`);
+                  }}
+                >
+                  <FormattedMessage id="edit" />
+                </Button>
+              )}
               <Button variant="contained" aria-controls={props.open ? 'quick-access' : undefined} aria-haspopup="true" onClick={onExport}>
                 <FormattedMessage id="print-invoice" />
               </Button>
