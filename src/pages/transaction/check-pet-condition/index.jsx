@@ -77,7 +77,11 @@ const CheckPetCondition = (props) => {
   const onCancel = () => props.onClose(false);
 
   const checkHpl = async (estimateDob) => {
-    await checkHplStatus({ transactionId: data.transactionId, estimateDateofBirth: estimateDob || formValue.estimateDateofBirth })
+    await checkHplStatus({
+      transactionId: data.transactionId,
+      estimateDateofBirth: estimateDob || formValue.estimateDateofBirth,
+      transactionCategory: type
+    })
       .then((resp) => {
         if (resp?.status === 200) {
           setFormValue((prevState) => ({ ...prevState, hplStatus: resp.data.status }));
