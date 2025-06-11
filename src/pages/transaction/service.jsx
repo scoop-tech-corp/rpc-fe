@@ -152,6 +152,7 @@ export const createPetShopTransaction = async (payload) => {
 
 export const updatePetShopTransaction = async (payload) => {
   return await axios.put('transaction/petshop', {
+    id: payload.id,
     isNewCustomer: false,
     customerId: payload.customerId,
     registrant: payload.registrant,
@@ -215,6 +216,12 @@ export const getTransactionPetShopDetail = async (payload) => {
 
   return await axios.get('transaction/petshop/detail', {
     params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
+export const getPromoDiscountPetShop = async (payload) => {
+  return await axios.get('promotion/discount/detail', {
+    params: { id: payload.id }
   });
 };
 
@@ -297,6 +304,7 @@ export const checkHplStatus = async (payload) => {
   const formData = new FormData();
   formData.append('transactionId', payload.transactionId);
   formData.append('estimateDateofBirth', estimateDateofBirth);
+  formData.append('transactionCategory', payload.transactionCategory);
   return await axios.post('transaction/hplcheck', formData);
 };
 

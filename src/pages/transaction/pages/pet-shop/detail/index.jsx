@@ -235,21 +235,6 @@ const TransactionDetailPetShop = (props) => {
               <Grid item xs={12} sm={6} md={6}>
                 <Stack spacing={1}>
                   <InputLabel>
-                    <FormattedMessage id="customer" />
-                  </InputLabel>
-                  {data.detail.isNewCustomer === true ? (
-                    <FormattedMessage id="customer-new" />
-                  ) : data.detail.isNewCustomer === false ? (
-                    <FormattedMessage id="customer-old" />
-                  ) : (
-                    '-'
-                  )}
-                </Stack>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={6}>
-                <Stack spacing={1}>
-                  <InputLabel>
                     <FormattedMessage id="created-by" />
                   </InputLabel>
                   {data.detail.createdBy || '-'}
@@ -300,8 +285,6 @@ const TransactionDetailPetShop = (props) => {
                   {data.detail.paymentMethod || '-'}
                 </Stack>
               </Grid>
-
-              <Grid item xs={12} sm={6} md={6}></Grid>
 
               <Grid item xs={12} sm={6} md={6}>
                 <Stack spacing={1}>

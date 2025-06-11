@@ -224,42 +224,41 @@ export default function FormTransactionPetShop() {
         customer: 'old',
         location: selectedLocation,
         customerName: selectedCustomer,
-        paymentMethodSelected: paymentMethodSelected
+        paymentMethodSelected: paymentMethodSelected,
+        notes: detail.notes
       }));
 
-      for (const product of detail.products) {
-        if (product.category === 'sell') {
-          setNewTransactionData((prevState) => [
-            ...prevState,
-            {
-              locationId: '',
-              productId: product.productId,
-              productName: product.item_name,
-              category: 'productSell',
-              quantity: +product.quantity,
-              unitPrice: +product.unit_price,
-              totalPrice: +product.total
-            }
-          ]);
-        } else if (product.category === 'clinic') {
-          setNewTransactionData((prevState) => [
-            ...prevState,
-            {
-              locationId: '',
-              productId: product.productId,
-              productName: product.item_name,
-              category: 'productClinic',
-              quantity: +product.quantity,
-              unitPrice: +product.unit_price,
-              totalPrice: +product.total
-            }
-          ]);
-        }
-      }
+      setSelectedPromoData((prev) => ({
+        ...prev,
+        ...detail.selectedPromos,
+        basedSales: Array.isArray(detail.selectedPromos.basedSales)
+          ? detail.selectedPromos.basedSales[0] || null
+          : detail.selectedPromos?.basedSales || null
+      }));
+
+      const mappedProducts = detail.products
+        .filter((product) => product.category === 'sell' || product.category === 'clinic')
+        .map((product) => ({
+          locationId: selectedLocation.value,
+          productId: product.productId,
+          productName: product.item_name,
+          category: product.category === 'sell' ? 'productSell' : 'productClinic',
+          quantity: +product.quantity,
+          unitPrice: +product.unit_price,
+          totalPrice: +product.total
+        }));
+
+      setNewTransactionData((prevState) => [...prevState, ...mappedProducts]);
     };
 
     getDetail();
   }, [id]);
+
+  useEffect(() => {
+    if (!isEditForm || !newTransactionData.length) return;
+
+    onSubmitPromo();
+  }, [newTransactionData, selectedPromoData, isEditForm]);
 
   const addProductSellToTransactionList = () => {
     const isSellPriceLowerThanMinPrice = Number(formValue.productSellPrice) < formValue.productSellMinPrice;
@@ -490,6 +489,7 @@ export default function FormTransactionPetShop() {
         Cell: (data) => {
           const onDeleteTransactionList = () => {
             setNewTransactionData((prevState) => prevState.filter((item) => item.productId !== data.row.original.productId));
+            setNewTransactionSummaryData(null);
           };
 
           return (
@@ -591,6 +591,7 @@ export default function FormTransactionPetShop() {
 
       if (isEditForm) {
         resp = await updatePetShopTransaction({
+          id: id,
           isNewCustomer,
           customerId: isNewCustomer ? '' : customer,
           customerName: isNewCustomer ? customer : '',
@@ -675,20 +676,21 @@ export default function FormTransactionPetShop() {
     setSelectedPromoData(INITIAL_STATE_PROMO);
   };
 
-  const handlePromoChange = (key) => (_, selectedObjects) => {
-    const selectedIds = selectedObjects.map((item) => item.id);
+  const handlePromoChange = (key, multiple) => (_, selectedObjects) => {
+    const selectedIds = multiple ? selectedObjects.map((item) => item.id) : selectedObjects?.id || null;
+
     setSelectedPromoData((prev) => ({
       ...prev,
       [key]: selectedIds
     }));
   };
 
-  const getSelectedObjects = (key) => {
+  const getSelectedObjects = (key, multiple) => {
     const ids = selectedPromoData[key];
-    return promoData[key].filter((item) => ids.includes(item.id));
+    return multiple ? promoData[key].filter((item) => ids.includes(item.id)) : promoData[key].find((item) => item.id === ids);
   };
 
-  const renderPromoAutocomplete = (id, labelId, key) => (
+  const renderPromoAutocomplete = (id, labelId, key, multiple = true) => (
     <Grid>
       <Stack spacing={1}>
         <InputLabel htmlFor={id}>
@@ -696,12 +698,14 @@ export default function FormTransactionPetShop() {
         </InputLabel>
         <Autocomplete
           id={id}
-          multiple
+          multiple={multiple}
           options={promoData[key]}
-          value={getSelectedObjects(key)}
+          value={getSelectedObjects(key, multiple)}
           getOptionLabel={(option) => option.name || ''}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={handlePromoChange(key)}
+          isOptionEqualToValue={(option, value) => {
+            return option.id === value.id;
+          }}
+          onChange={handlePromoChange(key, multiple)}
           renderInput={(params) => <TextField {...params} placeholder="Select..." />}
           renderOption={(props, option) => (
             <li {...props} key={option.id}>
@@ -1208,7 +1212,7 @@ export default function FormTransactionPetShop() {
         <ModalC
           title={<FormattedMessage id="promo-available" />}
           open={isPromoOpen}
-          onOk={onSubmitPromo}
+          onOk={() => onSubmitPromo()}
           onCancel={() => setIsPromoOpen(false)}
           fullWidth
           maxWidth="sm"
@@ -1224,7 +1228,7 @@ export default function FormTransactionPetShop() {
             {renderPromoAutocomplete('freeItems', 'free-product', 'freeItems')}
             {renderPromoAutocomplete('discounts', 'discount', 'discounts')}
             {renderPromoAutocomplete('bundles', 'bundle', 'bundles')}
-            {renderPromoAutocomplete('basedSales', 'based-on-purchase', 'basedSales')}
+            {renderPromoAutocomplete('basedSales', 'based-on-purchase', 'basedSales', false)}
           </Stack>
         </ModalC>
       )}
