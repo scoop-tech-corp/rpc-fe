@@ -1,17 +1,16 @@
+import { Button, Checkbox, FormControlLabel, FormGroup, Grid, InputLabel, Stack, TextField } from '@mui/material';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import FormReject from 'components/FormReject';
+import ModalC from 'components/ModalC';
+import { checkHplStatus } from 'pages/transaction/service';
+import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Button, Checkbox, FormControlLabel, FormGroup, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
-import { checkHplStatus, checkPetConditionTransaction } from '../service';
-
-import ModalC from 'components/ModalC';
-import PropTypes from 'prop-types';
-import FormReject from 'components/FormReject';
-import { checkPetConditionTransactionPetHotel } from '../pages/pet-hotel/service';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { checkPetConditionTransactionBreeding } from '../../service';
 
 const CONSTANT_FORM_ERROR = {
   numberVaccinesErr: ''
@@ -34,7 +33,7 @@ const CONSTANT_FORM_VALUE = {
 };
 
 const CheckPetCondition = (props) => {
-  const { data, type } = props;
+  const { data } = props;
   const [formError, setFormError] = useState({ ...CONSTANT_FORM_ERROR });
   const [formValue, setFormValue] = useState({ ...CONSTANT_FORM_VALUE });
   const [disabledOke, setDisabledOk] = useState(true);
@@ -49,29 +48,16 @@ const CheckPetCondition = (props) => {
       payload = { ...payload, reasonReject };
     }
 
-    if (type === 'pet-hotel') {
-      await checkPetConditionTransactionPetHotel(payload)
-        .then((resp) => {
-          if (resp && resp.status === 200) {
-            dispatch(snackbarSuccess('Success check pet condition'));
-            props.onClose(true);
-          }
-        })
-        .catch((err) => {
-          dispatch(snackbarError(createMessageBackend(err)));
-        });
-    } else {
-      await checkPetConditionTransaction(payload)
-        .then((resp) => {
-          if (resp && resp.status === 200) {
-            dispatch(snackbarSuccess('Success check pet condition'));
-            props.onClose(true);
-          }
-        })
-        .catch((err) => {
-          dispatch(snackbarError(createMessageBackend(err)));
-        });
-    }
+    await checkPetConditionTransactionBreeding(payload)
+      .then((resp) => {
+        if (resp && resp.status === 200) {
+          dispatch(snackbarSuccess('Success check pet condition'));
+          props.onClose(true);
+        }
+      })
+      .catch((err) => {
+        dispatch(snackbarError(createMessageBackend(err)));
+      });
   };
 
   const onCancel = () => props.onClose(false);
@@ -80,7 +66,7 @@ const CheckPetCondition = (props) => {
     await checkHplStatus({
       transactionId: data.transactionId,
       estimateDateofBirth: estimateDob || formValue.estimateDateofBirth,
-      transactionCategory: type
+      transactionCategory: 'breeding'
     })
       .then((resp) => {
         if (resp?.status === 200) {

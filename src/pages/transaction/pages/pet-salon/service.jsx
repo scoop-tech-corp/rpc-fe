@@ -1,8 +1,8 @@
 import axios from 'utils/axios';
 import { formateDateYYYMMDD } from 'utils/func';
 
-export const getTransactionPetHotelIndex = async (payload) => {
-  return await axios.get('/transaction/pethotel', {
+export const getTransactionPetSalonIndex = async (payload) => {
+  return await axios.get('/transaction/petsalon', {
     params: {
       orderValue: payload.orderValue,
       orderColumn: payload.orderColumn,
@@ -16,7 +16,7 @@ export const getTransactionPetHotelIndex = async (payload) => {
   });
 };
 
-export const createTransactionPetHotel = async (payload) => {
+export const createTransactionPetSalon = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
   const formData = new FormData();
@@ -41,22 +41,22 @@ export const createTransactionPetHotel = async (payload) => {
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
 
-  return await axios.post('transaction/pethotel', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post('transaction/petsalon', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const getTransactionPetHotelDetail = async (payload) => {
+export const getTransactionPetSalonDetail = async (payload) => {
   const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
   const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
 
-  return await axios.get('transaction/pethotel/detail', {
+  return await axios.get('transaction/petsalon/detail', {
     params: { id: payload.id, dateFrom, dateTo }
   });
 };
 
-export const updateTransactionPetHotel = async (payload) => {
+export const updateTransactionPetSalon = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
-  return await axios.put('transaction/pethotel', {
+  return await axios.put('transaction/petsalon', {
     id: payload.id,
     registrationNo: payload.registrationNo,
     isNewCustomer: isNewCustomer,
@@ -81,14 +81,14 @@ export const updateTransactionPetHotel = async (payload) => {
   });
 };
 
-export const deleteTransactionPetHotel = async (id) => {
-  return await axios.delete('transaction/pethotel', {
+export const deleteTransactionPetSalon = async (id) => {
+  return await axios.delete('transaction/petsalon', {
     data: { id }
   });
 };
 
-export const exportTransactionPetHotel = async (payload) => {
-  return await axios.get('transaction/pethotel/export', {
+export const exportTransactionPetSalon = async (payload) => {
+  return await axios.get('transaction/petsalon/export', {
     responseType: 'blob',
     params: {
       locationId: payload?.locationId?.length ? payload.locationId : [''],
@@ -97,24 +97,24 @@ export const exportTransactionPetHotel = async (payload) => {
   });
 };
 
-export const reassignTransactionPetHotel = async (payload) => {
+export const reassignTransactionPetSalon = async (payload) => {
   const formData = new FormData();
   formData.append('transactionId', payload.transactionId);
   formData.append('doctorId', payload.doctorId);
 
-  return await axios.post('transaction/pethotel/reassign', formData);
+  return await axios.post('transaction/petsalon/reassign', formData);
 };
 
-export const acceptTransactionPetHotel = async (payload) => {
+export const acceptTransactionPetSalon = async (payload) => {
   const formData = new FormData();
   formData.append('transactionId', payload.transactionId);
   formData.append('status', payload.status);
   formData.append('reason', payload.reason);
 
-  return await axios.post('transaction/pethotel/accept', formData);
+  return await axios.post('transaction/petsalon/accept', formData);
 };
 
-export const checkPetConditionTransactionPetHotel = async (payload) => {
+export const checkPetConditionTransactionPetSalon = async (payload) => {
   const estimateDateofBirth = payload.estimateDateofBirth ? formateDateYYYMMDD(new Date(payload.estimateDateofBirth)) : '';
 
   const formData = new FormData();
@@ -136,7 +136,7 @@ export const checkPetConditionTransactionPetHotel = async (payload) => {
   formData.append('isAcceptToProcess', payload.reasonReject ? 0 : 1);
   if (payload.reasonReject) formData.append('reasonReject', payload.reasonReject);
 
-  return await axios.post('transaction/pethotel/petcheck', formData);
+  return await axios.post('transaction/petsalon/petcheck', formData);
 };
 
 const mapPayloadTransactionForm = (payload) => {
