@@ -219,12 +219,6 @@ export const getTransactionPetShopDetail = async (payload) => {
   });
 };
 
-export const getPromoDiscountPetShop = async (payload) => {
-  return await axios.get('promotion/discount/detail', {
-    params: { id: payload.id }
-  });
-};
-
 export const deleteTransaction = async (id) => {
   return await axios.delete('transaction', {
     data: { id }
