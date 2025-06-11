@@ -67,7 +67,7 @@ const TransactionDataStatic = () => {
             case 'weight':
               return intl.formatMessage({ id: 'weight' });
             case 'temperature':
-              return intl.formatMessage({ id: 'temperature' });
+              return intl.formatMessage({ id: 'temperature-body' });
             case 'breath':
               return intl.formatMessage({ id: 'breath' });
             case 'sound':
