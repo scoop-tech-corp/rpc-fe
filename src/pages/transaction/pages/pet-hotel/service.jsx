@@ -1,6 +1,21 @@
 import axios from 'utils/axios';
 import { formateDateYYYMMDD } from 'utils/func';
 
+export const getTransactionPetHotelIndex = async (payload) => {
+  return await axios.get('/transaction/pethotel', {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      search: payload.search,
+      locationId: payload.locationId,
+      customerGroupId: payload.customerGroupId,
+      status: payload.status // ongoing or finished
+    }
+  });
+};
+
 export const createTransactionPetHotel = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
@@ -27,6 +42,15 @@ export const createTransactionPetHotel = async (payload) => {
   formData.append('note', payload.notes);
 
   return await axios.post('transaction/pethotel', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const getTransactionPetHotelDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/pethotel/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
 };
 
 export const updateTransactionPetHotel = async (payload) => {
@@ -57,27 +81,9 @@ export const updateTransactionPetHotel = async (payload) => {
   });
 };
 
-export const getTransactionPetHotelDetail = async (payload) => {
-  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
-  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
-
-  return await axios.get('transaction/pethotel/detail', {
-    params: { id: payload.id, dateFrom, dateTo }
-  });
-};
-
-export const getTransactionPetHotelIndex = async (payload) => {
-  return await axios.get('/transaction/pethotel', {
-    params: {
-      orderValue: payload.orderValue,
-      orderColumn: payload.orderColumn,
-      goToPage: payload.goToPage,
-      rowPerPage: payload.rowPerPage,
-      search: payload.search,
-      locationId: payload.locationId,
-      customerGroupId: payload.customerGroupId,
-      status: payload.status // ongoing or finished
-    }
+export const deleteTransactionPetHotel = async (id) => {
+  return await axios.delete('transaction/pethotel', {
+    data: { id }
   });
 };
 
@@ -91,34 +97,21 @@ export const exportTransactionPetHotel = async (payload) => {
   });
 };
 
-export const deleteTransactionPetHotel = async (id) => {
-  return await axios.delete('transaction/pethotel', {
-    data: { id }
-  });
+export const reassignTransactionPetHotel = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('doctorId', payload.doctorId);
+
+  return await axios.post('transaction/pethotel/reassign', formData);
 };
 
-const mapPayloadTransactionForm = (payload) => {
-  const startDate = payload.startDate ? formateDateYYYMMDD(new Date(payload.startDate)) : '';
-  const endDate = payload.endDate ? formateDateYYYMMDD(new Date(payload.endDate)) : '';
-  const petDob = payload.petDateOfBirth ? formateDateYYYMMDD(new Date(payload.petDateOfBirth)) : '';
+export const acceptTransactionPetHotel = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('status', payload.status);
+  formData.append('reason', payload.reason);
 
-  const isNewCustomer = payload.customer === 'old' ? 0 : 1;
-  const isNewPet = () => {
-    if (isNewCustomer || payload.petName) return 1;
-    return 0;
-  };
-  const customer = isNewCustomer ? payload.customerName : payload.customerName.value;
-  const location = payload.location.value;
-
-  return {
-    isNewPet: isNewPet(),
-    startDate,
-    endDate,
-    petDob,
-    isNewCustomer,
-    customer,
-    location
-  };
+  return await axios.post('transaction/pethotel/accept', formData);
 };
 
 export const checkPetConditionTransactionPetHotel = async (payload) => {
@@ -144,4 +137,28 @@ export const checkPetConditionTransactionPetHotel = async (payload) => {
   if (payload.reasonReject) formData.append('reasonReject', payload.reasonReject);
 
   return await axios.post('transaction/pethotel/petcheck', formData);
+};
+
+const mapPayloadTransactionForm = (payload) => {
+  const startDate = payload.startDate ? formateDateYYYMMDD(new Date(payload.startDate)) : '';
+  const endDate = payload.endDate ? formateDateYYYMMDD(new Date(payload.endDate)) : '';
+  const petDob = payload.petDateOfBirth ? formateDateYYYMMDD(new Date(payload.petDateOfBirth)) : '';
+
+  const isNewCustomer = payload.customer === 'old' ? 0 : 1;
+  const isNewPet = () => {
+    if (isNewCustomer || payload.petName) return 1;
+    return 0;
+  };
+  const customer = isNewCustomer ? payload.customerName : payload.customerName.value;
+  const location = payload.location.value;
+
+  return {
+    isNewPet: isNewPet(),
+    startDate,
+    endDate,
+    petDob,
+    isNewCustomer,
+    customer,
+    location
+  };
 };
