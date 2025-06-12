@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 // project import
-import axios from 'utils/axios';
+import axios from 'utils/axiosMock';
 import { dispatch } from 'store';
 
 const initialState = {
