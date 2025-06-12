@@ -1,44 +1,36 @@
-import { FormattedMessage } from 'react-intl';
-import {
-  Button,
-  Grid,
-  FormControl,
-  MenuItem,
-  Select,
-  InputLabel,
-  Stack,
-  Autocomplete,
-  TextField,
-  RadioGroup,
-  FormControlLabel,
-  Radio
-} from '@mui/material';
-import { Fragment, useEffect, useState } from 'react';
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { PlusOutlined } from '@ant-design/icons';
-import { getCustomerPetList, getPetCategoryList } from 'pages/customer/service';
-import { createMessageBackend, getCustomerByLocationList, getDoctorStaffByLocationList } from 'service/service-global';
-import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import {
-  createTransaction,
-  getKeyServiceCategoryByValue,
-  getLocationTransactionList,
-  getTransactionDetail,
-  updateTransaction
-} from './service';
-import { useDispatch } from 'react-redux';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { create } from 'zustand';
-import { jsonCentralized } from 'utils/func';
-import { createTransactionPetClinic } from './pages/pet-clinic/service';
-
-import ModalC from 'components/ModalC';
-import PropTypes from 'prop-types';
-import IconButton from 'components/@extended/IconButton';
-import FormPet from './form-pet';
+  Autocomplete,
+  Button,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Stack,
+  TextField
+} from '@mui/material';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ErrorContainer from 'components/@extended/ErrorContainer';
-import { createTransactionPetHotel, getTransactionPetHotelDetail, updateTransactionPetHotel } from './pages/pet-hotel/service';
+import IconButton from 'components/@extended/IconButton';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
+import ModalC from 'components/ModalC';
+import { getCustomerPetList, getPetCategoryList } from 'pages/customer/service';
+import { ServiceCategory, getKeyServiceCategoryByValue, getLocationTransactionList } from 'pages/transaction/service';
+import PropTypes from 'prop-types';
+import { Fragment, useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useDispatch } from 'react-redux';
+import { createMessageBackend, getCustomerByLocationList, getDoctorStaffByLocationList } from 'service/service-global';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { jsonCentralized } from 'utils/func';
+import { create } from 'zustand';
+import FormPet from '../../form-pet';
+import { createTransactionPetSalon, getTransactionPetSalonDetail, updateTransactionPetSalon } from './service';
 
 const CONSTANT_PET_FORM = {
   petId: '',
@@ -78,7 +70,7 @@ export const dropdownList = create(() =>
 export const getDropdownAll = () => dropdownList.getState();
 
 const FormTransaction = (props) => {
-  const { id, type } = props;
+  const { id } = props;
   const customerList = dropdownList((state) => state.customerList);
   const customerPetList = dropdownList((state) => state.customerPetList);
 
@@ -105,37 +97,16 @@ const FormTransaction = (props) => {
     };
 
     if (isEditForm) {
-      if (type === 'pet-hotel') {
-        await updateTransactionPetHotel({ id, ...formValue })
-          .then(responseSuccess)
-          .catch(responseError);
-      } else {
-        await updateTransaction({ id, ...formValue })
-          .then(responseSuccess)
-          .catch(responseError);
-      }
+      await updateTransactionPetSalon({ id, ...formValue })
+        .then(responseSuccess)
+        .catch(responseError);
     } else {
       try {
-        let apiCall = createTransaction;
-        if (formValue.configTransaction === 'clinic') {
-          apiCall = createTransactionPetClinic;
-        } else if (type === 'pet-hotel') {
-          apiCall = createTransactionPetHotel;
-        } else {
-          apiCall = createTransaction;
-        }
-
-        const response = await apiCall(formValue);
+        const response = await createTransactionPetSalon(formValue);
         responseSuccess(response);
       } catch (error) {
         responseError(error);
       }
-
-      // if (formValue.configTransaction === 'clinic') {
-      //   await createTransactionPetClinic(formValue).then(responseSuccess).catch(responseError);
-      // } else {
-      //   await createTransaction(formValue).then(responseSuccess).catch(responseError);
-      // }
     }
   };
   const clearForm = () => setFormValue((prevState) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prevState.configTransaction }));
@@ -212,13 +183,7 @@ const FormTransaction = (props) => {
 
   const getDetail = async () => {
     if (id) {
-      let apiGetDetail = getTransactionDetail;
-
-      if (type === 'pet-hotel') {
-        apiGetDetail = getTransactionPetHotelDetail;
-      }
-
-      const respDetail = await apiGetDetail({ id });
+      const respDetail = await getTransactionPetSalonDetail({ id });
       const data = respDetail.data.detail;
       setIsEditForm(true);
 
@@ -249,8 +214,7 @@ const FormTransaction = (props) => {
         petDateOfBirth: data.dateOfBirth, // belum ada
         petMonth: data.petMonth, // belum ada
         petYear: data.petYear, // belum ada
-        configTransaction:
-          type === 'pet-hotel' ? getKeyServiceCategoryByValue('Pet Hotel') : getKeyServiceCategoryByValue(data.serviceCategory),
+        configTransaction: getKeyServiceCategoryByValue(ServiceCategory.pacak),
         startDate: data.startDate,
         endDate: data.endDate,
         treatingDoctor, // need id
@@ -260,11 +224,7 @@ const FormTransaction = (props) => {
   };
 
   const decideFormTransactionType = () => {
-    if (type === 'pet-hotel') {
-      setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue('Pet Hotel') }));
-    } else {
-      setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(type) }));
-    }
+    setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(ServiceCategory.pacak) }));
   };
 
   useEffect(() => {
@@ -674,71 +634,38 @@ const FormTransaction = (props) => {
             </>
           )}
 
-          {['hotel', 'pacak', 'clinic'].includes(formValue.configTransaction) && (
-            <>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="start-date">
-                    <FormattedMessage id="start-date" />
-                  </InputLabel>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DesktopDatePicker
-                      inputFormat="DD/MM/YYYY"
-                      value={formValue.startDate}
-                      onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </LocalizationProvider>
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="end-date">
-                    <FormattedMessage id="end-date" />
-                  </InputLabel>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DesktopDatePicker
-                      inputFormat="DD/MM/YYYY"
-                      value={formValue.endDate}
-                      onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </LocalizationProvider>
-                </Stack>
-              </Grid>
-            </>
-          )}
-
-          {['clinic'].includes(formValue.configTransaction) && (
+          <>
             <Grid item xs={12}>
               <Stack spacing={1}>
-                <InputLabel>
-                  <FormattedMessage id="type-of-care" />
+                <InputLabel htmlFor="start-date">
+                  <FormattedMessage id="start-date" />
                 </InputLabel>
-                <FormControl style={{ width: '100%' }}>
-                  <Select
-                    id="typeOfCare"
-                    name="typeOfCare"
-                    value={formValue.typeOfCare}
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder="Select type"
-                  >
-                    <MenuItem value="">
-                      <em>
-                        <FormattedMessage id="select-type" />
-                      </em>
-                    </MenuItem>
-                    <MenuItem value={1}>
-                      <FormattedMessage id="outpatient-care" />
-                    </MenuItem>
-                    <MenuItem value={2}>
-                      <FormattedMessage id="inpatient-care" />
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    inputFormat="DD/MM/YYYY"
+                    value={formValue.startDate}
+                    onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
               </Stack>
             </Grid>
-          )}
+            <Grid item xs={12}>
+              <Stack spacing={1}>
+                <InputLabel htmlFor="end-date">
+                  <FormattedMessage id="end-date" />
+                </InputLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    inputFormat="DD/MM/YYYY"
+                    value={formValue.endDate}
+                    onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
+              </Stack>
+            </Grid>
+          </>
 
           <Grid item xs={12}>
             <Stack spacing={1}>
@@ -783,89 +710,6 @@ const FormTransaction = (props) => {
               />
             </Stack>
           </Grid>
-
-          {/* <Grid item xs={12}> */}
-          {/* <Grid container spacing={3}> */}
-          {/* {['hotel', 'pacak', 'clinic'].includes(formValue.configTransaction) && (
-                <>
-                  <Grid item xs={12}>
-                    <Stack spacing={1}>
-                      <InputLabel htmlFor="start-date">
-                        <FormattedMessage id="start-date" />
-                      </InputLabel>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
-                          inputFormat="DD/MM/YYYY"
-                          value={formValue.startDate}
-                          onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </LocalizationProvider>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Stack spacing={1}>
-                      <InputLabel htmlFor="end-date">
-                        <FormattedMessage id="end-date" />
-                      </InputLabel>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
-                          inputFormat="DD/MM/YYYY"
-                          value={formValue.endDate}
-                          onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </LocalizationProvider>
-                    </Stack>
-                  </Grid>
-                </>
-                )} */}
-
-          {/* <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="treating-doctor">
-                    <FormattedMessage id="treating-doctor" />
-                  </InputLabel>
-                  <Autocomplete
-                    id="treating-doctor"
-                    options={getDropdownAll().doctorList}
-                    value={formValue.treatingDoctor}
-                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                    onChange={(_, selected) => {
-                      setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }));
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        // error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
-                        // helperText={dt.error.countryErr}
-                        // variant="outlined"
-                      />
-                    )}
-                  />
-                </Stack> */}
-          {/* </Grid> */}
-
-          {/* <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel>
-                    <FormattedMessage id="notes" />
-                  </InputLabel>
-                  <TextField
-                    multiline
-                    fullWidth
-                    rows={5}
-                    id="notes"
-                    name="notes"
-                    value={formValue.notes}
-                    onChange={(event) => {
-                      setFormValue((prevState) => ({ ...prevState, notes: event.target.value }));
-                    }}
-                  />
-                </Stack>
-              </Grid> */}
-          {/* </Grid> */}
-          {/* </Grid> */}
         </Grid>
       </ModalC>
 
@@ -907,7 +751,6 @@ const FormTransaction = (props) => {
 FormTransaction.propTypes = {
   id: PropTypes.number,
   open: PropTypes.bool,
-  type: PropTypes.string,
   onClose: PropTypes.func
 };
 

@@ -150,6 +150,27 @@ export const createPetShopTransaction = async (payload) => {
   });
 };
 
+export const updatePetShopTransaction = async (payload) => {
+  return await axios.put('transaction/petshop', {
+    id: payload.id,
+    isNewCustomer: false,
+    customerId: payload.customerId,
+    registrant: payload.registrant,
+    locationId: payload.locationId,
+    serviceCategory: 'Pet Shop',
+    notes: payload.notes,
+    paymentMethod: payload.paymentMethod,
+    productList: payload.productList.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.price,
+      note: item.note,
+      promoId: item.promoId
+    })),
+    selectedPromos: payload.selectedPromos
+  });
+};
+
 export const getTransactionIndex = async (payload) => {
   return await axios.get('transaction', {
     params: {
@@ -185,6 +206,15 @@ export const getTransactionDetail = async (payload) => {
   const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
 
   return await axios.get('transaction/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
+export const getTransactionPetShopDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/petshop/detail', {
     params: { id: payload.id, dateFrom, dateTo }
   });
 };
@@ -227,6 +257,20 @@ export const exportPetShopTransaction = async (payload) => {
   });
 };
 
+export const confirmPaymentPetShopTransaction = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.transactionId);
+  formData.append('proof', payload.proof);
+
+  return await axios.post('transaction/petshop/confirmPayment', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
+
+export const generateInvoicePetShopTransaction = async (id) => {
+  return await axios.get(`transaction/petshop/generateInvoice/${id}`);
+};
+
 export const getPromoList = async (payload) => {
   return await axios.post('promotion/discount/checkpromo', payload);
 };
@@ -254,6 +298,7 @@ export const checkHplStatus = async (payload) => {
   const formData = new FormData();
   formData.append('transactionId', payload.transactionId);
   formData.append('estimateDateofBirth', estimateDateofBirth);
+  formData.append('transactionCategory', payload.transactionCategory);
   return await axios.post('transaction/hplcheck', formData);
 };
 

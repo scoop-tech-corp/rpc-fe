@@ -1,130 +1,97 @@
+import { Box, Button, Grid, InputLabel, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Box, Button, Grid, InputLabel, Stack, Tab, Tabs } from '@mui/material';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, processDownloadPDF } from 'service/service-global';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 
+import ConfirmationC from 'components/ConfirmationC';
 import ModalC from 'components/ModalC';
 import TabPanel from 'components/TabPanelC';
-import PropTypes from 'prop-types';
-import ConfirmationC from 'components/ConfirmationC';
-import FormReject from 'components/FormReject';
-import LogActivityDetailTransaction from 'pages/transaction/detail/log-activity';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { formatThousandSeparator } from 'utils/func';
 import SingleFileUpload from 'components/third-party/dropzone/SingleFile';
+import LogActivityDetailTransaction from 'pages/transaction/detail/log-activity';
+import {
+  confirmPaymentPetShopTransaction,
+  deletePetShopTransaction,
+  generateInvoicePetShopTransaction,
+  getTransactionPetShopDetail
+} from 'pages/transaction/service';
+import PropTypes from 'prop-types';
+import { formatThousandSeparator } from 'utils/func';
+import configGlobal from '../../../../../config';
+import { useNavigate } from 'react-router';
+import useAuth from 'hooks/useAuth';
 
 const TransactionDetailPetShop = (props) => {
   const { id } = props.data;
   const [tabSelected, setTabSelected] = useState(0);
-  const [dialog, setDialog] = useState({ accept: false, reject: false });
+  const [dialog, setDialog] = useState(false);
   const [data, setData] = useState({ detail: {}, log: [] });
+  const summaryProducts = useMemo(() => data.detail?.products || [], [data]);
   const [filterLog, setFilterLog] = useState({}); // { dateRange: null }
   const [confirmPaymentDialog, setConfirmPaymentDialog] = useState({ open: false });
   const [file, setFile] = useState(null);
-  const [productsDetail, setProductsDetail] = useState([
-    {
-      item_name: 'whiskas',
-      category: 'Product Sell',
-      quantity: 2,
-      bonus: 1,
-      discount: 0,
-      unit_price: 25000,
-      total: 50000,
-      note: ''
-    },
-    {
-      item_name: 'Bundling Package: Lifecat & Purina',
-      category: '',
-      quantity: 1,
-      bonus: 0,
-      discount: 0,
-      total: 100000,
-      note: '',
-      included_items: [
-        {
-          name: 'Lifecat',
-          normal_price: 80000
-        },
-        {
-          name: 'Purina',
-          normal_price: 60000
-        }
-      ]
-    },
-    {
-      item_name: 'Cat Litter',
-      category: 'Product Sell',
-      quantity: 1,
-      bonus: 0,
-      discount: 10,
-      unit_price: 25000,
-      total: 22500,
-      note: '10% discount (save Rp2,500)'
-    },
-    {
-      item_name: 'Cat Shampoo',
-      category: 'Product Sell',
-      quantity: 2,
-      bonus: 0,
-      discount: 0,
-      unit_price: 25000,
-      total: 50000,
-      note: ''
-    }
-  ]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const onChangeTab = (value) => setTabSelected(value);
   const dispatch = useDispatch();
 
   const onCancel = () => props.onClose(false);
 
-  // procedure => accept , cancel
-  const onConfirm = async (val, procedure) => {
-    if (val) {
-      // await acceptTransaction({
-      //   transactionId: +data.detail.id,
-      //   status: procedure === 'accept' ? 1 : 0,
-      //   reason: procedure === 'cancel' ? val : ''
-      // })
-      //   .then((resp) => {
-      //     if (resp.status === 200) {
-      //       setDialog({ accept: false, reject: false });
-      //       dispatch(snackbarSuccess(`Success ${procedure} patient`));
-      //       props.onClose(`${procedure}-patient`);
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     if (err) {
-      //       setDialog({ accept: false, reject: false });
-      //       dispatch(snackbarError(createMessageBackend(err)));
-      //     }
-      //   });
+  const onExport = async () => {
+    try {
+      const resp = await generateInvoicePetShopTransaction(id);
+      processDownloadPDF(resp, 'nota_petshop');
+      dispatch(snackbarSuccess(`Success export pet shop transaction`));
+    } catch (err) {
+      if (err) {
+        dispatch(snackbarError(createMessageBackend(err)));
+      }
+    }
+  };
+
+  const onConfirmPayment = async () => {
+    try {
+      await confirmPaymentPetShopTransaction({
+        transactionId: id,
+        proof: file[0]
+      });
+
+      dispatch(snackbarSuccess('Success confirm payment pet shop transaction'));
+      setConfirmPaymentDialog({ open: false });
+    } catch (err) {
+      if (err) {
+        dispatch(snackbarError(createMessageBackend(err)));
+      }
+    }
+  };
+
+  const onDelete = async (response) => {
+    if (response) {
+      try {
+        await deletePetShopTransaction([id]);
+        dispatch(snackbarSuccess('Success delete pet shop transaction'));
+        setDialog(false);
+        props.onClose();
+      } catch (err) {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      }
     } else {
-      setDialog({ accept: false, reject: false });
+      setDialog(false);
     }
   };
 
   const fetchData = async () => {
-    // const resp = await getTransactionDetail({
-    //   id,
-    //   ...filterLog
-    // });
-    // const getData = resp.data;
-    // setData({ detail: getData.detail, log: getData.transactionLogs });
-    setData({
-      detail: {
-        isNewCustomer: true,
-        locationName: 'RPC Condet',
-        customerName: 'John Doe',
-        paymentMethod: 'Debit',
-        createdBy: 'Agus',
-        createdAt: '20/11/2025 11:00:00',
-        notes: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus, recusandae.',
-        proofOfPayment: 'https://picsum.photos/id/870/200/300?grayscale&blur=2'
-      },
-      log: []
+    const resp = await getTransactionPetShopDetail({
+      id,
+      ...filterLog
     });
+    const getData = resp.data;
+    setData({ detail: getData.detail, log: getData?.transactionLogs || [] });
   };
 
   useEffect(() => {
@@ -205,22 +172,20 @@ const TransactionDetailPetShop = (props) => {
         maxWidth="md"
         action={{
           element: (
-            // <TransactionDetailAction
-            //   onAction={(action) => {
-            //     if (action === 'accept-patient') {
-            //       setDialog({ accept: true, reject: false });
-            //     } else if (action === 'cancel-patient') {
-            //       setDialog({ accept: false, reject: true });
-            //     } else {
-            //       props.onClose(action);
-            //     }
-            //   }}
-            // />
             <Stack direction="row" gap={1} marginLeft="auto">
-              <Button variant="contained" aria-controls={props.open ? 'quick-access' : undefined} aria-haspopup="true" onClick={() => {}}>
-                <FormattedMessage id="edit" />
-              </Button>
-              <Button variant="contained" aria-controls={props.open ? 'quick-access' : undefined} aria-haspopup="true" onClick={() => {}}>
+              {['administrator', 'office'].includes(user?.role) && (
+                <Button
+                  variant="contained"
+                  aria-controls={props.open ? 'quick-access' : undefined}
+                  aria-haspopup="true"
+                  onClick={() => {
+                    navigate(`/transaction/pet-shop/edit/${id}`);
+                  }}
+                >
+                  <FormattedMessage id="edit" />
+                </Button>
+              )}
+              <Button variant="contained" aria-controls={props.open ? 'quick-access' : undefined} aria-haspopup="true" onClick={onExport}>
                 <FormattedMessage id="print-invoice" />
               </Button>
               <Button
@@ -238,7 +203,7 @@ const TransactionDetailPetShop = (props) => {
                 color="error"
                 aria-controls={props.open ? 'quick-access' : undefined}
                 aria-haspopup="true"
-                onClick={() => {}}
+                onClick={() => setDialog(true)}
               >
                 <FormattedMessage id="delete" />
               </Button>
@@ -267,15 +232,6 @@ const TransactionDetailPetShop = (props) => {
         <Box sx={{ mt: 2.5 }}>
           <TabPanel value={tabSelected} index={0} name="detail-transaction">
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={6}>
-                <Stack spacing={1}>
-                  <InputLabel>
-                    <FormattedMessage id="customer" />
-                  </InputLabel>
-                  {+data.detail.isNewCustomer ? <FormattedMessage id="customer-new" /> : <FormattedMessage id="customer-old" />}
-                </Stack>
-              </Grid>
-
               <Grid item xs={12} sm={6} md={6}>
                 <Stack spacing={1}>
                   <InputLabel>
@@ -330,8 +286,6 @@ const TransactionDetailPetShop = (props) => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={6}></Grid>
-
               <Grid item xs={12} sm={6} md={6}>
                 <Stack spacing={1}>
                   <InputLabel>
@@ -339,7 +293,12 @@ const TransactionDetailPetShop = (props) => {
                   </InputLabel>
                   <div>
                     {data.detail?.proofOfPayment ? (
-                      <img width={100} height={150} src={data.detail.proofOfPayment} alt="proof-of-payment" />
+                      <img
+                        width={100}
+                        height={150}
+                        src={`${configGlobal.apiUrl}/storage/${data.detail.proofOfPayment}`}
+                        alt="proof-of-payment"
+                      />
                     ) : (
                       <FormattedMessage id="no-proof-of-payment-yet" />
                     )}
@@ -352,7 +311,7 @@ const TransactionDetailPetShop = (props) => {
               <h3>
                 <FormattedMessage id="products" />{' '}
               </h3>
-              <ReactTable columns={summaryColumns} data={productsDetail} />
+              <ReactTable columns={summaryColumns} data={summaryProducts} />
             </Stack>
           </TabPanel>
           <TabPanel value={tabSelected} index={1} name="detail-transaction">
@@ -369,7 +328,7 @@ const TransactionDetailPetShop = (props) => {
       <ModalC
         title={<FormattedMessage id="confirm-payment" />}
         open={confirmPaymentDialog.open}
-        // onOk={onSubmitPromo}
+        onOk={onConfirmPayment}
         onCancel={() => setConfirmPaymentDialog({ open: false })}
         fullWidth
         maxWidth="sm"
@@ -387,18 +346,21 @@ const TransactionDetailPetShop = (props) => {
         </Stack>
       </ModalC>
 
-      <ConfirmationC
+      {/* <ConfirmationC
         open={dialog.accept}
         title={<FormattedMessage id="accept-patient" />}
         content={<FormattedMessage id="are-you-sure-want-to-accept-this-patient" />}
         onClose={(response) => onConfirm(response, 'accept')}
         btnTrueText="Ok"
-      />
-      <FormReject
-        open={dialog.reject}
-        title={<FormattedMessage id="confirm-and-please-fill-in-the-reasons-for-cancel-this-patient" />}
-        onSubmit={(response) => onConfirm(response, 'cancel')}
-        onClose={() => setDialog({ accept: false, reject: false })}
+      /> */}
+
+      <ConfirmationC
+        open={dialog}
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+        onClose={(response) => onDelete(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
       />
     </>
   );

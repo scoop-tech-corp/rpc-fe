@@ -1,25 +1,22 @@
-import { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
 import { Box, Grid, InputLabel, Stack, Tab, Tabs } from '@mui/material';
-import { acceptTransaction, getTransactionDetail } from '../service';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { useDispatch } from 'react-redux';
-import { createMessageBackend } from 'service/service-global';
-
-import ModalC from 'components/ModalC';
-import TabPanel from 'components/TabPanelC';
-import PropTypes from 'prop-types';
-import TransactionDetailAction from './action-detail';
-import LogActivityDetailTransaction from './log-activity';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
-import { getTransactionPetHotelDetail } from '../pages/pet-hotel/service';
+import ModalC from 'components/ModalC';
+import TabPanel from 'components/TabPanelC';
+import TransactionDetailAction from 'pages/transaction/detail/action-detail';
+import LogActivityDetailTransaction from 'pages/transaction/detail/log-activity';
+import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useDispatch } from 'react-redux';
+import { createMessageBackend } from 'service/service-global';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { acceptTransactionPetSalon, deleteTransactionPetSalon, getTransactionPetSalonDetail } from '../service';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
-  const { type } = props;
   const [tabSelected, setTabSelected] = useState(0);
-  const [dialog, setDialog] = useState({ accept: false, reject: false });
+  const [dialog, setDialog] = useState({ accept: false, reject: false, delete: false });
   const [data, setData] = useState({ detail: {}, log: [] });
   const [filterLog, setFilterLog] = useState({}); // { dateRange: null }
   const onChangeTab = (value) => setTabSelected(value);
@@ -30,37 +27,52 @@ const TransactionDetail = (props) => {
   // procedure => accept , cancel
   const onConfirm = async (val, procedure) => {
     if (val) {
-      await acceptTransaction({
+      await acceptTransactionPetSalon({
         transactionId: +data.detail.id,
         status: procedure === 'accept' ? 1 : 0,
         reason: procedure === 'cancel' ? val : ''
       })
         .then((resp) => {
           if (resp.status === 200) {
-            setDialog({ accept: false, reject: false });
+            setDialog({ accept: false, reject: false, delete: false });
             dispatch(snackbarSuccess(`Success ${procedure} patient`));
             props.onClose(`${procedure}-patient`);
           }
         })
         .catch((err) => {
           if (err) {
-            setDialog({ accept: false, reject: false });
+            setDialog({ accept: false, reject: false, delete: false });
             dispatch(snackbarError(createMessageBackend(err)));
           }
         });
     } else {
-      setDialog({ accept: false, reject: false });
+      setDialog({ accept: false, reject: false, delete: false });
+    }
+  };
+
+  const onDelete = async (val) => {
+    if (val) {
+      await deleteTransactionPetSalon([id])
+        .then((resp) => {
+          if (resp.status === 200) {
+            setDialog({ accept: false, reject: false, delete: false });
+            dispatch(snackbarSuccess(`Success delete data`));
+            props.onClose(`delete`);
+          }
+        })
+        .catch((err) => {
+          if (err) {
+            setDialog({ accept: false, reject: false, delete: false });
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    } else {
+      setDialog({ accept: false, reject: false, delete: false });
     }
   };
 
   const fetchData = async () => {
-    let apiGetDetail = getTransactionDetail;
-
-    if (type === 'pet-hotel') {
-      apiGetDetail = getTransactionPetHotelDetail;
-    }
-
-    const resp = await apiGetDetail({
+    const resp = await getTransactionPetSalonDetail({
       id,
       ...filterLog
     });
@@ -87,9 +99,11 @@ const TransactionDetail = (props) => {
             <TransactionDetailAction
               onAction={(action) => {
                 if (action === 'accept-patient') {
-                  setDialog({ accept: true, reject: false });
+                  setDialog({ accept: true, reject: false, delete: false });
                 } else if (action === 'cancel-patient') {
-                  setDialog({ accept: false, reject: true });
+                  setDialog({ accept: false, reject: true, delete: false });
+                } else if (action === 'delete') {
+                  setDialog({ accept: false, reject: false, delete: true });
                 } else {
                   props.onClose(action);
                 }
@@ -240,6 +254,16 @@ const TransactionDetail = (props) => {
           </TabPanel>
         </Box>
       </ModalC>
+
+      <ConfirmationC
+        open={dialog.delete}
+        title={<FormattedMessage id="delete" />}
+        content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
+        onClose={(response) => onDelete(response)}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
+
       <ConfirmationC
         open={dialog.accept}
         title={<FormattedMessage id="accept-patient" />}
@@ -260,8 +284,7 @@ const TransactionDetail = (props) => {
 TransactionDetail.propTypes = {
   open: PropTypes.bool,
   data: PropTypes.object,
-  onClose: PropTypes.func,
-  type: PropTypes.string
+  onClose: PropTypes.func
 };
 
 export default TransactionDetail;

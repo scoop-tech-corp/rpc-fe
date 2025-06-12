@@ -10,15 +10,18 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { getProductClinicDropdown, getProductSellDropdown } from 'pages/product/product-list/service';
 import {
   createPetShopTransaction,
+  generateInvoicePetShopTransaction,
   getLocationTransactionList,
   getPaymentMethodTransactionList,
   getPromoList,
-  submitPromoDiscount
+  getTransactionPetShopDetail,
+  submitPromoDiscount,
+  updatePetShopTransaction
 } from 'pages/transaction/service';
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { createMessageBackend, getCustomerByLocationList } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { formatThousandSeparator, jsonCentralized } from 'utils/func';
@@ -67,10 +70,15 @@ export const dropdownList = create(() =>
 );
 export const getDropdownAll = () => dropdownList.getState();
 
-export default function CreateTransactionPetShop() {
+export default function FormTransactionPetShop() {
+  const pathname = useParams();
+  const { id } = pathname;
+  const [isEditForm, setIsEditForm] = useState(id ? true : false);
   const [formValue, setFormValue] = useState(CONSTANT_FORM_VALUE);
   const customerList = dropdownList((state) => state.customerList);
   const paymentMethodList = dropdownList((state) => state.paymentMethodList);
+  const productSellList = dropdownList((state) => state.productSellList);
+  const productClinicList = dropdownList((state) => state.productClinicList);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
   const [isError, setIsError] = useState(false);
   const [formErrors, setFormErrors] = useState({
@@ -142,21 +150,25 @@ export default function CreateTransactionPetShop() {
       const getProductSell = await getProductSellDropdown(formValue.location.value);
       const getProductClinic = await getProductClinicDropdown(formValue.location.value);
 
+      const mappedProductSell = getProductSell.map((product) => ({
+        ...product,
+        label: `${product.data.fullName} - ${formatThousandSeparator(product.data.price)}`
+      }));
+
+      const mappedProductClinic = getProductClinic.map((product) => ({
+        ...product,
+        label: `${product.data.fullName} - ${formatThousandSeparator(product.data.price)}`
+      }));
+
       dropdownList.setState((prevState) => ({
         ...prevState,
-        productSellList: getProductSell.map((product) => ({
-          ...product,
-          label: `${product.data.fullName} - ${formatThousandSeparator(product.data.price)}`
-        })),
-        productClinicList: getProductClinic.map((product) => ({
-          ...product,
-          label: `${product.data.fullName} - ${formatThousandSeparator(product.data.price)}`
-        }))
+        productSellList: mappedProductSell,
+        productClinicList: mappedProductClinic
       }));
     };
 
     getProductDropdown();
-  }, [formValue.location]);
+  }, [formValue.location, formValue.customer, formValue.customerName]);
 
   const getData = async () => {
     loaderGlobalConfig.setLoader(true);
@@ -175,6 +187,78 @@ export default function CreateTransactionPetShop() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // fetch detail when edit form
+  useEffect(() => {
+    if (!id) return;
+
+    setIsEditForm(true);
+
+    const getSelectedLocationByName = async (locationName) => {
+      const locations = await getLocationTransactionList();
+      const location = locations.find((dt) => dt.label === locationName);
+      return location;
+    };
+
+    const getSelectedCustomerByName = async (customerName, locationId) => {
+      const customers = await getCustomerByLocationList(locationId);
+      const customer = customers.find((dt) => dt.label.split(' - ')[1] === customerName);
+      return customer;
+    };
+
+    const getSelectedPaymentMethodByName = async (paymentMethodName) => {
+      const paymentMethodList = await getPaymentMethodTransactionList();
+      const paymentMethod = paymentMethodList.find((dt) => dt.label === paymentMethodName);
+      return paymentMethod;
+    };
+
+    const getDetail = async () => {
+      const transactionPetShopDetail = await getTransactionPetShopDetail({ id });
+      const detail = transactionPetShopDetail.data.detail;
+      const selectedLocation = await getSelectedLocationByName(detail.locationName);
+      const selectedCustomer = await getSelectedCustomerByName(detail.customerName, selectedLocation.value);
+      const paymentMethodSelected = await getSelectedPaymentMethodByName(detail.paymentMethod);
+
+      setFormValue((prevState) => ({
+        ...prevState,
+        customer: 'old',
+        location: selectedLocation,
+        customerName: selectedCustomer,
+        paymentMethodSelected: paymentMethodSelected,
+        notes: detail.notes
+      }));
+
+      setSelectedPromoData((prev) => ({
+        ...prev,
+        ...detail.selectedPromos,
+        basedSales: Array.isArray(detail.selectedPromos.basedSales)
+          ? detail.selectedPromos.basedSales[0] || null
+          : detail.selectedPromos?.basedSales || null
+      }));
+
+      const mappedProducts = detail.products
+        .filter((product) => product.category === 'sell' || product.category === 'clinic')
+        .map((product) => ({
+          locationId: selectedLocation.value,
+          productId: product.productId,
+          productName: product.item_name,
+          category: product.category === 'sell' ? 'productSell' : 'productClinic',
+          quantity: +product.quantity,
+          unitPrice: +product.unit_price,
+          totalPrice: +product.total
+        }));
+
+      setNewTransactionData((prevState) => [...prevState, ...mappedProducts]);
+    };
+
+    getDetail();
+  }, [id]);
+
+  useEffect(() => {
+    if (!isEditForm || !newTransactionData.length) return;
+
+    onSubmitPromo();
+  }, [newTransactionData, selectedPromoData, isEditForm]);
 
   const addProductSellToTransactionList = () => {
     const isSellPriceLowerThanMinPrice = Number(formValue.productSellPrice) < formValue.productSellMinPrice;
@@ -405,6 +489,7 @@ export default function CreateTransactionPetShop() {
         Cell: (data) => {
           const onDeleteTransactionList = () => {
             setNewTransactionData((prevState) => prevState.filter((item) => item.productId !== data.row.original.productId));
+            setNewTransactionSummaryData(null);
           };
 
           return (
@@ -482,7 +567,7 @@ export default function CreateTransactionPetShop() {
   );
 
   const onBack = () => navigate('/transaction/pet-shop');
-  const onSubmit = async () => {
+  const onSubmit = async ({ withPrint = false }) => {
     const responseError = (err) => {
       dispatch(snackbarError(createMessageBackend(err)));
       const { msg, detail } = createMessageBackend(err, true);
@@ -502,26 +587,50 @@ export default function CreateTransactionPetShop() {
 
     try {
       setDisabledOk(true);
+      let resp = null;
 
-      const resp = await createPetShopTransaction({
-        isNewCustomer,
-        customerId: isNewCustomer ? '' : customer,
-        customerName: isNewCustomer ? customer : '',
-        registrant: '',
-        locationId: formValue.location.value,
-        serviceCategory: 'Pet Shop',
-        notes: formValue.notes,
-        paymentMethod: formValue.paymentMethodSelected.value,
-        productList: newTransactionData.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.unitPrice,
-          note: null,
-          promoId: null
-        })),
-        selectedPromos: selectedPromoData
-      });
+      if (isEditForm) {
+        resp = await updatePetShopTransaction({
+          id: id,
+          isNewCustomer,
+          customerId: isNewCustomer ? '' : customer,
+          customerName: isNewCustomer ? customer : '',
+          registrant: '',
+          locationId: formValue.location.value,
+          serviceCategory: 'Pet Shop',
+          notes: formValue.notes,
+          paymentMethod: formValue.paymentMethodSelected.value,
+          productList: newTransactionData.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.unitPrice,
+            note: null,
+            promoId: null
+          })),
+          selectedPromos: selectedPromoData
+        });
+      } else {
+        resp = await createPetShopTransaction({
+          isNewCustomer,
+          customerId: isNewCustomer ? '' : customer,
+          customerName: isNewCustomer ? customer : '',
+          registrant: '',
+          locationId: formValue.location.value,
+          serviceCategory: 'Pet Shop',
+          notes: formValue.notes,
+          paymentMethod: formValue.paymentMethodSelected.value,
+          productList: newTransactionData.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.unitPrice,
+            note: null,
+            promoId: null
+          })),
+          selectedPromos: selectedPromoData
+        });
+      }
 
+      if (withPrint) onPrint(resp.data.transactionId);
       responseSuccess(resp);
       onBack();
     } catch (error) {
@@ -532,8 +641,21 @@ export default function CreateTransactionPetShop() {
   };
 
   const onSubmitAndPrint = async () => {
-    onSubmit();
-    // onPrint();
+    onSubmit({
+      withPrint: true
+    });
+  };
+
+  const onPrint = async (id) => {
+    try {
+      const resp = await generateInvoicePetShopTransaction(id);
+      processDownloadPDF(resp, 'nota_petshop');
+      dispatch(snackbarSuccess(`Success export pet shop transaction`));
+    } catch (err) {
+      if (err) {
+        dispatch(snackbarError(createMessageBackend(err)));
+      }
+    }
   };
 
   const clearForm = () => {
@@ -554,20 +676,21 @@ export default function CreateTransactionPetShop() {
     setSelectedPromoData(INITIAL_STATE_PROMO);
   };
 
-  const handlePromoChange = (key) => (_, selectedObjects) => {
-    const selectedIds = selectedObjects.map((item) => item.id);
+  const handlePromoChange = (key, multiple) => (_, selectedObjects) => {
+    const selectedIds = multiple ? selectedObjects.map((item) => item.id) : selectedObjects?.id || null;
+
     setSelectedPromoData((prev) => ({
       ...prev,
       [key]: selectedIds
     }));
   };
 
-  const getSelectedObjects = (key) => {
+  const getSelectedObjects = (key, multiple) => {
     const ids = selectedPromoData[key];
-    return promoData[key].filter((item) => ids.includes(item.id));
+    return multiple ? promoData[key].filter((item) => ids.includes(item.id)) : promoData[key].find((item) => item.id === ids);
   };
 
-  const renderPromoAutocomplete = (id, labelId, key) => (
+  const renderPromoAutocomplete = (id, labelId, key, multiple = true) => (
     <Grid>
       <Stack spacing={1}>
         <InputLabel htmlFor={id}>
@@ -575,12 +698,14 @@ export default function CreateTransactionPetShop() {
         </InputLabel>
         <Autocomplete
           id={id}
-          multiple
+          multiple={multiple}
           options={promoData[key]}
-          value={getSelectedObjects(key)}
+          value={getSelectedObjects(key, multiple)}
           getOptionLabel={(option) => option.name || ''}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={handlePromoChange(key)}
+          isOptionEqualToValue={(option, value) => {
+            return option.id === value.id;
+          }}
+          onChange={handlePromoChange(key, multiple)}
           renderInput={(params) => <TextField {...params} placeholder="Select..." />}
           renderOption={(props, option) => (
             <li {...props} key={option.id}>
@@ -623,7 +748,7 @@ export default function CreateTransactionPetShop() {
 
   return (
     <div>
-      <HeaderPageCustom title={<FormattedMessage id="add-transaction" />} />
+      <HeaderPageCustom title={isEditForm ? <FormattedMessage id="edit-transaction" /> : <FormattedMessage id="add-transaction" />} />
       <MainCard border={false} boxShadow>
         <ErrorContainer open={Boolean(errContent.title || errContent.detail)} content={errContent} />
         <Grid container spacing={3}>
@@ -645,6 +770,7 @@ export default function CreateTransactionPetShop() {
                       location: null
                     }));
                   }}
+                  disabled={isEditForm}
                   placeholder="Select customer"
                 >
                   <MenuItem value="">
@@ -684,6 +810,7 @@ export default function CreateTransactionPetShop() {
                   }
                 }}
                 renderInput={(params) => <TextField {...params} />}
+                disabled={isEditForm}
               />
             </Stack>
           </Grid>
@@ -705,6 +832,7 @@ export default function CreateTransactionPetShop() {
                       setFormValue((e) => ({ ...e, customerName: customerValue }));
                     }}
                     renderInput={(params) => <TextField {...params} />}
+                    disabled={isEditForm}
                   />
                 )}
                 {formValue.customer === 'new' && (
@@ -714,6 +842,7 @@ export default function CreateTransactionPetShop() {
                     name="customerName"
                     value={formValue.customerName || ''}
                     onChange={(event) => onFieldHandler(event)}
+                    disabled={isEditForm}
                   />
                 )}
               </Stack>
@@ -728,7 +857,7 @@ export default function CreateTransactionPetShop() {
               </InputLabel>
               <Autocomplete
                 id="productSell"
-                options={getDropdownAll().productSellList}
+                options={productSellList}
                 value={formValue.productSellSelected}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => {
@@ -811,7 +940,7 @@ export default function CreateTransactionPetShop() {
               </InputLabel>
               <Autocomplete
                 id="productClinic"
-                options={getDropdownAll().productClinicList}
+                options={productClinicList}
                 value={formValue.productClinicSelected}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => {
@@ -1035,7 +1164,7 @@ export default function CreateTransactionPetShop() {
                     <Autocomplete
                       id="paymentMethod"
                       options={paymentMethodList}
-                      value={formValue.paymentMethod}
+                      value={formValue.paymentMethodSelected}
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, selected) => {
                         const paymentMethodSelected = selected ? selected : null;
@@ -1083,7 +1212,7 @@ export default function CreateTransactionPetShop() {
         <ModalC
           title={<FormattedMessage id="promo-available" />}
           open={isPromoOpen}
-          onOk={onSubmitPromo}
+          onOk={() => onSubmitPromo()}
           onCancel={() => setIsPromoOpen(false)}
           fullWidth
           maxWidth="sm"
@@ -1099,7 +1228,7 @@ export default function CreateTransactionPetShop() {
             {renderPromoAutocomplete('freeItems', 'free-product', 'freeItems')}
             {renderPromoAutocomplete('discounts', 'discount', 'discounts')}
             {renderPromoAutocomplete('bundles', 'bundle', 'bundles')}
-            {renderPromoAutocomplete('basedSales', 'based-on-purchase', 'basedSales')}
+            {renderPromoAutocomplete('basedSales', 'based-on-purchase', 'basedSales', false)}
           </Stack>
         </ModalC>
       )}

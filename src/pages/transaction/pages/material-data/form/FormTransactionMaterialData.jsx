@@ -79,7 +79,7 @@ const FormTransactionMaterialData = (props) => {
                     <FormattedMessage id="weight" />
                   </MenuItem>
                   <MenuItem value={'temperature'}>
-                    <FormattedMessage id="temperature" />
+                    <FormattedMessage id="temperature-body" />
                   </MenuItem>
                   <MenuItem value={'breath'}>
                     <FormattedMessage id="breath" />

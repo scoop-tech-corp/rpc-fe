@@ -32,6 +32,7 @@ export const defaultCustomerForm = {
   customerGroupId: null,
   locationId: null,
   notes: '',
+  colorType: '',
 
   gender: '',
   joinDate: new Date(),
