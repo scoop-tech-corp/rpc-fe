@@ -42,6 +42,7 @@ const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view'))
 const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
+const SallarySliptList = Loadable(lazy(() => import('pages/staff/sallary-slipt')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/promotion/dashboard')));
@@ -176,7 +177,8 @@ const MainRoutes = {
             { path: 'profile/view/:id', element: <StaffViewProfile /> },
             { path: 'profile/edit/:id', element: <StaffEditProfile /> },
             { path: 'material-data', element: <StaffStaticData /> },
-            { path: 'absent', element: <StaffAbsent /> }
+            { path: 'absent', element: <StaffAbsent /> },
+            { path: 'sallary-slipt', element: <SallarySliptList /> }
           ]
         },
         {
