@@ -11,6 +11,9 @@ import TabPanel from 'components/TabPanelC';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 
+let paramInpatientList = {};
+let paramOutPatientList = {};
+
 const DashboardUpcomingBooking = () => {
   const [tabSelected, setTabSelected] = useState(0);
   const [inapData, setInapData] = useState({ data: [], totalPagination: 0 });
@@ -31,26 +34,49 @@ const DashboardUpcomingBooking = () => {
     []
   );
 
-  const fetchData = async () => {
-    await getDashboardUpbookingInPatient()
-      .then((resp) => {
-        setInapData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
-      })
-      .catch((err) => {
-        if (err) {
-          dispatch(snackbarError(createMessageBackend(err)));
-        }
-      });
+  const fetchData = (procedure) => {
+    const doFetchInpatient = async () => {
+      await getDashboardUpbookingInPatient(paramInpatientList)
+        .then((resp) => {
+          setInapData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+        })
+        .catch((err) => {
+          if (err) {
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    };
 
-    await getDashboardUpbookingOutPatient()
-      .then((resp) => {
-        setJalanData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
-      })
-      .catch((err) => {
-        if (err) {
-          dispatch(snackbarError(createMessageBackend(err)));
-        }
-      });
+    const doFetchOutpatient = async () => {
+      await getDashboardUpbookingOutPatient(paramOutPatientList)
+        .then((resp) => {
+          setJalanData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+        })
+        .catch((err) => {
+          if (err) {
+            dispatch(snackbarError(createMessageBackend(err)));
+          }
+        });
+    };
+
+    if (procedure === 'inpatient') doFetchInpatient();
+    else if (procedure === 'outpatient') doFetchOutpatient();
+    else {
+      doFetchInpatient();
+      doFetchOutpatient();
+    }
+  };
+
+  const onGotoPageChange = (event, procedure) => {
+    if (procedure === 'inpatient') paramInpatientList.goToPage = event;
+    else if (procedure === 'outpatient') paramOutPatientList.goToPage = event;
+    fetchData(procedure);
+  };
+
+  const onPageSizeChange = (event, procedure) => {
+    if (procedure === 'inpatient') paramInpatientList.rowPerPage = event;
+    else if (procedure === 'outpatient') paramOutPatientList.rowPerPage = event;
+    fetchData(procedure);
   };
 
   useEffect(() => {
@@ -76,12 +102,26 @@ const DashboardUpcomingBooking = () => {
         <Box sx={{ mt: 2.5 }}>
           <TabPanel value={tabSelected} index={0} name="dashboard-upcoming-booking">
             <ScrollX>
-              <ReactTable columns={columns} data={inapData.data} totalPagination={inapData.totalPagination} colSpanPagination={8} />
+              <ReactTable
+                columns={columns}
+                data={inapData.data}
+                totalPagination={inapData.totalPagination}
+                onGotoPage={(event) => onGotoPageChange(event, 'inpatient')}
+                onPageSize={(event) => onPageSizeChange(event, 'inpatient')}
+                colSpanPagination={8}
+              />
             </ScrollX>
           </TabPanel>
           <TabPanel value={tabSelected} index={1} name="dashboard-upcoming-booking">
             <ScrollX>
-              <ReactTable columns={columns} data={jalanData.data} totalPagination={jalanData.totalPagination} colSpanPagination={8} />
+              <ReactTable
+                columns={columns}
+                data={jalanData.data}
+                totalPagination={jalanData.totalPagination}
+                onGotoPage={(event) => onGotoPageChange(event, 'outpatient')}
+                onPageSize={(event) => onPageSizeChange(event, 'outpatient')}
+                colSpanPagination={8}
+              />
             </ScrollX>
           </TabPanel>
         </Box>

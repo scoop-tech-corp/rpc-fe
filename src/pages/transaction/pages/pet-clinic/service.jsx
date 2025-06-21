@@ -273,7 +273,7 @@ export const checkPetConditionTransactionPetClinic = async (payload) => {
 
   for (const pair of formData.entries()) console.log(pair[0] + ', ' + pair[1]);
 
-  return await axios.post('transaction/petclinic/petcheck', formData);
+  return await axios.post(url + '/petcheck', formData);
 };
 
 export const getOrderNumberTransactionPetClinic = async (id) => {
@@ -286,4 +286,23 @@ export const getLoadPetCheckTransactionPetClinic = async (id) => {
   return await axios.get(url + '/load-petcheck', {
     params: { id }
   });
+};
+
+export const createServiceAndRecipe = async (payload) => {
+  const formData = new FormData();
+  const services = payload.services.map((dt) => +dt.serviceId);
+  const recipes = payload.summary.map((dt) => ({
+    productId: dt.productClinicId,
+    dosage: +dt.dosage,
+    unit: dt.unit,
+    frequency: +dt.frequency,
+    giveMedicine: dt.medication
+  }));
+
+  formData.append('transactionPetClinicId', payload.transactionPetClinicId);
+
+  services.forEach((dt) => formData.append('services[]', dt));
+  formData.append('recipes', JSON.stringify(recipes));
+
+  return await axios.post(url + '/serviceandrecipe', formData);
 };

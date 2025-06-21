@@ -9,13 +9,14 @@ import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
 import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
 import TransactionBreeding from 'pages/transaction/pages/breeding';
 import TransactionPetShop from 'pages/transaction/pages/pet-shop';
-import CreateTransactionPetShop from 'pages/transaction/pages/pet-shop/create-transaction';
+import FormTransactionPetShop from 'pages/transaction/pages/pet-shop/form-transaction';
+import TransactionDataStatic from 'pages/transaction/pages/material-data';
 // import { Outlet } from 'react-router-dom';
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
-const Calendar = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const Calendar = Loadable(lazy(() => import('pages/calendar')));
 const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
@@ -41,10 +42,12 @@ const StaffViewProfile = Loadable(lazy(() => import('pages/staff/profile/view'))
 const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit')));
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
+const SallarySliptList = Loadable(lazy(() => import('pages/staff/sallary-slipt')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/promotion/dashboard')));
 const PromotionDiscount = Loadable(lazy(() => import('pages/promotion/discount')));
+const PromotionDiscountForm = Loadable(lazy(() => import('pages/promotion/discount/form')));
 const PromotionPartner = Loadable(lazy(() => import('pages/promotion/partner')));
 const PromotionPartnerForm = Loadable(lazy(() => import('pages/promotion/partner/form')));
 const PromotionStaticData = Loadable(lazy(() => import('pages/promotion/static-data')));
@@ -138,7 +141,9 @@ const MainRoutes = {
             { path: 'pet-salon', element: <TransactionPetSalon /> },
             { path: 'breeding', element: <TransactionBreeding /> },
             { path: 'pet-shop', element: <TransactionPetShop /> },
-            { path: 'pet-shop/create', element: <CreateTransactionPetShop /> }
+            { path: 'pet-shop/create', element: <FormTransactionPetShop /> },
+            { path: 'pet-shop/edit/:id', element: <FormTransactionPetShop /> },
+            { path: 'material-data', element: <TransactionDataStatic /> }
           ]
         },
         {
@@ -172,7 +177,8 @@ const MainRoutes = {
             { path: 'profile/view/:id', element: <StaffViewProfile /> },
             { path: 'profile/edit/:id', element: <StaffEditProfile /> },
             { path: 'material-data', element: <StaffStaticData /> },
-            { path: 'absent', element: <StaffAbsent /> }
+            { path: 'absent', element: <StaffAbsent /> },
+            { path: 'sallary-slipt', element: <SallarySliptList /> }
           ]
         },
         {
@@ -184,7 +190,8 @@ const MainRoutes = {
             { path: 'partner', element: <PromotionPartner /> },
             { path: 'partner/form', element: <PromotionPartnerForm /> },
             { path: 'partner/form/:id', element: <PromotionPartnerForm /> },
-            { path: 'material-data', element: <PromotionStaticData /> }
+            { path: 'material-data', element: <PromotionStaticData /> },
+            { path: 'discount/form', element: <PromotionDiscountForm /> }
           ]
         },
         {

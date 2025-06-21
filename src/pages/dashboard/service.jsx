@@ -12,6 +12,14 @@ export const getDashboardUpbookingOutPatient = async () => {
   return await axios.get('dashboard/upbookoutpatient');
 };
 
-export const getDashboardRecentActivity = async () => {
-  return await axios.get('dashboard/activity');
+export const getDashboardRecentActivity = async (payload) => {
+  return await axios.get('dashboard/activity', {
+    params: {
+      rowPerPage: payload.rowPerPage,
+      goToPage: payload.goToPage,
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      search: payload.keyword
+    }
+  });
 };

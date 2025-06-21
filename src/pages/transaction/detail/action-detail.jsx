@@ -120,7 +120,7 @@ const TransactionDetailAction = (props) => {
                     </>
                   )}
 
-                  <ListItemButton onClick={() => {}}>
+                  <ListItemButton onClick={() => props.onAction('delete')}>
                     <ListItemText
                       primary={
                         <Typography color="textPrimary">
