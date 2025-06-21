@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage';
 
 // project import
 import chat from './chat';
-import calendar from './calendar';
+import calendar from '../../pages/calendar/store/reducer';
 import menu from './menu';
 import snackbar from './snackbar';
 import productReducer from './product';

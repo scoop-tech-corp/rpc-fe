@@ -3,11 +3,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
-  CardHeader,
   Checkbox,
   Divider,
   FormControlLabel,
-  FormGroup,
   Grid,
   InputLabel,
   MenuItem,
@@ -191,7 +189,11 @@ const CheckPetConditionPetClinic = (props) => {
                 </Grid>
                 <Grid item xs={12}>
                   <Stack spacing={1.25} flexDirection={'row'} alignItems={'center'}>
-                    <InputLabel htmlFor="pet-name-type" style={{ fontWeight: 'bold' }} sx={{ width: { xs: '100%', sm: '20%' } }}>
+                    <InputLabel
+                      htmlFor="pet-name-type"
+                      style={{ fontWeight: 'bold', whiteSpace: 'normal' }}
+                      sx={{ width: { xs: '100%', sm: '20%' } }}
+                    >
                       <FormattedMessage id="pet-name-type" />
                     </InputLabel>
                     <TextField

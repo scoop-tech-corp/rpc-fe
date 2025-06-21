@@ -68,6 +68,25 @@ export const getCustomerGroupList = async () => {
   });
 };
 
+export const getProductSellClinicByLocation = async (key, locationIds = []) => {
+  // key => sell / clinic
+  const getResp = await axios.get(`product/${key}/list/location`, {
+    params: { locationId: locationIds.length ? locationIds : [''] }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: dt.fullName, id: +dt.id };
+  });
+};
+
+export const getServiceListByLocation = async (locationIds = []) => {
+  const getResp = await axios.get('service/list/location', { params: { locationId: locationIds.length ? locationIds : [''] } });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.fullName, value: dt.fullName, id: +dt.id };
+  });
+};
+
 export const setFormDataImage = (sourcePhoto, fd, procedure = 'update') => {
   if (sourcePhoto.length) {
     const tempFileName = [];
@@ -137,6 +156,21 @@ export const processDownloadExcel = (resp) => {
   a.download = fileName.replace('.xlsx', '').replaceAll('"', '');
   document.body.appendChild(a);
   a.click();
+};
+
+export const processDownloadPDF = (resp, fileName = 'download') => {
+  const blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+  const downloadUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = downloadUrl;
+  a.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+
+  // Cleanup
+  document.body.removeChild(a);
+  URL.revokeObjectURL(downloadUrl);
 };
 
 export const swapKeysAndValuesForObject = (obj) => {
