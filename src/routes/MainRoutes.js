@@ -16,7 +16,7 @@ import TransactionDataStatic from 'pages/transaction/pages/material-data';
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
-const Calendar = Loadable(lazy(() => import('pages/calendar')));
+const Booking = Loadable(lazy(() => import('pages/booking')));
 const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
@@ -129,7 +129,7 @@ const MainRoutes = {
       ),
       children: [
         { path: 'dashboard', element: <Dashboard /> },
-        { path: 'calendar', element: <Calendar /> },
+        { path: 'booking', element: <Booking /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },

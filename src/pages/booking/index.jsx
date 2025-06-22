@@ -20,6 +20,7 @@ import { getEvents, selectEvent, selectRange, toggleModal, updateCalendarView, u
 
 // assets
 import { PlusOutlined } from '@ant-design/icons';
+import FilterBooking from './components/filter-booking';
 
 const selectedEventHandler = (state) => {
   const { events, selectedEventId } = state.calendar;
@@ -31,7 +32,7 @@ const selectedEventHandler = (state) => {
 
 // ==============================|| CALENDAR - MAIN ||============================== //
 
-const Calendar = () => {
+const Booking = () => {
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
   const calendar = useSelector((state) => state.calendar);
@@ -139,6 +140,7 @@ const Calendar = () => {
 
   return (
     <Box sx={{ position: 'relative' }}>
+      <FilterBooking />
       <CalendarStyled>
         <Toolbar
           date={date}
@@ -177,7 +179,7 @@ const Calendar = () => {
       <Dialog maxWidth="sm" fullWidth onClose={handleModal} open={isModalOpen} sx={{ '& .MuiDialog-paper': { p: 0 } }}>
         {isModalOpen && <AddEventForm event={selectedEvent} range={selectedRange} onCancel={handleModal} />}
       </Dialog>
-      <Tooltip title="Add New Event">
+      <Tooltip title="Add New Booking">
         <SpeedDial
           ariaLabel="add-event-fab"
           sx={{ display: 'inline-flex', position: 'sticky', bottom: 24, left: '100%', transform: 'translate(-50%, -50% )' }}
@@ -189,4 +191,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export default Booking;
