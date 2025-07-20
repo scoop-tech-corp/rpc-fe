@@ -24,13 +24,16 @@ export const getStaffRekapList = async (property) => {
 };
 
 export const exportStaffRekap = async (param) => {
+  const dateFrom = param.dateFrom ? formateDateYYYMMDD(param.dateFrom) : '';
+  const dateTo = param.dateTo ? formateDateYYYMMDD(param.dateTo) : '';
+
   return await axios.get(baseUrl + '/export', {
     responseType: 'blob',
     params: {
       orderValue: param.orderValue,
       orderColumn: param.orderColumn,
-      dateFrom: param.dateFrom,
-      dateTo: param.dateTo,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
       locationId: param.locationId.length ? param.locationId : [''],
       staff: param.staff.length ? param.staff : [''],
       statusPresent: param.statusPresent.length ? param.statusPresent : ['']
