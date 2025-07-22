@@ -268,7 +268,9 @@ export const confirmPaymentPetShopTransaction = async (payload) => {
 };
 
 export const generateInvoicePetShopTransaction = async (id) => {
-  return await axios.get(`transaction/petshop/generateInvoice/${id}`);
+  return await axios.get(`transaction/petshop/generateInvoice/${id}`, {
+    responseType: 'blob'
+  });
 };
 
 export const getPromoList = async (payload) => {
