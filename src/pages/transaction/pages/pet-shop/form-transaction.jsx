@@ -748,7 +748,21 @@ export default function FormTransactionPetShop() {
 
   return (
     <div>
-      <HeaderPageCustom title={isEditForm ? <FormattedMessage id="edit-transaction" /> : <FormattedMessage id="add-transaction" />} />
+      <HeaderPageCustom
+        title={isEditForm ? <FormattedMessage id="edit-transaction" /> : <FormattedMessage id="add-transaction" />}
+        locationBackConfig={{ setLocationBack: true, customUrl: '/transaction/pet-shop' }}
+        action={
+          <Button
+            variant="contained"
+            className="button__primary button__submit"
+            startIcon={<PlusOutlined />}
+            onClick={onSubmit}
+            disabled={disabledOk || isError}
+          >
+            {<FormattedMessage id="save" />}
+          </Button>
+        }
+      />
       <MainCard border={false} boxShadow>
         <ErrorContainer open={Boolean(errContent.title || errContent.detail)} content={errContent} />
         <Grid container spacing={3}>
@@ -852,7 +866,7 @@ export default function FormTransactionPetShop() {
           {/* Product Sell */}
           <Grid item xs={12}>
             <Stack spacing={1}>
-              <InputLabel htmlFor="productSell">
+              <InputLabel htmlFor="productSell" sx={{ fontWeight: 900 }}>
                 <FormattedMessage id="product-sell" />
               </InputLabel>
               <Autocomplete
@@ -935,7 +949,7 @@ export default function FormTransactionPetShop() {
           {/* Product Clinic */}
           <Grid item xs={12}>
             <Stack spacing={1}>
-              <InputLabel htmlFor="productClinic">
+              <InputLabel htmlFor="productClinic" sx={{ fontWeight: 900 }}>
                 <FormattedMessage id="product-clinic" />
               </InputLabel>
               <Autocomplete

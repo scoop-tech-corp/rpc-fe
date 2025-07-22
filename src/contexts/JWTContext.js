@@ -99,7 +99,8 @@ export const JWTProvider = ({ children }) => {
           profileMenu: userLogin.profileMenu,
           settingMenu: userLogin.settingMenu,
           extractMenu: userLogin.extractMenu,
-          reportMenu: userLogin.reportMenu
+          reportMenu: userLogin.reportMenu,
+          jobName: userLogin.jobName
         };
         dispatch({ type: LOGIN, payload: { isLoggedIn: true, user: setUser } });
       } else {
@@ -118,7 +119,7 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu, reportMenu } =
+    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu, reportMenu, jobName } =
       response.data;
     setSession(token);
 
@@ -133,6 +134,7 @@ export const JWTProvider = ({ children }) => {
       profileMenu,
       settingMenu,
       reportMenu,
+      jobName,
       extractMenu: {
         masterMenu: extractUrls(masterMenu)
       }
@@ -170,9 +172,9 @@ export const JWTProvider = ({ children }) => {
     window.localStorage.setItem('users', JSON.stringify(users));
   };
 
-  const resetPassword = async () => {};
+  const resetPassword = async () => { };
 
-  const updateProfile = () => {};
+  const updateProfile = () => { };
 
   if (state.isInitialized !== undefined && !state.isInitialized) {
     return <Loader />;
