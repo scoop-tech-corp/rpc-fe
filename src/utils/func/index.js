@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const jsonCentralized = (data) => {
   return JSON.parse(JSON.stringify(data));
 };
@@ -18,15 +20,7 @@ export const uppercaseWord = (word) => {
 
 export const addZeroBefore = (n) => (n < 10 ? '0' : '') + n;
 
-export const formateDateYYYMMDD = (date) => {
-  // Get year, month, and day part from the date
-  const year = date.toLocaleString('default', { year: 'numeric' });
-  const month = date.toLocaleString('default', { month: '2-digit' });
-  const day = date.toLocaleString('default', { day: '2-digit' });
-
-  // Generate yyyy-mm-dd date string
-  return year + '-' + month + '-' + day;
-};
+export const formateDateYYYMMDD = (date) => moment(date).format('YYYY-MM-DD');
 
 export const formateDateDDMMYYY = (date, additional = { isWithTime: { show: false, withSecond: true }, separator: '-' }) => {
   // Get year, month, and day part from the date

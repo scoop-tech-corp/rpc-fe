@@ -204,7 +204,7 @@ const AddEventFrom = ({ event, range, onCancel }) => {
     <FormikProvider value={formik}>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-          <DialogTitle>{event ? 'Edit Event' : 'Add Event'}</DialogTitle>
+          <DialogTitle>{event ? 'Edit Booking' : 'Add Booking'}</DialogTitle>
           <Divider />
           <DialogContent sx={{ p: 2.5 }}>
             <Grid container spacing={3}>
