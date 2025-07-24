@@ -21,6 +21,10 @@
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.08);
 }
 
+.react-daterange-picker__calendar {
+  z-index: 99999;
+}
+
 .react-calendar__tile {
   margin: 1.5px 0px !important;
   width: 40px;
