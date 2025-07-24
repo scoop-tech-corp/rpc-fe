@@ -40,6 +40,8 @@ import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccessibilityNewOutlinedIcon from '@mui/icons-material/AccessibilityNewOutlined';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import PaidIcon from '@mui/icons-material/Paid';
+import PeopleIcon from '@mui/icons-material/People';
 
 import customerMenu from './menu-customer';
 import staffMenu from './menu-staff';
@@ -87,7 +89,9 @@ const icons = {
   HouseIcon,
   RequestQuoteIcon,
   AddShoppingCartIcon,
-  ReceiptIcon
+  ReceiptIcon,
+  People: PeopleIcon,
+  Paid: PaidIcon
 };
 
 // ==============================|| MENU ITEMS ||============================== //
