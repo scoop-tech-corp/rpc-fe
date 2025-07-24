@@ -6,8 +6,6 @@ import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 // assets
 import { LogoutOutlined } from '@ant-design/icons'; // ProfileOutlined, WalletOutlined, EditOutlined, UserOutlined
-import PaidIcon from '@mui/icons-material/Paid';
-import PeopleIcon from '@mui/icons-material/People';
 import { useNavigate } from 'react-router';
 import { mappingProfileMenu } from 'menu-items';
 
@@ -33,7 +31,6 @@ const ProfileTab = ({ handleLogout }) => {
 
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
-      <>{console.log(get_profile_menu)}</>
       {get_profile_menu.map((dt, i) => (
         <ListItemButton key={i} selected={selectedIndex === i} onClick={() => onClickProfile(dt, i)}>
           <ListItemIcon>{dt.icon}</ListItemIcon>
