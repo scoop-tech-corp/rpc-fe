@@ -28,6 +28,19 @@ export const getStaffJobTitleList = async () => {
   });
 };
 
+export const getStaffByLocationAndJobTitleList = async (params) => {
+  const getResp = await axios.get('staff/stafflist-location-jobtitle', {
+    params: {
+      locationId: params.locationId,
+      jobTitleId: params.jobTitleId
+    }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.firstName, value: +dt.id };
+  });
+};
+
 export const getDoctorStaffByLocationList = async (locationId) => {
   const getResp = await axios.get('staff/list/location/doctor', {
     params: { locationId }
@@ -158,13 +171,24 @@ export const processDownloadExcel = (resp) => {
   a.click();
 };
 
-export const processDownloadPDF = (resp, fileName = 'download') => {
-  const blob = new Blob([resp.data], { type: resp.headers['content-type'] });
+// export const processDownloadPDF = (resp) => {
+//   const linkSource = `data:application/pdf;base64,${resp.data.pdf_base64}`;
+//   const downloadLink = document.createElement('a');
+//   downloadLink.href = linkSource;
+//   downloadLink.download = resp.data.filename;
+//   downloadLink.click();
+// };
+
+export const processDownloadPDF = (resp, fileNameDummy = 'download') => {
+  const blob = new Blob([resp.data], { type: resp.headers['content-type'] || 'application/pdf' });
   const downloadUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
 
+  const fileName =
+    resp.headers['content-disposition']?.split('filename=')[1]?.split(';')[0]?.replace('.pdf', '')?.replaceAll('"', '') || fileNameDummy;
+
   a.href = downloadUrl;
-  a.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+  a.download = `${fileName}.pdf`;
   document.body.appendChild(a);
   a.click();
 
