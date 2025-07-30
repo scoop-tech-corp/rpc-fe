@@ -43,9 +43,10 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
           {/* amount */}
           <Stack spacing={1} width={'100%'}>
             <InputLabel htmlFor={`${id}Amount`}>
-              <FormattedMessage id="amount" />
+              <FormattedMessage id="quantity" />
             </InputLabel>
             <TextField
+              required
               InputProps={{
                 readOnly
               }}
@@ -61,9 +62,10 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
           {/* unitNominal */}
           <Stack spacing={1} width={'100%'}>
             <InputLabel htmlFor={`${id}UnitNominal`}>
-              <FormattedMessage id="unit-nominal" />
+              <FormattedMessage id="amount" />
             </InputLabel>
             <TextField
+              required
               InputProps={{
                 readOnly
               }}
@@ -79,7 +81,7 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
           {/* total (read-only) */}
           <Stack spacing={1} width={'100%'}>
             <InputLabel htmlFor={`${id}Total`}>
-              <FormattedMessage id="total" />
+              <FormattedMessage id="total-amount" />
             </InputLabel>
             <TextField type="text" fullWidth id={`${id}Total`} name="total" value={getValue('total')} InputProps={{ readOnly: true }} />
           </Stack>

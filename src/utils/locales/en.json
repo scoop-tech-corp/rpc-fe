@@ -1,6 +1,7 @@
 {
   "abdominal-percussion": "Abdominal Percussion",
   "absent": "Absent",
+  "absent-from-work": "Absent From Work",
   "abnormalitas-cavum-oris": "Abnormalistas Cavum Oris",
   "active": "Active",
   "activity": "Activity",
@@ -99,6 +100,7 @@
   "attendance-time": "Attendance Time",
   "attendance-allowance": "Attendance Allowance",
   "bonus": "Bonus",
+  "nominal": "Nominal",
   "number-is-required": "Number is required",
   "number-of-children": "Number of children",
   "number-of-vaccines": "Number of vaccines",
@@ -348,6 +350,7 @@
   "detail-requirement": "Detail Requirement",
   "detail-restock": "Detail Restock",
   "detail-security-group": "Detail Security Group",
+  "detail-payroll": "Detail Payroll",
   "device": "Device",
   "dialogs": "Dialogs",
   "different": "Different",
@@ -939,7 +942,9 @@
   "stock-available": "Stock Available",
   "stock": "Stock",
   "stock-opname-inventory-product": "Stock Opname Inventory Product (Clinic)",
+  "stock-opname-inventory-product-pet-shop": "Stock Opname Inventory Product (Pet Shop)",
   "stock-opname-lost-product": "Stock Opname Lost Product (Clinic)",
+  "stock-opname-lost-product-pet-shop": "Stock Opname Lost Product (Pet Shop)",
   "stock-opname-expired-product": "Stock Opname Expired Product (Clinic)",
   "speed-dial": "Speed Dial",
   "species": "Species",
@@ -1128,5 +1133,5 @@
   "work-end-date": "Work End Date",
   "yes": "Yes",
   "year": "Year",
-  "xray-incentive": "Xray Incentive"
+  "xray-incentive": "Xray/Lab Operator Incentive"
 }
