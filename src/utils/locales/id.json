@@ -1,6 +1,7 @@
 {
   "abdominal-percussion": "Perkusi Abdomen",
   "absent": "Absen",
+  "absent-from-work": "Tidak Masuk Kerja",
   "abnormalitas-cavum-oris": "Kelainan Cavum Oris",
   "active": "Aktif",
   "activity": "Aktifitas",
@@ -95,6 +96,7 @@
   "attendance-time": "Waktu Kehadiran",
   "attendance-allowance": "Tunjangan Kehadiran",
   "bonus": "Bonus",
+  "nominal": "Nominal",
   "number-is-required": "Nomor wajib diisi",
   "number-of-children": "Jumlah Anak",
   "number-of-vaccines": "Jumlah Vaksin",
@@ -309,6 +311,7 @@
   "detail-requirement": "Detail Kebutuhan",
   "detail-restock": "Detail Restok",
   "detail-security-group": "Detail Group Keamanan",
+  "detail-payroll": "Detail Payroll",
   "device": "Perangkat",
   "different": "Selisih",
   "disabled": "Dimatikan",
@@ -776,7 +779,7 @@
   "sales-details": "Detail Penjualan",
   "sales-value": "Nilai Penjualan",
   "sales-staff-service-sales": "Penjualan Layanan Staff",
-  "sales-achievement-bonus": "Bonus Pencapaian Omset",
+  "sales-achievement-bonus": "Bonus pencapaian penjualan barang",
   "sallary-slipt": "Slip Gaji",
   "saturday": "Saturday",
   "sale-status": "Status Penjualan",
@@ -840,7 +843,9 @@
   "stock-available": "Stok Tersedia",
   "stock": "Stok",
   "stock-opname-inventory-product": "Stock Opname barang Inventory (Klinik)",
+  "stock-opname-inventory-product-pet-shop": "Stock Opname barang Inventory (Pet Shop)",
   "stock-opname-lost-product": "Stock Opname barang Hilang (Klinik)",
+  "stock-opname-lost-product-pet-shop": "Stock Opname barang Hilang (Pet Shop)",
   "stock-opname-expired-product": "Stock Opname barang Kadaluarsa (Klinik)",
   "surcharges": "Biaya Tambahan",
   "summary": "Ringkasan",
@@ -948,7 +953,7 @@
   "treatment-name": "Nama Rencana Perawatan",
   "treating-doctor": "Dokter yang menangani",
   "tuesday": "Selasa",
-  "turnover-achievement-bonus": "Bonus Pencapaian Omset",
+  "turnover-achievement-bonus": "Bonus pencapaian penjualan barang",
   "type-of-care": "Tipe Perawatan",
   "type-of-id": "Tipe Kartu Identitas",
   "type": "Tipe",
@@ -1011,5 +1016,5 @@
   "work-end-date": "Tanggal Berakhir Kerja",
   "yes": "Ya",
   "year": "Tahun",
-  "xray-incentive": "Insentif Xray"
+  "xray-incentive": "Insentif Operator Lab/Xray"
 }

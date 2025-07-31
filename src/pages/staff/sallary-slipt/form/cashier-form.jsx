@@ -242,7 +242,7 @@ const CashierForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           setFormValues={setFormValues}
           id="notComingToWork"
           name="notComingToWork"
-          groupTitleIdMessage="absent"
+          groupTitleIdMessage="absent-from-work"
           accessor="expense.notComingToWork"
         />
 
@@ -297,7 +297,7 @@ const CashierForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           setFormValues={setFormValues}
           id="stockOpnameInventory"
           name="stockOpnameInventory"
-          idMessage="stock-opname-inventory-product"
+          idMessage="stock-opname-inventory-product-pet-shop"
           accessor="expense.stockOpnameInventory"
         />
 
@@ -308,7 +308,7 @@ const CashierForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           setFormValues={setFormValues}
           id="lostInventory"
           name="lostInventory"
-          idMessage="lost-inventory"
+          idMessage="stock-opname-lost-product-pet-shop"
           accessor="expense.lostInventory"
         />
 

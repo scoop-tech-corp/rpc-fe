@@ -75,10 +75,14 @@ export const exportSallarySlipt = async (params) => {
 
 export const staffSalaryCheck = async (params) => {
   const staffId = params.staffId;
+  const dateFrom = params.dateFrom;
+  const dateTo = params.dateTo;
 
   return await axios.get('staff/salary/check', {
     params: {
-      staffId
+      staffId,
+      dateFrom,
+      dateTo
     }
   });
 };
@@ -264,6 +268,7 @@ export const createDoctorSalarySlipt = async (params) => {
       basicIncome: params.income.basicIncome,
       attendanceAllowance: params.income.attendanceAllowance,
       mealAllowance: params.income.mealAllowance,
+      housingAllowance: params.income.housingAllowance,
       clinicTurnoverBonus: params.income.clinicTurnoverBonus,
       patientIncentive: {
         amount: params.income.patientIncentive.amount,

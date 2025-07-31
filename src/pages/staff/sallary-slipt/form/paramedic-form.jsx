@@ -234,7 +234,7 @@ const ParamedicForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           setFormValues={setFormValues}
           id="notComingToWork"
           name="notComingToWork"
-          groupTitleIdMessage="absent"
+          groupTitleIdMessage="absent-from-work"
           accessor="expense.notComingToWork"
         />
 

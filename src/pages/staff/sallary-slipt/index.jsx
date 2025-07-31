@@ -281,7 +281,13 @@ const SallarySliptList = () => {
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteSallarySliptList(selectedRow)
+      const getIdForDelete = () => {
+        if (selectedRow.length) return selectedRow;
+
+        return [dialog?.id];
+      };
+
+      await deleteSallarySliptList(getIdForDelete())
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
@@ -312,7 +318,7 @@ const SallarySliptList = () => {
   return (
     <>
       <HeaderPageCustom title={<FormattedMessage id="sallary-slipt" />} isBreadcrumb={true} />
-      <MainCard content={false}>
+      <MainCard content={false} sx={{ overflow: 'visible' }}>
         <Stack spacing={3}>
           {['Finance', 'Komisaris', 'President Director'].includes(user?.jobName || '') && (
             <Stack

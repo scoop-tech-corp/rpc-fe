@@ -73,6 +73,7 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
       'income.basicIncome',
       'income.attendanceAllowance',
       'income.mealAllowance',
+      'income.housingAllowance',
       'income.clinicTurnoverBonus',
       'income.bpjsHealthAllowance'
     ];
@@ -218,6 +219,17 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           accessor="income.bpjsHealthAllowance"
         />
 
+        {/* Tunjangan Tempat Tinggal */}
+        <SimpleInput
+          readOnly={isDetailForm}
+          formValues={formValues}
+          setFormValues={setFormValues}
+          id="housingAllowance"
+          name="housingAllowance"
+          idMessage="housing-allowance"
+          accessor="income.housingAllowance"
+        />
+
         <Grid item xs={12}>
           <Box textAlign={'end'} fontSize={16}>
             <FormattedMessage id="total-income" />: Rp {formatThousandSeparator(getTotalIncome(formValues))}
@@ -235,7 +247,7 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           setFormValues={setFormValues}
           id="notComingToWork"
           name="notComingToWork"
-          groupTitleIdMessage="absent"
+          groupTitleIdMessage="absent-from-work"
           accessor="expense.notComingToWork"
         />
 
