@@ -28,6 +28,7 @@ function SimpleInput({ formValues, setFormValues, id, name, idMessage, accessor,
           <FormattedMessage id={idMessage} />
         </InputLabel>
         <TextField
+          required
           InputProps={{
             readOnly
           }}

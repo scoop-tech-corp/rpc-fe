@@ -36,8 +36,8 @@ import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useNavigate, useParams } from 'react-router';
 
 const INITIAL_FORM_VALUES = {
-  startDate: dayjs(),
-  endDate: dayjs(),
+  startDate: null,
+  endDate: null,
   location: null,
   jobTitle: null,
   name: null,
@@ -60,8 +60,6 @@ export default function SallarySliptForm({ isDetailForm = false }) {
   const [isEditForm, setIsEditForm] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  console.log(formValues);
 
   useEffect(() => {
     if (params.id) {
@@ -151,7 +149,12 @@ export default function SallarySliptForm({ isDetailForm = false }) {
   };
 
   const getSalaryCheck = async (staffId) => {
-    const salaryCheckResponse = await staffSalaryCheck({ staffId });
+    const salaryCheckResponse = await staffSalaryCheck({
+      staffId,
+      dateFrom: formValues.startDate.format('YYYY-MM-DD'),
+      dateTo: formValues.endDate.format('YYYY-MM-DD')
+    });
+
     setJobName(salaryCheckResponse.data.user.jobName);
 
     const salaryData = salaryCheckResponse.data.sallary;
@@ -251,11 +254,6 @@ export default function SallarySliptForm({ isDetailForm = false }) {
   const onSubmit = async (jobName) => {
     if (!isEditForm) {
       try {
-        console.log({
-          startDate: formValues.startDate,
-          endDate: formValues.endDate
-        });
-
         const requestBody = {
           staffId: formValues.name.value,
           name: formValues.name.label,
@@ -303,11 +301,6 @@ export default function SallarySliptForm({ isDetailForm = false }) {
       }
     } else {
       try {
-        console.log({
-          startDate: formValues.startDate,
-          endDate: formValues.endDate
-        });
-
         const removeEmptyObjects = (obj) => {
           if (typeof obj !== 'object' || obj === null) return obj;
 
@@ -354,202 +347,213 @@ export default function SallarySliptForm({ isDetailForm = false }) {
 
   return (
     <div>
-      {/* <pre>{JSON.stringify(formValues, null, 2)}</pre> */}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <HeaderPageCustom
-          title={isEditForm ? <FormattedMessage id="edit-payroll" /> : <FormattedMessage id="create-payroll" />}
-          locationBackConfig={{
-            setLocationBack: true,
-            customUrl: '/staff/salary-slipt'
-          }}
-          action={
-            <>
-              {!isDetailForm && (
-                <Button variant="contained" className="button__primary button__submit" startIcon={<PlusOutlined />}>
-                  {<FormattedMessage id="save" />}
-                </Button>
-              )}
-            </>
-          }
-        />
-        <MainCard border={false} boxShadow>
-          <Grid container spacing={3} mb={5}>
-            {/* Start Date */}
-            <Grid item xs={12}>
-              <Stack spacing={1}>
-                <InputLabel htmlFor="startDate">{<FormattedMessage id="start-date" />}</InputLabel>
-                <DatePicker
-                  readOnly={isDetailForm}
-                  minDate={dayjs('2020-01-01')}
-                  maxDate={dayjs()}
-                  views={['day', 'month', 'year']}
-                  value={formValues.startDate}
-                  onChange={(newValue) => {
-                    setFormValues((prev) => ({
-                      ...prev,
-                      startDate: newValue
-                    }));
-                  }}
-                  renderInput={(params) => <TextField id="startDate" name="startDate" {...params} />}
-                />
-              </Stack>
-            </Grid>
-
-            {/* End Date */}
-            <Grid item xs={12}>
-              <Stack spacing={1}>
-                <InputLabel htmlFor="endDate">{<FormattedMessage id="end-date" />}</InputLabel>
-                <DatePicker
-                  readOnly={isDetailForm}
-                  minDate={dayjs('2020-01-01')}
-                  maxDate={dayjs()}
-                  views={['day', 'month', 'year']}
-                  value={formValues.endDate}
-                  onChange={(newValue) => {
-                    setFormValues((prev) => ({
-                      ...prev,
-                      endDate: newValue
-                    }));
-                  }}
-                  renderInput={(params) => <TextField id="endDate" name="endDate" {...params} />}
-                />
-              </Stack>
-            </Grid>
-
-            {/* Location / Branch */}
-            <Grid item xs={12}>
-              <Stack spacing={1}>
-                <InputLabel htmlFor="location">
-                  <FormattedMessage id="location" />
-                </InputLabel>
-                <Autocomplete
-                  id="location"
-                  readOnly={isDetailForm}
-                  options={dropdownData.locationList}
-                  value={formValues.location}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, selected) => {
-                    const locationValue = selected ? selected : null;
-                    setFormValues((e) => ({ ...e, location: locationValue }));
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Stack>
-            </Grid>
-
-            {/* Job TItle */}
-            <Grid item xs={12}>
-              <Stack spacing={1}>
-                <InputLabel htmlFor="jobTitle">
-                  <FormattedMessage id="job-title" />
-                </InputLabel>
-                <Autocomplete
-                  id="jobTitle"
-                  readOnly={isDetailForm}
-                  options={dropdownData.jobTitleList}
-                  value={formValues.jobTitle}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, selected) => {
-                    const jobTitleValue = selected ? selected : null;
-                    setFormValues((e) => ({ ...e, jobTitle: jobTitleValue }));
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Stack>
-            </Grid>
-
-            {/* Name */}
-            <Grid item xs={12}>
-              <Stack spacing={1}>
-                <InputLabel htmlFor="name">
-                  <FormattedMessage id="name" />
-                </InputLabel>
-                <Autocomplete
-                  id="name"
-                  readOnly={isDetailForm}
-                  options={dropdownData.userList}
-                  value={formValues.name}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, selected) => {
-                    const nameValue = selected ? selected : null;
-                    setFormValues((e) => ({ ...e, name: nameValue }));
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Stack>
-            </Grid>
-
-            {userInformation && (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit(jobName);
+        }}
+      >
+        {/* <pre>{JSON.stringify(formValues, null, 2)}</pre> */}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <HeaderPageCustom
+            title={
+              isDetailForm ? (
+                <FormattedMessage id="detail-payroll" />
+              ) : isEditForm ? (
+                <FormattedMessage id="edit-payroll" />
+              ) : (
+                <FormattedMessage id="create-payroll" />
+              )
+            }
+            locationBackConfig={{
+              setLocationBack: true,
+              customUrl: '/staff/sallary-slipt'
+            }}
+            action={
+              <>
+                {!isDetailForm && (
+                  <Button variant="contained" className="button__primary button__submit" startIcon={<PlusOutlined />}>
+                    {<FormattedMessage id="save" />}
+                  </Button>
+                )}
+              </>
+            }
+          />
+          <MainCard border={false} boxShadow>
+            <Grid container spacing={3} mb={5}>
+              {/* Start Date */}
               <Grid item xs={12}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Stack spacing={1}>
-                      <InputLabel>
-                        <FormattedMessage id="partner-id" />
-                      </InputLabel>
-                      {userInformation?.registrationNo || '-'}
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Stack spacing={1}>
-                      <InputLabel>
-                        <FormattedMessage id="job-name" />
-                      </InputLabel>
-                      {userInformation?.jobName || '-'}
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Stack spacing={1}>
-                      <InputLabel>
-                        <FormattedMessage id="status" />
-                      </InputLabel>
-                      {userInformation?.status || '-'}
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Stack spacing={1}>
-                      <InputLabel>
-                        <FormattedMessage id="work-start-date" />
-                      </InputLabel>
-                      {userInformation?.startDate || '-'}
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Stack spacing={1}>
-                      <InputLabel>
-                        <FormattedMessage id="work-end-date" />
-                      </InputLabel>
-                      {userInformation?.endDate || '-'}
-                    </Stack>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="startDate">{<FormattedMessage id="start-date" />}</InputLabel>
+                  <DatePicker
+                    readOnly={isDetailForm}
+                    minDate={dayjs('2020-01-01')}
+                    value={formValues.startDate}
+                    onChange={(newValue) => {
+                      setFormValues((prev) => ({
+                        ...prev,
+                        startDate: newValue
+                      }));
+                    }}
+                    renderInput={(params) => <TextField id="startDate" name="startDate" {...params} />}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* End Date */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="endDate">{<FormattedMessage id="end-date" />}</InputLabel>
+                  <DatePicker
+                    readOnly={isDetailForm}
+                    minDate={dayjs('2020-01-01')}
+                    value={formValues.endDate}
+                    onChange={(newValue) => {
+                      setFormValues((prev) => ({
+                        ...prev,
+                        endDate: newValue
+                      }));
+                    }}
+                    renderInput={(params) => <TextField id="endDate" name="endDate" {...params} />}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Location / Branch */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="location">
+                    <FormattedMessage id="location" />
+                  </InputLabel>
+                  <Autocomplete
+                    id="location"
+                    readOnly={isDetailForm}
+                    options={dropdownData.locationList}
+                    value={formValues.location}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, selected) => {
+                      const locationValue = selected ? selected : null;
+                      setFormValues((e) => ({ ...e, location: locationValue }));
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Job TItle */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="jobTitle">
+                    <FormattedMessage id="job-title" />
+                  </InputLabel>
+                  <Autocomplete
+                    id="jobTitle"
+                    readOnly={isDetailForm}
+                    options={dropdownData.jobTitleList}
+                    value={formValues.jobTitle}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, selected) => {
+                      const jobTitleValue = selected ? selected : null;
+                      setFormValues((e) => ({ ...e, jobTitle: jobTitleValue }));
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Name */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="name">
+                    <FormattedMessage id="name" />
+                  </InputLabel>
+                  <Autocomplete
+                    id="name"
+                    readOnly={isDetailForm}
+                    options={dropdownData.userList}
+                    value={formValues.name}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    onChange={(_, selected) => {
+                      const nameValue = selected ? selected : null;
+                      setFormValues((e) => ({ ...e, name: nameValue }));
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </Stack>
+              </Grid>
+
+              {userInformation && (
+                <Grid item xs={12}>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="partner-id" />
+                        </InputLabel>
+                        {userInformation?.registrationNo || '-'}
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="job-name" />
+                        </InputLabel>
+                        {userInformation?.jobName || '-'}
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="status" />
+                        </InputLabel>
+                        {userInformation?.status || '-'}
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="work-start-date" />
+                        </InputLabel>
+                        {userInformation?.startDate || '-'}
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Stack spacing={1}>
+                        <InputLabel>
+                          <FormattedMessage id="work-end-date" />
+                        </InputLabel>
+                        {userInformation?.endDate || '-'}
+                      </Stack>
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
-            )}
-          </Grid>
-
-          {renderDynamicForm(jobName)}
-
-          <Grid item xs={12} sx={{ marginTop: 5 }}>
-            <Stack direction="row" spacing={2} justifyContent="flex-end">
-              {!isDetailForm && (
-                <Button variant="outlined" onClick={clearForm}>
-                  {<FormattedMessage id="clear" />}
-                </Button>
               )}
+            </Grid>
 
-              <Button variant="contained" className="button__submit" color="error" type="button" onClick={onBack}>
-                {<FormattedMessage id="back" />}
-              </Button>
+            {renderDynamicForm(jobName)}
 
-              {!isDetailForm && (
-                <Button variant="contained" className="button__primary button__submit" onClick={() => onSubmit(jobName)}>
-                  {<FormattedMessage id="save" />}
+            <Grid item xs={12} sx={{ marginTop: 5 }}>
+              <Stack direction="row" spacing={2} justifyContent="flex-end">
+                {!isDetailForm && (
+                  <Button variant="outlined" onClick={clearForm}>
+                    {<FormattedMessage id="clear" />}
+                  </Button>
+                )}
+
+                <Button variant="contained" className="button__submit" color="error" type="button" onClick={onBack}>
+                  {<FormattedMessage id="back" />}
                 </Button>
-              )}
-            </Stack>
-          </Grid>
-        </MainCard>
-      </LocalizationProvider>
+
+                {!isDetailForm && (
+                  <Button variant="contained" type="submit" className="button__primary button__submit">
+                    {<FormattedMessage id="save" />}
+                  </Button>
+                )}
+              </Stack>
+            </Grid>
+          </MainCard>
+        </LocalizationProvider>
+      </form>
     </div>
   );
 }

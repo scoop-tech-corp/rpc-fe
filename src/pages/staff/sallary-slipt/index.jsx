@@ -44,7 +44,7 @@ const SallarySliptList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [getSallarySliptListData, setSallarySliptListData] = useState({ data: [], totalPagination: 0 });
+  const [getSallarySliptListData, setSallarySliptListData] = useState({ data: [], totalPagination: 0, allowGenerateInvoice: false });
   const [selectedRow, setSelectedRow] = useState([]);
   const [keywordSearch, setKeywordSearch] = useState('');
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
@@ -90,13 +90,15 @@ const SallarySliptList = () => {
         Cell: (data) => {
           return (
             <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              <Tooltip title={<FormattedMessage id="print" />} arrow>
-                <IconButton size="small" onClick={() => onGenerateSalarySlipt(data.row.original.id)}>
-                  <PrintIcon />
-                </IconButton>
-              </Tooltip>
+              {getSallarySliptListData.allowGenerateInvoice && (
+                <Tooltip title={<FormattedMessage id="print" />} arrow>
+                  <IconButton size="small" onClick={() => onGenerateSalarySlipt(data.row.original.id)}>
+                    <PrintIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
 
-              <Tooltip title={<FormattedMessage id="print" />} arrow>
+              <Tooltip title={<FormattedMessage id="detail" />} arrow>
                 <IconButton
                   size="small"
                   onClick={() => {
@@ -185,7 +187,7 @@ const SallarySliptList = () => {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [getSallarySliptListData]
   );
 
   const onOrderingChange = (event) => {
@@ -240,7 +242,11 @@ const SallarySliptList = () => {
   const fetchData = async () => {
     await getSallarySliptList(paramSallarySliptList)
       .then((resp) => {
-        setSallarySliptListData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+        setSallarySliptListData({
+          data: resp.data.data,
+          totalPagination: resp.data.totalPagination,
+          allowGenerateInvoice: resp.data.allowGenerateInvoice
+        });
       })
       .catch((err) => {
         if (err) {
@@ -275,7 +281,13 @@ const SallarySliptList = () => {
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteSallarySliptList(selectedRow)
+      const getIdForDelete = () => {
+        if (selectedRow.length) return selectedRow;
+
+        return [dialog?.id];
+      };
+
+      await deleteSallarySliptList(getIdForDelete())
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
@@ -306,7 +318,7 @@ const SallarySliptList = () => {
   return (
     <>
       <HeaderPageCustom title={<FormattedMessage id="sallary-slipt" />} isBreadcrumb={true} />
-      <MainCard content={false}>
+      <MainCard content={false} sx={{ overflow: 'visible' }}>
         <Stack spacing={3}>
           {['Finance', 'Komisaris', 'President Director'].includes(user?.jobName || '') && (
             <Stack
