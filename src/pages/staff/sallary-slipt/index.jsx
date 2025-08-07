@@ -181,6 +181,11 @@ const SallarySliptList = () => {
         Cell: (data) => `Rp ${formatThousandSeparator(data.value)}`
       },
       {
+        Header: <FormattedMessage id="cash-receipt" />,
+        accessor: 'currentMonthCashAdvance',
+        Cell: (data) => `Rp ${formatThousandSeparator(data.value)}`
+      },
+      {
         Header: <FormattedMessage id="net-income" />,
         accessor: 'netPay',
         Cell: (data) => `Rp ${formatThousandSeparator(data.value)}`

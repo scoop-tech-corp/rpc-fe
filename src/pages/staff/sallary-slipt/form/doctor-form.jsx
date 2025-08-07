@@ -1,12 +1,62 @@
 import { Box, Grid, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 import GroupInput from '../components/GroupInput';
 import SimpleInput from '../components/SimpleInput';
 
-const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
+const DoctorForm = forwardRef(({ formValues, setFormValues, isDetailForm = false }, ref) => {
+  const [errors, setErrors] = useState({});
+
+  useImperativeHandle(ref, () => ({
+    validateForm: () => {
+      const err = {};
+
+      const requiredSimpleFields = [
+        'income.basicIncome',
+        'income.attendanceAllowance',
+        'income.mealAllowance',
+        'income.clinicTurnoverBonus',
+        'income.housingAllowance',
+        'income.bpjsHealthAllowance',
+        'expense.currentMonthCashAdvance',
+        'expense.remainingDebtLastMonth',
+        'expense.stockOpnameInventory',
+        'expense.stockOpnameLost',
+        'expense.stockOpnameExpired'
+      ];
+
+      const requiredGroupFields = [
+        'income.patientIncentive.amount',
+        'income.patientIncentive.unitNominal',
+        'income.xrayIncentive.amount',
+        'income.xrayIncentive.unitNominal',
+        'income.longShiftReplacement.amount',
+        'income.longShiftReplacement.unitNominal',
+        'income.fullShiftReplacement.amount',
+        'income.fullShiftReplacement.unitNominal',
+        'expense.notComingToWork.amount',
+        'expense.notComingToWork.unitNominal',
+        'expense.notWearingWorkAttributes.amount',
+        'expense.notWearingWorkAttributes.unitNominal',
+        'expense.late.amount',
+        'expense.late.unitNominal'
+      ];
+
+      [...requiredSimpleFields, ...requiredGroupFields].forEach((path) => {
+        const value = getNestedValue(formValues, path.split('.'));
+        if (!value || value === '') {
+          err[path] = 'Field is required';
+        }
+      });
+
+      setErrors(err);
+      const isValid = Object.keys(err).length === 0;
+      return { isValid, errors: err };
+    }
+  }));
+
   useEffect(() => {
     const groupPaths = [
       'income.patientIncentive',
@@ -129,6 +179,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="basicIncome"
           idMessage="basic-income"
           accessor="income.basicIncome"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Kehadiran */}
@@ -140,6 +192,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="attendanceAllowance"
           idMessage="attendance-allowance"
           accessor="income.attendanceAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Makan */}
@@ -151,6 +205,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="mealAllowance"
           idMessage="meal-allowance"
           accessor="income.mealAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Insentif Pasien */}
@@ -162,6 +218,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="patientIncentive"
           groupTitleIdMessage="patient-incentive"
           accessor="income.patientIncentive"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Insentif Operator Lab / Xray */}
@@ -173,6 +231,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="xrayIncentive"
           groupTitleIdMessage="xray-incentive"
           accessor="income.xrayIncentive"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Bonus Omset Klinik */}
@@ -184,6 +244,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="clinicTurnoverBonus"
           idMessage="clinic-turnover-bonus"
           accessor="income.clinicTurnoverBonus"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Upah pengganti longshift */}
@@ -195,6 +257,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="longShiftReplacement"
           groupTitleIdMessage="long-shift-substitute-wage"
           accessor="income.longShiftReplacement"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Upah pengganti fullshift */}
@@ -206,6 +270,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="fullShiftReplacement"
           groupTitleIdMessage="full-shift-substitute-wage"
           accessor="income.fullShiftReplacement"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan BPJS Kesehatan */}
@@ -217,6 +283,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="bpjsHealthAllowance"
           idMessage="bpjs-health-allowance"
           accessor="income.bpjsHealthAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Tempat Tinggal */}
@@ -228,6 +296,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="housingAllowance"
           idMessage="housing-allowance"
           accessor="income.housingAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <Grid item xs={12}>
@@ -249,6 +319,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="notComingToWork"
           groupTitleIdMessage="absent-from-work"
           accessor="expense.notComingToWork"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tidak mengenakan atribut kerja  */}
@@ -260,6 +332,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="notWearingWorkAttributes"
           groupTitleIdMessage="not-wearing-work-attributes"
           accessor="expense.notWearingWorkAttributes"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Keterlambatan */}
@@ -271,6 +345,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="late"
           groupTitleIdMessage="late"
           accessor="expense.late"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Kasbon bulan berjalan */}
@@ -282,6 +358,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="currentMonthCashAdvance"
           idMessage="current-month-cash-advance"
           accessor="expense.currentMonthCashAdvance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Sisa hutang bulan lalu */}
@@ -293,6 +371,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="remainingDebtLastMonth"
           idMessage="remaining-debt-from-last-month"
           accessor="expense.remainingDebtLastMonth"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Stock Opname barang Inventory (klinik) */}
@@ -304,6 +384,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="stockOpnameInventory"
           idMessage="stock-opname-inventory-product"
           accessor="expense.stockOpnameInventory"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Stock Opname barang Hilang (klinik) */}
@@ -315,6 +397,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="stockOpnameLost"
           idMessage="stock-opname-lost-product"
           accessor="expense.stockOpnameLost"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Stock Opname barang Expired (klinik) */}
@@ -326,6 +410,8 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="stockOpnameExpired"
           idMessage="stock-opname-expired-product"
           accessor="expense.stockOpnameExpired"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <Grid item xs={12}>
@@ -345,7 +431,7 @@ const DoctorForm = ({ formValues, setFormValues, isDetailForm = false }) => {
       </Grid>
     </>
   );
-};
+});
 
 DoctorForm.propTypes = {
   formValues: PropTypes.object,
