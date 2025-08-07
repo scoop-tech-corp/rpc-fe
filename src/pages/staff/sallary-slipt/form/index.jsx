@@ -7,7 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { createMessageBackend, getLocationList, getStaffByLocationAndJobTitleList, getStaffJobTitleList } from 'service/service-global';
 import {
@@ -60,6 +60,7 @@ export default function SallarySliptForm({ isDetailForm = false }) {
   const [isEditForm, setIsEditForm] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (params.id) {
@@ -229,29 +230,38 @@ export default function SallarySliptForm({ isDetailForm = false }) {
   const renderDynamicForm = (jobName) => {
     if (!jobName) return null;
 
-    switch (jobName.toLowerCase()) {
-      case 'kasir':
-        return <CashierForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'paramedis':
-        return <ParamedicForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'helper':
-        return <NurseHelperForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'groomer':
-        return <NurseGroomerForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'dokter hewan':
-        return <DoctorForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'quality control & trainer':
-        return <QualityControlForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'manager iinternal audit':
-        return <ManagerForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      case 'staff internal audit':
-        return <StaffForm formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
-      default:
-        return <div>{jobName} is not found</div>;
+    const jobNameLowercase = jobName.toLowerCase();
+
+    if (jobNameLowercase.includes('kasir')) {
+      return <CashierForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('paramedis')) {
+      return <ParamedicForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('helper')) {
+      return <NurseHelperForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('groomer')) {
+      return <NurseGroomerForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('dokter hewan')) {
+      return <DoctorForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('quality control & trainer')) {
+      return <QualityControlForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('manager')) {
+      return <ManagerForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else if (jobNameLowercase.includes('staff')) {
+      return <StaffForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+    } else {
+      return <div>{jobName} is not found</div>;
     }
   };
 
   const onSubmit = async (jobName) => {
+    const validationResult = formRef.current?.validateForm?.();
+
+    if (validationResult && !validationResult.isValid) {
+      // bisa set error ke state & tampilkan di UI kalau mau
+      dispatch(snackbarError('Please fill in the required fields'));
+      return;
+    }
+
     if (!isEditForm) {
       try {
         const requestBody = {

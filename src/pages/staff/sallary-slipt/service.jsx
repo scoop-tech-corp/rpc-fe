@@ -13,8 +13,8 @@ export const getSallarySliptList = async (property) => {
       orderColumn: property.orderColumn,
       search: property.keyword,
       locationId: property.locationId,
-      dateFrom: dateFrom,
-      dateTo: dateTo
+      startDate: dateFrom,
+      endDate: dateTo
     }
   });
 

@@ -1,12 +1,62 @@
 import { Box, Grid, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 import GroupInput from '../components/GroupInput';
 import SimpleInput from '../components/SimpleInput';
 
-const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
+const NurseGroomerForm = forwardRef(({ formValues, setFormValues, isDetailForm = false }, ref) => {
+  const [errors, setErrors] = useState({});
+
+  useImperativeHandle(ref, () => ({
+    validateForm: () => {
+      const errors = {};
+
+      const requiredSimpleFields = [
+        'income.basicIncome',
+        'income.annualIncrementIncentive',
+        'income.attendanceAllowance',
+        'income.mealAllowance',
+        'income.positionalAllowance',
+        'income.groomingAchievementBonus',
+        'income.salesAchievementBonus',
+        'income.bpjsHealthAllowance',
+        'expense.currentMonthCashAdvance',
+        'expense.remainingDebtLastMonth',
+        'expense.stockOpnameInventory'
+      ];
+
+      const requiredGroupFields = [
+        'income.xrayIncentive.amount',
+        'income.xrayIncentive.unitNominal',
+        'income.groomingIncentive.amount',
+        'income.groomingIncentive.unitNominal',
+        'income.replacementWagesForDays.amount',
+        'income.replacementWagesForDays.unitNominal',
+        'expense.notComingToWork.amount',
+        'expense.notComingToWork.unitNominal',
+        'expense.notWearingWorkAttributes.amount',
+        'expense.notWearingWorkAttributes.unitNominal',
+        'expense.late.amount',
+        'expense.late.unitNominal'
+      ];
+
+      [...requiredSimpleFields, ...requiredGroupFields].forEach((path) => {
+        const value = getNestedValue(formValues, path.split('.'));
+        if (!value || value === '') {
+          errors[path] = 'Field is required';
+        }
+      });
+
+      setErrors(errors);
+      return {
+        isValid: Object.keys(errors).length === 0,
+        errors
+      };
+    }
+  }));
+
   useEffect(() => {
     const groupPaths = [
       'income.xrayIncentive',
@@ -117,6 +167,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="basicIncome"
           idMessage="basic-income"
           accessor="income.basicIncome"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Insentif Kenaikan Tahunan */}
@@ -128,6 +180,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="annualIncrementIncentive"
           idMessage="annual-increase-incentive"
           accessor="income.annualIncrementIncentive"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Kehadiran */}
@@ -139,6 +193,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="attendanceAllowance"
           idMessage="attendance-allowance"
           accessor="income.attendanceAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Makan */}
@@ -150,6 +206,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="mealAllowance"
           idMessage="meal-allowance"
           accessor="income.mealAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Jabatan */}
@@ -161,6 +219,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="positionalAllowance"
           idMessage="positional-allowance"
           accessor="income.positionalAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Insentif Operator Lab / Xray */}
@@ -172,6 +232,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="xrayIncentive"
           groupTitleIdMessage="xray-incentive"
           accessor="income.xrayIncentive"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Insentif Grooming */}
@@ -183,6 +245,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="groomingIncentive"
           groupTitleIdMessage="grooming-incentive"
           accessor="income.groomingIncentive"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Bonus Pencapaian Grooming */}
@@ -194,6 +258,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="groomingAchievementBonus"
           idMessage="grooming-achievement-bonus"
           accessor="income.groomingAchievementBonus"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Bonus Pencapaian penjualan barang */}
@@ -205,6 +271,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="salesAchievementBonus"
           idMessage="sales-achievement-bonus"
           accessor="income.salesAchievementBonus"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Upah pengganti hari */}
@@ -216,6 +284,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="replacementWagesForDays"
           groupTitleIdMessage="replacement-wages-for-days"
           accessor="income.replacementWagesForDays"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan BPJS Kesehatan */}
@@ -227,6 +297,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="bpjsHealthAllowance"
           idMessage="bpjs-health-allowance"
           accessor="income.bpjsHealthAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <Grid item xs={12}>
@@ -248,6 +320,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="notComingToWork"
           groupTitleIdMessage="absent-from-work"
           accessor="expense.notComingToWork"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tidak mengenakan atribut kerja  */}
@@ -259,6 +333,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="notWearingWorkAttributes"
           groupTitleIdMessage="not-wearing-work-attributes"
           accessor="expense.notWearingWorkAttributes"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Keterlambatan */}
@@ -270,6 +346,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="late"
           groupTitleIdMessage="late"
           accessor="expense.late"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Kasbon bulan berjalan */}
@@ -281,6 +359,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="currentMonthCashAdvance"
           idMessage="current-month-cash-advance"
           accessor="expense.currentMonthCashAdvance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Sisa hutang bulan lalu */}
@@ -292,6 +372,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="remainingDebtLastMonth"
           idMessage="remaining-debt-from-last-month"
           accessor="expense.remainingDebtLastMonth"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Stock Opname barang Inventory (klinik) */}
@@ -303,6 +385,8 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
           name="stockOpnameInventory"
           idMessage="stock-opname-inventory-product"
           accessor="expense.stockOpnameInventory"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <Grid item xs={12}>
@@ -322,7 +406,7 @@ const NurseGroomerForm = ({ formValues, setFormValues, isDetailForm = false }) =
       </Grid>
     </>
   );
-};
+});
 
 NurseGroomerForm.propTypes = {
   formValues: PropTypes.object,

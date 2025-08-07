@@ -18,12 +18,17 @@ const setNestedValue = (obj, path, value) => {
   };
 };
 
-function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, accessor, readOnly }) {
+function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, accessor, readOnly, errors, setErrors }) {
   const path = accessor.split('.');
 
   const handleChange = (field) => (e) => {
     const fullPath = [...path, field];
     const value = e.target.value;
+
+    if (value) {
+      const newError = { ...errors, [`${accessor}.${field}`]: null };
+      setErrors(newError);
+    }
 
     setFormValues(setNestedValue(formValues, fullPath, value));
   };
@@ -46,7 +51,6 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
               <FormattedMessage id="quantity" />
             </InputLabel>
             <TextField
-              required
               InputProps={{
                 readOnly
               }}
@@ -56,6 +60,8 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
               name="amount"
               value={getValue('amount')}
               onChange={handleChange('amount')}
+              error={Boolean(errors?.[accessor + '.amount'])}
+              helperText={errors?.[accessor + '.amount'] || ''}
             />
           </Stack>
 
@@ -65,7 +71,6 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
               <FormattedMessage id="amount" />
             </InputLabel>
             <TextField
-              required
               InputProps={{
                 readOnly
               }}
@@ -75,6 +80,8 @@ function GroupInput({ formValues, setFormValues, id, groupTitleIdMessage, access
               name="unitNominal"
               value={getValue('unitNominal')}
               onChange={handleChange('unitNominal')}
+              error={Boolean(errors?.[accessor + '.unitNominal'])}
+              helperText={errors?.[accessor + '.unitNominal'] || ''}
             />
           </Stack>
 
@@ -97,7 +104,9 @@ GroupInput.propTypes = {
   id: PropTypes.string.isRequired,
   accessor: PropTypes.string.isRequired, // e.g., "expense.absent"
   groupTitleIdMessage: PropTypes.string.isRequired,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  errors: PropTypes.object,
+  setErrors: PropTypes.func
 };
 
 export default GroupInput;
