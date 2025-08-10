@@ -275,33 +275,26 @@ export default function SallarySliptForm({ isDetailForm = false }) {
           expense: formValues.expense
         };
 
-        switch (jobName.toLowerCase()) {
-          case 'kasir':
-            await createCashierSalarySlipt(requestBody);
-            break;
-          case 'paramedis':
-            await createParamedicSalarySlipt(requestBody);
-            break;
-          case 'helper':
-            await createNurseHelperSalarySlipt(requestBody);
-            break;
-          case 'groomer':
-            await createNurseGroomerSalarySlipt(requestBody);
-            break;
-          case 'dokter hewan':
-            await createDoctorSalarySlipt(requestBody);
-            break;
-          case 'quality control & trainer':
-            await createQualityControlSalarySlipt(requestBody);
-            break;
-          case 'manager iinternal audit':
-            await createManagerSalarySlipt(requestBody);
-            break;
-          case 'staff internal audit':
-            await createStaffSalarySlipt(requestBody);
-            break;
-          default:
-            dispatch(snackbarError('Unknown job name'));
+        const jobNameLowercase = jobName.toLowerCase();
+
+        if (jobNameLowercase.includes('kasir')) {
+          await createCashierSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('paramedis')) {
+          await createParamedicSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('helper')) {
+          await createNurseHelperSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('groomer')) {
+          await createNurseGroomerSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('dokter hewan')) {
+          await createDoctorSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('quality control & trainer')) {
+          await createQualityControlSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('manager')) {
+          await createManagerSalarySlipt(requestBody);
+        } else if (jobNameLowercase.includes('staff')) {
+          await createStaffSalarySlipt(requestBody);
+        } else {
+          dispatch(snackbarError('Unknown job name'));
         }
 
         dispatch(snackbarSuccess('Success Create Salary Slipt'));
