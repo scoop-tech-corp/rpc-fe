@@ -18,7 +18,18 @@ const setNestedValue = (obj, path, value) => {
   };
 };
 
-function SimpleInput({ formValues, setFormValues, id, name, idMessage, accessor, type = 'number', readOnly = false }) {
+function SimpleInput({
+  formValues,
+  setFormValues,
+  id,
+  name,
+  idMessage,
+  accessor,
+  type = 'number',
+  readOnly = false,
+  errors = {},
+  setErrors
+}) {
   const path = accessor.split('.');
 
   return (
@@ -28,7 +39,6 @@ function SimpleInput({ formValues, setFormValues, id, name, idMessage, accessor,
           <FormattedMessage id={idMessage} />
         </InputLabel>
         <TextField
-          required
           InputProps={{
             readOnly
           }}
@@ -38,8 +48,15 @@ function SimpleInput({ formValues, setFormValues, id, name, idMessage, accessor,
           name={name}
           value={getNestedValue(formValues, path)}
           onChange={(event) => {
+            if (event.target.value) {
+              const newError = { ...errors, [accessor]: null };
+              setErrors(newError);
+            }
+
             setFormValues(setNestedValue(formValues, path, event.target.value));
           }}
+          error={Boolean(errors[accessor])}
+          helperText={errors[accessor]}
         />
       </Stack>
     </Grid>
@@ -54,7 +71,9 @@ SimpleInput.propTypes = {
   idMessage: PropTypes.string.isRequired,
   accessor: PropTypes.string.isRequired,
   type: PropTypes.string,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  errors: PropTypes.object,
+  setErrors: PropTypes.func
 };
 
 export default SimpleInput;

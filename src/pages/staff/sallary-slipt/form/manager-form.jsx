@@ -1,12 +1,55 @@
 import { Box, Button, Grid, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 import GroupInput from '../components/GroupInput';
 import SimpleInput from '../components/SimpleInput';
 
-const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
+const ManagerForm = forwardRef(({ formValues, setFormValues, isDetailForm = false }, ref) => {
+  const [errors, setErrors] = useState({});
+
+  useImperativeHandle(ref, () => ({
+    validateForm: () => {
+      const err = {};
+
+      const requiredSimpleFields = [
+        'income.basicIncome',
+        'income.annualIncrementIncentive',
+        'income.attendanceAllowance',
+        'income.entertainAllowance',
+        'income.transportAllowance',
+        'income.functionalLeaderAllowance',
+        'income.hardshipAllowance',
+        'income.familyAllowance',
+        'income.bpjsHealthAllowance',
+        'income.salesAchievementBonus',
+        'expense.currentMonthCashAdvance',
+        'expense.remainingDebtLastMonth',
+        'expense.stockOpnameInventory'
+      ];
+
+      const requiredGroupFields = [
+        'expense.notComingToWork.amount',
+        'expense.notComingToWork.unitNominal',
+        'expense.notWearingWorkAttributes.amount',
+        'expense.notWearingWorkAttributes.unitNominal',
+        'expense.late.amount',
+        'expense.late.unitNominal'
+      ];
+
+      [...requiredSimpleFields, ...requiredGroupFields].forEach((path) => {
+        const value = getNestedValue(formValues, path.split('.'));
+        if (!value || value === '') {
+          err[path] = 'Field is required';
+        }
+      });
+
+      setErrors(err);
+      return { isValid: Object.keys(err).length === 0, errors: err };
+    }
+  }));
+
   useEffect(() => {
     const groupPaths = ['expense.notComingToWork', 'expense.notWearingWorkAttributes', 'expense.late'];
 
@@ -106,6 +149,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="basicIncome"
           idMessage="basic-income"
           accessor="income.basicIncome"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Insentif Kenaikan Tahunan */}
@@ -117,6 +162,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="annualIncrementIncentive"
           idMessage="annual-increase-incentive"
           accessor="income.annualIncrementIncentive"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Kehadiran */}
@@ -128,6 +175,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="attendanceAllowance"
           idMessage="attendance-allowance"
           accessor="income.attendanceAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Entertain */}
@@ -139,6 +188,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="entertainAllowance"
           idMessage="entertain-allowance"
           accessor="income.entertainAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Transportasi */}
@@ -150,6 +201,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="transportAllowance"
           idMessage="transport-allowance"
           accessor="income.transportAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Fungsional Leader */}
@@ -161,6 +214,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="functionalLeaderAllowance"
           idMessage="functional-leader-allowance"
           accessor="income.functionalLeaderAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Hardship */}
@@ -172,6 +227,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="hardshipAllowance"
           idMessage="hardship-allowance"
           accessor="income.hardshipAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan Keluarga */}
@@ -183,6 +240,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="familyAllowance"
           idMessage="family-allowance"
           accessor="income.familyAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tunjangan BPJS Kesehatan */}
@@ -194,6 +253,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="bpjsHealthAllowance"
           idMessage="bpjs-health-allowance"
           accessor="income.bpjsHealthAllowance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Bonus Pencapaian Omset */}
@@ -205,6 +266,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="salesAchievementBonus"
           idMessage="sales-achievement-bonus"
           accessor="income.salesAchievementBonus"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <Grid item xs={12}>
@@ -226,6 +289,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="notComingToWork"
           groupTitleIdMessage="absent-from-work"
           accessor="expense.notComingToWork"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Tidak mengenakan atribut kerja  */}
@@ -237,6 +302,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="notWearingWorkAttributes"
           groupTitleIdMessage="not-wearing-work-attributes"
           accessor="expense.notWearingWorkAttributes"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Keterlambatan */}
@@ -248,6 +315,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="late"
           groupTitleIdMessage="late"
           accessor="expense.late"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Kasbon bulan berjalan */}
@@ -259,6 +328,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="currentMonthCashAdvance"
           idMessage="current-month-cash-advance"
           accessor="expense.currentMonthCashAdvance"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Sisa hutang bulan lalu */}
@@ -270,6 +341,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="remainingDebtLastMonth"
           idMessage="remaining-debt-from-last-month"
           accessor="expense.remainingDebtLastMonth"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         {/* Stock Opname barang Inventory (office) */}
@@ -281,6 +354,8 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
           name="stockOpnameInventory"
           idMessage="stock-opname-inventory-product"
           accessor="expense.stockOpnameInventory"
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <Grid item xs={12}>
@@ -300,7 +375,7 @@ const ManagerForm = ({ formValues, setFormValues, isDetailForm = false }) => {
       </Grid>
     </>
   );
-};
+});
 
 ManagerForm.propTypes = {
   formValues: PropTypes.object,

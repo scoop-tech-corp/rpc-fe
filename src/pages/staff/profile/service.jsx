@@ -1,4 +1,5 @@
 import axios from 'utils/axios';
+import { formateDateYYYMMDD } from 'utils/func';
 
 const url = 'staff/profile';
 
@@ -7,6 +8,22 @@ export const getDetailProfile = async (property) => {
     params: {
       id: property.id,
       type: property.type
+    }
+  });
+};
+
+export const getProfileLate = async (payload) => {
+  const dateFrom = payload.dateRange?.length ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange?.length ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get(url + '/late', {
+    params: {
+      rowPerPage: payload.rowPerPage,
+      goToPage: payload.goToPage,
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      dateFrom,
+      dateTo
     }
   });
 };
