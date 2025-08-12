@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Grid, Typography, Button } from '@mui/material';
-import { getDetailProfile } from '../service';
+import { getDetailProfile, getProfileLate } from '../service';
 import { FormattedMessage } from 'react-intl';
+import { ReactTable } from 'components/third-party/ReactTable';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import MainCard from 'components/MainCard';
@@ -11,11 +12,48 @@ import avatarMen from 'assets/images/users/avatar-1.png';
 import avatarGirl from 'assets/images/users/avatar-5.png';
 import avatarUnknown from 'assets/images/users/avatar-unknown.jpg';
 import configGlobal from '../../../../config';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
+import ScrollX from 'components/ScrollX';
+import useGetList from 'hooks/useGetList';
 
 const StaffViewProfile = () => {
   let { id } = useParams();
   const [data, setData] = useState(null);
+  const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
+
+  const { list, totalPagination, params, goToPage, setParams, orderingChange, changeLimit } = useGetList(getProfileLate, {
+    dateRange: []
+  });
+
   const navigate = useNavigate();
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: <FormattedMessage id="shift" />,
+        accessor: 'shift'
+      },
+      {
+        Header: <FormattedMessage id="day" />,
+        accessor: 'day'
+      },
+      {
+        Header: <FormattedMessage id="arrival-time" />,
+        accessor: 'homeTime'
+      },
+      {
+        Header: <FormattedMessage id="departure-time" />,
+        accessor: 'presentTime'
+      }
+    ],
+    []
+  );
+
+  const onFilterDateRange = (selectedDate) => {
+    console.log('selectedDate', selectedDate);
+    setSelectedDateRange(selectedDate);
+    setParams((_params) => ({ ..._params, dateRange: selectedDate }));
+  };
 
   const loadData = async () => {
     const getResp = await getDetailProfile({ id: id, type: 'view' });
@@ -210,6 +248,34 @@ const StaffViewProfile = () => {
                   <Typography variant="body1">{data?.email}</Typography>
                 </Grid>
               </Grid>
+            </MainCard>
+          </Grid>
+          <Grid item xs={12}>
+            <MainCard title={<FormattedMessage id="late-list" />} style={{ overflow: 'unset' }}>
+              <Grid container spacing={1} style={{ marginBottom: '10px' }}>
+                <Grid item sm={12} xs={12} md={4}>
+                  <DateRangePicker
+                    onChange={(value) => onFilterDateRange(value)}
+                    value={selectedDateRange}
+                    format="dd/MM/yyy"
+                    className={'fullWidth'}
+                  />
+                </Grid>
+              </Grid>
+
+              <ScrollX>
+                <ReactTable
+                  columns={columns}
+                  data={list || []}
+                  totalPagination={totalPagination}
+                  setPageNumber={params.goToPage}
+                  setPageRow={params.rowPerPage}
+                  colSpanPagination={4}
+                  onOrder={orderingChange}
+                  onGotoPage={goToPage}
+                  onPageSize={changeLimit}
+                />
+              </ScrollX>
             </MainCard>
           </Grid>
         </Grid>

@@ -23,8 +23,8 @@ const ProfileTab = ({ handleLogout }) => {
   const onClickProfile = (data, i) => {
     setSelectedIndex(i);
     let url = `${data.url}`;
-
-    if (data.title.includes('profile')) url = `${data.url}/${user.id}`;
+    const title = String(data.title).toLowerCase();
+    if (title.includes('profile')) url = `${data.url}/${user.id}`;
 
     navigate(url, { replace: true });
   };
