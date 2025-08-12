@@ -1,12 +1,14 @@
-import { Grid, Stack, InputLabel, TextField, FormControl, MenuItem, Select, Typography, Button } from '@mui/material';
+import { Grid, Stack, InputLabel, TextField, FormControl, MenuItem, Select, Typography, Button, Autocomplete } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { updateProfile, uploadImageProfile } from '../../service';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { DeleteFilled } from '@ant-design/icons';
+import { defaultIdentification } from 'pages/staff/staff-list/form/staff-form-store';
+import { uploadImageStaff } from 'pages/staff/staff-list/service';
 
 import Avatar from 'components/@extended/Avatar';
 import IconButton from 'components/@extended/IconButton';
@@ -52,6 +54,7 @@ const TabPersonal = (props) => {
     username: dataProfile?.userName,
     emailId: dataProfile?.emailId,
     email: dataProfile?.email,
+    typeIdentifications: [],
     photo: {
       selectedFile: null,
       imagePath: dataProfile?.imagePath ? `${configGlobal.apiUrl}${dataProfile?.imagePath}` : '',
@@ -124,12 +127,16 @@ const TabPersonal = (props) => {
     };
 
     if (!checkValidationForm) {
+      if (formProfile.typeIdentifications.find((dt) => dt.image.isChange)) {
+        await uploadImageStaff({ typeIdentifications: formProfile.typeIdentifications, id: dataProfile?.id }).catch(responseError);
+      }
+
       await updateProfile(formProfile)
         .then(async (resp) => {
           if (resp && resp.status === 200) {
             if (formProfile.photo.isChange || formProfile.photo.isDelete) {
               await uploadImageProfile(formProfile)
-                .then((res) => {
+                .then(async (res) => {
                   let prevUserLogin = JSON.parse(localStorage.getItem('user'));
                   prevUserLogin.avatar = res.data.imagePath;
                   localStorage.setItem('user', JSON.stringify(prevUserLogin));
@@ -177,6 +184,68 @@ const TabPersonal = (props) => {
         isDelete: true
       }
     }));
+  };
+
+  const onDropdownHandler = (selected, procedure, i) => {
+    setFormProfile((prevState) => {
+      let newData = [...prevState.typeIdentifications];
+      newData[i][procedure] = selected ? selected : null;
+
+      return { ...prevState, typeIdentifications: newData };
+    });
+  };
+
+  const onDeleteTypeIdentification = (i) => {
+    setFormProfile((prevState) => {
+      let newData = [...prevState.typeIdentifications];
+      newData.splice(i, 1);
+      // newData[i].command = 'del';
+
+      return { ...prevState, typeIdentifications: newData };
+    });
+  };
+
+  const clearImage = (i) => {
+    document.getElementById(`importImage-${i}`).value = '';
+
+    setFormProfile((prevState) => {
+      let newData = [...prevState.typeIdentifications];
+
+      newData[i].imagePath = '';
+      newData[i].image = {
+        id: '',
+        selectedFile: '',
+        isChange: true
+      };
+      return { ...prevState, typeIdentifications: newData };
+    });
+  };
+
+  const onSelectedIdentificationNumberPhoto = (e, index) => {
+    const getFile = e.target.files[0];
+
+    if (getFile) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        setFormProfile((prevState) => {
+          let newData = [...prevState.typeIdentifications];
+
+          const objFile = {
+            id: newData[index].image?.id || '',
+            selectedFile: getFile,
+            isChange: true
+          };
+
+          newData[index].imagePath = this.result;
+          newData[index].image = objFile;
+
+          return { ...prevState, typeIdentifications: newData };
+        });
+      };
+      reader.readAsDataURL(getFile);
+    } else {
+      clearImage();
+    }
   };
 
   useEffect(() => {
@@ -415,6 +484,100 @@ const TabPersonal = (props) => {
               />
             </Stack>
           </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="h6" fontWeight={'bold'}>
+              Upload Personal Data
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <IconButton
+              size="medium"
+              variant="contained"
+              aria-label="add"
+              color="primary"
+              onClick={() => {
+                setFormProfile((prevState) => {
+                  const newRow = { ...defaultIdentification };
+                  let newData = [...prevState.typeIdentifications, newRow];
+
+                  return { ...prevState, typeIdentifications: newData };
+                });
+              }}
+            >
+              <PlusOutlined />
+            </IconButton>
+          </Grid>
+          {formProfile.typeIdentifications.map((dt, i) => (
+            <Fragment key={i}>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={1}>
+                  <InputLabel>
+                    <FormattedMessage id="type-of-id" />
+                  </InputLabel>
+                  <Autocomplete
+                    id="type-of-id"
+                    options={dataProfile.typeIdList}
+                    value={dt.typeId}
+                    onChange={(_, selected) => onDropdownHandler(selected, 'typeId', i)}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="identification">{<FormattedMessage id="identification" />}</InputLabel>
+                  <TextField
+                    id="identification"
+                    name="identificationNumber"
+                    fullWidth
+                    value={dt.identificationNumber}
+                    onChange={(event) => {
+                      setFormProfile((prevState) => {
+                        let newData = [...prevState.typeIdentifications];
+                        newData[i][event.target.name] = event.target.value;
+
+                        return { ...prevState, typeIdentifications: newData };
+                      });
+                    }}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="import-image">{<FormattedMessage id="import-image" />}</InputLabel>
+                  <Stack spacing={1} flexDirection="row">
+                    {dt.imagePath && (
+                      <>
+                        <a href={dt.imagePath} target="blank" style={{ flexBasis: '20%', marginRight: '10px' }}>
+                          <img alt={dt.imagePath} src={dt.imagePath} width="100%" />
+                        </a>
+                        <DeleteFilled
+                          style={{ fontSize: '14px', color: 'red', cursor: 'pointer', marginRight: '10px' }}
+                          onClick={() => clearImage(i)}
+                        />
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      id={`importImage-${i}`}
+                      onChange={(event) => onSelectedIdentificationNumberPhoto(event, i)}
+                      accept="image/x-png,image/jpeg,image/png,image/heic"
+                    />
+                  </Stack>
+                </Stack>
+              </Grid>
+              {formProfile.typeIdentifications.length > 1 && (
+                <Grid item xs={12} sm={1}>
+                  <IconButton size="large" color="error" onClick={() => onDeleteTypeIdentification(i)}>
+                    <DeleteFilled />
+                  </IconButton>
+                </Grid>
+              )}
+            </Fragment>
+          ))}
         </Grid>
       </Grid>
     </Grid>

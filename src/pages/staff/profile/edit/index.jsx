@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { Box, Tab, Tabs } from '@mui/material';
 import { getDetailProfile } from '../service';
 import { useParams } from 'react-router';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 
 import MainCard from 'components/MainCard';
 import HeaderCustom from 'components/@extended/HeaderPageCustom';
@@ -12,14 +13,16 @@ import TabChangePassword from './tab-change-password';
 
 const StaffEditProfile = () => {
   const [tabSelected, setTabSelected] = useState(0);
-  const [dataProfile, setDataProfile] = useState({ isDoneLoad: false, data: null });
+  const [dataProfile, setDataProfile] = useState({ isDoneLoad: false, data: null, typeIdList: [] });
   let { id } = useParams();
 
   const onChangeTab = (value) => setTabSelected(value);
 
   const loadDetail = async () => {
     const getResp = await getDetailProfile({ id: id, type: 'edit' });
-    setDataProfile({ isDoneLoad: true, data: getResp.data });
+    const { dataStaticTypeId } = await getDropdownStaffDataStatic();
+
+    setDataProfile({ isDoneLoad: true, data: getResp.data, typeIdList: dataStaticTypeId });
   };
 
   useEffect(() => {
@@ -49,7 +52,7 @@ const StaffEditProfile = () => {
         </Box>
         <Box sx={{ mt: 2.5 }}>
           <TabPanel value={tabSelected} index={0} name="edit-userprofile">
-            {dataProfile.isDoneLoad && <TabPersonal dataProfile={{ ...dataProfile.data, id }} />}
+            {dataProfile.isDoneLoad && <TabPersonal dataProfile={{ ...dataProfile.data, id, typeIdList: dataProfile.typeIdList }} />}
           </TabPanel>
           <TabPanel value={tabSelected} index={1} name="edit-userprofile">
             <TabChangePassword />
