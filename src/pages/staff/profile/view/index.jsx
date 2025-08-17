@@ -49,6 +49,37 @@ const StaffViewProfile = () => {
     []
   );
 
+  const columnsIdentity = useMemo(
+    () => [
+      {
+        Header: <FormattedMessage id="type" />,
+        accessor: 'typeName',
+        isNotSorting: true
+      },
+      {
+        Header: <FormattedMessage id="identification" />,
+        accessor: 'identification',
+        isNotSorting: true
+      },
+      {
+        Header: <FormattedMessage id="image" />,
+        accessor: 'image',
+        isNotSorting: true,
+        Cell: (data) => {
+          const imagePath = data.row.original.imagePath;
+          return (
+            <>
+              <a href={`${configGlobal.apiUrl}${imagePath}`} target="blank">
+                <img src={`${configGlobal.apiUrl}${imagePath}`} alt="img-identity" width={'100px'} />
+              </a>
+            </>
+          );
+        }
+      }
+    ],
+    []
+  );
+
   const onFilterDateRange = (selectedDate) => {
     console.log('selectedDate', selectedDate);
     setSelectedDateRange(selectedDate);
@@ -248,6 +279,13 @@ const StaffViewProfile = () => {
                   <Typography variant="body1">{data?.email}</Typography>
                 </Grid>
               </Grid>
+            </MainCard>
+          </Grid>
+          <Grid item xs={12}>
+            <MainCard title={<FormattedMessage id="identity" />} content={false}>
+              <ScrollX>
+                <ReactTable columns={columnsIdentity} data={data?.userIdentifications || []} />
+              </ScrollX>
             </MainCard>
           </Grid>
           <Grid item xs={12}>

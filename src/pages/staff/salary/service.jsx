@@ -514,3 +514,80 @@ export const createStaffSalarySlipt = async (params) => {
 
   return await createSalarySlipt(requestBody);
 };
+
+export const getVerificationData = async (property) => {
+  return await axios.get('staff/identity', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword,
+      locationId: property.locationId,
+      jobTitleId: property.jobTitleId
+    }
+  });
+};
+
+export const exportVerificationData = async (property) => {
+  return await axios.get('staff/identity/export', {
+    params: {
+      locationId: property.locationId,
+      jobTitleId: property.jobTitleId
+    }
+  });
+};
+
+export const approvalVerificationData = async (property) => {
+  return await axios.put('staff/identity', {
+    id: property.id,
+    status: property.status,
+    reason: property.reason
+  });
+};
+
+export const deleteVerificationData = async (id) => {
+  return await axios.delete('staff/identity', {
+    data: { id }
+  });
+};
+
+export const getRequirePersonalData = async (property) => {
+  return await axios.get('staff/req-salary', {
+    params: {
+      rowPerPage: property.rowPerPage,
+      goToPage: property.goToPage,
+      orderValue: property.orderValue,
+      orderColumn: property.orderColumn,
+      search: property.keyword
+    }
+  });
+};
+export const getDetailRequirePersonalData = async (id) => {
+  return await axios.get('staff/req-salary/detail', {
+    params: { id }
+  });
+};
+
+export const deleteRequirePersonalData = async (id) => {
+  return await axios.delete('staff/req-salary', {
+    data: { id }
+  });
+};
+
+export const createRequirePersonalData = async (property) => {
+  const fd = new FormData();
+  fd.append('jobId', property.jobId);
+
+  property.types.forEach((type) => fd.append('types[]', type));
+
+  return await axios.post('staff/req-salary', fd);
+};
+
+export const updateRequirePersonalData = async (property) => {
+  return await axios.put('staff/req-salary', {
+    id: property.id,
+    jobId: property.jobId,
+    types: property.types
+  });
+};
