@@ -1,6 +1,7 @@
 import { Box, Tab, Tabs } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useState } from 'react';
+import { CONSTANT_ADMINISTRATOR } from 'constant/role';
 
 import TabPanel from 'components/TabPanelC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -36,7 +37,8 @@ const SallarySliptList = () => {
           <TabPanel value={tabSelected} index={0} name="salary-slipt-list">
             <TabSalarySlipt />
           </TabPanel>
-          {['HR', 'Finance', 'Komisaris', 'President Director'].includes(user?.jobName || '') && (
+          {(user?.role === CONSTANT_ADMINISTRATOR ||
+            ['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase())) && (
             <>
               <TabPanel value={tabSelected} index={1} name="salary-slipt-list">
                 <TabVerificationData />

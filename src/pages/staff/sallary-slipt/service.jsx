@@ -547,7 +547,7 @@ export const approvalVerificationData = async (property) => {
 };
 
 export const deleteVerificationData = async (id) => {
-  return await axios.delete('staff/req-salary', {
+  return await axios.delete('staff/identity', {
     data: { id }
   });
 };

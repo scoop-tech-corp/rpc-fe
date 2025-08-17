@@ -70,6 +70,10 @@ const TabVerificationData = () => {
       },
       {
         Header: <FormattedMessage id="type-identification" />,
+        accessor: 'typeName'
+      },
+      {
+        Header: <FormattedMessage id="identification" />,
         accessor: 'identification'
       },
       {
@@ -94,7 +98,8 @@ const TabVerificationData = () => {
           );
         }
       },
-      { Header: <FormattedMessage id="checked-by" />, accessor: 'approvedBy' }
+      { Header: <FormattedMessage id="checked-by" />, accessor: 'checkedBy' },
+      { Header: <FormattedMessage id="checked-at" />, accessor: 'checkedAt' }
     ],
     []
   );
@@ -166,40 +171,6 @@ const TabVerificationData = () => {
           sx={{ p: 3, pb: 0 }}
         >
           <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
-            {selectedRow.length > 0 && (
-              <>
-                <Tooltip title={<FormattedMessage id="approve" />} arrow>
-                  <IconButton size="large" color="success" onClick={() => setDialog({ isApprove: true, isReject: false, isDelete: false })}>
-                    <CheckCircleFilled />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={<FormattedMessage id="reject" />} arrow>
-                  <IconButton
-                    size="large"
-                    color="warning"
-                    onClick={() => setDialog({ isApprove: false, isReject: true, isDelete: false })}
-                    style={{ marginTop: 'unset' }}
-                  >
-                    <CloseCircleFilled />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={<FormattedMessage id="delete" />} arrow>
-                  <IconButton
-                    size="large"
-                    color="error"
-                    onClick={() => setDialog({ isApprove: false, isReject: false, isDelete: true })}
-                    style={{ marginTop: 'unset' }}
-                  >
-                    <DeleteFilled />
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-          </Stack>
-          <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
-            <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-              <FormattedMessage id="export" />
-            </Button>
             <GlobalFilter
               placeHolder={intl.formatMessage({ id: 'search' })}
               globalFilter={keyword}
@@ -238,6 +209,40 @@ const TabVerificationData = () => {
               renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-job-title" />} />}
             />
           </Stack>
+          <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+            {selectedRow.length > 0 && (
+              <>
+                <Tooltip title={<FormattedMessage id="approve" />} arrow>
+                  <IconButton size="large" color="success" onClick={() => setDialog({ isApprove: true, isReject: false, isDelete: false })}>
+                    <CheckCircleFilled />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={<FormattedMessage id="reject" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={() => setDialog({ isApprove: false, isReject: true, isDelete: false })}
+                    style={{ marginTop: 'unset' }}
+                  >
+                    <CloseCircleFilled />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={<FormattedMessage id="delete" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="error"
+                    onClick={() => setDialog({ isApprove: false, isReject: false, isDelete: true })}
+                    style={{ marginTop: 'unset' }}
+                  >
+                    <DeleteFilled />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
+            <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+              <FormattedMessage id="export" />
+            </Button>
+          </Stack>
         </Stack>
         <ScrollX>
           <ReactTable
@@ -249,7 +254,7 @@ const TabVerificationData = () => {
             onOrder={orderingChange}
             onGotoPage={goToPage}
             onPageSize={changeLimit}
-            colSpanPagination={9}
+            colSpanPagination={11}
           />
         </ScrollX>
       </Stack>
