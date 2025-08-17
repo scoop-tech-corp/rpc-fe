@@ -54,7 +54,7 @@ const TabPersonal = (props) => {
     username: dataProfile?.userName,
     emailId: dataProfile?.emailId,
     email: dataProfile?.email,
-    typeIdentifications: [],
+    typeIdentifications: dataProfile?.userIdentifications,
     photo: {
       selectedFile: null,
       imagePath: dataProfile?.imagePath ? `${configGlobal.apiUrl}${dataProfile?.imagePath}` : '',
