@@ -43,7 +43,7 @@ const StaffEditProfile = Loadable(lazy(() => import('pages/staff/profile/edit'))
 const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 const SallarySliptList = Loadable(lazy(() => import('pages/staff/sallary-slipt')));
-const SallarySliptForm = Loadable(lazy(() => import('pages/staff/sallary-slipt/form')));
+const SallarySliptForm = Loadable(lazy(() => import('pages/staff/sallary-slipt/tab-salary-slipt/form')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/promotion/dashboard')));

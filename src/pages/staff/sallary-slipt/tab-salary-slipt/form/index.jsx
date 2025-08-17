@@ -4,9 +4,6 @@ import { Stack } from '@mui/system';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
-import MainCard from 'components/MainCard';
-import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { createMessageBackend, getLocationList, getStaffByLocationAndJobTitleList, getStaffJobTitleList } from 'service/service-global';
@@ -22,7 +19,11 @@ import {
   getDetailSallarySlipt,
   staffSalaryCheck,
   updateSalarySlipt
-} from '../service';
+} from '../../service';
+import { useDispatch } from 'react-redux';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { useNavigate, useParams } from 'react-router';
+
 import CashierForm from './cashier-form';
 import DoctorForm from './doctor-form';
 import NurseGroomerForm from './nurse-groomer-form';
@@ -31,9 +32,9 @@ import NurseHelperForm from './nurse-helper-form';
 import ParamedicForm from './paramedic-form';
 import QualityControlForm from './quality-control-form';
 import StaffForm from './staff-form';
-import { useDispatch } from 'react-redux';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { useNavigate, useParams } from 'react-router';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import MainCard from 'components/MainCard';
+import dayjs from 'dayjs';
 
 const INITIAL_FORM_VALUES = {
   startDate: null,
