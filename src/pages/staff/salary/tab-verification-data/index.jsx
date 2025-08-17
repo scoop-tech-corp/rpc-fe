@@ -206,7 +206,7 @@ const TabVerificationData = () => {
                 setFilterJobTitle(selected);
                 setParams((_params) => ({ ..._params, jobTitleId: selectedJobTitle }));
               }}
-              renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-job-title" />} />}
+              renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-position" />} />}
             />
           </Stack>
           <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>

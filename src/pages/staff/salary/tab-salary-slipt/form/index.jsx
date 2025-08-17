@@ -299,7 +299,7 @@ export default function SallarySliptForm({ isDetailForm = false }) {
         }
 
         dispatch(snackbarSuccess('Success Create Salary Slipt'));
-        navigate('/staff/sallary-slipt', { replace: true });
+        navigate('/staff/salary', { replace: true });
       } catch (error) {
         dispatch(snackbarError(createMessageBackend(error)));
       }
@@ -334,14 +334,14 @@ export default function SallarySliptForm({ isDetailForm = false }) {
         await updateSalarySlipt(params.id, requestBody);
 
         dispatch(snackbarSuccess('Success Update Salary Slipt'));
-        navigate('/staff/sallary-slipt', { replace: true });
+        navigate('/staff/salary', { replace: true });
       } catch (error) {
         dispatch(snackbarError(createMessageBackend(error)));
       }
     }
   };
   const onBack = () => {
-    navigate('/staff/sallary-slipt', { replace: true });
+    navigate('/staff/salary', { replace: true });
   };
   const clearForm = () => {
     setFormValues(INITIAL_FORM_VALUES);
@@ -371,7 +371,7 @@ export default function SallarySliptForm({ isDetailForm = false }) {
             }
             locationBackConfig={{
               setLocationBack: true,
-              customUrl: '/staff/sallary-slipt'
+              customUrl: '/staff/salary'
             }}
             action={
               <>

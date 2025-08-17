@@ -18,7 +18,7 @@ const SallarySliptList = () => {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="sallary-slipt" />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="salary" />} isBreadcrumb={true} />
       <MainCard sx={{ overflow: 'visible' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
           <Tabs
@@ -28,7 +28,7 @@ const SallarySliptList = () => {
             scrollButtons="auto"
             aria-label="sllary slipt tab"
           >
-            <Tab label={<FormattedMessage id="sallary-slipt" />} id="tab-0" aria-controls="tabpanel-0" />
+            <Tab label={<FormattedMessage id="salary-slipt" />} id="tab-0" aria-controls="tabpanel-0" />
             <Tab label={<FormattedMessage id="verfication-data" />} id="tab-1" aria-controls="tabpanel-1" />
             <Tab label={<FormattedMessage id="require-personal-data" />} id="tab-2" aria-controls="tabpanel-2" />
           </Tabs>

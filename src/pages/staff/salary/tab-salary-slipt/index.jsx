@@ -94,7 +94,7 @@ const TabSalarySlipt = () => {
                 <IconButton
                   size="small"
                   onClick={() => {
-                    navigate(`/staff/sallary-slipt/detail/${data.row.original.id}`);
+                    navigate(`/staff/salary-slipt/detail/${data.row.original.id}`);
                   }}
                 >
                   <VisibilityIcon />
@@ -108,7 +108,7 @@ const TabSalarySlipt = () => {
                       size="small"
                       color="warning"
                       onClick={() => {
-                        navigate(`/staff/sallary-slipt/edit/${data.row.original.id}`);
+                        navigate(`/staff/salary-slipt/edit/${data.row.original.id}`);
                       }}
                     >
                       <EditIcon />
@@ -223,7 +223,7 @@ const TabSalarySlipt = () => {
   };
 
   const onClickAdd = () => {
-    navigate('/staff/sallary-slipt/add', { replace: true });
+    navigate('/staff/salary-slipt/add', { replace: true });
   };
 
   const onExport = async () => {
