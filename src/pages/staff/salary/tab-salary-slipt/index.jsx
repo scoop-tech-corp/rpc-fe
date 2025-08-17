@@ -1,43 +1,35 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { Autocomplete, Button, Stack, TextField, Tooltip, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
+import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
+import { useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
+import { createMessageBackend, getLocationList, processDownloadExcel, processDownloadPDF } from 'service/service-global';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { formatThousandSeparator } from 'utils/func';
+import { GlobalFilter } from 'utils/react-table';
+import { deleteSallarySliptList, exportSallarySlipt, generateSallarySlipt, getSallarySliptList } from '../service';
+
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Autocomplete, Button, Stack, TextField, Tooltip, useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ConfirmationC from 'components/ConfirmationC';
-import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
-import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
-import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
 import useAuth from 'hooks/useAuth';
-import { useEffect, useMemo, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
-import {
-  createMessageBackend,
-  getCustomerGroupList,
-  getLocationList,
-  processDownloadExcel,
-  processDownloadPDF
-} from 'service/service-global';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { formatThousandSeparator } from 'utils/func';
-import { GlobalFilter } from 'utils/react-table';
-import { deleteSallarySliptList, exportSallarySlipt, generateSallarySlipt, getSallarySliptList } from './service';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 let paramSallarySliptList = {};
 
-const SallarySliptList = () => {
+const TabSalarySlipt = () => {
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('md'));
   const intl = useIntl();
@@ -102,7 +94,7 @@ const SallarySliptList = () => {
                 <IconButton
                   size="small"
                   onClick={() => {
-                    navigate(`/staff/sallary-slipt/detail/${data.row.original.id}`);
+                    navigate(`/staff/salary-slipt/detail/${data.row.original.id}`);
                   }}
                 >
                   <VisibilityIcon />
@@ -116,7 +108,7 @@ const SallarySliptList = () => {
                       size="small"
                       color="warning"
                       onClick={() => {
-                        navigate(`/staff/sallary-slipt/edit/${data.row.original.id}`);
+                        navigate(`/staff/salary-slipt/edit/${data.row.original.id}`);
                       }}
                     >
                       <EditIcon />
@@ -231,7 +223,7 @@ const SallarySliptList = () => {
   };
 
   const onClickAdd = () => {
-    navigate('/staff/sallary-slipt/add', { replace: true });
+    navigate('/staff/salary-slipt/add', { replace: true });
   };
 
   const onExport = async () => {
@@ -322,73 +314,70 @@ const SallarySliptList = () => {
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id="sallary-slipt" />} isBreadcrumb={true} />
-      <MainCard content={false} sx={{ overflow: 'visible' }}>
-        <Stack spacing={3}>
-          {['Finance', 'Komisaris', 'President Director'].includes(user?.jobName || '') && (
-            <Stack
-              direction={matchDownMD ? 'column' : 'row'}
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-            >
-              <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
-                <GlobalFilter
-                  placeHolder={intl.formatMessage({ id: 'search' })}
-                  globalFilter={keywordSearch}
-                  setGlobalFilter={onSearch}
-                  style={{ height: '41.3px' }}
-                />
-                <DateRangePicker onChange={(value) => onFilterDateRange(value)} value={selectedDateRange} format="dd/MM/yyy" />
-                <Autocomplete
-                  id="filterLocation"
-                  multiple
-                  limitTags={1}
-                  options={facilityLocationList}
-                  value={selectedFilterLocation}
-                  sx={{ width: 350 }}
-                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                  onChange={(_, value) => onFilterLocation(value)}
-                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                />
+      <Stack spacing={3}>
+        {['Finance', 'Komisaris', 'President Director'].includes(user?.jobName || '') && (
+          <Stack
+            direction={matchDownMD ? 'column' : 'row'}
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={1}
+            sx={{ p: 3, pb: 0 }}
+          >
+            <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+              <GlobalFilter
+                placeHolder={intl.formatMessage({ id: 'search' })}
+                globalFilter={keywordSearch}
+                setGlobalFilter={onSearch}
+                style={{ height: '41.3px' }}
+              />
+              <DateRangePicker onChange={(value) => onFilterDateRange(value)} value={selectedDateRange} format="dd/MM/yyy" />
+              <Autocomplete
+                id="filterLocation"
+                multiple
+                limitTags={1}
+                options={facilityLocationList}
+                value={selectedFilterLocation}
+                sx={{ width: 350 }}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => onFilterLocation(value)}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+              />
 
-                {selectedRow.length > 0 && (
-                  <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
-                    <FormattedMessage id="delete" />
-                  </Button>
-                )}
-              </Stack>
-              <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
-                <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
-                  <RefreshIcon />
-                </IconButton>
-
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
+              {selectedRow.length > 0 && (
+                <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
+                  <FormattedMessage id="delete" />
                 </Button>
-
-                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                  <FormattedMessage id="new" />
-                </Button>
-              </Stack>
+              )}
             </Stack>
-          )}
-          <ScrollX>
-            <ReactTable
-              columns={columns}
-              data={getSallarySliptListData.data}
-              totalPagination={getSallarySliptListData.totalPagination}
-              setPageNumber={paramSallarySliptList.goToPage}
-              setPageRow={paramSallarySliptList.rowPerPage}
-              onOrder={onOrderingChange}
-              onGotoPage={onGotoPageChange}
-              onPageSize={onPageSizeChange}
-              colSpanPagination={columns.length}
-            />
-          </ScrollX>
-        </Stack>
-      </MainCard>
+            <Stack spacing={1} direction={matchDownMD ? 'column' : 'row'} style={{ width: matchDownMD ? '100%' : '' }}>
+              <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={onRefresh}>
+                <RefreshIcon />
+              </IconButton>
+
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                <FormattedMessage id="export" />
+              </Button>
+
+              <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                <FormattedMessage id="new" />
+              </Button>
+            </Stack>
+          </Stack>
+        )}
+        <ScrollX>
+          <ReactTable
+            columns={columns}
+            data={getSallarySliptListData.data}
+            totalPagination={getSallarySliptListData.totalPagination}
+            setPageNumber={paramSallarySliptList.goToPage}
+            setPageRow={paramSallarySliptList.rowPerPage}
+            onOrder={onOrderingChange}
+            onGotoPage={onGotoPageChange}
+            onPageSize={onPageSizeChange}
+            colSpanPagination={columns.length}
+          />
+        </ScrollX>
+      </Stack>
       <ConfirmationC
         open={dialog}
         title={<FormattedMessage id="delete" />}
@@ -401,4 +390,4 @@ const SallarySliptList = () => {
   );
 };
 
-export default SallarySliptList;
+export default TabSalarySlipt;

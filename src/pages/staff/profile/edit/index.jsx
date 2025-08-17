@@ -10,6 +10,7 @@ import HeaderCustom from 'components/@extended/HeaderPageCustom';
 import TabPanel from 'components/TabPanelC';
 import TabPersonal from './tab-personal';
 import TabChangePassword from './tab-change-password';
+import configGlobal from '../../../../config';
 
 const StaffEditProfile = () => {
   const [tabSelected, setTabSelected] = useState(0);
@@ -21,6 +22,19 @@ const StaffEditProfile = () => {
   const loadDetail = async () => {
     const getResp = await getDetailProfile({ id: id, type: 'edit' });
     const { dataStaticTypeId } = await getDropdownStaffDataStatic();
+
+    const userIdentifications = [...getResp.data.userIdentifications];
+
+    getResp.data.userIdentifications = userIdentifications.map((dt) => {
+      const selectedTypeId = dataStaticTypeId.find((datum) => datum.value === +dt.typeId);
+      return {
+        ...dt,
+        typeId: selectedTypeId,
+        identificationNumber: dt.identification,
+        image: { id: '', selectedFile: null, isChange: false },
+        imagePath: dt.imagePath ? `${configGlobal.apiUrl}${dt.imagePath}` : ''
+      };
+    });
 
     setDataProfile({ isDoneLoad: true, data: getResp.data, typeIdList: dataStaticTypeId });
   };
