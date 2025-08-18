@@ -531,9 +531,10 @@ export const getVerificationData = async (property) => {
 
 export const exportVerificationData = async (property) => {
   return await axios.get('staff/identity/export', {
+    responseType: 'blob',
     params: {
-      locationId: property.locationId,
-      jobTitleId: property.jobTitleId
+      locationId: property.locationId.length ? property.locationId : [''],
+      jobTitleId: property.jobTitleId.length ? property.jobTitleId : ['']
     }
   });
 };
