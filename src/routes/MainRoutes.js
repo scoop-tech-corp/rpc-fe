@@ -44,6 +44,7 @@ const StaffStaticData = Loadable(lazy(() => import('pages/staff/static-data')));
 const StaffAbsent = Loadable(lazy(() => import('pages/staff/absent')));
 const SallarySliptList = Loadable(lazy(() => import('pages/staff/salary')));
 const SallarySliptForm = Loadable(lazy(() => import('pages/staff/salary/tab-salary-slipt/form')));
+const StaffOverWork = Loadable(lazy(() => import('pages/staff/overwork')));
 
 // Promotion
 const PromotionDashboard = Loadable(lazy(() => import('pages/promotion/dashboard')));
@@ -182,7 +183,8 @@ const MainRoutes = {
             { path: 'salary', element: <SallarySliptList /> },
             { path: 'salary-slipt/add', element: <SallarySliptForm /> },
             { path: 'salary-slipt/edit/:id', element: <SallarySliptForm /> },
-            { path: 'salary-slipt/detail/:id', element: <SallarySliptForm isDetailForm={true} /> }
+            { path: 'salary-slipt/detail/:id', element: <SallarySliptForm isDetailForm={true} /> },
+            { path: 'overwork', element: <StaffOverWork /> }
           ]
         },
         {

@@ -42,6 +42,7 @@ import AccessibilityNewOutlinedIcon from '@mui/icons-material/AccessibilityNewOu
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import PaidIcon from '@mui/icons-material/Paid';
 import PeopleIcon from '@mui/icons-material/People';
+import PersonAddAlt1 from '@mui/icons-material/PersonAddAlt1';
 
 import customerMenu from './menu-customer';
 import staffMenu from './menu-staff';
@@ -90,6 +91,7 @@ const icons = {
   RequestQuoteIcon,
   AddShoppingCartIcon,
   ReceiptIcon,
+  PersonAddAlt1,
   People: PeopleIcon,
   Paid: PaidIcon
 };
