@@ -45,7 +45,7 @@ const TabSalarySlipt = (props) => {
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const { user } = useAuth();
-  const [isCompleteDocument, setIsCompleteDocument] = useState(false);
+  const [isCompleteDocument, setIsCompleteDocument] = useState(true);
 
   const onGenerateSalarySlipt = async (id) => {
     await generateSallarySlipt({ id })
@@ -203,7 +203,7 @@ const TabSalarySlipt = (props) => {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getSallarySliptListData]
+    [getSallarySliptListData, isCompleteDocument]
   );
 
   const onOrderingChange = (event) => {
