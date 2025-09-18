@@ -13,7 +13,7 @@ import { createMessageBackend, getLocationList, processDownloadExcel, processDow
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { formatThousandSeparator } from 'utils/func';
 import { GlobalFilter } from 'utils/react-table';
-import { deleteSallarySliptList, exportSallarySlipt, generateSallarySlipt, getSallarySliptList } from '../service';
+import { checkPersonalData, deleteSallarySliptList, exportSallarySlipt, generateSallarySlipt, getSallarySliptList } from '../service';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -26,10 +26,11 @@ import ScrollX from 'components/ScrollX';
 import useAuth from 'hooks/useAuth';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import PropTypes from 'prop-types';
 
 let paramSallarySliptList = {};
 
-const TabSalarySlipt = () => {
+const TabSalarySlipt = (props) => {
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('md'));
   const intl = useIntl();
@@ -44,6 +45,7 @@ const TabSalarySlipt = () => {
   const [facilityLocationList, setFacilityLocationList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const { user } = useAuth();
+  const [isCompleteDocument, setIsCompleteDocument] = useState(true);
 
   const onGenerateSalarySlipt = async (id) => {
     await generateSallarySlipt({ id })
@@ -54,6 +56,20 @@ const TabSalarySlipt = () => {
         }
       });
   };
+
+  useEffect(() => {
+    const fetchCheckPersonalData = async () => {
+      await checkPersonalData().catch((err) => {
+        if (err) {
+          setIsCompleteDocument(false);
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+    };
+
+    fetchCheckPersonalData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const columns = useMemo(
     () => [
@@ -82,24 +98,27 @@ const TabSalarySlipt = () => {
         Cell: (data) => {
           return (
             <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              {getSallarySliptListData.allowGenerateInvoice && (
-                <Tooltip title={<FormattedMessage id="print" />} arrow>
-                  <IconButton size="small" onClick={() => onGenerateSalarySlipt(data.row.original.id)}>
-                    <PrintIcon />
+              {getSallarySliptListData.allowGenerateInvoice ||
+                (['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase()) && (
+                  <Tooltip title={<FormattedMessage id="print" />} arrow>
+                    <IconButton size="small" onClick={() => onGenerateSalarySlipt(data.row.original.id)}>
+                      <PrintIcon />
+                    </IconButton>
+                  </Tooltip>
+                ))}
+
+              {isCompleteDocument && (
+                <Tooltip title="Detail" arrow>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      navigate(`/staff/salary-slipt/detail/${data.row.original.id}`);
+                    }}
+                  >
+                    <VisibilityIcon />
                   </IconButton>
                 </Tooltip>
               )}
-
-              <Tooltip title={<FormattedMessage id="detail" />} arrow>
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    navigate(`/staff/salary-slipt/detail/${data.row.original.id}`);
-                  }}
-                >
-                  <VisibilityIcon />
-                </IconButton>
-              </Tooltip>
 
               {['Finance', 'Komisaris', 'President Director'].includes(user?.jobName || '') && (
                 <>
@@ -184,7 +203,7 @@ const TabSalarySlipt = () => {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getSallarySliptListData]
+    [getSallarySliptListData, isCompleteDocument]
   );
 
   const onOrderingChange = (event) => {
@@ -388,6 +407,10 @@ const TabSalarySlipt = () => {
       />
     </>
   );
+};
+
+TabSalarySlipt.propTypes = {
+  isCompleteDocument: PropTypes.bool
 };
 
 export default TabSalarySlipt;
