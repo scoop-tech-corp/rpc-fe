@@ -29,8 +29,13 @@ const SallarySliptList = () => {
             aria-label="sllary slipt tab"
           >
             <Tab label={<FormattedMessage id="salary-slipt" />} id="tab-0" aria-controls="tabpanel-0" />
-            <Tab label={<FormattedMessage id="verfication-data" />} id="tab-1" aria-controls="tabpanel-1" />
-            <Tab label={<FormattedMessage id="require-personal-data" />} id="tab-2" aria-controls="tabpanel-2" />
+            {(user?.role === CONSTANT_ADMINISTRATOR ||
+              ['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase())) && (
+              <>
+                <Tab label={<FormattedMessage id="verfication-data" />} id="tab-1" aria-controls="tabpanel-1" />
+                <Tab label={<FormattedMessage id="require-personal-data" />} id="tab-2" aria-controls="tabpanel-2" />
+              </>
+            )}
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>

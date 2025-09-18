@@ -31,6 +31,10 @@ export const getDetailSallarySlipt = async (params) => {
   return getResp;
 };
 
+export const checkPersonalData = async () => {
+  return await axios.get('staff/salary-slip/check-personal-data');
+};
+
 export const generateSallarySlipt = async (params) => {
   const getResp = await axios.get('staff/salary-slip/generate-slip', {
     responseType: 'blob',
