@@ -13,7 +13,7 @@ const SettingDiscount = () => {
   const productType = useDiscountFormStore((state) => state.discount.productType);
   const locations = useDiscountFormStore((state) => state.locations);
 
-  const productName = useDiscountFormStore((state) => state.discount.productName);
+  const productId = useDiscountFormStore((state) => state.discount.productId);
   const productList = useDiscountFormStore((state) => state.discount.productList);
 
   const serviceId = useDiscountFormStore((state) => state.discount.serviceId);
@@ -32,7 +32,7 @@ const SettingDiscount = () => {
 
     if (elementName === 'productOrService') {
       stateAdditional['productType'] = '';
-      stateAdditional['productName'] = null;
+      stateAdditional['productId'] = null;
       stateAdditional['productList'] = [];
       stateAdditional['serviceId'] = null;
       stateAdditional['serviceList'] = [];
@@ -47,7 +47,7 @@ const SettingDiscount = () => {
       const setProductType = getValue ? getValue.replace('product', '').toLowerCase() : '';
       const getRespProductDropdown = await getProductSellClinicByLocation(setProductType, [...locations.map((dt) => dt.value)]);
 
-      stateAdditional['productName'] = null;
+      stateAdditional['productId'] = null;
       stateAdditional['productList'] = getRespProductDropdown;
     }
 
@@ -130,10 +130,10 @@ const SettingDiscount = () => {
                             <FormattedMessage id="select-product" />
                           </em>
                         </MenuItem>
-                        <MenuItem value={'productSell'}>
+                        <MenuItem value={'sell'}>
                           <FormattedMessage id="product-sell" />
                         </MenuItem>
-                        <MenuItem value={'productClinic'}>
+                        <MenuItem value={'clinic'}>
                           <FormattedMessage id="product-clinic" />
                         </MenuItem>
                       </Select>
@@ -147,9 +147,9 @@ const SettingDiscount = () => {
                     <Autocomplete
                       id="productName"
                       options={productList}
-                      value={productName}
+                      value={productId}
                       isOptionEqualToValue={(option, val) => val === '' || option?.value === val?.value}
-                      onChange={(_, selected) => onDropdownHandler(selected, 'productName')}
+                      onChange={(_, selected) => onDropdownHandler(selected, 'productId')}
                       renderInput={(params) => (
                         <TextField
                           {...params}

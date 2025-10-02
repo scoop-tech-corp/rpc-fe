@@ -197,7 +197,8 @@ const MainRoutes = {
             { path: 'partner/form', element: <PromotionPartnerForm /> },
             { path: 'partner/form/:id', element: <PromotionPartnerForm /> },
             { path: 'material-data', element: <PromotionStaticData /> },
-            { path: 'discount/form', element: <PromotionDiscountForm /> }
+            { path: 'discount/form', element: <PromotionDiscountForm /> },
+            { path: 'discount/form/:id', element: <PromotionDiscountForm /> }
           ]
         },
         {

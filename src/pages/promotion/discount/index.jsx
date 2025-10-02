@@ -25,6 +25,7 @@ import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import DiscountDetail from './detail';
 
 let paramPromoDiscountList = {};
 const PromotionDiscount = () => {
@@ -70,11 +71,7 @@ const PromotionDiscount = () => {
             setOpenDetail({ isOpen: true, data: getResp.data });
           };
 
-          return (
-            <Link href="#" onClick={onDetail}>
-              {data.value}
-            </Link>
-          );
+          return <Link onClick={onDetail}>{data.value}</Link>;
         }
       },
       { Header: <FormattedMessage id="type" />, accessor: 'type' },
@@ -285,6 +282,16 @@ const PromotionDiscount = () => {
           </ScrollX>
         </Stack>
       </MainCard>
+      {openDetail.isOpen && (
+        <DiscountDetail
+          open={openDetail.isOpen}
+          data={openDetail.data}
+          onClose={(event) => {
+            if (event) fetchData();
+            setOpenDetail({ isOpen: false, data: null });
+          }}
+        />
+      )}
       <ConfirmationC
         open={dialog}
         title={<FormattedMessage id="delete" />}

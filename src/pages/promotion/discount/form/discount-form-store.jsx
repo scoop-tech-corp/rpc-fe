@@ -2,12 +2,12 @@ import { jsonCentralized } from 'utils/func';
 import { create } from 'zustand';
 
 const defaultFreeItem = {
-  quantityBuyItem: '',
+  quantityBuy: '',
   productBuyType: '',
-  productBuyName: null,
-  quantityFreeItem: '',
+  productBuyId: null,
+  quantityFree: '',
   productFreeType: '',
-  productFreeName: null,
+  productFreeId: null,
   totalMaxUsage: '',
   maxUsagePerCustomer: '',
 
@@ -19,7 +19,7 @@ const defaultDiscount = {
   productOrService: '',
   percentOrAmount: '',
   productType: '',
-  productName: null,
+  productId: null,
   serviceId: null,
   amount: '',
   percent: '',
@@ -39,7 +39,7 @@ const defaultBundels = {
 export const defaultBundleDetails = {
   productOrService: '',
   productType: '',
-  productName: '',
+  productId: '',
   serviceId: null,
   quantity: '',
 
