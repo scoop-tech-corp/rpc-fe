@@ -26,7 +26,7 @@ const SettingBundle = () => {
     if (typeof idx === 'number') {
       if (elementName === 'productOrService') {
         getPrevBundleDetails[idx]['productType'] = '';
-        getPrevBundleDetails[idx]['productName'] = null;
+        getPrevBundleDetails[idx]['productId'] = null;
         getPrevBundleDetails[idx]['productList'] = [];
         getPrevBundleDetails[idx]['serviceId'] = null;
         getPrevBundleDetails[idx]['serviceList'] = [];
@@ -41,7 +41,7 @@ const SettingBundle = () => {
         const setProductType = getValue ? getValue.replace('product', '').toLowerCase() : '';
         const getData = await getProductSellClinicByLocation(setProductType, [...locations.map((dt) => dt.value)]);
 
-        getPrevBundleDetails[idx]['productName'] = null;
+        getPrevBundleDetails[idx]['productId'] = null;
         getPrevBundleDetails[idx]['productList'] = getData;
       }
 
@@ -149,10 +149,10 @@ const SettingBundle = () => {
                                   <FormattedMessage id="select-product" />
                                 </em>
                               </MenuItem>
-                              <MenuItem value={'productSell'}>
+                              <MenuItem value={'sell'}>
                                 <FormattedMessage id="product-sell" />
                               </MenuItem>
-                              <MenuItem value={'productClinic'}>
+                              <MenuItem value={'clinic'}>
                                 <FormattedMessage id="product-clinic" />
                               </MenuItem>
                             </Select>
@@ -166,9 +166,9 @@ const SettingBundle = () => {
                           <Autocomplete
                             id="productName"
                             options={dt.productList}
-                            value={dt.productName}
+                            value={dt.productId}
                             isOptionEqualToValue={(option, val) => val === '' || option?.value === val?.value}
-                            onChange={(_, selected) => onDropdownHandler(selected, 'productName', idx)}
+                            onChange={(_, selected) => onDropdownHandler(selected, 'productId', idx)}
                             renderInput={(params) => (
                               <TextField
                                 {...params}

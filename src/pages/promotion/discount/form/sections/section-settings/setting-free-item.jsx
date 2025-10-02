@@ -4,15 +4,15 @@ import { useDiscountFormStore } from '../../discount-form-store';
 import { getProductSellClinicByLocation } from 'service/service-global';
 
 const SettingFreeItem = () => {
-  const qtyBuyItem = useDiscountFormStore((state) => state.freeItem.quantityBuyItem);
-  const qtyFreeItem = useDiscountFormStore((state) => state.freeItem.quantityFreeItem);
+  const qtyBuyItem = useDiscountFormStore((state) => state.freeItem.quantityBuy);
+  const qtyFreeItem = useDiscountFormStore((state) => state.freeItem.quantityFree);
   const productBuyType = useDiscountFormStore((state) => state.freeItem.productBuyType);
   const productFreeType = useDiscountFormStore((state) => state.freeItem.productFreeType);
   const locations = useDiscountFormStore((state) => state.locations);
 
-  const productBuyName = useDiscountFormStore((state) => state.freeItem.productBuyName);
+  const productBuyId = useDiscountFormStore((state) => state.freeItem.productBuyId);
   const productBuyList = useDiscountFormStore((state) => state.freeItem.productBuyList);
-  const productFreeName = useDiscountFormStore((state) => state.freeItem.productFreeName);
+  const productFreeId = useDiscountFormStore((state) => state.freeItem.productFreeId);
   const productFreeList = useDiscountFormStore((state) => state.freeItem.productFreeList);
 
   const totalMaxUsage = useDiscountFormStore((state) => state.freeItem.totalMaxUsage);
@@ -22,8 +22,8 @@ const SettingFreeItem = () => {
     const stateProduct = {};
     if (['productBuyType', 'productFreeType'].includes(event.target.name)) {
       if (event.target.value) {
-        const setProductType = event.target.value === 'productSell' ? 'sell' : 'clinic';
-        const getRespProductDropdown = await getProductSellClinicByLocation(setProductType, [...locations.map((dt) => dt.value)]);
+        // const setProductType = event.target.value === 'productSell' ? 'sell' : 'clinic';
+        const getRespProductDropdown = await getProductSellClinicByLocation(event.target.value, [...locations.map((dt) => dt.value)]);
 
         stateProduct[`product${event.target.name === 'productBuyType' ? 'Buy' : 'Free'}Name`] = null;
         stateProduct[`product${event.target.name === 'productBuyType' ? 'Buy' : 'Free'}List`] = getRespProductDropdown;
@@ -64,8 +64,8 @@ const SettingFreeItem = () => {
                 <TextField
                   fullWidth
                   type="number"
-                  id="quantityBuyItem"
-                  name="quantityBuyItem"
+                  id="quantityBuy"
+                  name="quantityBuy"
                   value={qtyBuyItem}
                   inputProps={{ min: 0 }}
                   onChange={onFieldHandler}
@@ -91,10 +91,10 @@ const SettingFreeItem = () => {
                         <FormattedMessage id="select-product" />
                       </em>
                     </MenuItem>
-                    <MenuItem value={'productSell'}>
+                    <MenuItem value={'sell'}>
                       <FormattedMessage id="product-sell" />
                     </MenuItem>
-                    <MenuItem value={'productClinic'}>
+                    <MenuItem value={'clinic'}>
                       <FormattedMessage id="product-clinic" />
                     </MenuItem>
                   </Select>
@@ -104,13 +104,13 @@ const SettingFreeItem = () => {
 
             <Grid item xs={12}>
               <Stack spacing={1}>
-                <InputLabel htmlFor="productBuyName">{<FormattedMessage id="buy-product-item" />}</InputLabel>
+                <InputLabel htmlFor="productBuyId">{<FormattedMessage id="buy-product-item" />}</InputLabel>
                 <Autocomplete
-                  id="productBuyName"
+                  id="productBuyId"
                   options={productBuyList}
-                  value={productBuyName}
-                  isOptionEqualToValue={(option, val) => val === '' || option?.value === val?.value}
-                  onChange={(_, selected) => onDropdownHandler(selected, 'productBuyName')}
+                  value={productBuyId}
+                  isOptionEqualToValue={(option, val) => val === '' || option?.id === val?.id}
+                  onChange={(_, selected) => onDropdownHandler(selected, 'productBuyId')}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -162,8 +162,8 @@ const SettingFreeItem = () => {
                 <TextField
                   fullWidth
                   type="number"
-                  id="quantityFreeItem"
-                  name="quantityFreeItem"
+                  id="quantityFree"
+                  name="quantityFree"
                   value={qtyFreeItem}
                   inputProps={{ min: 0 }}
                   onChange={onFieldHandler}
@@ -188,10 +188,10 @@ const SettingFreeItem = () => {
                         <FormattedMessage id="select-product" />
                       </em>
                     </MenuItem>
-                    <MenuItem value={'productSell'}>
+                    <MenuItem value={'sell'}>
                       <FormattedMessage id="product-sell" />
                     </MenuItem>
-                    <MenuItem value={'productClinic'}>
+                    <MenuItem value={'clinic'}>
                       <FormattedMessage id="product-clinic" />
                     </MenuItem>
                   </Select>
@@ -201,13 +201,13 @@ const SettingFreeItem = () => {
 
             <Grid item xs={12}>
               <Stack spacing={1}>
-                <InputLabel htmlFor="productFreeName">{<FormattedMessage id="free-product" />}</InputLabel>
+                <InputLabel htmlFor="productFreeId">{<FormattedMessage id="free-product" />}</InputLabel>
                 <Autocomplete
-                  id="productFreeName"
+                  id="productFreeId"
                   options={productFreeList}
-                  value={productFreeName}
+                  value={productFreeId}
                   isOptionEqualToValue={(option, val) => val === '' || option?.value === val?.value}
-                  onChange={(_, selected) => onDropdownHandler(selected, 'productFreeName')}
+                  onChange={(_, selected) => onDropdownHandler(selected, 'productFreeId')}
                   renderInput={(params) => (
                     <TextField
                       {...params}

@@ -1,5 +1,5 @@
 import { FormattedMessage } from 'react-intl';
-import { Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { FormHelperText, Grid, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { useDiscountFormStore } from '../../discount-form-store';
 
 import MainCard from 'components/MainCard';
@@ -11,6 +11,7 @@ import SettingBasedSales from './setting-based-sales';
 const SectionSettings = () => {
   // 1 = Free Item, 2 = Discount, 3 = Bundle, 4 = Based Sales
   const type = useDiscountFormStore((state) => state.type);
+  const locations = useDiscountFormStore((state) => state.locations);
 
   const renderContentSettings = () => {
     switch (type) {
@@ -29,10 +30,18 @@ const SectionSettings = () => {
     <>
       <MainCard title={<FormattedMessage id="settings" />}>
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            {!locations.length && (
+              <FormHelperText error id="location-required">
+                *<FormattedMessage id="location-is-required" />
+              </FormHelperText>
+            )}
+          </Grid>
           <Grid item xs={12} textAlign="center">
             <ToggleButtonGroup
               value={type}
               exclusive
+              disabled={!locations.length}
               onChange={(e) => {
                 useDiscountFormStore.setState({
                   type: e.target.value,
