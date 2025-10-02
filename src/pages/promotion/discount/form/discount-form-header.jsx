@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
-import { createPromotionDiscount } from '../service';
+import { createPromotionDiscount, updatePromotionDiscount } from '../service';
 import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 
@@ -14,6 +14,8 @@ import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 
 const PromotionDiscountFormHeader = (props) => {
+  const { discountName } = props;
+
   const allState = useDiscountFormStore((state) => state);
   const discountFormError = useDiscountFormStore((state) => state.discountFormError);
   const isTouchForm = useDiscountFormStore((state) => state.discountFormTouch);
@@ -26,7 +28,7 @@ const PromotionDiscountFormHeader = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const setTitlePage = id ? props.discountName : <FormattedMessage id="add-promotion" />;
+  const setTitlePage = id ? discountName : <FormattedMessage id="add-promotion" />;
 
   const responseSuccess = () => {
     const message = `Success ${id ? 'update' : 'create'} promotion`;
@@ -49,6 +51,9 @@ const PromotionDiscountFormHeader = (props) => {
 
     if (id) {
       // update
+      await updatePromotionDiscount({ id, ...getAllState() })
+        .then(responseSuccess)
+        .catch(responseError);
     } else {
       // create
       await createPromotionDiscount(getAllState()).then(responseSuccess).catch(responseError);
