@@ -30,12 +30,10 @@ const SallarySliptList = () => {
           >
             <Tab label={<FormattedMessage id="salary-slipt" />} id="tab-0" aria-controls="tabpanel-0" />
             {(user?.role === CONSTANT_ADMINISTRATOR ||
-              ['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase())) && (
-              <>
-                <Tab label={<FormattedMessage id="verfication-data" />} id="tab-1" aria-controls="tabpanel-1" />
-                <Tab label={<FormattedMessage id="require-personal-data" />} id="tab-2" aria-controls="tabpanel-2" />
-              </>
-            )}
+              ['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase())) && [
+              <Tab key="1" label={<FormattedMessage id="verfication-data" />} id="tab-1" aria-controls="tabpanel-1" />,
+              <Tab key="2" label={<FormattedMessage id="require-personal-data" />} id="tab-2" aria-controls="tabpanel-2" />
+            ]}
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>
@@ -43,16 +41,14 @@ const SallarySliptList = () => {
             <TabSalarySlipt />
           </TabPanel>
           {(user?.role === CONSTANT_ADMINISTRATOR ||
-            ['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase())) && (
-            <>
-              <TabPanel value={tabSelected} index={1} name="salary-slipt-list">
-                <TabVerificationData />
-              </TabPanel>
-              <TabPanel value={tabSelected} index={2} name="salary-slipt-list">
-                <TabRequirePersonalData />
-              </TabPanel>
-            </>
-          )}
+            ['hr', 'finance', 'komisaris', 'president director'].includes((user?.jobName || '').toLowerCase())) && [
+            <TabPanel key="1" value={tabSelected} index={1} name="salary-slipt-list">
+              <TabVerificationData />
+            </TabPanel>,
+            <TabPanel key="2" value={tabSelected} index={2} name="salary-slipt-list">
+              <TabRequirePersonalData />
+            </TabPanel>
+          ]}
         </Box>
       </MainCard>
     </>
