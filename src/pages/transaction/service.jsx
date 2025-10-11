@@ -34,7 +34,7 @@ export const getPaymentMethodTransactionList = async () => {
 };
 
 export const createPaymentMethod = async (payload) => {
-  return await axios.post('transaction/listdata/paymentmethod', payload);
+  return await axios.post('transaction/materialdata', payload);
 };
 
 export const ServiceCategory = {
