@@ -727,7 +727,7 @@ export default function FormTransactionPetShop() {
         freeItems: JSON.stringify(selectedPromoData.freeItems),
         discounts: JSON.stringify(selectedPromoData.discounts),
         bundles: JSON.stringify(selectedPromoData.bundles),
-        basedSales: JSON.stringify(selectedPromoData.basedSales),
+        basedSales: +selectedPromoData.basedSales,
         products: JSON.stringify(
           newTransactionData.map((item) => ({
             productId: item.productId,
