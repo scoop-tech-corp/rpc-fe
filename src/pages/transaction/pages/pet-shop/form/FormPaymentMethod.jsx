@@ -16,7 +16,7 @@ const FormPaymentMethod = (props) => {
   const onSubmit = async () => {
     await createPaymentMethod({ name: paymentMethod, category: 'paymentmethod' })
       .then((resp) => {
-        if (resp && resp.status === 201) {
+        if (resp && resp.status === 200) {
           dispatch(snackbarSuccess(`${paymentMethod} payment method has been created successfully`));
           props.onClose(true);
         }
