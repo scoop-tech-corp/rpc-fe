@@ -134,7 +134,7 @@ export const updatePromotionDiscount = async (payload) => {
     basePayload = {
       ...basePayload,
       bundle: {
-        price: payload.bundle.totalMaxUsage,
+        price: payload.bundle.price,
         totalMaxUsage: +payload.bundle.totalMaxUsage,
         maxUsagePerCustomer: +payload.bundle.maxUsagePerCustomer
       },
@@ -228,7 +228,7 @@ export const createPromotionDiscount = async (property) => {
 
   if (property.type == '3') {
     const bundle = {
-      price: property.bundle.totalMaxUsage,
+      price: property.bundle.price,
       totalMaxUsage: +property.bundle.totalMaxUsage,
       maxUsagePerCustomer: +property.bundle.maxUsagePerCustomer
     };

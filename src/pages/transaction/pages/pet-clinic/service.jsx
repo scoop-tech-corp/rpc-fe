@@ -290,18 +290,21 @@ export const getLoadPetCheckTransactionPetClinic = async (id) => {
 
 export const createServiceAndRecipe = async (payload) => {
   const formData = new FormData();
-  const services = payload.services.map((dt) => +dt.serviceId);
+  const services = payload.services.map((dt) => ({
+    serviceId: +dt.serviceId,
+    quantity: dt.quantity
+  }));
   const recipes = payload.summary.map((dt) => ({
     productId: dt.productClinicId,
     dosage: +dt.dosage,
     unit: dt.unit,
     frequency: +dt.frequency,
-    giveMedicine: dt.medication
+    giveMedicine: dt.medication,
+    notes: dt.notes
   }));
 
   formData.append('transactionPetClinicId', payload.transactionPetClinicId);
-
-  services.forEach((dt) => formData.append('services[]', dt));
+  formData.append('services', JSON.stringify(services));
   formData.append('recipes', JSON.stringify(recipes));
 
   return await axios.post(url + '/serviceandrecipe', formData);
