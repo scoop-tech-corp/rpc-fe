@@ -297,6 +297,7 @@ export const createServiceAndRecipe = async (payload) => {
   const recipes = payload.summary.map((dt) => ({
     productId: dt.productClinicId,
     dosage: +dt.dosage,
+    duration: +dt.duration,
     unit: dt.unit,
     frequency: +dt.frequency,
     giveMedicine: dt.medication,
@@ -304,6 +305,7 @@ export const createServiceAndRecipe = async (payload) => {
   }));
 
   formData.append('transactionPetClinicId', payload.transactionPetClinicId);
+
   formData.append('services', JSON.stringify(services));
   formData.append('recipes', JSON.stringify(recipes));
 
