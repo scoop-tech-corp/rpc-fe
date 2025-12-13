@@ -468,6 +468,7 @@ const TransactionPetClinic = () => {
         <TransactionDetail
           open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
+          type="pet-clinic"
           onClose={async (action) => {
             if (action === 'edit') {
               setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });

@@ -36,6 +36,15 @@ export const deleteTransactionPetClinic = async (id) => {
   });
 };
 
+export const getTransactionPetClinicDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/petclinic/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
 export const createTransactionPetClinic = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
