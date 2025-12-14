@@ -78,7 +78,7 @@ const ServiceAndRecipe = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!formValue.summary.length || !formValue.services.length) setDisabledOk(true);
+    if (!formValue.summary.length && !formValue.services.length) setDisabledOk(true);
     else setDisabledOk(false);
   }, [formValue]);
 
