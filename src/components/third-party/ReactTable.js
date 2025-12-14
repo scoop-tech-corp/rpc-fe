@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, Fragment, useEffect, useRef, useState } from 'react';
 
 // third-party
 import { useDrop, useDrag, useDragLayer } from 'react-dnd';
@@ -9,7 +9,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { styled as styledMaterial, useTheme, alpha } from '@mui/material/styles';
 
 // react-table
-import { useTable, useRowSelect } from 'react-table';
+import { useTable, useRowSelect, useExpanded } from 'react-table';
 // import styled from 'styled-components';
 import './ReactTable.css';
 
@@ -69,7 +69,8 @@ export const ReactTable = ({
   onGotoPage,
   onPageSize,
   colSpanPagination = 7,
-  extensionRow
+  extensionRow,
+  renderRowSubComponent
 }) => {
   const theme = useTheme();
 
@@ -78,11 +79,12 @@ export const ReactTable = ({
     order: ''
   });
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, visibleColumns } = useTable(
     {
       columns,
       data
     },
+    useExpanded,
     useRowSelect
   );
 
@@ -136,21 +138,26 @@ export const ReactTable = ({
         <TableBody {...getTableBodyProps()} className="striped">
           {rows.map((row, i) => {
             prepareRow(row);
+            const rowProps = row.getRowProps();
+
             return (
-              <TableRow
-                key={i}
-                {...row.getRowProps()}
-                sx={{
-                  cursor: 'pointer',
-                  bgcolor: row.isSelected ? alpha(theme.palette.primary.lighter, 0.35) : 'inherit'
-                }}
-              >
-                {row.cells.map((cell, i) => (
-                  <TableCell key={i} {...cell.getCellProps([{ className: cell.column.className }])}>
-                    {cell.render('Cell')}
-                  </TableCell>
-                ))}
-              </TableRow>
+              <Fragment key={i}>
+                <TableRow
+                  {...rowProps}
+                  sx={{
+                    cursor: 'pointer',
+                    bgcolor: row.isSelected ? alpha(theme.palette.primary.lighter, 0.35) : 'inherit'
+                  }}
+                >
+                  {row.cells.map((cell, i) => (
+                    <TableCell key={i} {...cell.getCellProps([{ className: cell.column.className }])}>
+                      {cell.render('Cell')}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {/* render expand row in here */}
+                {row.isExpanded && renderRowSubComponent({ row, rowProps, visibleColumns })}
+              </Fragment>
             );
           })}
           {!rows.length && (
