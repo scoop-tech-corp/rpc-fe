@@ -51,6 +51,7 @@ import FormTransaction from 'pages/transaction/form-transaction';
 import ReassignModalC from 'pages/transaction/reassign';
 import CheckPetConditionPetClinic from './components/check-pet-condition';
 import ServiceAndRecipe from './components/service-recipe';
+import Payment from './components/payment';
 
 const TransactionPetClinic = () => {
   const { user } = useAuth();
@@ -82,6 +83,7 @@ const TransactionPetClinic = () => {
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: {} });
   const [serviceAndRecipeDialog, setServiceAndRecipeDialog] = useState({ isOpen: false, data: {} });
+  const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -215,6 +217,20 @@ const TransactionPetClinic = () => {
                     color="success"
                     onClick={() => {
                       setServiceAndRecipeDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
+                <Tooltip title={<FormattedMessage id="payment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -452,6 +468,7 @@ const TransactionPetClinic = () => {
         <TransactionDetail
           open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
+          type="pet-clinic"
           onClose={async (action) => {
             if (action === 'edit') {
               setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });
@@ -502,6 +519,16 @@ const TransactionPetClinic = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setServiceAndRecipeDialog({ isOpen: false, data: {} });
+          }}
+        />
+      )}
+      {paymentDialog.isOpen && (
+        <Payment
+          open={paymentDialog.isOpen}
+          data={paymentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPaymentDialog({ isOpen: false, data: {} });
           }}
         />
       )}

@@ -5,6 +5,8 @@ import { acceptTransaction, getTransactionDetail } from '../service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
+import { getTransactionPetHotelDetail } from '../pages/pet-hotel/service';
+import { getTransactionPetClinicDetail } from '../pages/pet-clinic/service';
 
 import ModalC from 'components/ModalC';
 import TabPanel from 'components/TabPanelC';
@@ -13,7 +15,6 @@ import TransactionDetailAction from './action-detail';
 import LogActivityDetailTransaction from './log-activity';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
-import { getTransactionPetHotelDetail } from '../pages/pet-hotel/service';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
@@ -58,6 +59,10 @@ const TransactionDetail = (props) => {
 
     if (type === 'pet-hotel') {
       apiGetDetail = getTransactionPetHotelDetail;
+    }
+
+    if (type === 'pet-clinic') {
+      apiGetDetail = getTransactionPetClinicDetail;
     }
 
     const resp = await apiGetDetail({

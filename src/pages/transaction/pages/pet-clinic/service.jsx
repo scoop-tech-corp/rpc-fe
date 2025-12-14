@@ -36,6 +36,15 @@ export const deleteTransactionPetClinic = async (id) => {
   });
 };
 
+export const getTransactionPetClinicDetail = async (payload) => {
+  const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
+  const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
+
+  return await axios.get('transaction/petclinic/detail', {
+    params: { id: payload.id, dateFrom, dateTo }
+  });
+};
+
 export const createTransactionPetClinic = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
@@ -297,6 +306,7 @@ export const createServiceAndRecipe = async (payload) => {
   const recipes = payload.summary.map((dt) => ({
     productId: dt.productClinicId,
     dosage: +dt.dosage,
+    duration: +dt.duration,
     unit: dt.unit,
     frequency: +dt.frequency,
     giveMedicine: dt.medication,
@@ -304,8 +314,117 @@ export const createServiceAndRecipe = async (payload) => {
   }));
 
   formData.append('transactionPetClinicId', payload.transactionPetClinicId);
+
   formData.append('services', JSON.stringify(services));
   formData.append('recipes', JSON.stringify(recipes));
 
   return await axios.post(url + '/serviceandrecipe', formData);
+};
+
+export const checkPromoTransactionPetClinic = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionPetClinicId', payload.transactionPetClinicId);
+  formData.append('recipes', JSON.stringify(payload.recipes));
+  formData.append('services', JSON.stringify(payload.services));
+  formData.append('products', JSON.stringify(payload.products));
+
+  return await axios.post(url + '/checkpromo', formData);
+};
+
+export const getBeforePayment = async (id) => {
+  return await axios.get(url + '/beforepayment', {
+    params: { transactionPetClinicId: id }
+  });
+};
+
+export const getInpatientTransactionPetClinic = async (id) => {
+  return await axios.get(url + '/inpatient', {
+    params: { transactionPetClinicId: id }
+  });
+};
+
+export const submitTransactionPetClinicDiscount = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionPetClinicId', payload.transactionPetClinicId);
+
+  payload.freeItems.forEach((freeItem) => {
+    formData.append('freeItems[]', +freeItem);
+  });
+  payload.discounts.forEach((discount) => {
+    formData.append('discounts[]', +discount);
+  });
+  payload.bundles.forEach((bundle) => {
+    formData.append('bundles[]', +bundle);
+  });
+  formData.append('basedSale', +payload.basedSales);
+
+  formData.append('recipes', JSON.stringify(payload.recipes));
+  formData.append('services', JSON.stringify(payload.services));
+  formData.append('products', JSON.stringify(payload.products));
+
+  return await axios.post(url + '/discount', formData);
+};
+
+const constructPayloadCreatePrintPetClinicOutpatient = (transactionId, formValue) => {
+  const detail_total = {
+    subtotal: formValue.summarySubtotal,
+    total_discount: formValue.summaryTotalDiscount,
+    discount_based_sales: formValue.discountBasedSale,
+    total_payment: formValue.summaryTotalPayment,
+    promoBasedSaleId: formValue.promoBasedSaleId
+  };
+
+  const payment_method = {
+    paymentId: transactionId,
+    amount: undefined,
+    amountPaid: undefined,
+    duration: undefined,
+    tenor: undefined,
+    next_payment: undefined
+  };
+
+  if (formValue.paymentMethod === 'full') {
+    payment_method.amountPaid = formValue.summaryTotalPayment;
+  }
+
+  if (formValue.paymentMethod === 'cicilan') {
+    payment_method.amountPaid = formValue.installmentDp;
+    payment_method.duration = formValue.installmentDuration;
+    payment_method.tenor = formValue.installmentTenor;
+  }
+
+  if (formValue.paymentMethod === 'dp') {
+    const next_payment = formValue.dpNextPayment ? formateDateYYYMMDD(new Date(formValue.dpNextPayment)) : '';
+    payment_method.amountPaid = formValue.dpNominal;
+    payment_method.next_payment = next_payment;
+  }
+
+  return { detail_total, payment_method };
+};
+
+export const createPaymentPetClinicOutpatient = async (transactionId, formValue) => {
+  const { detail_total, payment_method } = constructPayloadCreatePrintPetClinicOutpatient(transactionId, formValue);
+
+  const formData = new FormData();
+  formData.append('transactionPetClinicId', transactionId);
+
+  formData.append('purchases', JSON.stringify(formValue.summaryList));
+  formData.append('detail_total', JSON.stringify(detail_total));
+  formData.append('payment_method', JSON.stringify(payment_method));
+
+  return await axios.post(url + '/payment/outpatient', formData);
+};
+
+export const printInvoicePetClinicOutpatient = async (transactionId, formValue) => {
+  const { detail_total, payment_method } = constructPayloadCreatePrintPetClinicOutpatient(transactionId, formValue);
+
+  return await axios.get(url + '/invoice/outpatient', {
+    responseType: 'blob',
+    params: {
+      transactionPetClinicId: transactionId,
+      purchases: JSON.stringify(formValue.summaryList),
+      detail_total: JSON.stringify(detail_total),
+      payment_method: JSON.stringify(payment_method)
+    }
+  });
 };
