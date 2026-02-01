@@ -53,6 +53,20 @@ export const getTransactionPetHotelDetail = async (payload) => {
   });
 };
 
+export const transactionPetHotelTreatment = async (payload) => {
+  const formData = new FormData();
+
+  formData.append('transactionId', payload.transactionId);
+  formData.append('serviceCategory', payload.serviceCategory);
+  formData.append('treatmentPlans', JSON.stringify(payload.treatmentPlans));
+  formData.append('services', JSON.stringify(payload.services));
+  formData.append('productSells', JSON.stringify(payload.productSells));
+  formData.append('productClinics', JSON.stringify(payload.productClinics));
+  formData.append('cageId', payload.cage?.value);
+
+  return await axios.post('transaction/pethotel/treatment', formData);
+};
+
 export const updateTransactionPetHotel = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 

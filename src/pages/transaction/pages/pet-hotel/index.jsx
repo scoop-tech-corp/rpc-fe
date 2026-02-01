@@ -32,6 +32,7 @@ import CheckPetCondition from './components/check-pet-condition';
 import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
+import TreatmentPetHotel from './components/treatment';
 import { deleteTransactionPetHotel, exportTransactionPetHotel, getTransactionPetHotelIndex } from './service';
 
 const TransactionPetHotel = () => {
@@ -63,6 +64,7 @@ const TransactionPetHotel = () => {
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -158,6 +160,8 @@ const TransactionPetHotel = () => {
           const statusRow = data.row.original.status;
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
+          const locationIdRow = +data.row.original.locationId;
+          const isTreatmentRow = +data.row.original.isTreatment;
 
           const doReassign = async () => {
             const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
@@ -181,6 +185,20 @@ const TransactionPetHotel = () => {
                     color="success"
                     onClick={() => {
                       setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {Boolean(isTreatmentRow) && (
+                <Tooltip title={<FormattedMessage id="treatment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -411,6 +429,17 @@ const TransactionPetHotel = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setCheckConditionPetDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {treatmentDialog.isOpen && (
+        <TreatmentPetHotel
+          open={treatmentDialog.isOpen}
+          data={treatmentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setTreatmentDialog({ isOpen: false, data: { locationId: null } });
           }}
         />
       )}
