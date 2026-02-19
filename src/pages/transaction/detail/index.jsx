@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Box, Grid, InputLabel, Stack, Tab, Tabs } from '@mui/material';
+import { Box, Button, Grid, InputLabel, Stack, Tab, Tabs } from '@mui/material';
 import { acceptTransaction, getTransactionDetail } from '../service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
@@ -15,16 +15,24 @@ import TransactionDetailAction from './action-detail';
 import LogActivityDetailTransaction from './log-activity';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
+import LogPaymentDetailTransaction from './log-payment';
+import useAuth from 'hooks/useAuth';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
   const { type } = props;
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState({ accept: false, reject: false });
-  const [data, setData] = useState({ detail: {}, log: [] });
+  const [data, setData] = useState({
+    detail: {},
+    log: [],
+    paymentLogs: []
+  });
   const [filterLog, setFilterLog] = useState({}); // { dateRange: null }
+  const [filterLogPayment, setFilterLogPayment] = useState({}); // { dateRange: null }
   const onChangeTab = (value) => setTabSelected(value);
   const dispatch = useDispatch();
+  const { user } = useAuth();
 
   const onCancel = () => props.onClose(false);
 
@@ -56,6 +64,10 @@ const TransactionDetail = (props) => {
 
   const fetchData = async () => {
     let apiGetDetail = getTransactionDetail;
+    let payload = {
+      id,
+      ...filterLog
+    };
 
     if (type === 'pet-hotel') {
       apiGetDetail = getTransactionPetHotelDetail;
@@ -63,20 +75,34 @@ const TransactionDetail = (props) => {
 
     if (type === 'pet-clinic') {
       apiGetDetail = getTransactionPetClinicDetail;
+      payload = {
+        ...payload,
+        ...filterLogPayment
+      };
     }
 
-    const resp = await apiGetDetail({
-      id,
-      ...filterLog
-    });
+    const resp = await apiGetDetail(payload);
     const getData = resp.data;
-    setData({ detail: getData.detail, log: getData.transactionLogs });
+    const fetching = { detail: getData.detail, log: getData.transactionLogs, paymentLogs: [] };
+
+    if (type === 'pet-clinic') {
+      fetching.paymentLogs = getData.paymentLogs;
+    }
+
+    setData(fetching);
   };
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterLog]);
+
+  useEffect(() => {
+    if (type === 'pet-clinic') {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterLogPayment]);
 
   return (
     <>
@@ -86,21 +112,89 @@ const TransactionDetail = (props) => {
         onCancel={onCancel}
         isModalAction={false}
         fullWidth
-        maxWidth="md"
+        maxWidth="lg"
         action={{
-          element: (
-            <TransactionDetailAction
-              onAction={(action) => {
-                if (action === 'accept-patient') {
-                  setDialog({ accept: true, reject: false });
-                } else if (action === 'cancel-patient') {
-                  setDialog({ accept: false, reject: true });
-                } else {
-                  props.onClose(action);
-                }
-              }}
-            />
-          ),
+          element:
+            type === 'pet-clinic' ? (
+              <Stack direction="row" gap={1} marginLeft="auto">
+                {[
+                  'menunggu dokter',
+                  'cek kondisi pet',
+                  'ditolak dokter',
+                  'input service dan obat',
+                  'proses pembayaran',
+                  'menunggu konfirmasi pembayaran',
+                  'selesai'
+                ].includes(data?.detail?.status?.toLowerCase()) &&
+                  ['kasir', 'komisaris', 'president director', 'director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" onClick={() => props.onClose('edit')}>
+                      <FormattedMessage id="edit" />
+                    </Button>
+                  )}
+
+                {['menunggu dokter'].includes(data?.detail?.status?.toLowerCase()) &&
+                  ['dokter hewan', 'komisaris', 'president director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" color="info" onClick={() => setDialog({ accept: true, reject: false })}>
+                      <FormattedMessage id="accept-patient" />
+                    </Button>
+                  )}
+
+                {['menunggu dokter', 'cek kondisi pet', 'ditolak dokter'].includes(data?.detail?.status?.toLowerCase()) &&
+                  ['kasir', 'dokter hewan', 'komisaris', 'president director', 'director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" color="secondary" onClick={() => setDialog({ accept: false, reject: true })}>
+                      <FormattedMessage id="cancel-patient" />
+                    </Button>
+                  )}
+
+                {[
+                  'menunggu dokter',
+                  'cek kondisi pet',
+                  'ditolak dokter',
+                  'input service dan obat',
+                  'proses pembayaran',
+                  'menunggu konfirmasi pembayaran',
+                  'selesai'
+                ].includes(data?.detail?.status?.toLowerCase()) &&
+                  ['komisaris', 'president director', 'director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" color="error" onClick={() => props.onClose('delete')}>
+                      <FormattedMessage id="delete-transaction" />
+                    </Button>
+                  )}
+
+                {data?.detail?.status?.toLowerCase() === 'cek kondisi pet' &&
+                  ['dokter hewan', 'president director', 'director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" color="success" onClick={() => props.onClose('check-pet-condition')}>
+                      <FormattedMessage id="check-pet-condition" />
+                    </Button>
+                  )}
+
+                {data?.detail?.status?.toLowerCase() === 'input service dan obat' &&
+                  ['komisaris', 'president director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" color="success" onClick={() => props.onClose('service-and-recipe')}>
+                      <FormattedMessage id="service-and-recipe" />
+                    </Button>
+                  )}
+
+                {data?.detail?.status?.toLowerCase() === 'proses pembayaran' &&
+                  ['kasir', 'komisaris', 'president director'].includes(user?.jobName?.toLowerCase()) && (
+                    <Button variant="contained" color="success" onClick={() => props.onClose('payment')}>
+                      <FormattedMessage id="payment" />
+                    </Button>
+                  )}
+              </Stack>
+            ) : (
+              <TransactionDetailAction
+                onAction={(action) => {
+                  if (action === 'accept-patient') {
+                    setDialog({ accept: true, reject: false });
+                  } else if (action === 'cancel-patient') {
+                    setDialog({ accept: false, reject: true });
+                  } else {
+                    props.onClose(action);
+                  }
+                }}
+              />
+            ),
           justifyContent: 'flex-start',
           alignItems: 'center'
         }}
@@ -119,6 +213,13 @@ const TransactionDetail = (props) => {
               id="detail-transaction-tab-1"
               aria-controls="detail-transaction-tabpanel-1"
             />
+            {type === 'pet-clinic' && (
+              <Tab
+                label={<FormattedMessage id="log-payment" />}
+                id="detail-transaction-tab-2"
+                aria-controls="detail-transaction-tabpanel-2"
+              />
+            )}
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>
@@ -243,6 +344,16 @@ const TransactionDetail = (props) => {
               }}
             />
           </TabPanel>
+          {type === 'pet-clinic' && (
+            <TabPanel value={tabSelected} index={2} name="detail-transaction">
+              <LogPaymentDetailTransaction
+                data={data.paymentLogs}
+                onFetchData={(e) => {
+                  if (e) setFilterLogPayment(e);
+                }}
+              />
+            </TabPanel>
+          )}
         </Box>
       </ModalC>
       <ConfirmationC

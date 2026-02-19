@@ -46,6 +46,16 @@ export const getTaskList = async () => {
   });
 };
 
+export const getTreatmentListByLocation = async (locationIds = []) => {
+  const getResp = await axios.get(`${TreatmentUrl}/list`, {
+    params: { locationId: locationIds.length ? locationIds : [''] }
+  });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.name, value: +dt.id };
+  });
+};
+
 export const getServiceListByLocation = async (params) => {
   const getResp = await axios.get('service/list', {
     params

@@ -68,7 +68,7 @@ const TransactionPetClinic = () => {
   const dispatch = useDispatch();
 
   const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
-  const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
+  const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null, locationId: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [filterLocationList, setFilterLocationList] = useState([]);
@@ -177,7 +177,7 @@ const TransactionPetClinic = () => {
         isNotSorting: true,
         Cell: (data) => {
           const statusRow = data.row.original.status;
-          const isPetCheckRow = +data.row.original.isPetCheck;
+          // const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
           const locationIdRow = +data.row.original.locationId;
 
@@ -196,7 +196,7 @@ const TransactionPetClinic = () => {
                 </Tooltip>
               )}
 
-              {Boolean(isPetCheckRow) && (
+              {statusRow.toLowerCase() === 'cek kondisi pet' && (
                 <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
                   <IconButton
                     size="large"
@@ -246,11 +246,12 @@ const TransactionPetClinic = () => {
         accessor: 'registrationNo',
         Cell: (data) => {
           const getId = data.row.original.id;
+          const locationId = data.row.original.locationId;
 
           return (
             <Link
               onClick={() => {
-                setDetailTransactionConfig({ isOpen: true, data: { id: getId } });
+                setDetailTransactionConfig({ isOpen: true, data: { id: getId, locationId } });
               }}
             >
               {data.value}
@@ -456,7 +457,7 @@ const TransactionPetClinic = () => {
         <FormTransaction
           open={formTransactionConfig.isOpen}
           id={formTransactionConfig.id}
-          type={TransactionType['pet-clinic']}
+          type="pet-clinic"
           onClose={(e) => {
             setFormTransactionConfig({ isOpen: false, id: null });
             if (e) setParams((_params) => ({ ..._params }));
@@ -471,12 +472,27 @@ const TransactionPetClinic = () => {
           type="pet-clinic"
           onClose={async (action) => {
             if (action === 'edit') {
-              setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });
+              setFormTransactionConfig({ isOpen: true, id: +detailTransactionConfig.data.id });
             } else if (['accept-patient', 'cancel-patient'].includes(action)) {
               setParams((_params) => ({ ..._params }));
+            } else if (action === 'delete') {
+              setDialog(true);
+              setSelectedRow([detailTransactionConfig.data.id]);
+            } else if (action === 'check-pet-condition') {
+              setCheckConditionPetDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'service-and-recipe') {
+              setServiceAndRecipeDialog({
+                isOpen: true,
+                data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId }
+              });
+            } else if (action === 'payment') {
+              setPaymentDialog({
+                isOpen: true,
+                data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId }
+              });
             }
 
-            setDetailTransactionConfig({ isOpen: false, data: { id: null } });
+            setDetailTransactionConfig({ isOpen: false, data: { id: null, locationId: null } });
           }}
         />
       )}
@@ -522,6 +538,7 @@ const TransactionPetClinic = () => {
           }}
         />
       )}
+
       {paymentDialog.isOpen && (
         <Payment
           open={paymentDialog.isOpen}
