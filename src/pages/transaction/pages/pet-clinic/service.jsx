@@ -428,3 +428,18 @@ export const printInvoicePetClinicOutpatient = async (transactionId, formValue) 
     }
   });
 };
+
+export const printInvoicePetClinic = async (paymentId) => {
+  return await axios.get(url + '/invoice', {
+    responseType: 'blob',
+    params: { paymentId }
+  });
+};
+
+export const uploadProofOfPayment = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.paymentId);
+  formData.append('proof', payload.file);
+
+  return await axios.post(url + '/confirm-payment', formData);
+};

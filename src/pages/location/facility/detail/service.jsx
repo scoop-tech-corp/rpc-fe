@@ -75,3 +75,11 @@ export const exportFacility = async (property) => {
     }
   });
 };
+
+export const getCageFacilityLocationList = async (locationIds = []) => {
+  const getResp = await axios.get('location/facility/cage', { params: { locationId: locationIds.length ? locationIds : [''] } });
+
+  return getResp.data.map((dt) => {
+    return { label: dt.unitName, value: +dt.id };
+  });
+};

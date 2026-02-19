@@ -25,13 +25,14 @@ import {
   getKeyServiceCategoryByValue,
   getLocationTransactionList,
   getTransactionDetail,
+  TransactionType,
   updateTransaction
 } from './service';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { create } from 'zustand';
 import { jsonCentralized } from 'utils/func';
-import { createTransactionPetClinic } from './pages/pet-clinic/service';
+import { createTransactionPetClinic, getTransactionPetClinicDetail } from './pages/pet-clinic/service';
 
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
@@ -212,10 +213,14 @@ const FormTransaction = (props) => {
 
   const getDetail = async () => {
     if (id) {
-      let apiGetDetail = getTransactionDetail;
+      let apiGetDetail = null;
 
       if (type === 'pet-hotel') {
         apiGetDetail = getTransactionPetHotelDetail;
+      } else if (type === 'pet-clinic') {
+        apiGetDetail = getTransactionPetClinicDetail;
+      } else {
+        apiGetDetail = getTransactionDetail;
       }
 
       const respDetail = await apiGetDetail({ id });
@@ -249,22 +254,18 @@ const FormTransaction = (props) => {
         petDateOfBirth: data.dateOfBirth, // belum ada
         petMonth: data.petMonth, // belum ada
         petYear: data.petYear, // belum ada
-        configTransaction:
-          type === 'pet-hotel' ? getKeyServiceCategoryByValue('Pet Hotel') : getKeyServiceCategoryByValue(data.serviceCategory),
+        configTransaction: getKeyServiceCategoryByValue(TransactionType[type]), // type === 'pet-hotel' ? getKeyServiceCategoryByValue('Pet Hotel') : getKeyServiceCategoryByValue(data.serviceCategory),
         startDate: data.startDate,
         endDate: data.endDate,
-        treatingDoctor, // need id
+        treatingDoctor: treatingDoctor || null, // need id
+        typeOfCare: +data.typeOfCare,
         notes: data.note
       });
     }
   };
 
   const decideFormTransactionType = () => {
-    if (type === 'pet-hotel') {
-      setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue('Pet Hotel') }));
-    } else {
-      setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(type) }));
-    }
+    setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(TransactionType[type]) }));
   };
 
   useEffect(() => {
