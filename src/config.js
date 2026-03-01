@@ -31,12 +31,12 @@ export const AUTH0_API = {
 };
 
 // API Production and UAT
-// const apiUrl = 'https://prod.radhiyanpetandcare.online';
+// const apiUrl = 'https://prod.radhiyanpet.online';
 
 // API Development
-const apiUrl = 'https://uat.radhiyanpetandcare.online';
+const apiUrl = 'https://uat.radhiyanpet.online';
 
-// const apiUrl = process?.env?.REACT_APP_MODE === 'local' ? 'http://localhost:8000' : 'https://uat.radhiyanpetandcare.online/api';
+// const apiUrl = process?.env?.REACT_APP_MODE === 'local' ? 'http://localhost:8000' : 'https://uat.radhiyanpet.online/api';
 // API LOCAL
 // console.log(apiUrl);
 // const apiUrl = 'http://localhost:8000';
