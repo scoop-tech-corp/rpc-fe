@@ -34,6 +34,7 @@ import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
 import TreatmentPetHotel from './components/treatment';
 import { deleteTransactionPetHotel, exportTransactionPetHotel, getTransactionPetHotelIndex } from './service';
+import Payment from './components/payment';
 
 const TransactionPetHotel = () => {
   const { user } = useAuth();
@@ -65,6 +66,7 @@ const TransactionPetHotel = () => {
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
   const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
+  const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -199,6 +201,20 @@ const TransactionPetHotel = () => {
                     color="success"
                     onClick={() => {
                       setTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
+                <Tooltip title={<FormattedMessage id="payment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -440,6 +456,17 @@ const TransactionPetHotel = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setTreatmentDialog({ isOpen: false, data: { locationId: null } });
+          }}
+        />
+      )}
+
+      {paymentDialog.isOpen && (
+        <Payment
+          open={paymentDialog.isOpen}
+          data={paymentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPaymentDialog({ isOpen: false, data: {} });
           }}
         />
       )}
