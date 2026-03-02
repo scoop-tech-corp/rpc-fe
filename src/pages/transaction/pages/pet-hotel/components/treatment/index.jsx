@@ -71,15 +71,7 @@ const TreatmentPetHotel = (props) => {
   };
 
   useEffect(() => {
-    if (
-      !formValue.cage ||
-      !formValue.treatmentPlans.length ||
-      !formValue.treatmentPlans.length ||
-      !formValue.services.length ||
-      !formValue.productSells.length ||
-      !formValue.productClinics.length
-    )
-      setDisabledOk(true);
+    if (!formValue.cage || !formValue.services.length) setDisabledOk(true);
     else setDisabledOk(false);
   }, [formValue]);
 
