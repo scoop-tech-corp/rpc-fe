@@ -63,7 +63,8 @@ const ServiceTreatmentForm = Loadable(lazy(() => import('pages/service/treatment
 
 const ServiceCategory = Loadable(lazy(() => import('pages/service/category')));
 
-const ServicePolicies = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ServicePolicies = Loadable(lazy(() => import('pages/service/policies')));
+const ServicePoliciesForm = Loadable(lazy(() => import('pages/service/policies/form')));
 const ServiceTemplate = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ServiceStaticData = Loadable(lazy(() => import('pages/service/static-data')));
 const ServiceImport = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
@@ -213,6 +214,8 @@ const MainRoutes = {
             { path: 'treatment/:id', element: <ServiceTreatmentForm /> },
             { path: 'category', element: <ServiceCategory /> },
             { path: 'policies', element: <ServicePolicies /> },
+            { path: 'policies/form', element: <ServicePoliciesForm /> },
+            { path: 'policies/form/:id', element: <ServicePoliciesForm /> },
             { path: 'template', element: <ServiceTemplate /> },
             { path: 'material-data', element: <ServiceStaticData /> },
             { path: 'import', element: <ServiceImport /> }
