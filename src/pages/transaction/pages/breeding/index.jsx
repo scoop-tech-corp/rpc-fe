@@ -163,6 +163,7 @@ const TransactionBreeding = () => {
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
           const isTreatmentRow = +data.row.original.isTreatment;
+          const locationIdRow = +data.row.original.locationId;
 
           const doReassign = async () => {
             const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
