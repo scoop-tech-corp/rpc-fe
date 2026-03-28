@@ -33,6 +33,7 @@ import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
 import { deleteTransactionPetSalon, exportTransactionPetSalon, getTransactionPetSalonIndex } from './service';
+import Payment from './components/payment';
 
 const TransactionPetSalon = () => {
   const { user } = useAuth();
@@ -63,6 +64,7 @@ const TransactionPetSalon = () => {
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -158,6 +160,7 @@ const TransactionPetSalon = () => {
           const statusRow = data.row.original.status;
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
+          const locationIdRow = +data.row.original.locationId;
 
           const doReassign = async () => {
             const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
@@ -181,6 +184,20 @@ const TransactionPetSalon = () => {
                     color="success"
                     onClick={() => {
                       setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
+                <Tooltip title={<FormattedMessage id="payment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -411,6 +428,17 @@ const TransactionPetSalon = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setCheckConditionPetDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {paymentDialog.isOpen && (
+        <Payment
+          open={paymentDialog.isOpen}
+          data={paymentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPaymentDialog({ isOpen: false, data: {} });
           }}
         />
       )}
