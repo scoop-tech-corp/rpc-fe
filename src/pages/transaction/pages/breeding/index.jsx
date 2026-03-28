@@ -33,6 +33,8 @@ import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
 import { deleteTransactionBreeding, exportTransactionBreeding, getTransactionBreedingIndex } from './service';
+import TreatmentBreeding from './components/treatment';
+import Payment from './components/payment';
 
 const TransactionBreeding = () => {
   const { user } = useAuth();
@@ -63,6 +65,8 @@ const TransactionBreeding = () => {
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
+  const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -158,6 +162,8 @@ const TransactionBreeding = () => {
           const statusRow = data.row.original.status;
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
+          const isTreatmentRow = +data.row.original.isTreatment;
+          const locationIdRow = +data.row.original.locationId;
 
           const doReassign = async () => {
             const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
@@ -181,6 +187,34 @@ const TransactionBreeding = () => {
                     color="success"
                     onClick={() => {
                       setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {Boolean(isTreatmentRow) && (
+                <Tooltip title={<FormattedMessage id="treatment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
+                <Tooltip title={<FormattedMessage id="payment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -411,6 +445,28 @@ const TransactionBreeding = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setCheckConditionPetDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {treatmentDialog.isOpen && (
+        <TreatmentBreeding
+          open={treatmentDialog.isOpen}
+          data={treatmentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setTreatmentDialog({ isOpen: false, data: { locationId: null } });
+          }}
+        />
+      )}
+
+      {paymentDialog.isOpen && (
+        <Payment
+          open={paymentDialog.isOpen}
+          data={paymentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPaymentDialog({ isOpen: false, data: {} });
           }}
         />
       )}
