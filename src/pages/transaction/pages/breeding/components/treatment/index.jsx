@@ -13,9 +13,9 @@ import { useDispatch } from 'react-redux';
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 import IconButton from 'components/@extended/IconButton';
-import { transactionPetHotelTreatment } from '../../service';
+import { transactionBreedingTreatment } from '../../service';
 
-const TreatmentPetHotel = (props) => {
+const TreatmentBreeding = (props) => {
   const { data } = props;
   const [formValue, setFormValue] = useState({
     transactionId: data.transactionId,
@@ -27,7 +27,7 @@ const TreatmentPetHotel = (props) => {
     productClinic: null,
     qtyClinic: '',
     cage: null,
-    serviceCategory: 'Pet Hotel',
+    serviceCategory: 'Breeding',
     treatmentPlans: [],
     services: [],
     productSells: [],
@@ -46,7 +46,7 @@ const TreatmentPetHotel = (props) => {
 
   const onSubmit = async () => {
     console.log('formValue', formValue);
-    await transactionPetHotelTreatment(formValue)
+    await transactionBreedingTreatment(formValue)
       .then((resp) => {
         if (resp && resp.status === 200) {
           dispatch(snackbarSuccess('Success create service and recipe'));
@@ -526,10 +526,10 @@ const TreatmentPetHotel = (props) => {
   );
 };
 
-TreatmentPetHotel.propTypes = {
+TreatmentBreeding.propTypes = {
   open: PropTypes.bool,
   data: PropTypes.object,
   onClose: PropTypes.func
 };
 
-export default TreatmentPetHotel;
+export default TreatmentBreeding;

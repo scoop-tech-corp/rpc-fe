@@ -14,6 +14,10 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'assets/third-party/apex-chart.css';
 import 'assets/third-party/react-table.css';
 
+// react-draft-wysiwyg
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import 'assets/third-party/react-draft-wysiwyg.css';
+
 // date range picker style
 import '@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css';
 import 'react-calendar/dist/Calendar.css';

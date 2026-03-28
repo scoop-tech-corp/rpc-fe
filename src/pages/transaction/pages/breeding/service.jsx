@@ -1,8 +1,10 @@
 import axios from 'utils/axios';
 import { formateDateYYYMMDD } from 'utils/func';
 
+const url = 'transaction/breeding';
+
 export const getTransactionBreedingIndex = async (payload) => {
-  return await axios.get('/transaction/breeding', {
+  return await axios.get(url, {
     params: {
       orderValue: payload.orderValue,
       orderColumn: payload.orderColumn,
@@ -41,22 +43,36 @@ export const createTransactionBreeding = async (payload) => {
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
 
-  return await axios.post('transaction/breeding', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return await axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const getTransactionBreedingDetail = async (payload) => {
   const dateFrom = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[0]) : '';
   const dateTo = payload.dateRange ? formateDateYYYMMDD(payload.dateRange[1]) : '';
 
-  return await axios.get('transaction/breeding/detail', {
+  return await axios.get(url + '/detail', {
     params: { id: payload.id, dateFrom, dateTo }
   });
+};
+
+export const transactionBreedingTreatment = async (payload) => {
+  const formData = new FormData();
+
+  formData.append('transactionId', payload.transactionId);
+  formData.append('serviceCategory', payload.serviceCategory);
+  formData.append('treatmentPlans', JSON.stringify(payload.treatmentPlans));
+  formData.append('services', JSON.stringify(payload.services));
+  formData.append('productSells', JSON.stringify(payload.productSells));
+  formData.append('productClinics', JSON.stringify(payload.productClinics));
+  formData.append('cageId', payload.cage?.value);
+
+  return await axios.post(url + '/treatment', formData);
 };
 
 export const updateTransactionBreeding = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
-  return await axios.put('transaction/breeding', {
+  return await axios.put(url, {
     id: payload.id,
     registrationNo: payload.registrationNo,
     isNewCustomer: isNewCustomer,
@@ -82,13 +98,13 @@ export const updateTransactionBreeding = async (payload) => {
 };
 
 export const deleteTransactionBreeding = async (id) => {
-  return await axios.delete('transaction/breeding', {
+  return await axios.delete(url, {
     data: { id }
   });
 };
 
 export const exportTransactionBreeding = async (payload) => {
-  return await axios.get('transaction/breeding/export', {
+  return await axios.get(url + '/export', {
     responseType: 'blob',
     params: {
       locationId: payload?.locationId?.length ? payload.locationId : [''],
@@ -102,7 +118,7 @@ export const reassignTransactionBreeding = async (payload) => {
   formData.append('transactionId', payload.transactionId);
   formData.append('doctorId', payload.doctorId);
 
-  return await axios.post('transaction/breeding/reassign', formData);
+  return await axios.post(url + '/reassign', formData);
 };
 
 export const acceptTransactionBreeding = async (payload) => {
@@ -111,7 +127,7 @@ export const acceptTransactionBreeding = async (payload) => {
   formData.append('status', payload.status);
   formData.append('reason', payload.reason);
 
-  return await axios.post('transaction/breeding/accept', formData);
+  return await axios.post(url + '/accept', formData);
 };
 
 export const checkPetConditionTransactionBreeding = async (payload) => {
@@ -136,7 +152,7 @@ export const checkPetConditionTransactionBreeding = async (payload) => {
   formData.append('isAcceptToProcess', payload.reasonReject ? 0 : 1);
   if (payload.reasonReject) formData.append('reasonReject', payload.reasonReject);
 
-  return await axios.post('transaction/breeding/petcheck', formData);
+  return await axios.post(url + '/petcheck', formData);
 };
 
 const mapPayloadTransactionForm = (payload) => {
@@ -161,4 +177,105 @@ const mapPayloadTransactionForm = (payload) => {
     customer,
     location
   };
+};
+
+export const submitTransactionBreedingDiscount = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionBreedingId);
+
+  payload.freeItems.forEach((freeItem) => {
+    formData.append('freeItems[]', +freeItem);
+  });
+  payload.discounts.forEach((discount) => {
+    formData.append('discounts[]', +discount);
+  });
+  payload.bundles.forEach((bundle) => {
+    formData.append('bundles[]', +bundle);
+  });
+  formData.append('basedSale', +payload.basedSales);
+
+  formData.append('recipes', JSON.stringify(payload.recipes));
+  formData.append('services', JSON.stringify(payload.services));
+  formData.append('products', JSON.stringify(payload.products));
+
+  return await axios.post(url + '/discount', formData);
+};
+
+export const printInvoiceBreedingOutpatient = async (transactionId, formValue) => {
+  const { detail_total, payment_method } = constructPayloadCreatePrintBreedingOutpatient(transactionId, formValue);
+
+  return await axios.get(url + '/invoice', {
+    responseType: 'blob',
+    params: {
+      transactionId: transactionId,
+      purchases: JSON.stringify(formValue.summaryList),
+      detail_total: JSON.stringify(detail_total),
+      payment_method: JSON.stringify(payment_method)
+    }
+  });
+};
+
+export const checkPromoTransactionBreeding = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionBreedingId);
+  formData.append('recipes', JSON.stringify(payload.recipes));
+  formData.append('services', JSON.stringify(payload.services));
+  formData.append('products', JSON.stringify(payload.products));
+
+  return await axios.post(url + '/checkpromo', formData);
+};
+
+export const getBeforePayment = async (id) => {
+  return await axios.get(url + '/beforepayment', {
+    params: { transactionId: id }
+  });
+};
+
+const constructPayloadCreatePrintBreedingOutpatient = (transactionId, formValue) => {
+  const detail_total = {
+    subtotal: formValue.summarySubtotal,
+    total_discount: formValue.summaryTotalDiscount,
+    discount_based_sales: formValue.discountBasedSale,
+    total_payment: formValue.summaryTotalPayment,
+    promoBasedSaleId: formValue.promoBasedSaleId
+  };
+
+  const payment_method = {
+    paymentId: transactionId,
+    amount: undefined,
+    amountPaid: undefined,
+    duration: undefined,
+    tenor: undefined,
+    next_payment: undefined
+  };
+
+  if (formValue.paymentMethod === 'full') {
+    payment_method.amountPaid = formValue.summaryTotalPayment;
+  }
+
+  if (formValue.paymentMethod === 'cicilan') {
+    payment_method.amountPaid = formValue.installmentDp;
+    payment_method.duration = formValue.installmentDuration;
+    payment_method.tenor = formValue.installmentTenor;
+  }
+
+  if (formValue.paymentMethod === 'dp') {
+    const next_payment = formValue.dpNextPayment ? formateDateYYYMMDD(new Date(formValue.dpNextPayment)) : '';
+    payment_method.amountPaid = formValue.dpNominal;
+    payment_method.next_payment = next_payment;
+  }
+
+  return { detail_total, payment_method };
+};
+export const createPaymentBreedingOutpatient = async (transactionId, formValue) => {
+  const { detail_total, payment_method } = constructPayloadCreatePrintBreedingOutpatient(transactionId, formValue);
+
+  const formData = new FormData();
+  formData.append('transactionId', transactionId);
+
+  formData.append('purchases', JSON.stringify(formValue.summaryList));
+  formData.append('detail_total', JSON.stringify(detail_total));
+  formData.append('payment_method', JSON.stringify(payment_method));
+
+  return await axios.post(url + '/payment', formData);
 };
