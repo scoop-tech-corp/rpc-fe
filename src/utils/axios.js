@@ -37,7 +37,8 @@ axiosServices.interceptors.response.use(
       loaderGlobalConfig.setLoader(false);
     }
 
-    if (error.response.status === 401 && error.response?.data.status === 'Token is Expired') {
+    if (error.response.status === 401 && ['Token is Expired', 'Token is Invalid'].includes(error.response?.data.status)) {
+      localStorage.removeItem('user');
       window.location.href = `/login?islogout=1`;
       return true;
     } else if (error.response.status === 403) {
