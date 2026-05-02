@@ -33,14 +33,22 @@ axiosServices.interceptors.response.use(
   },
   (error) => {
     const isManualLoader = loaderService.manualLoader;
-    if (!isManualLoader) {
-      loaderGlobalConfig.setLoader(false);
+    const removeBasedLocalStorage = () => {
+      localStorage.removeItem('user');
+      localStorage.removeItem('mantis-ts-cart');
+      localStorage.removeItem('pusherTransportTLS');
+      localStorage.removeItem('serviceToken');
+    };
+    if (!isManualLoader) loaderGlobalConfig.setLoader(false);
+
+    if (error.code === 'ECONNABORTED' && error.message === 'timeout exceeded' && error.name === 'AxiosError') {
+      removeBasedLocalStorage();
+      window.location.href = `/login`;
     }
 
     if (error.response.status === 401 && ['Token is Expired', 'Token is Invalid'].includes(error.response?.data.status)) {
-      localStorage.removeItem('user');
+      removeBasedLocalStorage();
       window.location.href = `/login?islogout=1`;
-      return true;
     } else if (error.response.status === 403) {
       window.location.href = `/403`;
     } else {
@@ -54,14 +62,6 @@ axiosServices.interceptors.response.use(
         title.innerText = error.message;
         desc.innerText = error.response?.data.message;
       }
-      // else if (error.response.status === 403) {
-      //   elementSnackbar.className = 'show';
-      //   title.innerText = error.message;
-      //   desc.innerText = error.response?.data.message;
-      //   elementSnackbar.style.backgroundColor = 'rgb(255, 251, 230)';
-      //   title.style.color = 'rgb(173, 104, 0)';
-      //   desc.style.color = 'rgb(250, 173, 20)';
-      // }
 
       setTimeout(() => {
         elementSnackbar.className = elementSnackbar.className.replace('show', '');
