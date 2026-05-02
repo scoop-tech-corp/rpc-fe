@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 // project import
-import axios from 'utils/axiosMock';
+import { getBookingList, deleteBooking } from '../../service';
 import { dispatch } from 'store';
 
 const initialState = {
@@ -102,39 +102,37 @@ export default calendar.reducer;
 
 export const { selectEvent, toggleModal, updateCalendarView } = calendar.actions;
 
-export function getEvents() {
+export function getEvents(params = {}) {
   return async () => {
     dispatch(calendar.actions.loading());
     try {
-      const response = await axios.get('/api/calendar/events');
-      dispatch(calendar.actions.setEvents(response.data.events));
+      const response = await getBookingList(params);
+      const rawData = Array.isArray(response.data) ? response.data : response.data?.data || [];
+      const events = rawData.map((item) => ({
+        ...item,
+        title: item.title || 'Booking',
+        start: item.start?.replace(' ', 'T') || null,
+        end: item.start?.replace(' ', 'T') || null,
+        //end: item.end ? item.end.replace(' ', 'T') : null,
+        allDay: item.allDay === '1' || item.allDay === true
+      }));
+      dispatch(calendar.actions.setEvents(events));
     } catch (error) {
       dispatch(calendar.actions.hasError(error));
     }
   };
 }
 
-export function createEvent(newEvent) {
+export function updateEvent(eventId, updateEventData) {
   return async () => {
     dispatch(calendar.actions.loading());
     try {
-      const response = await axios.post('/api/calendar/events/add', newEvent);
-      dispatch(calendar.actions.createEvent(response.data.event));
-    } catch (error) {
-      dispatch(calendar.actions.hasError(error));
-    }
-  };
-}
-
-export function updateEvent(eventId, updateEvent) {
-  return async () => {
-    dispatch(calendar.actions.loading());
-    try {
-      const response = await axios.post('/api/calendar/events/update', {
-        eventId,
-        update: updateEvent
-      });
-      dispatch(calendar.actions.updateEvent(response.data.event));
+      dispatch(
+        calendar.actions.updateEvent({
+          id: eventId,
+          ...updateEventData
+        })
+      );
     } catch (error) {
       dispatch(calendar.actions.hasError(error));
     }
@@ -145,21 +143,10 @@ export function deleteEvent(eventId) {
   return async () => {
     dispatch(calendar.actions.loading());
     try {
-      await axios.post('/api/calendar/events/delete', { eventId });
+      await deleteBooking(eventId);
       dispatch(calendar.actions.deleteEvent({ eventId }));
     } catch (error) {
       dispatch(calendar.actions.hasError(error));
     }
-  };
-}
-
-export function selectRange(start, end) {
-  return async () => {
-    dispatch(
-      calendar.actions.selectRange({
-        start: start.getTime(),
-        end: end.getTime()
-      })
-    );
   };
 }

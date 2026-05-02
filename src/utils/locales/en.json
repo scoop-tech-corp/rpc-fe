@@ -1194,5 +1194,21 @@
   "work-end-date": "Work End Date",
   "yes": "Yes",
   "year": "Year",
-  "xray-incentive": "Xray/Lab Operator Incentive"
+  "xray-incentive": "Xray/Lab Operator Incentive",
+  "select-location": "Select Location",
+  "pet-animal": "Pet",
+  "service-layanan": "Service",
+  "booking-time": "Booking Time",
+  "visiting-category": "Visiting Category",
+  "drug-allergy-history": "Drug Allergy History",
+  "upload-photo": "Upload Photo",
+  "socialization-level": "Socialization Level",
+  "emergency-contact": "Emergency Contact",
+  "fur-condition": "Fur Condition",
+  "skin-sensitivity": "Skin Sensitivity",
+  "stambum-stamboom": "Stambum / Stamboom",
+  "health-clearance": "Health Clearance",
+  "select-visiting-category": "Select Visiting Category",
+  "select-socialization-level": "Select Socialization Level",
+  "select-fur-condition": "Select Fur Condition"
 }
