@@ -99,7 +99,7 @@ const LocationStaticData = Loadable(lazy(() => import('pages/location/static-dat
 const FinanceDashboard = Loadable(lazy(() => import('pages/finance/dashboard')));
 const FinanceSales = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const FinanceQuotation = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
-const FinanceExpenses = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const FinanceExpenses = Loadable(lazy(() => import('pages/finance/expenses')));
 const FinanceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 
 // Report

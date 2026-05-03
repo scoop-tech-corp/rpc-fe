@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import IconButton from 'components/@extended/IconButton';
 
 // assets
-import { AppstoreOutlined, LayoutOutlined, LeftOutlined, OrderedListOutlined, PicCenterOutlined, RightOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, LeftOutlined, OrderedListOutlined, RightOutlined } from '@ant-design/icons';
 
 // constant
 const viewOptions = [
@@ -21,18 +21,8 @@ const viewOptions = [
     icon: AppstoreOutlined
   },
   {
-    label: 'Week',
-    value: 'timeGridWeek',
-    icon: LayoutOutlined
-  },
-  {
-    label: 'Day',
-    value: 'timeGridDay',
-    icon: PicCenterOutlined
-  },
-  {
     label: 'Agenda',
-    value: 'listWeek',
+    value: 'listMonth',
     icon: OrderedListOutlined
   }
 ];

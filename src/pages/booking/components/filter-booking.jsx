@@ -7,7 +7,7 @@ import MainCard from 'components/MainCard';
 
 const CONST_FILTER = { location: [], doctor: null };
 
-const FilterBooking = () => {
+const FilterBooking = (props) => {
   const [filter, setFilter] = useState(CONST_FILTER);
   const [dropdownFilter, setDropdownFilter] = useState({ locationList: [], doctorList: [] });
 
@@ -20,8 +20,21 @@ const FilterBooking = () => {
     setFilter((prevState) => ({ ...prevState, [procedure]: value }));
   };
 
-  const onResetFilter = () => setFilter({ ...CONST_FILTER });
-  const onAppliedFilter = () => {};
+  const onResetFilter = () => {
+    setFilter({ ...CONST_FILTER });
+    if (props.onAppliedFilter) {
+      props.onAppliedFilter({ locationId: [], doctorId: [] });
+    }
+  };
+
+  const onAppliedFilter = () => {
+    const locationId = filter.location ? filter.location.map((dt) => +dt.value) : [];
+    const doctorId = filter.doctor ? [+filter.doctor.value] : [];
+
+    if (props.onAppliedFilter) {
+      props.onAppliedFilter({ locationId, doctorId });
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +61,7 @@ const FilterBooking = () => {
         </Grid>
         <Grid item xs={12} md={5}>
           <Autocomplete
-            id="location"
+            id="doctor"
             options={dropdownFilter.doctorList}
             value={filter.doctor}
             isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
