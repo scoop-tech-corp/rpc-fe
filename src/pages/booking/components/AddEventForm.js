@@ -524,6 +524,22 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
           {/* ============ Case Pet Hotel ============ */}
           {selectedService === 'Pet Hotel' && (
             <>
+              {/* Emergency Contact */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="emergency-contact" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    name="emergencyContactName"
+                    value={formValue.emergencyContactName}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                  />
+                </Stack>
+              </Grid>
+
               {/* Pet Name */}
               <Grid item xs={12}>
                 <Stack spacing={1.25}>
@@ -552,22 +568,6 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                       ))}
                     </Select>
                   </FormControl>
-                </Stack>
-              </Grid>
-
-              {/* Emergency Contact */}
-              <Grid item xs={12}>
-                <Stack spacing={1.25}>
-                  <InputLabel>
-                    <FormattedMessage id="emergency-contact" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    name="emergencyContactName"
-                    value={formValue.emergencyContactName}
-                    onChange={onFieldHandler}
-                    placeholder="Text"
-                  />
                 </Stack>
               </Grid>
 
@@ -668,23 +668,6 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
           {/* ============ Case Breeding ============ */}
           {selectedService === 'Breeding' && (
             <>
-              {/* Informasi Tambahan */}
-              <Grid item xs={12}>
-                <Stack spacing={1.25}>
-                  <InputLabel>
-                    <FormattedMessage id="additional-info" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={3}
-                    name="additionalInfo"
-                    value={formValue.additionalInfo}
-                    onChange={onFieldHandler}
-                  />
-                </Stack>
-              </Grid>
-
               {/* Stambum / Stamboom */}
               <Grid item xs={12}>
                 <Stack spacing={1.25}>
@@ -707,6 +690,23 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     value={formValue.healthClearance}
                     onChange={onFieldHandler}
                     placeholder="Text"
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Informasi Tambahan */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="additional-info" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={3}
+                    name="additionalInfo"
+                    value={formValue.additionalInfo}
+                    onChange={onFieldHandler}
                   />
                 </Stack>
               </Grid>
