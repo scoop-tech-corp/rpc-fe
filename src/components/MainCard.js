@@ -47,6 +47,7 @@ const MainCard = forwardRef(
         {...others}
         sx={{
           position: 'relative',
+          overflow: 'visible',
           border: border ? '1px solid' : 'none',
           borderRadius: 1,
           borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : theme.palette.grey.A800,
@@ -79,7 +80,7 @@ const MainCard = forwardRef(
         {title && divider && <Divider />}
 
         {/* card content */}
-        {content && <CardContent sx={contentSX}>{children}</CardContent>}
+        {content && <CardContent sx={{ overflow: 'visible', ...contentSX }}>{children}</CardContent>}
         {!content && children}
 
         {/* card footer - clipboard & highlighter  */}

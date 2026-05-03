@@ -79,6 +79,8 @@ export const JWTProvider = ({ children }) => {
     setSession(null);
     dispatch({ type: LOGOUT });
     localStorage.removeItem('user');
+    localStorage.removeItem('mantis-ts-cart');
+    localStorage.removeItem('pusherTransportTLS');
   };
 
   const init = async () => {

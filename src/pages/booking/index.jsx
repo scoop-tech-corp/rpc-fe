@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
@@ -9,26 +9,18 @@ import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import timelinePlugin from '@fullcalendar/timeline';
 
 // project import
 import CalendarStyled from './components/CalendarStyled';
 import Toolbar from './components/Toolbar';
 import AddEventForm from './components/AddEventForm';
-import { getEvents, selectEvent, selectRange, toggleModal, updateCalendarView, updateEvent } from './store/reducer/index';
+import { getEvents, selectEvent, toggleModal, updateCalendarView, updateEvent } from './store/reducer/index';
+import { getBookingDetail, updateBooking } from './service';
 
 // assets
 import { PlusOutlined } from '@ant-design/icons';
 import FilterBooking from './components/filter-booking';
-
-const selectedEventHandler = (state) => {
-  const { events, selectedEventId } = state.calendar;
-  if (selectedEventId) {
-    return events.find((event) => event.id === selectedEventId);
-  }
-  return null;
-};
 
 // ==============================|| CALENDAR - MAIN ||============================== //
 
@@ -36,21 +28,50 @@ const Booking = () => {
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
   const calendar = useSelector((state) => state.calendar);
-  console.log('calendar', calendar);
-  const { calendarView, events, isModalOpen, selectedRange } = calendar;
-  const selectedEvent = useSelector(selectedEventHandler);
-
-  useEffect(() => {
-    dispatch(getEvents());
-  }, [dispatch]);
+  const { calendarView, events, isModalOpen, selectedEventId } = calendar;
+  const selectedEvent = selectedEventId ? events.find((e) => e.id === selectedEventId) : null;
 
   const calendarRef = useRef(null);
+  const containerRef = useRef(null);
+  const dateRef = useRef(new Date());
+  const [date, setDate] = useState(new Date());
+  const [filterParams, setFilterParams] = useState({ locationId: [], doctorId: [] });
+
+  const fetchEvents = useCallback(
+    (currentDate) => {
+      const d = currentDate || dateRef.current;
+      const monthBooking = d.getMonth() + 1; // JS months are 0-indexed
+      const yearBooking = d.getFullYear();
+
+      dispatch(
+        getEvents({
+          locationId: filterParams.locationId,
+          doctorId: filterParams.doctorId,
+          monthBooking,
+          yearBooking
+        })
+      );
+    },
+    [dispatch, filterParams]
+  );
+
+  // Refetch when filterParams change
+  useEffect(() => {
+    fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterParams]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const calendarEl = calendarRef.current;
     if (calendarEl) {
       const calendarApi = calendarEl.getApi();
-      const newView = matchDownSM ? 'listWeek' : 'dayGridMonth';
+      const newView = matchDownSM ? 'listMonth' : 'dayGridMonth';
       calendarApi.changeView(newView);
       dispatch(updateCalendarView(newView));
     }
@@ -58,26 +79,47 @@ const Booking = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchDownSM]);
 
-  const [date, setDate] = useState(new Date());
+  // Auto-resize calendar when container size changes (e.g. sidebar toggle)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver(() => {
+      const calendarApi = calendarRef.current?.getApi();
+      if (calendarApi) {
+        calendarApi.updateSize();
+      }
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  const updateDateAndFetch = () => {
+    const calendarEl = calendarRef.current;
+    if (calendarEl) {
+      const calendarApi = calendarEl.getApi();
+      const newDate = calendarApi.getDate();
+      dateRef.current = newDate;
+      setDate(newDate);
+      fetchEvents(newDate);
+    }
+  };
 
   // calendar toolbar events
   const handleDateToday = () => {
     const calendarEl = calendarRef.current;
-
     if (calendarEl) {
       const calendarApi = calendarEl.getApi();
-
       calendarApi.today();
-      setDate(calendarApi.getDate());
+      updateDateAndFetch();
     }
   };
 
   const handleViewChange = (newView) => {
     const calendarEl = calendarRef.current;
-
     if (calendarEl) {
       const calendarApi = calendarEl.getApi();
-
       calendarApi.changeView(newView);
       dispatch(updateCalendarView(newView));
     }
@@ -85,51 +127,68 @@ const Booking = () => {
 
   const handleDatePrev = () => {
     const calendarEl = calendarRef.current;
-
     if (calendarEl) {
       const calendarApi = calendarEl.getApi();
-
       calendarApi.prev();
-      setDate(calendarApi.getDate());
+      updateDateAndFetch();
     }
   };
 
   const handleDateNext = () => {
     const calendarEl = calendarRef.current;
-
     if (calendarEl) {
       const calendarApi = calendarEl.getApi();
-
       calendarApi.next();
-      setDate(calendarApi.getDate());
+      updateDateAndFetch();
     }
   };
 
   // calendar events
-  const handleRangeSelect = (arg) => {
-    const calendarEl = calendarRef.current;
-    if (calendarEl) {
-      const calendarApi = calendarEl.getApi();
-      calendarApi.unselect();
-    }
-
-    dispatch(selectRange(arg.start, arg.end));
-  };
-
   const handleEventSelect = (arg) => {
     dispatch(selectEvent(arg.event.id));
   };
 
   const handleEventUpdate = async ({ event }) => {
     try {
-      dispatch(
-        updateEvent(event.id, {
-          allDay: event.allDay,
-          start: event.start,
-          end: event.end
-        })
-      );
+      // Get full booking detail first
+      const response = await getBookingDetail(event.id);
+      const apiData = response.data?.data || response.data || {};
+      const booking = apiData.booking || {};
+      const detail = apiData.detail || {};
+
+      // Format new bookingTime from the dropped date
+      const newDate = event.start;
+      const bookingTime = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')} ${String(newDate.getHours()).padStart(2, '0')}:${String(newDate.getMinutes()).padStart(2, '0')}`;
+
+      await updateBooking({
+        id: event.id,
+        locationId: booking.locationId,
+        doctorId: booking.doctorId,
+        customerId: booking.customerId,
+        petId: booking.petId,
+        services: booking.serviceType,
+        bookingTime,
+        title: booking.title,
+        color: booking.color,
+        additionalInfo: detail.additionalInfo || '',
+        consultationType: detail.consultationType || '',
+        drugAllergy: detail.drugAllergy || '',
+        petName: detail.petName || '',
+        socializationType: detail.socializationType || '',
+        emergencyContactName: detail.emergencyContactName || '',
+        inventoryProducts: detail.inventoryProducts || '',
+        furCondition: detail.furCondition || '',
+        skinSensitivity: detail.skinSensitivity || '',
+        stambum: detail.stambum || '',
+        healthClearance: detail.healthClearance || ''
+      });
+
+      // Update local state and refresh
+      dispatch(updateEvent(event.id, { allDay: event.allDay, start: event.start, end: event.end }));
+      fetchEvents();
     } catch (error) {
+      // Revert the event position on error
+      event.revert();
       console.error(error);
     }
   };
@@ -138,9 +197,13 @@ const Booking = () => {
     dispatch(toggleModal());
   };
 
+  const handleAppliedFilter = (filters) => {
+    setFilterParams(filters);
+  };
+
   return (
-    <Box sx={{ position: 'relative' }}>
-      <FilterBooking />
+    <Box ref={containerRef} sx={{ position: 'relative' }}>
+      <FilterBooking onAppliedFilter={handleAppliedFilter} />
       <CalendarStyled>
         <Toolbar
           date={date}
@@ -155,7 +218,6 @@ const Booking = () => {
           weekends
           editable
           droppable
-          selectable
           events={events}
           ref={calendarRef}
           rerenderDelay={10}
@@ -166,18 +228,20 @@ const Booking = () => {
           headerToolbar={false}
           allDayMaintainDuration
           eventResizableFromStart
-          select={handleRangeSelect}
           eventDrop={handleEventUpdate}
           eventClick={handleEventSelect}
           eventResize={handleEventUpdate}
           height={matchDownSM ? 'auto' : 720}
-          plugins={[listPlugin, dayGridPlugin, timelinePlugin, interactionPlugin, timeGridPlugin]}
+          plugins={[listPlugin, dayGridPlugin, timelinePlugin, interactionPlugin]}
         />
       </CalendarStyled>
 
       {/* Dialog renders its body even if not open */}
       <Dialog maxWidth="sm" fullWidth onClose={handleModal} open={isModalOpen} sx={{ '& .MuiDialog-paper': { p: 0 } }}>
-        {isModalOpen && <AddEventForm event={selectedEvent} range={selectedRange} onCancel={handleModal} />}
+        {isModalOpen && selectedEvent && (
+          <AddEventForm mode="edit" eventId={selectedEventId} onCancel={handleModal} onCreated={fetchEvents} />
+        )}
+        {isModalOpen && !selectedEvent && <AddEventForm onCancel={handleModal} onCreated={fetchEvents} />}
       </Dialog>
       <Tooltip title="Add New Booking">
         <SpeedDial
