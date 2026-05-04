@@ -28,14 +28,14 @@ const StaffLeaveBalance = () => {
         accessor: 'name'
       },
       {
-        Header: <FormattedMessage id="vacation-allowance" />,
+        Header: <FormattedMessage id="leave-allowance" />,
         accessor: 'annualLeaveAllowance',
         Cell: (data) => {
           return `${data.value} days`;
         }
       },
       {
-        Header: <FormattedMessage id="vacation-balance" />,
+        Header: <FormattedMessage id="leave-balance" />,
         accessor: 'annualLeaveAllowanceRemaining',
         Cell: (data) => {
           return `${data.value} days`;
