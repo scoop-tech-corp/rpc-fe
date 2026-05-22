@@ -84,6 +84,10 @@ const ProductPolicies = Loadable(lazy(() => import('pages/extra-pages/sample-pag
 const ProductRestock = Loadable(lazy(() => import('pages/product/restock')));
 const ProductRestockForm = Loadable(lazy(() => import('pages/product/restock/form')));
 const ProductTransfer = Loadable(lazy(() => import('pages/product/transfer')));
+const ProductStockOpname = Loadable(lazy(() => import('pages/product/stock-opname')));
+const ProductStockOpnameForm = Loadable(lazy(() => import('pages/product/stock-opname/form')));
+const ProductStockOpnameInputProduct = Loadable(lazy(() => import('pages/product/stock-opname/input-product')));
+const ProductLoan = Loadable(lazy(() => import('pages/product/loan')));
 const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const ProductStaticData = Loadable(lazy(() => import('pages/product/static-data')));
 
@@ -97,10 +101,10 @@ const LocationStaticData = Loadable(lazy(() => import('pages/location/static-dat
 
 // Finance
 const FinanceDashboard = Loadable(lazy(() => import('pages/finance/dashboard')));
-const FinanceSales = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const FinanceSales = Loadable(lazy(() => import('pages/finance/sales')));
 const FinanceQuotation = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const FinanceExpenses = Loadable(lazy(() => import('pages/finance/expenses')));
-const FinanceStaticData = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const FinanceStaticData = Loadable(lazy(() => import('pages/finance/static-data')));
 
 // Report
 const Report = Loadable(lazy(() => import('pages/report')));
@@ -244,6 +248,11 @@ const MainRoutes = {
             { path: 'restock/form', element: <ProductRestockForm /> },
             { path: 'restock/form/:id', element: <ProductRestockForm /> },
             { path: 'transfer', element: <ProductTransfer /> },
+            { path: 'stockopname', element: <ProductStockOpname /> },
+            { path: 'stockopname/form', element: <ProductStockOpnameForm /> },
+            { path: 'stockopname/form/:id', element: <ProductStockOpnameForm /> },
+            { path: 'stockopname/input-product/:id', element: <ProductStockOpnameInputProduct /> },
+            { path: 'loan', element: <ProductLoan /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
             { path: 'material-data', element: <ProductStaticData /> }
           ]
@@ -266,7 +275,7 @@ const MainRoutes = {
           path: 'finance',
           children: [
             { path: 'dashboard', element: <FinanceDashboard /> },
-            { path: 'sales', element: <FinanceSales /> },
+            { path: 'finance-sales', element: <FinanceSales /> },
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
             { path: 'material-data', element: <FinanceStaticData /> }
