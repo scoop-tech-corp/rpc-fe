@@ -88,7 +88,10 @@ const ProductStockOpname = Loadable(lazy(() => import('pages/product/stock-opnam
 const ProductStockOpnameForm = Loadable(lazy(() => import('pages/product/stock-opname/form')));
 const ProductStockOpnameInputProduct = Loadable(lazy(() => import('pages/product/stock-opname/input-product')));
 const ProductLoan = Loadable(lazy(() => import('pages/product/loan')));
-const ProductDeliveryAgents = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const ProductLoanForm = Loadable(lazy(() => import('pages/product/loan/form')));
+const ProductLoanDetail = Loadable(lazy(() => import('pages/product/loan/detail')));
+const ProductDeliveryAgents = Loadable(lazy(() => import('pages/product/delivery-agent')));
+const ProductDeliveryOrderForm = Loadable(lazy(() => import('pages/product/delivery-agent/order-form')));
 const ProductStaticData = Loadable(lazy(() => import('pages/product/static-data')));
 
 // Location
@@ -253,7 +256,12 @@ const MainRoutes = {
             { path: 'stockopname/form/:id', element: <ProductStockOpnameForm /> },
             { path: 'stockopname/input-product/:id', element: <ProductStockOpnameInputProduct /> },
             { path: 'loan', element: <ProductLoan /> },
+            { path: 'loan/form', element: <ProductLoanForm /> },
+            { path: 'loan/form/:id', element: <ProductLoanForm /> },
+            { path: 'loan/detail/:id', element: <ProductLoanDetail /> },
             { path: 'delivery-agent', element: <ProductDeliveryAgents /> },
+            { path: 'delivery-agent/order/form', element: <ProductDeliveryOrderForm /> },
+            { path: 'delivery-agent/order/form/:id', element: <ProductDeliveryOrderForm /> },
             { path: 'material-data', element: <ProductStaticData /> }
           ]
         },

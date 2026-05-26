@@ -1,5 +1,5 @@
 import axios from 'utils/axios';
 
-export const getCustomerDashboard = async () => {
-  return await axios.get('customer/dashboard');
+export const getCustomerDashboard = async (params = {}) => {
+  return await axios.get('customer/dashboard', { params });
 };

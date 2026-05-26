@@ -1,25 +1,55 @@
-import { Button, Stack, useMediaQuery, Link, Autocomplete, TextField, Chip } from '@mui/material';
+import {
+  Button,
+  Stack,
+  useMediaQuery,
+  Link,
+  Autocomplete,
+  TextField,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
+import { createMessageBackend, getLocationList, getStaffList } from 'service/service-global';
 import { GlobalFilter } from 'utils/react-table';
 import { useDispatch } from 'react-redux';
-import { deleteProductLoan, exportProductLoan, getProductLoan } from './service';
+import { getLoanProductList, deleteLoanProduct } from './service';
 import { useNavigate } from 'react-router';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import IconButton from 'components/@extended/IconButton';
-import DownloadIcon from '@mui/icons-material/Download';
 import ConfirmationC from 'components/ConfirmationC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-let paramProductLoanList = {};
+const STATUS_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'active', label: 'Active' },
+  { value: 'returned', label: 'Returned' },
+  { value: 'cancelled', label: 'Cancelled' }
+];
+
+const STATUS_COLOR = {
+  draft: 'warning',
+  pending: 'secondary',
+  approved: 'primary',
+  active: 'info',
+  returned: 'success',
+  cancelled: 'error'
+};
+
+let paramLoanList = {};
 
 const ProductLoan = () => {
   const theme = useTheme();
@@ -28,11 +58,14 @@ const ProductLoan = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [productLoanData, setProductLoanData] = useState({ data: [], totalPagination: 0 });
+  const [loanData, setLoanData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
-  const [facilityLocationList, setFacilityLocationList] = useState([]);
-  const [selectedFilterLocation, setFilterLocation] = useState([]);
-  const [keywordSearch, setKeywordSearch] = useState('');
+  const [locationList, setLocationList] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [selectedFilterLocation, setSelectedFilterLocation] = useState([]);
+  const [selectedFilterStaff, setSelectedFilterStaff] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState('');
+const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
@@ -44,7 +77,6 @@ const ProductLoan = () => {
             const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
             setSelectedRow(selectRows);
           }, [header.selectedFlatRows]);
-
           return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
         },
         accessor: 'selection',
@@ -53,36 +85,32 @@ const ProductLoan = () => {
         style: { width: '10px' }
       },
       {
-        Header: <FormattedMessage id="id-number" />,
-        accessor: 'numberId',
-        Cell: (data) => {
-          const getId = data.row.original.id;
-          return <Link onClick={() => navigate(`/product/loan/detail/${getId}`)}>{data.value}</Link>;
-        }
+        Header: <FormattedMessage id="loan-number" />,
+        accessor: 'loanNumber',
+        Cell: (data) => (
+          <Link
+            sx={{ cursor: 'pointer' }}
+            onClick={() => navigate(`/product/loan/detail/${data.row.original.id}`)}
+          >
+            {data.value}
+          </Link>
+        )
       },
       { Header: <FormattedMessage id="location" />, accessor: 'locationName' },
-      { Header: <FormattedMessage id="product" />, accessor: 'product' },
-      { Header: <FormattedMessage id="quantity" />, accessor: 'quantity' },
-      { Header: <FormattedMessage id="borrower" />, accessor: 'borrower' },
-      { Header: <FormattedMessage id="loan-date" />, accessor: 'loanDate' },
-      { Header: <FormattedMessage id="return-date" />, accessor: 'returnDate' },
+      { Header: <FormattedMessage id="staff" />, accessor: 'staffName' },
+      { Header: <FormattedMessage id="event-name" />, accessor: 'eventName' },
+      { Header: <FormattedMessage id="event-date" />, accessor: 'eventDate' },
+      { Header: <FormattedMessage id="total-items" />, accessor: 'totalItems' },
+      { Header: <FormattedMessage id="total-qty" />, accessor: 'totalLoanedQty' },
       {
         Header: 'Status',
         accessor: 'status',
         Cell: (data) => {
-          switch (+data.value) {
-            case 0:
-              return <Chip color="warning" label={<FormattedMessage id="draft" />} size="small" variant="light" />;
-            case 1:
-              return <Chip color="info" label={<FormattedMessage id="on-loan" />} size="small" variant="light" />;
-            case 2:
-              return <Chip color="success" label={<FormattedMessage id="returned" />} size="small" variant="light" />;
-            case 3:
-              return <Chip color="error" label={<FormattedMessage id="overdue" />} size="small" variant="light" />;
-          }
+          const color = STATUS_COLOR[data.value] ?? 'default';
+          const label = data.value ? data.value.charAt(0).toUpperCase() + data.value.slice(1) : '-';
+          return <Chip color={color} label={label} size="small" variant="light" />;
         }
       },
-      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' },
       { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,37 +118,53 @@ const ProductLoan = () => {
   );
 
   const onOrderingChange = (event) => {
-    paramProductLoanList.orderValue = event.order;
-    paramProductLoanList.orderColumn = event.column;
+    paramLoanList.orderValue = event.order;
+    paramLoanList.orderColumn = event.column;
     fetchData();
   };
 
   const onGotoPageChange = (event) => {
-    paramProductLoanList.goToPage = event;
+    paramLoanList.goToPage = event;
     fetchData();
   };
 
   const onPageSizeChange = (event) => {
-    paramProductLoanList.rowPerPage = event;
+    paramLoanList.rowPerPage = event;
     fetchData();
   };
 
   const onSearch = (event) => {
-    paramProductLoanList.keyword = event;
+    paramLoanList.keyword = event;
     setKeywordSearch(event);
     fetchData();
   };
 
   const onFilterLocation = (selected) => {
-    paramProductLoanList.locationId = selected.map((dt) => dt.value);
-    setFilterLocation(selected);
+    paramLoanList.locationId = selected.map((dt) => dt.value);
+    setSelectedFilterLocation(selected);
+    fetchData();
+  };
+
+  const onFilterStaff = (selected) => {
+    paramLoanList.staffId = selected.map((dt) => dt.value);
+    setSelectedFilterStaff(selected);
+    fetchData();
+  };
+
+  const onFilterStatus = (value) => {
+    paramLoanList.status = value;
+    setSelectedStatus(value);
     fetchData();
   };
 
   const fetchData = async () => {
-    await getProductLoan(paramProductLoanList)
+    await getLoanProductList(paramLoanList)
       .then((resp) => {
-        setProductLoanData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
+        const respData = resp.data;
+        setLoanData({
+          data: respData.data ?? (Array.isArray(respData) ? respData : []),
+          totalPagination: respData.totalPagination ?? 0
+        });
       })
       .catch((err) => {
         if (err) dispatch(snackbarError(createMessageBackend(err)));
@@ -128,21 +172,27 @@ const ProductLoan = () => {
   };
 
   const clearParamFetchData = () => {
-    paramProductLoanList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '', locationId: [], status: '' };
+    paramLoanList = {
+      rowPerPage: 5,
+      goToPage: 1,
+      orderValue: '',
+      orderColumn: '',
+      keyword: '',
+      locationId: [],
+      staffId: [],
+      status: '',
+      startDate: '',
+      endDate: ''
+    };
     setKeywordSearch('');
-  };
-
-  const onExport = async () => {
-    await exportProductLoan(paramProductLoanList)
-      .then(processDownloadExcel)
-      .catch((err) => {
-        if (err) dispatch(snackbarError(createMessageBackend(err)));
-      });
+    setSelectedFilterLocation([]);
+    setSelectedFilterStaff([]);
+    setSelectedStatus('');
   };
 
   const onConfirm = async (value) => {
     if (value) {
-      await deleteProductLoan(selectedRow)
+      await deleteLoanProduct(selectedRow)
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
@@ -163,12 +213,12 @@ const ProductLoan = () => {
   };
 
   useEffect(() => {
-    const getDataFacilityLocation = async () => {
-      const data = await getLocationList();
-      setFacilityLocationList(data);
+    const init = async () => {
+      const [locs, staff] = await Promise.all([getLocationList(), getStaffList()]);
+      setLocationList(locs);
+      setStaffList(staff);
     };
-
-    getDataFacilityLocation();
+    init();
     clearParamFetchData();
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -198,13 +248,34 @@ const ProductLoan = () => {
                   id="filterLocation"
                   multiple
                   limitTags={1}
-                  options={facilityLocationList}
+                  options={locationList}
                   value={selectedFilterLocation}
-                  sx={{ width: 280 }}
+                  sx={{ width: 220 }}
                   isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                   onChange={(_, value) => onFilterLocation(value)}
                   renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
                 />
+                <Autocomplete
+                  id="filterStaff"
+                  multiple
+                  limitTags={1}
+                  options={staffList}
+                  value={selectedFilterStaff}
+                  sx={{ width: 220 }}
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, value) => onFilterStaff(value)}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="staff" />} />}
+                />
+<FormControl sx={{ minWidth: 140 }}>
+                  <InputLabel>Status</InputLabel>
+                  <Select value={selectedStatus} label="Status" onChange={(e) => onFilterStatus(e.target.value)}>
+                    {STATUS_OPTIONS.map((s) => (
+                      <MenuItem key={s.value} value={s.value}>
+                        {s.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 {selectedRow.length > 0 && (
                   <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>
                     <FormattedMessage id="delete" />
@@ -216,24 +287,18 @@ const ProductLoan = () => {
                 <IconButton size="medium" variant="contained" aria-label="refresh" color="primary" onClick={fetchData}>
                   <RefreshIcon />
                 </IconButton>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<PlusOutlined />}
-                  onClick={() => navigate('/product/loan/form', { replace: true })}
-                >
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => navigate('/product/loan/form')}>
                   <FormattedMessage id="new" />
                 </Button>
               </Stack>
             </Stack>
+
             <ReactTable
               columns={columns}
-              data={productLoanData.data}
-              totalPagination={productLoanData.totalPagination}
-              setPageNumber={paramProductLoanList.goToPage}
-              setPageRow={paramProductLoanList.rowPerPage}
+              data={loanData.data}
+              totalPagination={loanData.totalPagination}
+              setPageNumber={paramLoanList.goToPage}
+              setPageRow={paramLoanList.rowPerPage}
               colSpanPagination={11}
               onOrder={onOrderingChange}
               onGotoPage={onGotoPageChange}
@@ -242,6 +307,7 @@ const ProductLoan = () => {
           </Stack>
         </ScrollX>
       </MainCard>
+
       {dialog && (
         <ConfirmationC
           open={dialog}
