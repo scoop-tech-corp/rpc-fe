@@ -35,7 +35,7 @@ const Booking = () => {
   const containerRef = useRef(null);
   const dateRef = useRef(new Date());
   const [date, setDate] = useState(new Date());
-  const [filterParams, setFilterParams] = useState({ locationId: [], doctorId: [] });
+  const [filterParams, setFilterParams] = useState({ locationId: [], doctorId: [], serviceType: null });
 
   const fetchEvents = useCallback(
     (currentDate) => {
@@ -47,6 +47,7 @@ const Booking = () => {
         getEvents({
           locationId: filterParams.locationId,
           doctorId: filterParams.doctorId,
+          serviceType: filterParams.serviceType,
           monthBooking,
           yearBooking
         })
@@ -228,6 +229,7 @@ const Booking = () => {
           headerToolbar={false}
           allDayMaintainDuration
           eventResizableFromStart
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
           eventDrop={handleEventUpdate}
           eventClick={handleEventSelect}
           eventResize={handleEventUpdate}
@@ -239,7 +241,7 @@ const Booking = () => {
       {/* Dialog renders its body even if not open */}
       <Dialog maxWidth="sm" fullWidth onClose={handleModal} open={isModalOpen} sx={{ '& .MuiDialog-paper': { p: 0 } }}>
         {isModalOpen && selectedEvent && (
-          <AddEventForm mode="edit" eventId={selectedEventId} onCancel={handleModal} onCreated={fetchEvents} />
+          <AddEventForm mode="edit" eventId={selectedEventId} bookingStatus={selectedEvent.status} onCancel={handleModal} onCreated={fetchEvents} />
         )}
         {isModalOpen && !selectedEvent && <AddEventForm onCancel={handleModal} onCreated={fetchEvents} />}
       </Dialog>

@@ -64,6 +64,13 @@ const ExperimentalStyled = styled('div')(({ theme }) => ({
     paddingLeft: 8
   },
 
+  '& .fc-h-event .fc-event-time': {
+    flexShrink: 0,
+    overflow: 'visible',
+    whiteSpace: 'nowrap'
+  },
+
+
   // popover when multiple events
   '& .fc .fc-more-popover': {
     border: 'none',

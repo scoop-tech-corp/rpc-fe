@@ -1,18 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Autocomplete,
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-  useMediaQuery
-} from '@mui/material';
+import { Autocomplete, Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
@@ -20,7 +7,6 @@ import { snackbarError } from 'store/reducers/snackbar';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useTheme } from '@mui/material/styles';
 import {
   getDashboardUpbookingClinic,
   getDashboardUpbookingHotel,
@@ -58,8 +44,6 @@ const DEFAULT_FILTER = {
 };
 
 const DashboardUpcomingBooking = () => {
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -183,136 +167,126 @@ const DashboardUpcomingBooking = () => {
         </Tabs>
       </Box>
 
-      <ScrollX>
-        <Stack spacing={3}>
-          <Stack
-            direction={matchDownSM ? 'column' : 'row'}
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={1}
-            sx={{ p: 3, pb: 0 }}
-          >
-            <Stack
-              spacing={1}
-              direction={matchDownSM ? 'column' : 'row'}
-              alignItems="flex-end"
-              style={{ width: matchDownSM ? '100%' : '' }}
-            >
-              <Autocomplete
-                multiple
-                limitTags={1}
-                options={locationList}
-                value={selectedLocation}
-                sx={{ width: 220 }}
-                isOptionEqualToValue={(option, val) => option.value === val.value}
-                onChange={(_, selected) => setSelectedLocation(selected)}
-                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-branch" />} />}
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid container spacing={2} alignItems="flex-end" sx={{ p: 3 }}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Autocomplete
+              fullWidth
+              multiple
+              limitTags={1}
+              options={locationList}
+              value={selectedLocation}
+              isOptionEqualToValue={(option, val) => option.value === val.value}
+              onChange={(_, selected) => setSelectedLocation(selected)}
+              renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-branch" />} />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} lg={2}>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="upbooking-filter-type">
+                <FormattedMessage id="period" />
+              </InputLabel>
+              <Select
+                id="upbooking-filter-type"
+                value={filterType}
+                label={intl.formatMessage({ id: 'period' })}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <MenuItem value="date-range">
+                  <FormattedMessage id="date-range" />
+                </MenuItem>
+                <MenuItem value="monthly">
+                  <FormattedMessage id="monthly" />
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          {filterType === 'date-range' ? (
+            <>
+              <Grid item xs={6} sm={6} md={2} lg={2}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="start-date" />}
+                  inputFormat="DD/MM/YYYY"
+                  value={startDate}
+                  onChange={(val) => setStartDate(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+              <Grid item xs={6} sm={6} md={2} lg={2}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="end-date" />}
+                  inputFormat="DD/MM/YYYY"
+                  value={endDate}
+                  minDate={startDate}
+                  onChange={(val) => setEndDate(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12} sm={6} md={3} lg={3}>
+              <DesktopDatePicker
+                label={<FormattedMessage id="monthly" />}
+                views={['year', 'month']}
+                inputFormat="MM/YYYY"
+                value={selectedMonth}
+                onChange={(val) => setSelectedMonth(val)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{ width: '100%' }}
               />
-              <FormControl sx={{ minWidth: 160 }}>
-                <InputLabel htmlFor="upbooking-filter-type">
-                  <FormattedMessage id="period" />
-                </InputLabel>
-                <Select
-                  id="upbooking-filter-type"
-                  value={filterType}
-                  label={intl.formatMessage({ id: 'period' })}
-                  onChange={(e) => setFilterType(e.target.value)}
-                >
-                  <MenuItem value="date-range">
-                    <FormattedMessage id="date-range" />
-                  </MenuItem>
-                  <MenuItem value="monthly">
-                    <FormattedMessage id="monthly" />
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                {filterType === 'date-range' ? (
-                  <>
-                    <DesktopDatePicker
-                      label={<FormattedMessage id="start-date" />}
-                      inputFormat="DD/MM/YYYY"
-                      value={startDate}
-                      onChange={(val) => setStartDate(val)}
-                      renderInput={(params) => <TextField {...params} sx={{ width: 170 }} />}
-                    />
-                    <DesktopDatePicker
-                      label={<FormattedMessage id="end-date" />}
-                      inputFormat="DD/MM/YYYY"
-                      value={endDate}
-                      minDate={startDate}
-                      onChange={(val) => setEndDate(val)}
-                      renderInput={(params) => <TextField {...params} sx={{ width: 170 }} />}
-                    />
-                  </>
-                ) : (
-                  <DesktopDatePicker
-                    label={<FormattedMessage id="monthly" />}
-                    views={['year', 'month']}
-                    inputFormat="MM/YYYY"
-                    value={selectedMonth}
-                    onChange={(val) => setSelectedMonth(val)}
-                    renderInput={(params) => <TextField {...params} sx={{ width: 170 }} />}
-                  />
-                )}
-              </LocalizationProvider>
-              <Button variant="contained" startIcon={<SearchIcon />} onClick={onApplyFilter}>
-                <FormattedMessage id="search" />
-              </Button>
-            </Stack>
-          </Stack>
+            </Grid>
+          )}
+          <Grid item xs={12} sm="auto">
+            <Button variant="contained" startIcon={<SearchIcon />} onClick={onApplyFilter} fullWidth>
+              <FormattedMessage id="search" />
+            </Button>
+          </Grid>
+        </Grid>
+      </LocalizationProvider>
 
-          <Box>
-            <TabPanel value={tabSelected} index={0} name="dashboard-upcoming-booking">
-              <ScrollX>
-                <ReactTable
-                  columns={columns}
-                  data={clinicData.data}
-                  totalPagination={clinicData.totalPagination}
-                  onGotoPage={(event) => onGotoPageChange(event, 'clinic')}
-                  onPageSize={(event) => onPageSizeChange(event, 'clinic')}
-                  colSpanPagination={7}
-                />
-              </ScrollX>
-            </TabPanel>
-            <TabPanel value={tabSelected} index={1} name="dashboard-upcoming-booking">
-              <ScrollX>
-                <ReactTable
-                  columns={columns}
-                  data={hotelData.data}
-                  totalPagination={hotelData.totalPagination}
-                  onGotoPage={(event) => onGotoPageChange(event, 'hotel')}
-                  onPageSize={(event) => onPageSizeChange(event, 'hotel')}
-                  colSpanPagination={7}
-                />
-              </ScrollX>
-            </TabPanel>
-            <TabPanel value={tabSelected} index={2} name="dashboard-upcoming-booking">
-              <ScrollX>
-                <ReactTable
-                  columns={columns}
-                  data={salonData.data}
-                  totalPagination={salonData.totalPagination}
-                  onGotoPage={(event) => onGotoPageChange(event, 'salon')}
-                  onPageSize={(event) => onPageSizeChange(event, 'salon')}
-                  colSpanPagination={7}
-                />
-              </ScrollX>
-            </TabPanel>
-            <TabPanel value={tabSelected} index={3} name="dashboard-upcoming-booking">
-              <ScrollX>
-                <ReactTable
-                  columns={columns}
-                  data={breedingData.data}
-                  totalPagination={breedingData.totalPagination}
-                  onGotoPage={(event) => onGotoPageChange(event, 'breeding')}
-                  onPageSize={(event) => onPageSizeChange(event, 'breeding')}
-                  colSpanPagination={7}
-                />
-              </ScrollX>
-            </TabPanel>
-          </Box>
-        </Stack>
+      <ScrollX>
+        <TabPanel value={tabSelected} index={0} name="dashboard-upcoming-booking">
+          <ReactTable
+            columns={columns}
+            data={clinicData.data}
+            totalPagination={clinicData.totalPagination}
+            onGotoPage={(event) => onGotoPageChange(event, 'clinic')}
+            onPageSize={(event) => onPageSizeChange(event, 'clinic')}
+            colSpanPagination={7}
+          />
+        </TabPanel>
+        <TabPanel value={tabSelected} index={1} name="dashboard-upcoming-booking">
+          <ReactTable
+            columns={columns}
+            data={hotelData.data}
+            totalPagination={hotelData.totalPagination}
+            onGotoPage={(event) => onGotoPageChange(event, 'hotel')}
+            onPageSize={(event) => onPageSizeChange(event, 'hotel')}
+            colSpanPagination={7}
+          />
+        </TabPanel>
+        <TabPanel value={tabSelected} index={2} name="dashboard-upcoming-booking">
+          <ReactTable
+            columns={columns}
+            data={salonData.data}
+            totalPagination={salonData.totalPagination}
+            onGotoPage={(event) => onGotoPageChange(event, 'salon')}
+            onPageSize={(event) => onPageSizeChange(event, 'salon')}
+            colSpanPagination={7}
+          />
+        </TabPanel>
+        <TabPanel value={tabSelected} index={3} name="dashboard-upcoming-booking">
+          <ReactTable
+            columns={columns}
+            data={breedingData.data}
+            totalPagination={breedingData.totalPagination}
+            onGotoPage={(event) => onGotoPageChange(event, 'breeding')}
+            onPageSize={(event) => onPageSizeChange(event, 'breeding')}
+            colSpanPagination={7}
+          />
+        </TabPanel>
       </ScrollX>
     </MainCard>
   );

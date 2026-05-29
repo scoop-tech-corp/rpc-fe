@@ -5,20 +5,22 @@ import ModalC from 'components/ModalC';
 import TabPanel from 'components/TabPanelC';
 import TransactionDetailAction from 'pages/transaction/detail/action-detail';
 import LogActivityDetailTransaction from 'pages/transaction/detail/log-activity';
+import LogPaymentDetailTransaction from 'pages/transaction/detail/log-payment';
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { acceptTransactionPetHotel, deleteTransactionPetHotel, getTransactionPetHotelDetail } from '../service';
+import { acceptTransactionPetHotel, confirmPaymentPetHotel, deleteTransactionPetHotel, getTransactionPetHotelDetail } from '../service';
 
 const TransactionDetail = (props) => {
   const { id } = props.data;
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState({ accept: false, reject: false, delete: false });
-  const [data, setData] = useState({ detail: {}, log: [] });
-  const [filterLog, setFilterLog] = useState({}); // { dateRange: null }
+  const [data, setData] = useState({ detail: {}, log: [], paymentLogs: [] });
+  const [filterLog, setFilterLog] = useState({});
+  const [filterLogPayment, setFilterLogPayment] = useState({});
   const onChangeTab = (value) => setTabSelected(value);
   const dispatch = useDispatch();
 
@@ -74,16 +76,17 @@ const TransactionDetail = (props) => {
   const fetchData = async () => {
     const resp = await getTransactionPetHotelDetail({
       id,
-      ...filterLog
+      ...filterLog,
+      ...filterLogPayment
     });
     const getData = resp.data;
-    setData({ detail: getData.detail, log: getData.transactionLogs });
+    setData({ detail: getData.detail, log: getData.transactionLogs, paymentLogs: getData.paymentLogs || [] });
   };
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterLog]);
+  }, [filterLog, filterLogPayment]);
 
   return (
     <>
@@ -93,10 +96,11 @@ const TransactionDetail = (props) => {
         onCancel={onCancel}
         isModalAction={false}
         fullWidth
-        maxWidth="md"
+        maxWidth="lg"
         action={{
           element: (
             <TransactionDetailAction
+              status={data.detail.status}
               onAction={(action) => {
                 if (action === 'accept-patient') {
                   setDialog({ accept: true, reject: false, delete: false });
@@ -127,6 +131,11 @@ const TransactionDetail = (props) => {
               label={<FormattedMessage id="log-activity" />}
               id="detail-transaction-tab-1"
               aria-controls="detail-transaction-tabpanel-1"
+            />
+            <Tab
+              label={<FormattedMessage id="log-payment" />}
+              id="detail-transaction-tab-2"
+              aria-controls="detail-transaction-tabpanel-2"
             />
           </Tabs>
         </Box>
@@ -250,6 +259,15 @@ const TransactionDetail = (props) => {
               onFetchData={(e) => {
                 if (e) setFilterLog(e);
               }}
+            />
+          </TabPanel>
+          <TabPanel value={tabSelected} index={2} name="detail-transaction">
+            <LogPaymentDetailTransaction
+              data={data.paymentLogs}
+              onFetchData={(e) => {
+                if (e) setFilterLogPayment(e);
+              }}
+              onUploadProof={({ id: paymentId, file }) => confirmPaymentPetHotel({ id: paymentId, file })}
             />
           </TabPanel>
         </Box>

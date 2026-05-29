@@ -42,7 +42,6 @@ const Payment = (props) => {
     quantityProductSellErr: '',
     productSellDropdownList: [],
     serviceDropdownList: [],
-    recipeList: [],
     serviceList: [],
     productList: [],
     summaryList: [],
@@ -80,13 +79,15 @@ const Payment = (props) => {
         const beforePaymentData = respBeforePayment.data;
 
         // Before Payment Assign Data
-        const { recipes, services } = beforePaymentData.data;
         const customerName = beforePaymentData.customerName;
         const phoneNumber = beforePaymentData.phoneNumber;
         const arrivalTime = beforePaymentData.arrivalTime;
-        const new_recipes = (recipes || []).map((dt) => ({
-          ...dt,
+        const { products, services } = beforePaymentData.data;
+        const new_products = (products || []).map((dt) => ({
           productId: +dt.productId,
+          productName: dt.productName,
+          quantity: +dt.quantity,
+          basedPrice: +dt.basedPrice,
           unitPrice: '',
           totalPrice: '',
           unitPriceErr: ''
@@ -103,7 +104,7 @@ const Payment = (props) => {
           customerName,
           phoneNumber,
           arrivalTime,
-          recipeList: new_recipes,
+          productList: new_products,
           serviceList: new_services
         };
 
@@ -124,116 +125,11 @@ const Payment = (props) => {
   }, []);
 
   useEffect(() => {
-    const findRecipeErr = formValue.recipeList.find((dt) => dt.unitPriceErr);
     const findServiceErr = formValue.serviceList.find((dt) => dt.unitPriceErr);
-    if (findRecipeErr || findServiceErr || formValue.dpNominalErr) setDisabledOk(true);
+    const findProductErr = formValue.productList.find((dt) => dt.unitPriceErr);
+    if (findServiceErr || findProductErr || formValue.dpNominalErr) setDisabledOk(true);
     else setDisabledOk(false);
   }, [formValue]);
-
-  const columnsRecipe = useMemo(
-    () => [
-      {
-        Header: 'No',
-        accessor: 'no',
-        isNotSorting: true,
-        Cell: (data) => data.row.index + 1
-      },
-      {
-        Header: <FormattedMessage id="product" />,
-        accessor: 'productName',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="dosage" />,
-        accessor: 'dosage',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="unit" />,
-        accessor: 'unit',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="frequency" />,
-        accessor: 'frequency',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="duration" />,
-        accessor: 'duration',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="medication" />,
-        accessor: 'giveMedicine',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="notes" />,
-        accessor: 'notes',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="based-price" />,
-        accessor: 'basedPrice',
-        isNotSorting: true
-      },
-      {
-        Header: <FormattedMessage id="unit-price" />,
-        accessor: 'unitPrice',
-        isNotSorting: true,
-        Cell: (data) => {
-          const rowIndex = data.row.index;
-          const rowUnitPriceErr = data.row.original.unitPriceErr;
-
-          const onRecipeUnitPrice = (event) => {
-            const unitPriceValue = +event.target.value;
-            const dosage = +data.row.original.dosage;
-            const frequency = +data.row.original.frequency;
-            const duration = +data.row.original.duration; // lama pengguna
-            const basedPrice = +data.row.original.basedPrice;
-            const recipeTotalPrice = dosage * frequency * duration * unitPriceValue;
-
-            setFormValue((prevState) => {
-              const currentRecipeList = [...prevState.recipeList];
-              const updatedRecipe = { ...currentRecipeList[rowIndex] };
-
-              updatedRecipe.unitPrice = unitPriceValue;
-              updatedRecipe.totalPrice = recipeTotalPrice;
-              updatedRecipe.unitPriceErr = unitPriceValue > basedPrice ? errorMessageUnitPriceExceedBasePrice : '';
-
-              currentRecipeList[rowIndex] = updatedRecipe;
-
-              return { ...prevState, recipeList: currentRecipeList };
-            });
-          };
-
-          return (
-            <>
-              <TextField
-                fullWidth
-                type="number"
-                id="unitPrice"
-                name="unitPrice"
-                inputProps={{ min: 0 }}
-                value={data.row.original.unitPrice || ''}
-                onChange={(event) => onRecipeUnitPrice(event)}
-                error={Boolean(rowUnitPriceErr && rowUnitPriceErr.length > 0)}
-                helperText={rowUnitPriceErr}
-              />
-            </>
-          );
-        }
-      },
-      {
-        Header: <FormattedMessage id="total-price" />,
-        accessor: 'totalPrice',
-        isNotSorting: true
-      }
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [intl] // formValue.recipeList, intl
-  );
 
   const columnsService = useMemo(
     () => [
@@ -333,7 +229,40 @@ const Payment = (props) => {
       {
         Header: <FormattedMessage id="unit-price" />,
         accessor: 'unitPrice',
-        isNotSorting: true
+        isNotSorting: true,
+        Cell: (data) => {
+          const rowIndex = data.row.index;
+          const rowUnitPriceErr = data.row.original.unitPriceErr;
+
+          return (
+            <TextField
+              fullWidth
+              type="number"
+              id="unitPrice"
+              name="unitPrice"
+              inputProps={{ min: 0 }}
+              value={data.row.original.unitPrice || ''}
+              onChange={(event) => {
+                const unitPriceValue = +event.target.value;
+                const quantity = +data.row.original.quantity;
+                const basedPrice = +data.row.original.basedPrice;
+
+                setFormValue((prevState) => {
+                  const currentProductList = [...prevState.productList];
+                  currentProductList[rowIndex] = {
+                    ...currentProductList[rowIndex],
+                    unitPrice: unitPriceValue,
+                    totalPrice: unitPriceValue * quantity,
+                    unitPriceErr: unitPriceValue > basedPrice ? errorMessageUnitPriceExceedBasePrice : ''
+                  };
+                  return { ...prevState, productList: currentProductList };
+                });
+              }}
+              error={Boolean(rowUnitPriceErr && rowUnitPriceErr.length > 0)}
+              helperText={rowUnitPriceErr}
+            />
+          );
+        }
       },
       {
         Header: <FormattedMessage id="total-price" />,
@@ -361,7 +290,8 @@ const Payment = (props) => {
         }
       }
     ],
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [intl]
   );
 
   const onFieldHandler = (event) => setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
@@ -491,17 +421,6 @@ const Payment = (props) => {
               {formValue.arrivalTime}
             </Stack>
           </Grid>
-          <Grid item xs={12}>
-            <Stack spacing={1.25}>
-              <InputLabel htmlFor="recipe" style={{ fontWeight: 'bold' }}>
-                <FormattedMessage id="recipe" />
-              </InputLabel>
-              <ScrollX>
-                <ReactTable columns={columnsRecipe} data={formValue.recipeList || []} colSpanPagination={11} />
-              </ScrollX>
-            </Stack>
-          </Grid>
-
           <Grid item xs={12} sm={6}>
             <Stack spacing={1.25}>
               <InputLabel htmlFor="service">
@@ -709,20 +628,7 @@ const Payment = (props) => {
               color="info"
               type="button"
               onClick={async () => {
-                console.log('recipeList', formValue.recipeList);
-                console.log('serviceList', formValue.serviceList);
-                console.log('productList', formValue.productList);
-                const recipes = [...formValue.recipeList].map((dt) => ({
-                  productId: +dt.productId,
-                  dosage: +dt.dosage,
-                  unit: dt.unit,
-                  frequency: +dt.frequency,
-                  duration: +dt.duration,
-                  giveMedicine: dt.giveMedicine,
-                  notes: dt.notes,
-                  eachPrice: +dt.unitPrice,
-                  priceOverall: +dt.totalPrice
-                }));
+                const recipes = [];
                 const services = [...formValue.serviceList].map((dt) => ({
                   serviceId: +dt.serviceId,
                   quantity: +dt.quantity,

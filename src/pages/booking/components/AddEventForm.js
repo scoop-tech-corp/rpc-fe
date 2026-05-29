@@ -9,8 +9,10 @@ import { FormattedMessage } from 'react-intl';
 import {
   Autocomplete,
   Button,
+  Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Divider,
   Grid,
@@ -32,7 +34,7 @@ import { getCustomerPetList } from 'pages/customer/service';
 import config from 'config';
 
 // service
-import { createBooking, getBookingDetail, updateBooking, deleteBooking } from '../service';
+import { createBooking, getBookingDetail, updateBooking, deleteBooking, acceptBooking, rejectBooking } from '../service';
 
 // constant
 const SERVICE_OPTIONS = [
@@ -65,27 +67,41 @@ const CONSTANT_FORM = {
   petName: '',
   socializationType: '',
   emergencyContactName: '',
+  emergencyPhoneNumber: '',
   inventoryProducts: '',
+  hotelPhotos: [],
+  hotelImageUrls: [],
 
   // Case Pet Salon
   furCondition: '',
   skinSensitivity: '',
+  salonPhotos: [],
+  salonImageUrls: [],
 
   // Case Breeding
   stambum: '',
-  healthClearance: ''
+  healthClearance: '',
+  breedingPhotos: [],
+  breedingImageUrls: []
 };
 
 const getInitialValues = () => ({ ...CONSTANT_FORM });
 
 // ==============================|| CALENDAR EVENT ADD / EDIT / DELETE ||============================== //
 
-const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => {
+const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, bookingStatus = null }) => {
   const dispatch = useDispatch();
   const isEdit = mode === 'edit';
   const [formValue, setFormValue] = useState(getInitialValues());
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [confirmAcceptOpen, setConfirmAcceptOpen] = useState(false);
+  const [confirmRejectOpen, setConfirmRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [lightboxSrc, setLightboxSrc] = useState(null);
+  const isReadOnly = Number(bookingStatus) === 1 || Number(bookingStatus) === 2;
   const [dropdownData, setDropdownData] = useState({
     locationList: [],
     doctorList: [],
@@ -167,15 +183,20 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
             // Case Pet Clinic
             consultationType: detail.consultationType || '',
             drugAllergy: detail.drugAllergy || '',
-            clinicImageUrls: imageUrls,
+            clinicImageUrls: booking.serviceType === 'Pet Clinic' ? imageUrls : [],
             // Case Pet Hotel
             petName: detail.petName || booking.petName || '',
             socializationType: detail.socializationType || '',
             emergencyContactName: detail.emergencyContactName || '',
+            emergencyPhoneNumber: detail.emergencyPhoneNumber || '',
             inventoryProducts: detail.inventoryProducts || '',
+            hotelImageUrls: booking.serviceType === 'Pet Hotel' ? imageUrls : [],
             // Case Pet Salon
             furCondition: detail.furCondition || '',
             skinSensitivity: detail.skinSensitivity || '',
+            salonImageUrls: booking.serviceType === 'Pet Salon' ? imageUrls : [],
+            // Case Breeding
+            breedingImageUrls: booking.serviceType === 'Breeding' ? imageUrls : [],
             // Case Breeding
             stambum: detail.stambum || '',
             healthClearance: detail.healthClearance || ''
@@ -271,6 +292,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
         petName: formValue.petName,
         socializationType: formValue.socializationType,
         emergencyContactName: formValue.emergencyContactName,
+        emergencyPhoneNumber: formValue.emergencyPhoneNumber,
         inventoryProducts: formValue.inventoryProducts,
         // Case Pet Salon
         furCondition: formValue.furCondition,
@@ -278,8 +300,17 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
         // Case Breeding
         stambum: formValue.stambum,
         healthClearance: formValue.healthClearance,
-        // Images (Pet Clinic)
-        images: selectedService === 'Pet Clinic' ? formValue.clinicPhotos : []
+        // Images
+        images:
+          selectedService === 'Pet Clinic'
+            ? formValue.clinicPhotos
+            : selectedService === 'Pet Hotel'
+            ? formValue.hotelPhotos
+            : selectedService === 'Pet Salon'
+            ? formValue.salonPhotos
+            : selectedService === 'Breeding'
+            ? formValue.breedingPhotos
+            : []
       };
 
       if (isEdit) {
@@ -310,13 +341,52 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
     }
   };
 
+  const handleAccept = () => {
+    setConfirmAcceptOpen(true);
+  };
+
+  const confirmAccept = async () => {
+    setConfirmAcceptOpen(false);
+    setIsAccepting(true);
+    try {
+      await acceptBooking(eventId);
+      dispatch(snackbarSuccess('Booking accepted successfully.'));
+      onCancel();
+      onCreated?.();
+    } catch (error) {
+      dispatch(snackbarError(error?.message || 'Failed to accept booking'));
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
+  const handleReject = () => {
+    setRejectReason('');
+    setConfirmRejectOpen(true);
+  };
+
+  const confirmReject = async () => {
+    setConfirmRejectOpen(false);
+    setIsRejecting(true);
+    try {
+      await rejectBooking(eventId, rejectReason.trim());
+      dispatch(snackbarSuccess('Booking rejected successfully.'));
+      onCancel();
+      onCreated?.();
+    } catch (error) {
+      dispatch(snackbarError(error?.message || 'Failed to reject booking'));
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
   const selectedService = formValue.service?.value;
   const serviceColor = getServiceColor();
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DialogTitle sx={{ backgroundColor: serviceColor || undefined, color: serviceColor ? '#000' : undefined }}>
-        {isEdit ? 'Edit Booking' : 'Add Booking'}
+        {isReadOnly ? 'Detail Booking' : isEdit ? 'Edit Booking' : 'Add Booking'}
       </DialogTitle>
       <Divider />
       <DialogContent sx={{ p: 2.5 }}>
@@ -331,6 +401,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                 id="location"
                 options={dropdownData.locationList}
                 value={formValue.location}
+                disabled={isReadOnly}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => handleLocationChange(selected)}
                 renderInput={(params) => <TextField {...params} placeholder="Pilih" />}
@@ -348,6 +419,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                 id="doctor"
                 options={dropdownData.doctorList}
                 value={formValue.doctor}
+                disabled={isReadOnly}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => setFormValue((prev) => ({ ...prev, doctor: selected || null }))}
                 renderInput={(params) => <TextField {...params} placeholder="Dokter" />}
@@ -365,6 +437,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                 id="customer"
                 options={dropdownData.customerList}
                 value={formValue.customer}
+                disabled={isReadOnly}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => handleCustomerChange(selected)}
                 renderInput={(params) => <TextField {...params} placeholder="Customer" />}
@@ -382,6 +455,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                 id="pet"
                 options={dropdownData.petList}
                 value={formValue.pet}
+                disabled={isReadOnly}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => setFormValue((prev) => ({ ...prev, pet: selected || null }))}
                 renderInput={(params) => <TextField {...params} placeholder="Pet" />}
@@ -399,6 +473,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                 id="service"
                 options={SERVICE_OPTIONS}
                 value={formValue.service}
+                disabled={isReadOnly}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => handleServiceChange(selected)}
                 renderInput={(params) => <TextField {...params} placeholder="Pilih Layanan" />}
@@ -420,6 +495,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
               </InputLabel>
               <MobileDateTimePicker
                 value={formValue.bookingDate}
+                disabled={isReadOnly}
                 inputFormat="DD/MM/YYYY HH:mm"
                 onChange={(date) => setFormValue((prev) => ({ ...prev, bookingDate: date }))}
                 renderInput={(params) => <TextField {...params} placeholder="Format: 20/01/2026 13:00" fullWidth />}
@@ -437,7 +513,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     <FormattedMessage id="visiting-category" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="consultationType" value={formValue.consultationType} onChange={onFieldHandler} displayEmpty>
+                    <Select name="consultationType" value={formValue.consultationType} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
                       <MenuItem value="" disabled>
                         Pilih Jenis Kunjungan
                       </MenuItem>
@@ -457,7 +533,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                   <InputLabel>
                     <FormattedMessage id="drug-allergy-history" />
                   </InputLabel>
-                  <TextField fullWidth name="drugAllergy" value={formValue.drugAllergy} onChange={onFieldHandler} placeholder="Text" />
+                  <TextField fullWidth name="drugAllergy" value={formValue.drugAllergy} onChange={onFieldHandler} placeholder="Text" disabled={isReadOnly} />
                 </Stack>
               </Grid>
 
@@ -474,6 +550,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     name="additionalInfo"
                     value={formValue.additionalInfo}
                     onChange={onFieldHandler}
+                    disabled={isReadOnly}
                   />
                 </Stack>
               </Grid>
@@ -484,38 +561,38 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                   <InputLabel>
                     <FormattedMessage id="upload-photo" />
                   </InputLabel>
-                  {isEdit ? (
-                    formValue.clinicImageUrls.length > 0 && (
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        {formValue.clinicImageUrls.map((imgPath, idx) => (
-                          <Box
-                            key={idx}
-                            component="img"
-                            src={`${config.apiUrl}/${imgPath}`}
-                            alt={`clinic-${idx}`}
-                            sx={{
-                              width: 80,
-                              height: 80,
-                              objectFit: 'cover',
-                              borderRadius: 1,
-                              border: '1px solid',
-                              borderColor: 'grey.300'
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    )
-                  ) : (
-                    <TextField
-                      fullWidth
-                      type="file"
-                      inputProps={{ multiple: true }}
-                      onChange={(event) => {
-                        const files = Array.from(event.target.files);
-                        setFormValue((prev) => ({ ...prev, clinicPhotos: files }));
-                      }}
-                    />
+                  {isEdit && formValue.clinicImageUrls.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                      {formValue.clinicImageUrls.map((imgPath, idx) => (
+                        <Box
+                          key={idx}
+                          component="img"
+                          src={`${config.apiUrl}/${imgPath}`}
+                          alt={`clinic-${idx}`}
+                          onClick={() => setLightboxSrc(`${config.apiUrl}/${imgPath}`)}
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'grey.300',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      ))}
+                    </Box>
                   )}
+                  <TextField
+                    fullWidth
+                    type="file"
+                    inputProps={{ multiple: true }}
+                    disabled={isReadOnly}
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files);
+                      setFormValue((prev) => ({ ...prev, clinicPhotos: files }));
+                    }}
+                  />
                 </Stack>
               </Grid>
             </>
@@ -524,11 +601,11 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
           {/* ============ Case Pet Hotel ============ */}
           {selectedService === 'Pet Hotel' && (
             <>
-              {/* Emergency Contact */}
+              {/* Emergency Contact Name */}
               <Grid item xs={12}>
                 <Stack spacing={1.25}>
                   <InputLabel>
-                    <FormattedMessage id="emergency-contact" />
+                    <FormattedMessage id="emergency-contact-name" />
                   </InputLabel>
                   <TextField
                     fullWidth
@@ -536,17 +613,27 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     value={formValue.emergencyContactName}
                     onChange={onFieldHandler}
                     placeholder="Text"
+                    disabled={isReadOnly}
                   />
                 </Stack>
               </Grid>
 
-              {/* Pet Name */}
+              {/* Emergency Phone Number */}
               <Grid item xs={12}>
                 <Stack spacing={1.25}>
                   <InputLabel>
-                    <FormattedMessage id="pet-name" />
+                    <FormattedMessage id="emergency-phone-number" />
                   </InputLabel>
-                  <TextField fullWidth name="petName" value={formValue.petName} onChange={onFieldHandler} placeholder="Text" />
+                  <TextField
+                    fullWidth
+                    type="number"
+                    name="emergencyPhoneNumber"
+                    value={formValue.emergencyPhoneNumber}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    inputProps={{ min: 0 }}
+                    disabled={isReadOnly}
+                  />
                 </Stack>
               </Grid>
 
@@ -557,7 +644,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     <FormattedMessage id="socialization-level" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="socializationType" value={formValue.socializationType} onChange={onFieldHandler} displayEmpty>
+                    <Select name="socializationType" value={formValue.socializationType} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
                       <MenuItem value="" disabled>
                         Pilih Tingkat Sosialisasi
                       </MenuItem>
@@ -583,6 +670,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     value={formValue.inventoryProducts}
                     onChange={onFieldHandler}
                     placeholder="Text"
+                    disabled={isReadOnly}
                   />
                 </Stack>
               </Grid>
@@ -600,6 +688,48 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     name="additionalInfo"
                     value={formValue.additionalInfo}
                     onChange={onFieldHandler}
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Upload Foto */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="upload-photo" />
+                  </InputLabel>
+                  {isEdit && formValue.hotelImageUrls.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                      {formValue.hotelImageUrls.map((imgPath, idx) => (
+                        <Box
+                          key={idx}
+                          component="img"
+                          src={`${config.apiUrl}/${imgPath}`}
+                          alt={`hotel-${idx}`}
+                          onClick={() => setLightboxSrc(`${config.apiUrl}/${imgPath}`)}
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'grey.300',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  <TextField
+                    fullWidth
+                    type="file"
+                    inputProps={{ multiple: true }}
+                    disabled={isReadOnly}
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files);
+                      setFormValue((prev) => ({ ...prev, hotelPhotos: files }));
+                    }}
                   />
                 </Stack>
               </Grid>
@@ -616,7 +746,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     <FormattedMessage id="fur-condition" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="furCondition" value={formValue.furCondition} onChange={onFieldHandler} displayEmpty>
+                    <Select name="furCondition" value={formValue.furCondition} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
                       <MenuItem value="" disabled>
                         Pilih Kondisi Bulu
                       </MenuItem>
@@ -642,6 +772,43 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     value={formValue.skinSensitivity}
                     onChange={onFieldHandler}
                     placeholder="Text"
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Emergency Contact Name */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="emergency-contact-name" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    name="emergencyContactName"
+                    value={formValue.emergencyContactName}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Emergency Phone Number */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="emergency-phone-number" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    name="emergencyPhoneNumber"
+                    value={formValue.emergencyPhoneNumber}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    inputProps={{ min: 0 }}
+                    disabled={isReadOnly}
                   />
                 </Stack>
               </Grid>
@@ -659,6 +826,48 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     name="additionalInfo"
                     value={formValue.additionalInfo}
                     onChange={onFieldHandler}
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Upload Foto */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="upload-photo" />
+                  </InputLabel>
+                  {isEdit && formValue.salonImageUrls.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                      {formValue.salonImageUrls.map((imgPath, idx) => (
+                        <Box
+                          key={idx}
+                          component="img"
+                          src={`${config.apiUrl}/${imgPath}`}
+                          alt={`salon-${idx}`}
+                          onClick={() => setLightboxSrc(`${config.apiUrl}/${imgPath}`)}
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'grey.300',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  <TextField
+                    fullWidth
+                    type="file"
+                    inputProps={{ multiple: true }}
+                    disabled={isReadOnly}
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files);
+                      setFormValue((prev) => ({ ...prev, salonPhotos: files }));
+                    }}
                   />
                 </Stack>
               </Grid>
@@ -674,7 +883,7 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                   <InputLabel>
                     <FormattedMessage id="stambum-stamboom" />
                   </InputLabel>
-                  <TextField fullWidth name="stambum" value={formValue.stambum} onChange={onFieldHandler} placeholder="Text" />
+                  <TextField fullWidth name="stambum" value={formValue.stambum} onChange={onFieldHandler} placeholder="Text" disabled={isReadOnly} />
                 </Stack>
               </Grid>
 
@@ -690,6 +899,43 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     value={formValue.healthClearance}
                     onChange={onFieldHandler}
                     placeholder="Text"
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Emergency Contact Name */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="emergency-contact-name" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    name="emergencyContactName"
+                    value={formValue.emergencyContactName}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Emergency Phone Number */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="emergency-phone-number" />
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    name="emergencyPhoneNumber"
+                    value={formValue.emergencyPhoneNumber}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    inputProps={{ min: 0 }}
+                    disabled={isReadOnly}
                   />
                 </Stack>
               </Grid>
@@ -707,44 +953,178 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null }) => 
                     name="additionalInfo"
                     value={formValue.additionalInfo}
                     onChange={onFieldHandler}
+                    disabled={isReadOnly}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Upload Foto */}
+              <Grid item xs={12}>
+                <Stack spacing={1.25}>
+                  <InputLabel>
+                    <FormattedMessage id="upload-photo" />
+                  </InputLabel>
+                  {isEdit && formValue.breedingImageUrls.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                      {formValue.breedingImageUrls.map((imgPath, idx) => (
+                        <Box
+                          key={idx}
+                          component="img"
+                          src={`${config.apiUrl}/${imgPath}`}
+                          alt={`breeding-${idx}`}
+                          onClick={() => setLightboxSrc(`${config.apiUrl}/${imgPath}`)}
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'grey.300',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  <TextField
+                    fullWidth
+                    type="file"
+                    inputProps={{ multiple: true }}
+                    disabled={isReadOnly}
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files);
+                      setFormValue((prev) => ({ ...prev, breedingPhotos: files }));
+                    }}
                   />
                 </Stack>
               </Grid>
             </>
+          )}
+          {/* Status */}
+          {isEdit && (
+            <Grid item xs={12}>
+              <Stack spacing={1.25}>
+                <InputLabel>
+                  <FormattedMessage id="status" />
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  disabled
+                  value={
+                    Number(bookingStatus) === 1
+                      ? 'Accepted'
+                      : Number(bookingStatus) === 2
+                      ? 'Rejected'
+                      : 'Pending'
+                  }
+                />
+              </Stack>
+            </Grid>
           )}
         </Grid>
       </DialogContent>
       <Divider />
       <DialogActions sx={{ p: 2.5 }}>
         <Grid container justifyContent="space-between" alignItems="center">
-          {isEdit && (
+          {isEdit && !isReadOnly && (
             <Button color="error" variant="outlined" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
           )}
           <Stack direction="row" spacing={2} alignItems="center" sx={{ ml: 'auto' }}>
             <Button color="error" variant="contained" onClick={onCancel}>
-              Cancel
+              <FormattedMessage id="close" />
             </Button>
-            <Button
-              type="button"
-              variant="contained"
-              onClick={onSubmit}
-              disabled={
-                isLoadingDetail ||
-                !formValue.location ||
-                !formValue.customer ||
-                !formValue.pet ||
-                !formValue.service ||
-                !formValue.bookingDate
-              }
-              sx={serviceColor ? { backgroundColor: serviceColor, color: '#000', '&:hover': { backgroundColor: serviceColor } } : {}}
-            >
-              {isEdit ? 'Update' : 'Add'}
-            </Button>
+            {isEdit && !isReadOnly && (
+              <>
+                <Button color="success" variant="contained" onClick={handleAccept} disabled={isAccepting}>
+                  {isAccepting ? 'Accepting...' : <FormattedMessage id="accept" />}
+                </Button>
+                <Button color="warning" variant="contained" onClick={handleReject} disabled={isRejecting}>
+                  {isRejecting ? 'Rejecting...' : <FormattedMessage id="reject" />}
+                </Button>
+              </>
+            )}
+            {!isReadOnly && (
+              <Button
+                type="button"
+                variant="contained"
+                onClick={onSubmit}
+                disabled={
+                  isLoadingDetail ||
+                  !formValue.location ||
+                  !formValue.customer ||
+                  !formValue.pet ||
+                  !formValue.service ||
+                  !formValue.bookingDate
+                }
+                sx={{ backgroundColor: '#1976d2', color: '#fff', '&:hover': { backgroundColor: '#1565c0' } }}
+              >
+                {isEdit ? 'Update' : 'Add'}
+              </Button>
+            )}
           </Stack>
         </Grid>
       </DialogActions>
+
+      {/* Konfirmasi Reject Booking */}
+      <Dialog open={confirmRejectOpen} onClose={() => setConfirmRejectOpen(false)}>
+        <DialogTitle>
+          <FormattedMessage id="reject" /> Booking
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            <FormattedMessage id="confirm-reject-booking" />
+          </DialogContentText>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label={<FormattedMessage id="reason" />}
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" color="error" onClick={() => setConfirmRejectOpen(false)}>
+            <FormattedMessage id="cancel" />
+          </Button>
+          <Button variant="contained" color="warning" onClick={confirmReject} disabled={isRejecting || !rejectReason.trim()}>
+            <FormattedMessage id="reject" />
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Konfirmasi Accept Booking */}
+      <Dialog open={confirmAcceptOpen} onClose={() => setConfirmAcceptOpen(false)}>
+        <DialogTitle>
+          <FormattedMessage id="accept" /> Booking
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <FormattedMessage id="confirm-accept-booking" />
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" color="error" onClick={() => setConfirmAcceptOpen(false)}>
+            <FormattedMessage id="cancel" />
+          </Button>
+          <Button variant="contained" color="success" onClick={confirmAccept} disabled={isAccepting}>
+            <FormattedMessage id="accept" />
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Lightbox */}
+      <Dialog open={Boolean(lightboxSrc)} onClose={() => setLightboxSrc(null)} maxWidth="lg">
+        <Box
+          component="img"
+          src={lightboxSrc || ''}
+          alt="preview"
+          onClick={() => setLightboxSrc(null)}
+          sx={{ maxWidth: '90vw', maxHeight: '90vh', display: 'block', cursor: 'zoom-out' }}
+        />
+      </Dialog>
     </LocalizationProvider>
   );
 };
@@ -753,7 +1133,8 @@ AddEventFrom.propTypes = {
   onCancel: PropTypes.func,
   onCreated: PropTypes.func,
   mode: PropTypes.oneOf(['add', 'edit']),
-  eventId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  eventId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  bookingStatus: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
 export default AddEventFrom;

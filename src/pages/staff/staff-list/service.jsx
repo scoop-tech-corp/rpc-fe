@@ -11,7 +11,8 @@ export const getStaffList = async (property) => {
       orderValue: property.orderValue,
       orderColumn: property.orderColumn,
       search: property.keyword,
-      locationId: property.locationId
+      locationId: property.locationId,
+      jobTitleId: property.jobTitleId
     }
   });
 

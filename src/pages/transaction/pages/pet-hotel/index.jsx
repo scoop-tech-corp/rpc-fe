@@ -180,7 +180,7 @@ const TransactionPetHotel = () => {
                 </Tooltip>
               )}
 
-              {Boolean(isPetCheckRow) && (
+              {Boolean(isPetCheckRow) && !['proses pembayaran', 'menunggu konfirmasi pembayaran'].includes(statusRow?.toLowerCase()) && (
                 <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
                   <IconButton
                     size="large"
@@ -194,7 +194,7 @@ const TransactionPetHotel = () => {
                 </Tooltip>
               )}
 
-              {Boolean(isTreatmentRow) && (
+              {Boolean(isTreatmentRow) && !['proses pembayaran', 'menunggu konfirmasi pembayaran'].includes(statusRow?.toLowerCase()) && (
                 <Tooltip title={<FormattedMessage id="treatment" />} arrow>
                   <IconButton
                     size="large"
@@ -230,11 +230,12 @@ const TransactionPetHotel = () => {
         accessor: 'registrationNo',
         Cell: (data) => {
           const getId = data.row.original.id;
+          const getLocationId = data.row.original.locationId;
 
           return (
             <Link
               onClick={() => {
-                setDetailTransactionConfig({ isOpen: true, data: { id: getId } });
+                setDetailTransactionConfig({ isOpen: true, data: { id: getId, locationId: getLocationId } });
               }}
             >
               {data.value}
@@ -411,6 +412,10 @@ const TransactionPetHotel = () => {
               setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });
             } else if (['accept-patient', 'cancel-patient', 'delete'].includes(action)) {
               setParams((_params) => ({ ..._params }));
+            } else if (action === 'check-pet-condition') {
+              setCheckConditionPetDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'treatment') {
+              setTreatmentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId } });
             }
 
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });

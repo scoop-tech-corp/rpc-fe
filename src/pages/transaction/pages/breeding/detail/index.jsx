@@ -97,6 +97,7 @@ const TransactionDetail = (props) => {
         action={{
           element: (
             <TransactionDetailAction
+              status={data.detail.status}
               onAction={(action) => {
                 if (action === 'accept-patient') {
                   setDialog({ accept: true, reject: false, delete: false });

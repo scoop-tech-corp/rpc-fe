@@ -38,6 +38,10 @@ const TransactionDetailAction = (props) => {
 
   const handleToggle = () => setOpen((prevOpen) => !prevOpen);
 
+  if (user?.role === 'doctor' && ['proses pembayaran', 'menunggu konfirmasi pembayaran'].includes(props.status?.toLowerCase())) {
+    return null;
+  }
+
   return (
     <Box sx={{ ml: 2 }}>
       <Button
@@ -86,49 +90,111 @@ const TransactionDetailAction = (props) => {
                     }
                   }}
                 >
-                  <ListItemButton onClick={() => props.onAction('edit')}>
-                    <ListItemText
-                      primary={
-                        <Typography color="textPrimary">
-                          <FormattedMessage id="edit" />
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
+                  {(() => {
+                    const role = user?.role;
+                    const status = props.status?.toLowerCase();
+                    const isDoctorMenunggu = role === 'doctor' && status === 'menunggu dokter';
+                    const isDoctorCekKondisi = role === 'doctor' && status === 'cek kondisi pet';
+                    const isDoctorTreatment = role === 'doctor' && status === 'pet diterima masuk pet hotel';
 
-                  {['doctor', 'administrator'].includes(user?.role) && (
-                    <>
-                      <ListItemButton onClick={() => props.onAction('accept-patient')}>
-                        <ListItemText
-                          primary={
-                            <Typography color="textPrimary">
-                              <FormattedMessage id="accept-patient" />
-                            </Typography>
-                          }
-                        />
-                      </ListItemButton>
+                    if (isDoctorMenunggu || isDoctorCekKondisi || isDoctorTreatment) {
+                      return (
+                        <>
+                          {isDoctorMenunggu && (
+                            <>
+                              <ListItemButton onClick={() => props.onAction('accept-patient')}>
+                                <ListItemText
+                                  primary={
+                                    <Typography color="textPrimary">
+                                      <FormattedMessage id="accept-patient" />
+                                    </Typography>
+                                  }
+                                />
+                              </ListItemButton>
+                              <ListItemButton onClick={() => props.onAction('cancel-patient')}>
+                                <ListItemText
+                                  primary={
+                                    <Typography color="textPrimary">
+                                      <FormattedMessage id="cancel-patient" />
+                                    </Typography>
+                                  }
+                                />
+                              </ListItemButton>
+                            </>
+                          )}
+                          {isDoctorCekKondisi && (
+                            <ListItemButton onClick={() => props.onAction('check-pet-condition')}>
+                              <ListItemText
+                                primary={
+                                  <Typography color="textPrimary">
+                                    <FormattedMessage id="check-pet-condition" />
+                                  </Typography>
+                                }
+                              />
+                            </ListItemButton>
+                          )}
+                          {isDoctorTreatment && (
+                            <ListItemButton onClick={() => props.onAction('treatment')}>
+                              <ListItemText
+                                primary={
+                                  <Typography color="textPrimary">
+                                    <FormattedMessage id="treatment" />
+                                  </Typography>
+                                }
+                              />
+                            </ListItemButton>
+                          )}
+                        </>
+                      );
+                    }
 
-                      <ListItemButton onClick={() => props.onAction('cancel-patient')}>
-                        <ListItemText
-                          primary={
-                            <Typography color="textPrimary">
-                              <FormattedMessage id="cancel-patient" />
-                            </Typography>
-                          }
-                        />
-                      </ListItemButton>
-                    </>
-                  )}
+                    return (
+                      <>
+                        <ListItemButton onClick={() => props.onAction('edit')}>
+                          <ListItemText
+                            primary={
+                              <Typography color="textPrimary">
+                                <FormattedMessage id="edit" />
+                              </Typography>
+                            }
+                          />
+                        </ListItemButton>
 
-                  <ListItemButton onClick={() => props.onAction('delete')}>
-                    <ListItemText
-                      primary={
-                        <Typography color="textPrimary">
-                          <FormattedMessage id="delete-transaction" />
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
+                        {['doctor', 'administrator'].includes(role) && (
+                          <>
+                            <ListItemButton onClick={() => props.onAction('accept-patient')}>
+                              <ListItemText
+                                primary={
+                                  <Typography color="textPrimary">
+                                    <FormattedMessage id="accept-patient" />
+                                  </Typography>
+                                }
+                              />
+                            </ListItemButton>
+                            <ListItemButton onClick={() => props.onAction('cancel-patient')}>
+                              <ListItemText
+                                primary={
+                                  <Typography color="textPrimary">
+                                    <FormattedMessage id="cancel-patient" />
+                                  </Typography>
+                                }
+                              />
+                            </ListItemButton>
+                          </>
+                        )}
+
+                        <ListItemButton onClick={() => props.onAction('delete')}>
+                          <ListItemText
+                            primary={
+                              <Typography color="textPrimary">
+                                <FormattedMessage id="delete-transaction" />
+                              </Typography>
+                            }
+                          />
+                        </ListItemButton>
+                      </>
+                    );
+                  })()}
                 </List>
               </ClickAwayListener>
             </Paper>
@@ -140,7 +206,8 @@ const TransactionDetailAction = (props) => {
 };
 
 TransactionDetailAction.propTypes = {
-  onAction: PropTypes.func
+  onAction: PropTypes.func,
+  status: PropTypes.string
 };
 
 export default TransactionDetailAction;

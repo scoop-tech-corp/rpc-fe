@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Autocomplete, Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField, useMediaQuery } from '@mui/material';
+import { Autocomplete, Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getDashboardRecentActivity } from '../service';
@@ -8,7 +8,6 @@ import { snackbarError } from 'store/reducers/snackbar';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 
 import MainCard from 'components/MainCard';
@@ -41,8 +40,6 @@ const DEFAULT_FILTER = {
 };
 
 const DashboardRecentActivity = () => {
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -107,95 +104,95 @@ const DashboardRecentActivity = () => {
 
   return (
     <MainCard content={false}>
-      <ScrollX>
-        <Stack spacing={3}>
-          <Stack
-            direction={matchDownSM ? 'column' : 'row'}
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={1}
-            sx={{ p: 3, pb: 0 }}
-          >
-            <Stack
-              spacing={1}
-              direction={matchDownSM ? 'column' : 'row'}
-              alignItems="flex-end"
-              style={{ width: matchDownSM ? '100%' : '' }}
-            >
-              <Autocomplete
-                multiple
-                limitTags={1}
-                options={locationList}
-                value={selectedLocation}
-                sx={{ width: 220 }}
-                isOptionEqualToValue={(option, val) => option.value === val.value}
-                onChange={(_, selected) => setSelectedLocation(selected)}
-                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-branch" />} />}
-              />
-              <FormControl sx={{ minWidth: 160 }}>
-                <InputLabel htmlFor="activity-filter-type">
-                  <FormattedMessage id="period" />
-                </InputLabel>
-                <Select
-                  id="activity-filter-type"
-                  value={filterType}
-                  label={intl.formatMessage({ id: 'period' })}
-                  onChange={(e) => setFilterType(e.target.value)}
-                >
-                  <MenuItem value="date-range">
-                    <FormattedMessage id="date-range" />
-                  </MenuItem>
-                  <MenuItem value="monthly">
-                    <FormattedMessage id="monthly" />
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                {filterType === 'date-range' ? (
-                  <>
-                    <DesktopDatePicker
-                      label={<FormattedMessage id="start-date" />}
-                      inputFormat="DD/MM/YYYY"
-                      value={startDate}
-                      onChange={(val) => setStartDate(val)}
-                      renderInput={(params) => <TextField {...params} sx={{ width: 170 }} />}
-                    />
-                    <DesktopDatePicker
-                      label={<FormattedMessage id="end-date" />}
-                      inputFormat="DD/MM/YYYY"
-                      value={endDate}
-                      minDate={startDate}
-                      onChange={(val) => setEndDate(val)}
-                      renderInput={(params) => <TextField {...params} sx={{ width: 170 }} />}
-                    />
-                  </>
-                ) : (
-                  <DesktopDatePicker
-                    label={<FormattedMessage id="monthly" />}
-                    views={['year', 'month']}
-                    inputFormat="MM/YYYY"
-                    value={selectedMonth}
-                    onChange={(val) => setSelectedMonth(val)}
-                    renderInput={(params) => <TextField {...params} sx={{ width: 170 }} />}
-                  />
-                )}
-              </LocalizationProvider>
-              <Button variant="contained" startIcon={<SearchIcon />} onClick={onApplyFilter}>
-                <FormattedMessage id="search" />
-              </Button>
-            </Stack>
-          </Stack>
-
-          <Box>
-            <ReactTable
-              columns={columns}
-              data={recentActivityData.data}
-              totalPagination={recentActivityData.totalPagination}
-              onGotoPage={onGotoPageChange}
-              onPageSize={onPageSizeChange}
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid container spacing={2} alignItems="flex-end" sx={{ p: 3 }}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Autocomplete
+              fullWidth
+              multiple
+              limitTags={1}
+              options={locationList}
+              value={selectedLocation}
+              isOptionEqualToValue={(option, val) => option.value === val.value}
+              onChange={(_, selected) => setSelectedLocation(selected)}
+              renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-branch" />} />}
             />
-          </Box>
-        </Stack>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} lg={2}>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="activity-filter-type">
+                <FormattedMessage id="period" />
+              </InputLabel>
+              <Select
+                id="activity-filter-type"
+                value={filterType}
+                label={intl.formatMessage({ id: 'period' })}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <MenuItem value="date-range">
+                  <FormattedMessage id="date-range" />
+                </MenuItem>
+                <MenuItem value="monthly">
+                  <FormattedMessage id="monthly" />
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          {filterType === 'date-range' ? (
+            <>
+              <Grid item xs={6} sm={6} md={2} lg={2}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="start-date" />}
+                  inputFormat="DD/MM/YYYY"
+                  value={startDate}
+                  onChange={(val) => setStartDate(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+              <Grid item xs={6} sm={6} md={2} lg={2}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="end-date" />}
+                  inputFormat="DD/MM/YYYY"
+                  value={endDate}
+                  minDate={startDate}
+                  onChange={(val) => setEndDate(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12} sm={6} md={3} lg={3}>
+              <DesktopDatePicker
+                label={<FormattedMessage id="monthly" />}
+                views={['year', 'month']}
+                inputFormat="MM/YYYY"
+                value={selectedMonth}
+                onChange={(val) => setSelectedMonth(val)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{ width: '100%' }}
+              />
+            </Grid>
+          )}
+          <Grid item xs={12} sm="auto">
+            <Button variant="contained" startIcon={<SearchIcon />} onClick={onApplyFilter} fullWidth>
+              <FormattedMessage id="search" />
+            </Button>
+          </Grid>
+        </Grid>
+      </LocalizationProvider>
+
+      <ScrollX>
+        <Box sx={{ px: 3, pb: 3 }}>
+          <ReactTable
+            columns={columns}
+            data={recentActivityData.data}
+            totalPagination={recentActivityData.totalPagination}
+            onGotoPage={onGotoPageChange}
+            onPageSize={onPageSizeChange}
+          />
+        </Box>
       </ScrollX>
     </MainCard>
   );
