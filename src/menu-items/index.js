@@ -16,6 +16,7 @@ import {
 
 import { LocationOn } from '@mui/icons-material';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import StorageIcon from '@mui/icons-material/Storage';
 import ListIcon from '@mui/icons-material/List';
@@ -43,6 +44,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import PaidIcon from '@mui/icons-material/Paid';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonAddAlt1 from '@mui/icons-material/PersonAddAlt1';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 import customerMenu from './menu-customer';
 import staffMenu from './menu-staff';
@@ -64,6 +66,7 @@ const icons = {
   PercentageOutlined,
   SolutionOutlined,
   Inventory2Icon,
+  InventoryIcon,
   LocationOn,
   StorageIcon,
   AccessibilityNewOutlinedIcon,
@@ -93,7 +96,8 @@ const icons = {
   ReceiptIcon,
   PersonAddAlt1,
   People: PeopleIcon,
-  Paid: PaidIcon
+  Paid: PaidIcon,
+  AttachMoneyIcon
 };
 
 // ==============================|| MENU ITEMS ||============================== //

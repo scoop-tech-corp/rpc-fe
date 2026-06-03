@@ -17,13 +17,14 @@ export const createBooking = async (payload) => {
 };
 
 export const getBookingList = async (params) => {
-  const { locationId = [], doctorId = [], monthBooking, yearBooking } = params;
+  const { locationId = [], doctorId = [], monthBooking, yearBooking, serviceType } = params;
   return await axios.get('booking', {
     params: {
       locationId,
       doctorId,
       monthBooking,
-      yearBooking
+      yearBooking,
+      serviceType
     }
   });
 };
@@ -54,7 +55,23 @@ export const updateBooking = async (payload) => {
   return await axios.put('booking', rest);
 };
 
+export const acceptBooking = async (id) => {
+  return await axios.put('booking/accept', { id });
+};
+
+export const rejectBooking = async (id, rejectionReason) => {
+  return await axios.put('booking/reject', { id, rejectionReason });
+};
+
 export const deleteBooking = async (ids) => {
   const idArray = Array.isArray(ids) ? ids : [ids];
   return await axios.delete('booking', { data: { id: idArray } });
+};
+
+export const getBookingListTransaction = async (params = {}) => {
+  const getResp = await axios.get('booking/list', { params });
+  return getResp.data.map((dt) => ({
+    label: dt.label,
+    value: dt.id
+  }));
 };

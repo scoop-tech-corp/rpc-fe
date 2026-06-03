@@ -17,6 +17,9 @@ const areaChartOptions = {
     height: 350,
     animation: {
       enabled: false
+    },
+    toolbar: {
+      show: false
     }
   },
   plotOptions: {

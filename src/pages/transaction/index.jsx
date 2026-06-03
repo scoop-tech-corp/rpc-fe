@@ -25,7 +25,7 @@ import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { useDispatch } from 'react-redux';
 import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
-import { useNavigate, useNavigation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import MainCard from 'components/MainCard';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';

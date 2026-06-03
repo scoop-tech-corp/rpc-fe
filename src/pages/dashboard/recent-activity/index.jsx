@@ -1,18 +1,59 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Autocomplete, Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { getDashboardRecentActivity } from '../service';
 import { useDispatch } from 'react-redux';
 import { snackbarError } from 'store/reducers/snackbar';
-import { createMessageBackend } from 'service/service-global';
+import { createMessageBackend, getLocationList } from 'service/service-global';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
+import SearchIcon from '@mui/icons-material/Search';
 
-let paramRecentActivityList = {};
+const buildFilterParams = ({ selectedLocation, filterType, startDate, endDate, selectedMonth }) => {
+  const params = {
+    branchesId: selectedLocation.map((l) => l.value),
+    dateRange: filterType === 'monthly' ? 'month' : 'dateRange'
+  };
+  if (filterType === 'monthly') {
+    params.month = selectedMonth.month() + 1;
+    params.year = selectedMonth.year();
+  } else {
+    params.dateFrom = startDate ? startDate.format('YYYY-MM-DD') : undefined;
+    params.dateTo = endDate ? endDate.format('YYYY-MM-DD') : undefined;
+  }
+  return params;
+};
+
+const DEFAULT_PAGINATION = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+
+const DEFAULT_FILTER = {
+  selectedLocation: [],
+  filterType: 'date-range',
+  startDate: dayjs().startOf('month'),
+  endDate: dayjs(),
+  selectedMonth: dayjs()
+};
+
 const DashboardRecentActivity = () => {
+  const intl = useIntl();
   const dispatch = useDispatch();
+
   const [recentActivityData, setRecentActivityData] = useState({ data: [], totalPagination: 0 });
+  const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
+
+  const [locationList, setLocationList] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState([]);
+  const [filterType, setFilterType] = useState('date-range');
+  const [startDate, setStartDate] = useState(dayjs().startOf('month'));
+  const [endDate, setEndDate] = useState(dayjs());
+  const [selectedMonth, setSelectedMonth] = useState(dayjs());
+
+  const filterParamsRef = useRef(buildFilterParams(DEFAULT_FILTER));
 
   const columns = useMemo(
     () => [
@@ -25,42 +66,125 @@ const DashboardRecentActivity = () => {
     []
   );
 
-  const onGotoPageChange = (event) => {
-    paramRecentActivityList.goToPage = event;
-    fetchData();
-  };
-
-  const onPageSizeChange = (event) => {
-    paramRecentActivityList.rowPerPage = event;
-    fetchData();
-  };
-
-  const fetchData = async () => {
-    await getDashboardRecentActivity(paramRecentActivityList)
+  const fetchData = async (paginationOverride) => {
+    const payload = { ...(paginationOverride ?? pagination), ...filterParamsRef.current };
+    await getDashboardRecentActivity(payload)
       .then((resp) => {
         setRecentActivityData({ data: resp.data.data, totalPagination: resp.data.totalPagination });
       })
       .catch((err) => {
-        if (err) {
-          dispatch(snackbarError(createMessageBackend(err)));
-        }
+        if (err) dispatch(snackbarError(createMessageBackend(err)));
       });
   };
 
   useEffect(() => {
-    clearParamFetchData();
-    fetchData();
+    getLocationList().then(setLocationList);
+    fetchData({ ...DEFAULT_PAGINATION });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const clearParamFetchData = () => {
-    paramRecentActivityList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', keyword: '' };
+  const onApplyFilter = () => {
+    filterParamsRef.current = buildFilterParams({ selectedLocation, filterType, startDate, endDate, selectedMonth });
+    const resetPagination = { ...DEFAULT_PAGINATION };
+    setPagination(resetPagination);
+    fetchData(resetPagination);
+  };
+
+  const onGotoPageChange = (event) => {
+    const next = { ...pagination, goToPage: event };
+    setPagination(next);
+    fetchData(next);
+  };
+
+  const onPageSizeChange = (event) => {
+    const next = { ...pagination, rowPerPage: event, goToPage: 1 };
+    setPagination(next);
+    fetchData(next);
   };
 
   return (
-    <>
-      <MainCard content={true}>
-        <ScrollX>
+    <MainCard content={false}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid container spacing={2} alignItems="flex-end" sx={{ p: 3 }}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Autocomplete
+              fullWidth
+              multiple
+              limitTags={1}
+              options={locationList}
+              value={selectedLocation}
+              isOptionEqualToValue={(option, val) => option.value === val.value}
+              onChange={(_, selected) => setSelectedLocation(selected)}
+              renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-branch" />} />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} lg={2}>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="activity-filter-type">
+                <FormattedMessage id="period" />
+              </InputLabel>
+              <Select
+                id="activity-filter-type"
+                value={filterType}
+                label={intl.formatMessage({ id: 'period' })}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <MenuItem value="date-range">
+                  <FormattedMessage id="date-range" />
+                </MenuItem>
+                <MenuItem value="monthly">
+                  <FormattedMessage id="monthly" />
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          {filterType === 'date-range' ? (
+            <>
+              <Grid item xs={6} sm={6} md={2} lg={2}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="start-date" />}
+                  inputFormat="DD/MM/YYYY"
+                  value={startDate}
+                  onChange={(val) => setStartDate(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+              <Grid item xs={6} sm={6} md={2} lg={2}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="end-date" />}
+                  inputFormat="DD/MM/YYYY"
+                  value={endDate}
+                  minDate={startDate}
+                  onChange={(val) => setEndDate(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12} sm={6} md={3} lg={3}>
+              <DesktopDatePicker
+                label={<FormattedMessage id="monthly" />}
+                views={['year', 'month']}
+                inputFormat="MM/YYYY"
+                value={selectedMonth}
+                onChange={(val) => setSelectedMonth(val)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{ width: '100%' }}
+              />
+            </Grid>
+          )}
+          <Grid item xs={12} sm="auto">
+            <Button variant="contained" startIcon={<SearchIcon />} onClick={onApplyFilter} fullWidth>
+              <FormattedMessage id="search" />
+            </Button>
+          </Grid>
+        </Grid>
+      </LocalizationProvider>
+
+      <ScrollX>
+        <Box sx={{ px: 3, pb: 3 }}>
           <ReactTable
             columns={columns}
             data={recentActivityData.data}
@@ -68,9 +192,9 @@ const DashboardRecentActivity = () => {
             onGotoPage={onGotoPageChange}
             onPageSize={onPageSizeChange}
           />
-        </ScrollX>
-      </MainCard>
-    </>
+        </Box>
+      </ScrollX>
+    </MainCard>
   );
 };
 

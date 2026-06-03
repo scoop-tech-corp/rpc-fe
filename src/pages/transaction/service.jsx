@@ -53,10 +53,11 @@ const mapPayloadTransactionForm = (payload) => {
   const endDate = payload.endDate ? formateDateYYYMMDD(new Date(payload.endDate)) : '';
   const petDob = payload.petDateOfBirth ? formateDateYYYMMDD(new Date(payload.petDateOfBirth)) : '';
 
-  const isNewCustomer = payload.customer === 'old' ? 0 : 1;
+  const isNewCustomer = payload.customer !== 'old';
   const isNewPet = () => {
-    if (isNewCustomer || payload.petName) return 1;
-    return 0;
+    if (payload.petId !== '') return false;
+    if (isNewCustomer || payload.petName) return true;
+    return false;
   };
   const customer = isNewCustomer ? payload.customerName : payload.customerName.value;
   const location = payload.location.value;
@@ -105,13 +106,13 @@ export const createTransaction = async (payload) => {
   const { isNewPet, startDate, endDate, petDob, isNewCustomer, customer, location } = mapPayloadTransactionForm(payload);
 
   const formData = new FormData();
-  formData.append('isNewCustomer', isNewCustomer);
+  formData.append('isNewCustomer', isNewCustomer ? 1 : 0);
   formData.append('locationId', location);
   formData.append('customerId', isNewCustomer ? '' : customer);
   formData.append('customerName', isNewCustomer ? customer : '');
   formData.append('registrant', payload.registrantName || '');
 
-  formData.append('isNewPet', isNewPet); // 0 untuk No, 1 untuk Yes
+  formData.append('isNewPet', isNewPet ? 1 : 0); // 0 untuk No, 1 untuk Yes
   formData.append('petId', !isNewPet ? payload.pets.value : ''); // untuk pet lama, pet baru tidak perlu diisi
   formData.append('petName', payload.petName || '');
   formData.append('petCategory', payload.petCategory?.value || '');

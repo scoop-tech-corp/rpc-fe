@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getLocationList, processDownloadExcel } from 'service/service-global';
 import { deleteStaffList, downloadTemplateStaff, exportStaff, getStaffList, importStaff } from './service';
+import { getDropdownStaffDataStatic } from 'pages/staff/static-data/service';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { GlobalFilter } from 'utils/react-table';
 
@@ -39,6 +40,8 @@ const StaffList = () => {
   const [modalImport, setModalImport] = useState(false);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [facilityLocationList, setFacilityLocationList] = useState([]);
+  const [selectedFilterPosition, setFilterPosition] = useState([]);
+  const [jobTitleList, setJobTitleList] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [keywordSearch, setKeywordSearch] = useState('');
 
@@ -143,6 +146,12 @@ const StaffList = () => {
     fetchData();
   };
 
+  const onFilterPosition = (selected) => {
+    paramStaffList.jobTitleId = selected.map((dt) => dt.value);
+    setFilterPosition(selected);
+    fetchData();
+  };
+
   const onSearch = (event) => {
     paramStaffList.keyword = event;
     setKeywordSearch(event);
@@ -170,12 +179,17 @@ const StaffList = () => {
   };
 
   const clearParamFetchData = () => {
-    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [] }; // keyword: ''
+    paramStaffList = { rowPerPage: 5, goToPage: 1, orderValue: '', orderColumn: '', locationId: [], jobTitleId: [] }; // keyword: ''
   };
 
   const getDataFacilityLocation = async () => {
     const data = await getLocationList();
     setFacilityLocationList(data);
+  };
+
+  const getDataJobTitleList = async () => {
+    const { dataStaticJobTitle } = await getDropdownStaffDataStatic();
+    setJobTitleList(dataStaticJobTitle);
   };
 
   const onConfirm = async (value) => {
@@ -229,6 +243,7 @@ const StaffList = () => {
 
   useEffect(() => {
     getDataFacilityLocation();
+    getDataJobTitleList();
     clearParamFetchData();
     fetchData();
   }, []);
@@ -261,6 +276,16 @@ const StaffList = () => {
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, value) => onFilterLocation(value)}
                 renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+              />
+              <Autocomplete
+                id="filterPosition"
+                multiple
+                options={jobTitleList}
+                value={selectedFilterPosition}
+                sx={{ width: 300 }}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => onFilterPosition(value)}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-position" />} />}
               />
               {selectedRow.length > 0 && (
                 <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)}>

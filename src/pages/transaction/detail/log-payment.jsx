@@ -33,9 +33,14 @@ const LogPaymentDetailTransaction = (props) => {
 
   const onUploadProofPayment = async () => {
     try {
-      await uploadProofOfPayment({ paymentId: proofPaymentDialog.id, file: file[0] });
-      dispatch(snackbarSuccess('Success upload payment pet clinic transaction'));
+      if (props.onUploadProof) {
+        await props.onUploadProof({ id: proofPaymentDialog.id, file: file?.[0] || null });
+      } else {
+        await uploadProofOfPayment({ paymentId: proofPaymentDialog.id, file: file[0] });
+      }
+      dispatch(snackbarSuccess('Success upload proof of payment'));
       setProofPaymentDialog({ open: false, id: null });
+      setFile(null);
       props.onFetchData({ dateRange: null });
     } catch (err) {
       if (err) {
@@ -126,7 +131,8 @@ const LogPaymentDetailTransaction = (props) => {
 
 LogPaymentDetailTransaction.propTypes = {
   data: PropTypes.array,
-  onFetchData: PropTypes.func
+  onFetchData: PropTypes.func,
+  onUploadProof: PropTypes.func
 };
 
 export default LogPaymentDetailTransaction;

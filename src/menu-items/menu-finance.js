@@ -2,11 +2,11 @@
 import { FormattedMessage } from 'react-intl';
 
 // assets
-import { DollarCircleOutlined } from '@ant-design/icons';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 // icons
 const icons = {
-  DollarCircleOutlined
+  AttachMoneyIcon
 };
 
 // ==============================|| MENU ITEMS - FINANCE ||============================== //
@@ -19,7 +19,7 @@ const finance = {
       id: 'finance',
       title: <FormattedMessage id="finance" />,
       type: 'collapse',
-      icon: icons.DollarCircleOutlined,
+      icon: icons.AttachMoneyIcon,
       children: [
         {
           id: 'finance-dashboard',
@@ -32,7 +32,7 @@ const finance = {
           id: 'finance-sales',
           title: <FormattedMessage id="sales" />,
           type: 'item',
-          url: '/finance/sales'
+          url: '/finance/finance-sales'
         },
         {
           id: 'finance-quotation',

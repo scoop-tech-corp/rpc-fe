@@ -14,7 +14,12 @@ import PropTypes from 'prop-types';
 const columnChartOptions = {
   chart: {
     type: 'bar',
-    height: 350
+    height: 350,
+    toolbar: {
+      tools: {
+        download: false
+      }
+    }
   },
   plotOptions: {
     bar: {

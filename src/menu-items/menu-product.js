@@ -73,6 +73,18 @@ const product = {
           url: '/product/transfer'
         },
         {
+          id: 'product-stock-opname',
+          title: <FormattedMessage id="stock-opname" />,
+          type: 'item',
+          url: '/product/stockopname'
+        },
+        {
+          id: 'product-loan',
+          title: <FormattedMessage id="loan" />,
+          type: 'item',
+          url: '/product/loan'
+        },
+        {
           id: 'product-delivery-agent',
           title: <FormattedMessage id="delivery-agent" />,
           type: 'item',

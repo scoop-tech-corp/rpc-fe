@@ -1,16 +1,121 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Grid, Link, Stack } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Autocomplete, Button, FormControl, Grid, InputLabel, Link, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { getLocationList, createMessageBackend } from 'service/service-global';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { getProductDashboard } from './service';
+import { getProductSellDetail, getProductClinicDetail } from 'pages/product/product-list/service';
+import { formatThousandSeparator } from 'utils/func';
+import { useDispatch } from 'react-redux';
+import { snackbarError } from 'store/reducers/snackbar';
+import dayjs from 'dayjs';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import AnalyticEcommerce from 'components/dashboard/card';
 import MainCard from 'components/MainCard';
 import ApexColumnChart from 'components/dashboard/column';
 import ApexPieChart from 'components/dashboard/pie';
+import ProductSellDetail from 'pages/product/product-list/product-sell/detail';
+import ProductClinicDetail from 'pages/product/product-list/product-clinic/detail';
+import SearchIcon from '@mui/icons-material/Search';
+
+const buildFilterParams = ({ selectedLocation, filterType, startDate, endDate, selectedMonth }) => {
+  const params = {
+    branchesId: selectedLocation.map((l) => l.value),
+    dateRange: filterType === 'monthly' ? 'month' : 'dateRange',
+    chartGroupBy: 'date'
+  };
+  if (filterType === 'monthly') {
+    params.month = selectedMonth.month() + 1;
+    params.year = selectedMonth.year();
+  } else {
+    params.dateFrom = startDate ? startDate.format('YYYY-MM-DD') : undefined;
+    params.dateTo = endDate ? endDate.format('YYYY-MM-DD') : undefined;
+  }
+  return params;
+};
+
+const DEFAULT_FILTER = {
+  selectedLocation: [],
+  filterType: 'date-range',
+  startDate: dayjs().startOf('month'),
+  endDate: dayjs(),
+  selectedMonth: dayjs()
+};
+
+const buildSellDetailData = (id, resp) => {
+  let categories = '';
+  if (resp.data.details.categories.length) {
+    resp.data.details.categories.forEach((dt, idx) => {
+      categories += dt.categoryName + (idx + 1 !== resp.data.details.categories.length ? ',' : '');
+    });
+  }
+  let reminders = '';
+  if (resp.data.reminders.length) {
+    resp.data.reminders.forEach((dt, idx) => {
+      reminders += dt.timing + `(${dt.unit})` + (idx + 1 !== resp.data.reminders.length ? ',' : '');
+    });
+  }
+  return {
+    id,
+    fullName: resp.data.fullName,
+    details: {
+      sku: resp.data.details.sku,
+      status: +resp.data.details.status,
+      supplierId: +resp.data.details.productSupplierId,
+      supplierName: resp.data.details.supplierName,
+      brandName: resp.data.details.brandName,
+      categories,
+      reminders
+    },
+    shipping: {
+      isShipped: +resp.data.isShipped,
+      length: resp.data.length,
+      height: resp.data.height,
+      width: resp.data.width,
+      weight: resp.data.weight
+    },
+    description: { introduction: resp.data.introduction, description: resp.data.description },
+    inventory: {
+      locationName: resp.data.location?.locationName,
+      stock: resp.data.location?.inStock,
+      lowStock: resp.data.location?.lowStock,
+      status: resp.data.location?.status?.toLowerCase()
+    },
+    location: { id: resp.data.location?.locationId },
+    pricing: {
+      price: `Rp ${formatThousandSeparator(resp.data.price)}`,
+      pricingStatus: resp.data.pricingStatus,
+      marketPrice: resp.data.marketPrice,
+      priceLocations: resp.data.priceLocations,
+      customerGroups: resp.data.customerGroups,
+      quantities: resp.data.quantities
+    },
+    settings: {
+      isCustomerPurchase: !!+resp.data.setting.isCustomerPurchase,
+      isCustomerPurchaseOnline: !!+resp.data.setting.isCustomerPurchaseOnline,
+      isCustomerPurchaseOutStock: !!+resp.data.setting.isCustomerPurchaseOutStock,
+      isStockLevelCheck: !!+resp.data.setting.isStockLevelCheck,
+      isNonChargeable: !!+resp.data.setting.isNonChargeable,
+      isOfficeApproval: !!+resp.data.setting.isOfficeApproval,
+      isAdminApproval: !!+resp.data.setting.isAdminApproval
+    }
+  };
+};
+
+const buildClinicDetailData = (id, resp) => ({
+  ...buildSellDetailData(id, resp),
+  dosages: resp.data.dosages
+});
+
+const OPEN_DETAIL_DEFAULT = { isOpen: false, productType: '', name: '', detailData: null };
 
 const ProductDashboard = () => {
+  const intl = useIntl();
+  const dispatch = useDispatch();
+
   const [data, setData] = useState({
     productSold: { total: '0', isLoss: false, percentage: 0 },
     productSoldQty: { total: '0', isLoss: false, percentage: 0 },
@@ -23,44 +128,161 @@ const ProductDashboard = () => {
     noStock: { total: '442000', isLoss: false, percentage: 59.3 }
   });
 
+  const [locationList, setLocationList] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState([]);
+  const [filterType, setFilterType] = useState('date-range');
+  const [startDate, setStartDate] = useState(dayjs().startOf('month'));
+  const [endDate, setEndDate] = useState(dayjs());
+  const [selectedMonth, setSelectedMonth] = useState(dayjs());
+  const [openDetail, setOpenDetail] = useState(OPEN_DETAIL_DEFAULT);
+
+  const filterParamsRef = useRef(buildFilterParams(DEFAULT_FILTER));
+
+  const onClickProductDetail = async (productId, productName, productType) => {
+    try {
+      if (productType === 'sell') {
+        const resp = await getProductSellDetail(productId);
+        setOpenDetail({ isOpen: true, productType, name: productName, detailData: buildSellDetailData(productId, resp) });
+      } else if (productType === 'clinic') {
+        const resp = await getProductClinicDetail(productId);
+        setOpenDetail({ isOpen: true, productType, name: productName, detailData: buildClinicDetailData(productId, resp) });
+      }
+    } catch (err) {
+      if (err) dispatch(snackbarError(createMessageBackend(err)));
+    }
+  };
+
   const columnTopSellers = useMemo(
     () => [
       {
         Header: <FormattedMessage id="product" />,
         accessor: 'productName',
         isNotSorting: true,
-        Cell: (data) => <Link>{data.value}</Link>
+        Cell: (data) => {
+          const { productId, productName, productType } = data.row.original;
+          return <Link onClick={() => onClickProductDetail(productId, productName, productType)}>{data.value}</Link>;
+        }
       },
+      { Header: <FormattedMessage id="location" />, accessor: 'locationName', isNotSorting: true },
       { Header: <FormattedMessage id="total" />, accessor: 'total', isNotSorting: true }
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
+  const fetchData = async (params) => {
+    const resp = await getProductDashboard(params);
+    const { productSold, productSoldQty, productSoldValue, topSeller, salesByCategory, charts } = resp.data;
+
+    setData((prevState) => ({
+      ...prevState,
+      productSold: { isLoss: productSold.isLoss, percentage: productSold.percentage, total: productSold.total },
+      productSoldQty: { isLoss: productSoldQty.isLoss, percentage: productSoldQty.percentage, total: productSoldQty.total },
+      productSoldValue: { isLoss: productSoldValue.isLoss, percentage: productSoldValue.percentage, total: productSoldValue.total },
+      pieSalesByCategory: { labels: salesByCategory.labels, series: salesByCategory.series },
+      barProductSales: { categories: charts.categories, series: charts.series },
+      topSellers: topSeller
+    }));
+  };
+
   useEffect(() => {
-    // getProductDashboard
-    const fetchData = async () => {
-      const resp = await getProductDashboard();
-      const { productSold, productSoldQty, productSoldValue, topSeller, salesByCategory, charts } = resp.data;
-
-      setData((prevState) => {
-        return {
-          ...prevState,
-          productSold: { isLoss: productSold.isLoss, percentage: productSold.percentage, total: productSold.total },
-          productSoldQty: { isLoss: productSoldQty.isLoss, percentage: productSoldQty.percentage, total: productSoldQty.total },
-          productSoldValue: { isLoss: productSoldValue.isLoss, percentage: productSoldValue.percentage, total: productSoldValue.total },
-          pieSalesByCategory: { labels: salesByCategory.labels, series: salesByCategory.series },
-          barProductSales: { categories: charts.categories, series: charts.series },
-          topSellers: topSeller
-        };
-      });
-    };
-
-    fetchData();
+    getLocationList().then(setLocationList);
+    fetchData(filterParamsRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const onApplyFilter = () => {
+    filterParamsRef.current = buildFilterParams({ selectedLocation, filterType, startDate, endDate, selectedMonth });
+    fetchData(filterParamsRef.current);
+  };
+
+  const onCloseDetail = (e) => setOpenDetail((prev) => ({ ...prev, isOpen: !e.isOpen, name: '', detailData: null }));
 
   return (
     <>
       <HeaderPageCustom title={'Product Dashboard'} />
+
+      <MainCard content={false} sx={{ mb: 2.5 }}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Grid container spacing={2} alignItems="flex-end" sx={{ p: 3 }}>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Autocomplete
+                fullWidth
+                multiple
+                limitTags={1}
+                options={locationList}
+                value={selectedLocation}
+                isOptionEqualToValue={(option, val) => option.value === val.value}
+                onChange={(_, selected) => setSelectedLocation(selected)}
+                renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-branch" />} />}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3} lg={2}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="product-dashboard-filter-type">
+                  <FormattedMessage id="period" />
+                </InputLabel>
+                <Select
+                  id="product-dashboard-filter-type"
+                  value={filterType}
+                  label={intl.formatMessage({ id: 'period' })}
+                  onChange={(e) => setFilterType(e.target.value)}
+                >
+                  <MenuItem value="date-range">
+                    <FormattedMessage id="date-range" />
+                  </MenuItem>
+                  <MenuItem value="monthly">
+                    <FormattedMessage id="monthly" />
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            {filterType === 'date-range' ? (
+              <>
+                <Grid item xs={6} sm={6} md={2} lg={2}>
+                  <DesktopDatePicker
+                    label={<FormattedMessage id="start-date" />}
+                    inputFormat="DD/MM/YYYY"
+                    value={startDate}
+                    onChange={(val) => setStartDate(val)}
+                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    sx={{ width: '100%' }}
+                  />
+                </Grid>
+                <Grid item xs={6} sm={6} md={2} lg={2}>
+                  <DesktopDatePicker
+                    label={<FormattedMessage id="end-date" />}
+                    inputFormat="DD/MM/YYYY"
+                    value={endDate}
+                    minDate={startDate}
+                    onChange={(val) => setEndDate(val)}
+                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    sx={{ width: '100%' }}
+                  />
+                </Grid>
+              </>
+            ) : (
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <DesktopDatePicker
+                  label={<FormattedMessage id="monthly" />}
+                  views={['year', 'month']}
+                  inputFormat="MM/YYYY"
+                  value={selectedMonth}
+                  onChange={(val) => setSelectedMonth(val)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+            )}
+            <Grid item xs={12} sm="auto">
+              <Button variant="contained" startIcon={<SearchIcon />} onClick={onApplyFilter} fullWidth>
+                <FormattedMessage id="search" />
+              </Button>
+            </Grid>
+          </Grid>
+        </LocalizationProvider>
+      </MainCard>
+
       <Grid container spacing={3} sx={{ marginBottom: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
@@ -132,6 +354,19 @@ const ProductDashboard = () => {
           />
         </Grid>
       </Grid>
+
+      <ProductSellDetail
+        title={openDetail.name}
+        open={openDetail.isOpen && openDetail.productType === 'sell'}
+        data={openDetail.detailData}
+        onClose={onCloseDetail}
+      />
+      <ProductClinicDetail
+        title={openDetail.name}
+        open={openDetail.isOpen && openDetail.productType === 'clinic'}
+        data={openDetail.detailData}
+        onClose={onCloseDetail}
+      />
     </>
   );
 };
