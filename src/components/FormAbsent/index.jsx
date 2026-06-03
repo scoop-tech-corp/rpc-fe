@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Map, Marker } from 'pigeon-maps';
+import { Draggable, Map, Overlay, ZoomControl } from 'pigeon-maps';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { useDispatch } from 'react-redux';
@@ -12,6 +12,26 @@ import useAuth from 'hooks/useAuth';
 
 const configCoreErr = { statusErr: '' };
 
+const AccuracyCircle = ({ anchor, accuracy, latLngToPixel, pixelToLatLng, setCenterZoom, mapState }) => {
+  if (!accuracy || !mapState || !anchor[0]) return null;
+  const metersPerPx = (156543.03392 * Math.cos((anchor[0] * Math.PI) / 180)) / Math.pow(2, mapState.zoom);
+  const radiusPx = Math.max(accuracy / metersPerPx, 0);
+  return (
+    <Overlay anchor={anchor} offset={[radiusPx, radiusPx]} latLngToPixel={latLngToPixel} pixelToLatLng={pixelToLatLng} setCenterZoom={setCenterZoom} mapState={mapState}>
+      <div
+        style={{
+          width: radiusPx * 2,
+          height: radiusPx * 2,
+          borderRadius: '50%',
+          backgroundColor: 'rgba(66, 133, 244, 0.15)',
+          border: '2px solid rgba(66, 133, 244, 0.4)',
+          pointerEvents: 'none'
+        }}
+      />
+    </Overlay>
+  );
+};
+
 const FormAbsent = (props) => {
   const videoRef = useRef(null);
   const photoRef = useRef(null);
@@ -21,6 +41,9 @@ const FormAbsent = (props) => {
   const dispatch = useDispatch();
 
   const [formErr, setFormErr] = useState(configCoreErr);
+  const [locationStatus, setLocationStatus] = useState('loading'); // 'loading' | 'success' | 'error'
+  const [locationError, setLocationError] = useState('');
+  const [accuracy, setAccuracy] = useState(null);
 
   const [stateCamera, setStateCamera] = useState(true);
   const [formValue, setFormValue] = useState({
@@ -77,23 +100,76 @@ const FormAbsent = (props) => {
   };
 
   const getCurrentLocationUser = () => {
-    navigator.geolocation.getCurrentPosition(async (postion) => {
-      const getRespLocation = await axios.get('https://nominatim.openstreetmap.org/reverse.php?zoom=10&format=jsonv2', {
-        params: { lat: postion.coords.latitude, lon: postion.coords.longitude }
-      });
+    if (!navigator.geolocation) {
+      setLocationStatus('error');
+      setLocationError('Browser Anda tidak mendukung akses lokasi.');
+      return;
+    }
 
-      const getAddress = getRespLocation.data.address;
+    setLocationStatus('loading');
+    setLocationError('');
 
+    navigator.geolocation.getCurrentPosition(
+      async (postion) => {
+        const lat = postion.coords.latitude;
+        const lon = postion.coords.longitude;
+
+        setAccuracy(postion.coords.accuracy);
+        setFormValue((prevState) => ({ ...prevState, location: [lat, lon] }));
+        setLocationStatus('success');
+
+        try {
+          const getRespLocation = await fetch(
+            `https://nominatim.openstreetmap.org/reverse.php?zoom=10&format=jsonv2&lat=${lat}&lon=${lon}`
+          );
+          const data = await getRespLocation.json();
+          const getAddress = data.address;
+
+          setFormValue((prevState) => ({
+            ...prevState,
+            address: `${getAddress.city_district || getAddress.suburb}, ${getAddress.city || getAddress.municipality}, ${
+              getAddress.state ?? ''
+            }`,
+            city: getAddress.city,
+            province: getAddress.state ?? ''
+          }));
+        } catch {
+          // address stays empty, map still shows with coordinates
+        }
+      },
+      (error) => {
+        setLocationStatus('error');
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError('Izin lokasi ditolak. Silakan izinkan akses lokasi di browser Anda lalu coba lagi.');
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setLocationError('Informasi lokasi tidak tersedia. Pastikan GPS Anda aktif.');
+        } else if (error.code === error.TIMEOUT) {
+          setLocationError('Permintaan lokasi timeout. Silakan coba lagi.');
+        } else {
+          setLocationError('Gagal mendapatkan lokasi. Silakan coba lagi.');
+        }
+      },
+      { timeout: 10000 }
+    );
+  };
+
+  const onMarkerDragEnd = async ([lat, lon]) => {
+    setFormValue((prevState) => ({ ...prevState, location: [lat, lon] }));
+    try {
+      const resp = await fetch(
+        `https://nominatim.openstreetmap.org/reverse.php?zoom=10&format=jsonv2&lat=${lat}&lon=${lon}`
+      );
+      const data = await resp.json();
+      const addr = data.address;
       setFormValue((prevState) => ({
         ...prevState,
-        location: [postion.coords.latitude, postion.coords.longitude],
-        address: `${getAddress.city_district || getAddress.suburb}, ${getAddress.city || getAddress.municipality}, ${
-          getAddress.state ?? ''
-        }`,
-        city: getAddress.city,
-        province: getAddress.state ?? ''
+        address: `${addr.city_district || addr.suburb}, ${addr.city || addr.municipality}, ${addr.state ?? ''}`,
+        city: addr.city,
+        province: addr.state ?? ''
       }));
-    });
+    } catch {
+      // keep previous address if reverse geocode fails
+    }
   };
 
   const getCurrentDate = () => {
@@ -237,10 +313,48 @@ const FormAbsent = (props) => {
           </InputLabel>
           <TextField fullWidth id="location" name="location" value={formValue.address} />
         </Stack>
-        {formValue.location[0] !== null && formValue.location[1] !== null && (
-          <Map height={400} defaultCenter={formValue.location}>
-            <Marker width={50} anchor={formValue.location} />
-          </Map>
+        {locationStatus === 'loading' && (
+          <Box display="flex" justifyContent="center" alignItems="center" height={200} mt={1}>
+            <CircularProgress size={36} />
+          </Box>
+        )}
+        {locationStatus === 'error' && (
+          <Alert
+            severity="error"
+            sx={{ mt: 1 }}
+            action={
+              <Button color="inherit" size="small" onClick={getCurrentLocationUser}>
+                Coba Lagi
+              </Button>
+            }
+          >
+            {locationError}
+          </Alert>
+        )}
+        {locationStatus === 'success' && formValue.location[0] !== null && formValue.location[1] !== null && (
+          <>
+            <Map height={400} defaultCenter={formValue.location} defaultZoom={15} style={{ marginTop: 8 }}>
+              <AccuracyCircle anchor={formValue.location} accuracy={accuracy} />
+              <Draggable anchor={formValue.location} onDragEnd={onMarkerDragEnd} offset={[14.5, 43]}>
+                <svg
+                  width="29"
+                  height="43"
+                  viewBox="0 0 29 43"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{ cursor: 'grab', display: 'block' }}
+                >
+                  <path
+                    d="M14.5 0C6.492 0 0 6.395 0 14.285c0 10.714 14.5 28.715 14.5 28.715S29 25 29 14.285C29 6.395 22.508 0 14.5 0zm0 20a5.715 5.715 0 1 1 0-11.43A5.715 5.715 0 0 1 14.5 20z"
+                    fill="#d73a49"
+                  />
+                </svg>
+              </Draggable>
+              <ZoomControl style={{ position: 'absolute', right: 10, bottom: 10 }} />
+            </Map>
+            <Box sx={{ mt: 0.5, color: 'text.secondary', fontSize: 12 }}>
+              Geser pin merah jika lokasi kurang tepat. Akurasi GPS: ±{accuracy ? Math.round(accuracy) : '—'} meter.
+            </Box>
+          </>
         )}
       </Grid>
 

@@ -96,8 +96,9 @@ const TransactionDetailAction = (props) => {
                     const isDoctorMenunggu = role === 'doctor' && status === 'menunggu dokter';
                     const isDoctorCekKondisi = role === 'doctor' && status === 'cek kondisi pet';
                     const isDoctorTreatment = role === 'doctor' && status === 'pet diterima masuk pet hotel';
+                    const isPapanKerjaVetnurse = status === 'pet masuk pet hotel';
 
-                    if (isDoctorMenunggu || isDoctorCekKondisi || isDoctorTreatment) {
+                    if (isDoctorMenunggu || isDoctorCekKondisi || isDoctorTreatment || isPapanKerjaVetnurse) {
                       return (
                         <>
                           {isDoctorMenunggu && (
@@ -139,6 +140,17 @@ const TransactionDetailAction = (props) => {
                                 primary={
                                   <Typography color="textPrimary">
                                     <FormattedMessage id="treatment" />
+                                  </Typography>
+                                }
+                              />
+                            </ListItemButton>
+                          )}
+                          {isPapanKerjaVetnurse && (
+                            <ListItemButton onClick={() => props.onAction('papan-kerja-vetnurse')}>
+                              <ListItemText
+                                primary={
+                                  <Typography color="textPrimary">
+                                    <FormattedMessage id="papan-kerja-vetnurse" />
                                   </Typography>
                                 }
                               />
@@ -207,7 +219,8 @@ const TransactionDetailAction = (props) => {
 
 TransactionDetailAction.propTypes = {
   onAction: PropTypes.func,
-  status: PropTypes.string
+  status: PropTypes.string,
+  isTreatment: PropTypes.oneOfType([PropTypes.bool, PropTypes.number])
 };
 
 export default TransactionDetailAction;

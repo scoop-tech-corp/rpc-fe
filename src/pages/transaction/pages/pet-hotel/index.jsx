@@ -35,6 +35,8 @@ import FormTransaction from './form-transaction';
 import TreatmentPetHotel from './components/treatment';
 import { deleteTransactionPetHotel, exportTransactionPetHotel, getTransactionPetHotelIndex } from './service';
 import Payment from './components/payment';
+import PapanKerjaHarian from './components/papan-kerja-harian';
+import PapanKerjaVetnurse from './components/papan-kerja-vetnurse';
 
 const TransactionPetHotel = () => {
   const { user } = useAuth();
@@ -67,6 +69,8 @@ const TransactionPetHotel = () => {
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
   const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
   const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
+  const [papanKerjaHarianDialog, setPapanKerjaHarianDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [papanKerjaVetnurseDialog, setPapanKerjaVetnurseDialog] = useState({ isOpen: false, data: { transactionId: null } });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -194,7 +198,7 @@ const TransactionPetHotel = () => {
                 </Tooltip>
               )}
 
-              {Boolean(isTreatmentRow) && !['proses pembayaran', 'menunggu konfirmasi pembayaran'].includes(statusRow?.toLowerCase()) && (
+              {Boolean(isTreatmentRow) && !['proses pembayaran', 'menunggu konfirmasi pembayaran', 'pet masuk pet hotel'].includes(statusRow?.toLowerCase()) && (
                 <Tooltip title={<FormattedMessage id="treatment" />} arrow>
                   <IconButton
                     size="large"
@@ -215,6 +219,20 @@ const TransactionPetHotel = () => {
                     color="success"
                     onClick={() => {
                       setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'pet masuk pet hotel' && (
+                <Tooltip title={<FormattedMessage id="papan-kerja-vetnurse" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={() => {
+                      setPapanKerjaVetnurseDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -416,6 +434,10 @@ const TransactionPetHotel = () => {
               setCheckConditionPetDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
             } else if (action === 'treatment') {
               setTreatmentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId } });
+            } else if (action === 'papan-kerja-harian') {
+              setPapanKerjaHarianDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'papan-kerja-vetnurse') {
+              setPapanKerjaVetnurseDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
             }
 
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
@@ -472,6 +494,28 @@ const TransactionPetHotel = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setPaymentDialog({ isOpen: false, data: {} });
+          }}
+        />
+      )}
+
+      {papanKerjaHarianDialog.isOpen && (
+        <PapanKerjaHarian
+          open={papanKerjaHarianDialog.isOpen}
+          data={papanKerjaHarianDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPapanKerjaHarianDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {papanKerjaVetnurseDialog.isOpen && (
+        <PapanKerjaVetnurse
+          open={papanKerjaVetnurseDialog.isOpen}
+          data={papanKerjaVetnurseDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPapanKerjaVetnurseDialog({ isOpen: false, data: { transactionId: null } });
           }}
         />
       )}

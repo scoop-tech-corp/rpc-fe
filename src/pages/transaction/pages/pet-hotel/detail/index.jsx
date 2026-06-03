@@ -101,6 +101,7 @@ const TransactionDetail = (props) => {
           element: (
             <TransactionDetailAction
               status={data.detail.status}
+              isTreatment={data.detail.isTreatment}
               onAction={(action) => {
                 if (action === 'accept-patient') {
                   setDialog({ accept: true, reject: false, delete: false });
@@ -108,6 +109,10 @@ const TransactionDetail = (props) => {
                   setDialog({ accept: false, reject: true, delete: false });
                 } else if (action === 'delete') {
                   setDialog({ accept: false, reject: false, delete: true });
+                } else if (action === 'papan-kerja-harian') {
+                  props.onClose('papan-kerja-harian');
+                } else if (action === 'papan-kerja-vetnurse') {
+                  props.onClose('papan-kerja-vetnurse');
                 } else {
                   props.onClose(action);
                 }

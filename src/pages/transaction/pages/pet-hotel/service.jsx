@@ -289,3 +289,33 @@ export const confirmPaymentPetHotel = async (payload) => {
 
   return await axios.post(url + '/confirm-payment', formData);
 };
+
+export const getPapanKerjaHarian = async (transactionId) => {
+  return await axios.get(url + '/papan-kerja-harian', { params: { transactionId } });
+};
+
+export const markPapanKerjaHarianDone = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('statusAktivitas', payload.statusAktivitas);
+  formData.append('temuan', JSON.stringify(payload.temuan || []));
+  formData.append('kondisiFeses', payload.kondisiFeses || '');
+  formData.append('catatan', payload.catatan || '');
+  if (payload.foto) formData.append('foto', payload.foto);
+  return await axios.post(url + '/papan-kerja-harian/done', formData);
+};
+
+export const getPapanKerjaVetnurse = async (transactionId) => {
+  return await axios.get(url + '/papan-kerja-vetnurse', { params: { transactionId } });
+};
+
+export const markPapanKerjaVetnurseDone = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('statusAktivitas', payload.statusAktivitas);
+  formData.append('temuan', JSON.stringify(payload.temuan || []));
+  formData.append('kondisiFeses', payload.kondisiFeses || '');
+  formData.append('catatan', payload.catatan || '');
+  if (payload.foto) formData.append('foto', payload.foto);
+  return await axios.post(url + '/papan-kerja-vetnurse/done', formData);
+};
