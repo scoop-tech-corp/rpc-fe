@@ -1,4 +1,4 @@
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -6,12 +6,23 @@ import { Autocomplete, Box, Button, Grid, Link, Stack, Tab, Tabs, TextField, Too
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ConfirmationC from 'components/ConfirmationC';
+import FormReject from 'components/FormReject';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import TabPanel from 'components/TabPanelC';
-import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
-import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
+import { ReactTable } from 'components/third-party/ReactTable';
+import {
+  CONSTANT_ADMINISTRATOR,
+  CONSTANT_MANAGER,
+  CONSTANT_STAFF,
+  JOB_HELPER,
+  JOB_KASIR,
+  JOB_PARAMEDIS,
+  JOB_VETNURSE,
+  JOB_DOKTER,
+  isAdminOrManager
+} from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import useGetList from 'hooks/useGetList';
 import { useEffect, useMemo, useState } from 'react';
@@ -33,10 +44,16 @@ import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
 import TreatmentPetHotel from './components/treatment';
-import { deleteTransactionPetHotel, exportTransactionPetHotel, getTransactionPetHotelIndex } from './service';
+import { acceptTransactionPetHotel, deleteTransactionPetHotel, exportTransactionPetHotel, getTransactionPetHotelIndex } from './service';
 import Payment from './components/payment';
 import PapanKerjaHarian from './components/papan-kerja-harian';
 import PapanKerjaVetnurse from './components/papan-kerja-vetnurse';
+import AdditionalTreatment from './components/additional-treatment';
+import ExtendStay from './components/extend-stay';
+import Prepayment from './components/prepayment';
+import CheckOut from './components/checkout';
+import PolicyAgreement from './components/policy-agreement';
+import { initiateCheckOut } from './service';
 
 const TransactionPetHotel = () => {
   const { user } = useAuth();
@@ -65,12 +82,18 @@ const TransactionPetHotel = () => {
 
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
+  const [acceptRejectDialog, setAcceptRejectDialog] = useState({ accept: false, reject: false, transactionId: null });
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
   const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
   const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
   const [papanKerjaHarianDialog, setPapanKerjaHarianDialog] = useState({ isOpen: false, data: { transactionId: null } });
   const [papanKerjaVetnurseDialog, setPapanKerjaVetnurseDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [additionalTreatmentDialog, setAdditionalTreatmentDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [extendStayDialog, setExtendStayDialog] = useState({ isOpen: false, data: { transactionId: null, currentEndDate: null } });
+  const [prepaymentDialog, setPrepaymentDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [checkoutDialog, setCheckoutDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [policyAgreementDialog, setPolicyAgreementDialog] = useState({ isOpen: false, data: { transactionId: null } });
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -82,7 +105,7 @@ const TransactionPetHotel = () => {
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
-            dispatch(snackbarSuccess('Success Delete Transaction'));
+            dispatch(snackbarSuccess(intl.formatMessage({ id: 'success-delete-transaction' })));
             setParams((_params) => ({ ..._params }));
           }
         })
@@ -106,6 +129,30 @@ const TransactionPetHotel = () => {
       });
   };
 
+  const onConfirmAcceptReject = async (val, type) => {
+    if (val) {
+      await acceptTransactionPetHotel({
+        transactionId: acceptRejectDialog.transactionId,
+        status: type === 'accept' ? 1 : 0,
+        reason: type === 'reject' ? val : ''
+      })
+        .then((resp) => {
+          if (resp.status === 200) {
+            setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+            dispatch(snackbarSuccess(intl.formatMessage({ id: type === 'accept' ? 'success-accept-patient' : 'success-cancel-patient' })));
+            setParams((_p) => ({ ..._p }));
+          }
+        })
+        .catch((err) => {
+          setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+          dispatch(snackbarError(createMessageBackend(err)));
+        });
+    } else {
+      setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+    }
+  };
+
+
   const getDataDropdown = async () => {
     loaderService.setManualLoader(true);
     loaderGlobalConfig.setLoader(true);
@@ -128,36 +175,17 @@ const TransactionPetHotel = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const columnCheckbox = () => {
-    return user?.role === CONSTANT_ADMINISTRATOR
-      ? [
-          {
-            title: 'Row Selection',
-            Header: (header) => {
-              useEffect(() => {
-                const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
-                setSelectedRow(selectRows);
-              }, [header.selectedFlatRows]);
-
-              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-            },
-            accessor: 'selection',
-            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-            disableSortBy: true,
-            style: { width: '10px' }
-          }
-        ]
-      : [];
-  };
 
   const columnCustomerGroup = () => {
     return user?.role === CONSTANT_ADMINISTRATOR ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
   };
 
+  // Kolom action disembunyikan di tab finished untuk non-admin
+  const showActionColumn = !(tabQueryParam === 'finished' && user?.role !== CONSTANT_ADMINISTRATOR);
+
   const columns = useMemo(
     () => [
-      ...columnCheckbox(),
-      {
+      ...(showActionColumn ? [{
         Header: <FormattedMessage id="action" />,
         accessor: 'action',
         style: { textAlign: 'center' },
@@ -174,17 +202,57 @@ const TransactionPetHotel = () => {
             setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
           };
 
+          const isFinished = ['selesai', 'batal'].includes(statusRow?.toLowerCase());
+
           return (
             <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'ditolak dokter' && (
-                <Tooltip title={'Reassign'} arrow>
+              {/* Edit — kasir ke atas, kecuali status selesai/batal/proses check-out untuk kasir */}
+              {(isAdminOrManager(user?.role) || (user?.jobName === JOB_KASIR && statusRow?.toLowerCase() !== 'proses check-out')) && !isFinished && (
+                <Tooltip title={<FormattedMessage id="edit" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="primary"
+                    onClick={() => setFormTransactionConfig({ isOpen: true, id: transactionIdRow })}
+                  >
+                    <EditOutlined />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* Accept / Cancel Patient — menunggu dokter, dokter/admin/manager saja (bukan kasir) */}
+              {(isAdminOrManager(user?.role) || user?.jobName === JOB_DOKTER) &&
+                statusRow?.toLowerCase() === 'menunggu dokter' && (
+                <>
+                  <Tooltip title={<FormattedMessage id="accept-patient" />} arrow>
+                    <IconButton
+                      size="large"
+                      color="success"
+                      onClick={() => setAcceptRejectDialog({ accept: true, reject: false, transactionId: transactionIdRow })}
+                    >
+                      <CheckOutlined />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={<FormattedMessage id="cancel-patient" />} arrow>
+                    <IconButton
+                      size="large"
+                      color="error"
+                      onClick={() => setAcceptRejectDialog({ accept: false, reject: true, transactionId: transactionIdRow })}
+                    >
+                      <CloseOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+
+              {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && statusRow?.toLowerCase() === 'ditolak dokter' && (
+                <Tooltip title={<FormattedMessage id="reassign" />} arrow>
                   <IconButton size="large" color="success" onClick={doReassign}>
                     <RefreshIcon />
                   </IconButton>
                 </Tooltip>
               )}
 
-              {Boolean(isPetCheckRow) && !['proses pembayaran', 'menunggu konfirmasi pembayaran'].includes(statusRow?.toLowerCase()) && (
+              {Boolean(isPetCheckRow) && statusRow?.toLowerCase() === 'cek kondisi pet' && (
                 <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
                   <IconButton
                     size="large"
@@ -198,7 +266,7 @@ const TransactionPetHotel = () => {
                 </Tooltip>
               )}
 
-              {Boolean(isTreatmentRow) && !['proses pembayaran', 'menunggu konfirmasi pembayaran', 'pet masuk pet hotel'].includes(statusRow?.toLowerCase()) && (
+              {Boolean(isTreatmentRow) && statusRow?.toLowerCase() === 'pet check-in' && (isAdminOrManager(user?.role) || user?.jobName === JOB_DOKTER) && (
                 <Tooltip title={<FormattedMessage id="treatment" />} arrow>
                   <IconButton
                     size="large"
@@ -212,13 +280,14 @@ const TransactionPetHotel = () => {
                 </Tooltip>
               )}
 
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
-                <Tooltip title={<FormattedMessage id="payment" />} arrow>
+              {statusRow?.toLowerCase() === 'dalam perawatan' &&
+                (isAdminOrManager(user?.role) || [JOB_HELPER, JOB_VETNURSE, JOB_PARAMEDIS].includes(user?.jobName)) && (
+                <Tooltip title={<FormattedMessage id="papan-kerja-harian" />} arrow>
                   <IconButton
                     size="large"
-                    color="success"
+                    color="warning"
                     onClick={() => {
-                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
+                      setPapanKerjaHarianDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
                     }}
                   >
                     <ChecklistIcon />
@@ -226,7 +295,8 @@ const TransactionPetHotel = () => {
                 </Tooltip>
               )}
 
-              {statusRow?.toLowerCase() === 'pet masuk pet hotel' && (
+              {statusRow?.toLowerCase() === 'dalam perawatan' &&
+                (isAdminOrManager(user?.role) || [JOB_VETNURSE, JOB_PARAMEDIS].includes(user?.jobName)) && (
                 <Tooltip title={<FormattedMessage id="papan-kerja-vetnurse" />} arrow>
                   <IconButton
                     size="large"
@@ -239,21 +309,149 @@ const TransactionPetHotel = () => {
                   </IconButton>
                 </Tooltip>
               )}
+
+              {statusRow?.toLowerCase() === 'menunggu persetujuan policy' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="policy-agreement-owner" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={() => {
+                      setPolicyAgreementDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'dalam perawatan' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="bayar-dp" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setPrepaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'dalam perawatan' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="extend-stay" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="info"
+                    onClick={() => {
+                      setExtendStayDialog({ isOpen: true, data: { transactionId: transactionIdRow, currentEndDate: data.row.original.endDate } });
+                    }}
+                  >
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'dalam perawatan' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="additional-treatment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="secondary"
+                    onClick={() => {
+                      setAdditionalTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'dalam perawatan' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="initiate-checkout" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="error"
+                    onClick={async () => {
+                      try {
+                        await initiateCheckOut({ transactionId: transactionIdRow });
+                        dispatch(snackbarSuccess(intl.formatMessage({ id: 'initiate-checkout-success' })));
+                        setParams((_p) => ({ ..._p }));
+                      } catch (err) {
+                        dispatch(snackbarError(createMessageBackend(err)));
+                      }
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'proses check-out' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="process-checkout-payment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => {
+                      setCheckoutDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {statusRow?.toLowerCase() === 'menunggu konfirmasi pembayaran' &&
+                (isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                <Tooltip title={<FormattedMessage id="confirm-payment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={() => {
+                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
+                    }}
+                  >
+                    <ChecklistIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* Delete — admin, selesai atau batal */}
+              {user?.role === CONSTANT_ADMINISTRATOR && isFinished && (
+                <Tooltip title={<FormattedMessage id="delete-transaction" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="error"
+                    onClick={() => {
+                      setSelectedRow([transactionIdRow]);
+                      setDialog(true);
+                    }}
+                  >
+                    <DeleteFilled />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Stack>
           );
         }
-      },
+      }] : []),
       {
         Header: <FormattedMessage id="registration-no" />,
         accessor: 'registrationNo',
         Cell: (data) => {
           const getId = data.row.original.id;
           const getLocationId = data.row.original.locationId;
+          const getEndDate = data.row.original.endDate;
 
           return (
             <Link
               onClick={() => {
-                setDetailTransactionConfig({ isOpen: true, data: { id: getId, locationId: getLocationId } });
+                setDetailTransactionConfig({ isOpen: true, data: { id: getId, locationId: getLocationId, endDate: getEndDate } });
               }}
             >
               {data.value}
@@ -274,7 +472,7 @@ const TransactionPetHotel = () => {
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [showActionColumn]
   );
 
   const renderContent = () => {
@@ -359,25 +557,12 @@ const TransactionPetHotel = () => {
                 <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                   <FormattedMessage id="export" />
                 </Button>
-                {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
+                {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && tabQueryParam === 'ongoing' && (
                   <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                     <FormattedMessage id="transaction" />
                   </Button>
                 )}
               </Stack>
-              {selectedRow.length > 0 && (
-                <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<DeleteFilled />}
-                    color="error"
-                    onClick={() => setDialog(true)}
-                    style={{ width: 100 }}
-                  >
-                    <FormattedMessage id="delete" />
-                  </Button>
-                </Stack>
-              )}
             </Stack>
           </Grid>
         </Grid>
@@ -430,6 +615,9 @@ const TransactionPetHotel = () => {
               setFormTransactionConfig({ isOpen: true, id: detailTransactionConfig.data.id });
             } else if (['accept-patient', 'cancel-patient', 'delete'].includes(action)) {
               setParams((_params) => ({ ..._params }));
+            } else if (action === 'reassign') {
+              const listDoctor = await getDoctorStaffByLocationList(+detailTransactionConfig.data.locationId);
+              setReassignDialog({ isOpen: true, data: { listDoctor, transactionId: detailTransactionConfig.data.id } });
             } else if (action === 'check-pet-condition') {
               setCheckConditionPetDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
             } else if (action === 'treatment') {
@@ -438,6 +626,24 @@ const TransactionPetHotel = () => {
               setPapanKerjaHarianDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
             } else if (action === 'papan-kerja-vetnurse') {
               setPapanKerjaVetnurseDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'additional-treatment') {
+              setAdditionalTreatmentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'extend-stay') {
+              setExtendStayDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id, currentEndDate: detailTransactionConfig.data.endDate } });
+            } else if (action === 'prepayment') {
+              setPrepaymentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'checkout') {
+              setCheckoutDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'initiate-checkout') {
+              try {
+                await initiateCheckOut({ transactionId: detailTransactionConfig.data.id });
+                dispatch(snackbarSuccess(intl.formatMessage({ id: 'initiate-checkout-success' })));
+                setParams((_p) => ({ ..._p }));
+              } catch (err) {
+                dispatch(snackbarError(createMessageBackend(err)));
+              }
+            } else if (action === 'confirm-payment') {
+              setPaymentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId } });
             }
 
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
@@ -452,6 +658,21 @@ const TransactionPetHotel = () => {
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
+      />
+
+      <ConfirmationC
+        open={acceptRejectDialog.accept}
+        title={<FormattedMessage id="accept-patient" />}
+        content={<FormattedMessage id="are-you-sure-want-to-accept-this-patient" />}
+        onClose={(response) => onConfirmAcceptReject(response, 'accept')}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
+      <FormReject
+        open={acceptRejectDialog.reject}
+        title={<FormattedMessage id="confirm-and-please-fill-in-the-reasons-for-cancel-this-patient" />}
+        onSubmit={(response) => onConfirmAcceptReject(response, 'reject')}
+        onClose={() => setAcceptRejectDialog({ accept: false, reject: false, transactionId: null })}
       />
 
       {reassignDialog.isOpen && (
@@ -481,8 +702,28 @@ const TransactionPetHotel = () => {
           open={treatmentDialog.isOpen}
           data={treatmentDialog.data}
           onClose={(resp) => {
-            if (resp) setParams((_params) => ({ ..._params }));
+            const savedTransactionId = treatmentDialog.data.transactionId;
             setTreatmentDialog({ isOpen: false, data: { locationId: null } });
+            if (resp) {
+              setParams((_params) => ({ ..._params }));
+              // Hanya Kasir / Admin / Manager yang lanjut ke PolicyAgreement
+              // Dokter cukup selesai setelah submit treatment
+              const isDokter = user?.jobName === JOB_DOKTER;
+              if (!isDokter) {
+                setPolicyAgreementDialog({ isOpen: true, data: { transactionId: savedTransactionId } });
+              }
+            }
+          }}
+        />
+      )}
+
+      {policyAgreementDialog.isOpen && (
+        <PolicyAgreement
+          open={policyAgreementDialog.isOpen}
+          data={policyAgreementDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPolicyAgreementDialog({ isOpen: false, data: { transactionId: null } });
           }}
         />
       )}
@@ -516,6 +757,44 @@ const TransactionPetHotel = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setPapanKerjaVetnurseDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {additionalTreatmentDialog.isOpen && (
+        <AdditionalTreatment
+          open={additionalTreatmentDialog.isOpen}
+          data={additionalTreatmentDialog.data}
+          onClose={() => setAdditionalTreatmentDialog({ isOpen: false, data: { transactionId: null } })}
+        />
+      )}
+
+      {extendStayDialog.isOpen && (
+        <ExtendStay
+          open={extendStayDialog.isOpen}
+          data={extendStayDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setExtendStayDialog({ isOpen: false, data: { transactionId: null, currentEndDate: null } });
+          }}
+        />
+      )}
+
+      {prepaymentDialog.isOpen && (
+        <Prepayment
+          open={prepaymentDialog.isOpen}
+          data={prepaymentDialog.data}
+          onClose={() => setPrepaymentDialog({ isOpen: false, data: { transactionId: null } })}
+        />
+      )}
+
+      {checkoutDialog.isOpen && (
+        <CheckOut
+          open={checkoutDialog.isOpen}
+          data={checkoutDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_p) => ({ ..._p }));
+            setCheckoutDialog({ isOpen: false, data: { transactionId: null } });
           }}
         />
       )}

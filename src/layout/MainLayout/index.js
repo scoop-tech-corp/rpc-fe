@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import PermissionGuard from 'utils/route-guard/PermissionGuard';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -84,14 +85,14 @@ const MainLayout = () => {
               }}
             >
               <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
-              <Outlet />
+              <PermissionGuard><Outlet /></PermissionGuard>
               <Footer />
             </Container>
           )}
           {!container && (
             <Box sx={{ position: 'relative', minHeight: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}>
               {/* <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} /> */}
-              <Outlet />
+              <PermissionGuard><Outlet /></PermissionGuard>
               <Footer />
             </Box>
           )}

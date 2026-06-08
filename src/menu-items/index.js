@@ -45,6 +45,7 @@ import PaidIcon from '@mui/icons-material/Paid';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonAddAlt1 from '@mui/icons-material/PersonAddAlt1';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import GridViewIcon from '@mui/icons-material/GridView';
 
 import customerMenu from './menu-customer';
 import staffMenu from './menu-staff';
@@ -97,7 +98,8 @@ const icons = {
   PersonAddAlt1,
   People: PeopleIcon,
   Paid: PaidIcon,
-  AttachMoneyIcon
+  AttachMoneyIcon,
+  GridViewIcon
 };
 
 // ==============================|| MENU ITEMS ||============================== //

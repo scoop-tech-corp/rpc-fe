@@ -26,7 +26,9 @@ export const defaultTreatmentForm = {
     statusList: [],
     taskList: [],
     frequencyList: [],
-    serviceList: []
+    serviceList: [],
+    // BUG 8 FIX: treatmentDetail must be in default so initial value is null (not undefined)
+    treatmentDetail: null
   }
 };
 

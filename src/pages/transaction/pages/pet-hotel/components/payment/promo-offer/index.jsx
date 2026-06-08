@@ -31,7 +31,7 @@ const PromoOfferTransactionPetHotel = (props) => {
         <Autocomplete
           id={id}
           multiple={multiple}
-          options={promoData[key]}
+          options={promoData[key] ?? []}
           value={getSelectedObjects(key, multiple)}
           getOptionLabel={(option) => option.name || ''}
           isOptionEqualToValue={(option, value) => {
@@ -64,7 +64,8 @@ const PromoOfferTransactionPetHotel = (props) => {
 
   const getSelectedObjects = (key, multiple) => {
     const ids = formValue[key];
-    return multiple ? promoData[key].filter((item) => ids.includes(item.id)) : promoData[key].find((item) => item.id === ids);
+    const items = promoData[key] ?? [];
+    return multiple ? items.filter((item) => ids.includes(item.id)) : items.find((item) => item.id === ids);
   };
 
   const onSubmit = async () => {

@@ -407,6 +407,7 @@
   "fungus-free": "Bebas Jamur",
   "functional-leader-allowance": "Tunjangan Fungsional Leader",
   "further-examination": "Pemeriksaan Lanjutan",
+  "cage-management": "Manajemen Kandang",
   "facilities": "Fasilitas",
   "facility-variant": "Variasi Fasilitas",
   "facility": "Fasilitas",
@@ -1192,5 +1193,17 @@
   "monthly": "Bulanan",
   "date-range": "Rentang Tanggal",
   "filter-branch": "Filter Cabang",
-  "papan-kerja-vetnurse": "Papan Kerja Vetnurse / Paramedis"
+  "papan-kerja-vetnurse": "Papan Kerja Vetnurse / Paramedis",
+  "papan-kerja-harian": "Papan Kerja Harian",
+  "reassign": "Reassign Dokter",
+  "policy-agreement-owner": "Persetujuan Policy Owner",
+  "bayar-dp": "Bayar DP / Pembayaran Awal",
+  "extend-stay": "Perpanjang Menginap",
+  "additional-treatment": "Treatment Tambahan",
+  "initiate-checkout": "Inisiasi Check-Out",
+  "process-checkout-payment": "Proses Pembayaran Check-Out",
+  "initiate-checkout-success": "Check-out berhasil diinisiasi",
+  "success-delete-transaction": "Transaksi berhasil dihapus",
+  "success-accept-patient": "Pasien berhasil diterima",
+  "success-cancel-patient": "Pasien berhasil dibatalkan"
 }

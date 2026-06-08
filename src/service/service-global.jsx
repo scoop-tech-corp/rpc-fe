@@ -92,12 +92,16 @@ export const getProductSellClinicByLocation = async (key, locationIds = []) => {
   });
 };
 
-export const getServiceListByLocation = async (locationIds = []) => {
-  const getResp = await axios.get('service/list/location', { params: { locationId: locationIds.length ? locationIds : [''] } });
+export const getServiceListByLocation = async (locationIds = [], opts = {}) => {
+  const params = { locationId: locationIds.length ? locationIds : [''] };
+  if (opts.categoryId) params.categoryId = opts.categoryId;
+  if (opts.excludeCategoryId) params.excludeCategoryId = opts.excludeCategoryId;
+
+  const getResp = await axios.get('service/list/location', { params });
 
   return getResp.data.map((dt) => {
     const price = dt.price || '';
-    return { label: dt.fullName, value: dt.fullName, id: +dt.id, price: +price.replace(/,/g, '') };
+    return { label: dt.fullName, value: dt.fullName, id: +dt.id, price: +String(price).replace(/,/g, '') };
   });
 };
 

@@ -459,6 +459,7 @@
   "functional-leader-allowance": "Functional Leader Allowance",
   "further-examination": "Further Examination",
   "facility": "Facility",
+  "cage-management": "Cage Management",
   "facilities": "Facilities",
   "facility-variant": "Facility Variant",
   "family-allowance": "Family Allowance",
@@ -1307,5 +1308,17 @@
   "monthly": "Monthly",
   "date-range": "Date Range",
   "filter-branch": "Filter Branch",
-  "papan-kerja-vetnurse": "Vetnurse / Paramedic Work Board"
+  "papan-kerja-vetnurse": "Vetnurse / Paramedic Work Board",
+  "papan-kerja-harian": "Daily Work Board",
+  "reassign": "Reassign Doctor",
+  "policy-agreement-owner": "Policy Agreement Owner",
+  "bayar-dp": "Pay DP / Initial Payment",
+  "extend-stay": "Extend Stay",
+  "additional-treatment": "Additional Treatment",
+  "initiate-checkout": "Initiate Check-Out",
+  "process-checkout-payment": "Process Check-Out Payment",
+  "initiate-checkout-success": "Check-out successfully initiated",
+  "success-delete-transaction": "Transaction deleted successfully",
+  "success-accept-patient": "Patient successfully accepted",
+  "success-cancel-patient": "Patient successfully cancelled"
 }

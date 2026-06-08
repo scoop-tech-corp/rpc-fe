@@ -37,10 +37,10 @@ const location = {
           breadcrumbs: true
         },
         {
-          id: 'location-facilities',
-          title: <FormattedMessage id="facilities" />,
+          id: 'location-cage-management',
+          title: <FormattedMessage id="cage-management" />,
           type: 'item',
-          url: '/location/facilities',
+          url: '/location/cage-management',
           icon: icons.AccessibilityNewOutlinedIcon,
           breadcrumbs: false
         },

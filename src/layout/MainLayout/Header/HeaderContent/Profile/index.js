@@ -149,6 +149,11 @@ const Profile = () => {
                               <Typography variant="body2" color="textSecondary">
                                 {uppercaseWord(user?.role)}
                               </Typography>
+                              {user?.jobName && (
+                                <Typography variant="caption" color="textSecondary">
+                                  {user.jobName}
+                                </Typography>
+                              )}
                             </Stack>
                           </Stack>
                         </Grid>

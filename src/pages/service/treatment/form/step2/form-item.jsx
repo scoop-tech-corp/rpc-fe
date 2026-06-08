@@ -24,24 +24,32 @@ import { createMessageBackend, generateUniqueIdByDate } from 'service/service-gl
 export default function FormService({ step, setStep, setParams }) {
   const dispatch = useDispatch();
 
-  const totalColumn = useTreatmentStore((state) => state.formStep2.totalColumn);
-  const frequencyList = useTreatmentStore((state) => state.dataSupport.frequencyList);
-  const serviceList = useTreatmentStore((state) => state.dataSupport.serviceList);
-  const taskList = useTreatmentStore((state) => state.dataSupport.taskList);
+  const totalColumn    = useTreatmentStore((state) => state.formStep2.totalColumn);
+  const frequencyList  = useTreatmentStore((state) => state.dataSupport.frequencyList);
+  const serviceList    = useTreatmentStore((state) => state.dataSupport.serviceList);
+  const taskList       = useTreatmentStore((state) => state.dataSupport.taskList);
   const treatmentDetail = useTreatmentStore((state) => state.dataSupport.treatmentDetail);
 
-  const serviceId = useTreatmentStore((state) => state.formStep2Item.service_id);
-  const taskId = useTreatmentStore((state) => state.formStep2Item.task_id);
+  const serviceId  = useTreatmentStore((state) => state.formStep2Item.service_id);
+  const taskId     = useTreatmentStore((state) => state.formStep2Item.task_id);
   const productName = useTreatmentStore((state) => state.formStep2Item.product_name);
   const productType = useTreatmentStore((state) => state.formStep2Item.product_type);
-  const quantity = useTreatmentStore((state) => state.formStep2Item.quantity);
-
-  const isEdit = useTreatmentStore((state) => state.formStep2Item.isEdit);
+  const quantity   = useTreatmentStore((state) => state.formStep2Item.quantity);
+  const isEdit     = useTreatmentStore((state) => state.formStep2Item.isEdit);
+  const isAnother  = useTreatmentStore((state) => state.formStep2Item.isAnother);
+  const notes      = useTreatmentStore((state) => state.formStep2Item.notes);
+  const frequency  = useTreatmentStore((state) => state.formStep2Item.frequency_id);
+  // BUG 2 & 3 FIX: extract start & duration as reactive selectors (not getState())
+  const start      = useTreatmentStore((state) => state.formStep2Item.start);
+  const duration   = useTreatmentStore((state) => state.formStep2Item.duration);
 
   const [inputValue, setInputValue] = useState('');
 
+  // BUG 9 FIX: guard resetName so we never set undefined key in store
   const onChange = (name, val, resetName) => {
-    useTreatmentStore.setState({ formStep2Item: { ...useTreatmentStore.getState().formStep2Item, [name]: val, [resetName]: '' } });
+    const patch = { [name]: val };
+    if (resetName !== undefined) patch[resetName] = '';
+    useTreatmentStore.setState({ formStep2Item: { ...useTreatmentStore.getState().formStep2Item, ...patch } });
   };
 
   const listProduct = useGetList(getProductList, { disabled: true, locationId: '[]', api: '' });
@@ -112,21 +120,20 @@ export default function FormService({ step, setStep, setParams }) {
     if (productType && step == 2) {
       listProduct.setParams((e) => ({
         ...e,
-        disabled: treatmentDetail?.location_id.length === 0,
-        locationId: '[' + treatmentDetail?.location_id + ']' || '[]',
+        // BUG 6 FIX: location_id is an integer, not a string — use falsy check
+        disabled: !treatmentDetail?.location_id,
+        locationId: '[' + (treatmentDetail?.location_id ?? '') + ']',
         api: productType === 'product-sell' ? 'product/sell/list/location' : 'product/clinic/list/location'
       }));
     }
-  }, [productType, step, treatmentDetail?.location_id?.length]);
+  }, [productType, step, treatmentDetail?.location_id]);
 
+  // BUG 2 FIX: use reactive `duration` and `start` selectors (not getState())
   const validation =
-    step == 3
-      ? serviceId && frequencyList && useTreatmentStore.getState().formStep2Item.duration
-      : step == 2
-      ? productName && quantity && frequencyList && useTreatmentStore.getState().formStep2Item.duration
-      : step == 4
-      ? taskId && frequencyList && useTreatmentStore.getState().formStep2Item.duration
-      : '';
+    step == 3 ? serviceId && frequency && duration && start
+    : step == 2 ? productName && quantity && frequency && duration && start
+    : step == 4 ? taskId && frequency && duration && start
+    : '';
 
   return (
     <div>
@@ -165,7 +172,8 @@ export default function FormService({ step, setStep, setParams }) {
                   value: item.fullName
                 }))}
                 disabled={isEdit}
-                onChange={(e, val) => onChange('product_name', val.value)}
+                // BUG 1 FIX: val is null when cleared — guard before accessing .value
+                onChange={(e, val) => val && onChange('product_name', val.value)}
                 renderInput={(params) => <TextField {...params} />}
               />
             </Stack>
@@ -225,9 +233,10 @@ export default function FormService({ step, setStep, setParams }) {
           <InputLabel sx={{ mt: 2 }} htmlFor="start">
             {<FormattedMessage id="start" />} *
           </InputLabel>
+          {/* BUG 11 FIX: use reactive `start` variable (not hook inside JSX prop) */}
           <Select
             id="start"
-            value={useTreatmentStore((state) => state.formStep2Item.start)}
+            value={start}
             onChange={(e) => onChange('start', e.target.value, 'duration')}
           >
             {Array.from({ length: totalColumn }, (_, i) => (
@@ -249,9 +258,10 @@ export default function FormService({ step, setStep, setParams }) {
           <InputLabel sx={{ mt: 2 }} htmlFor="frequency">
             {<FormattedMessage id="frequency" />} *
           </InputLabel>
+          {/* BUG 11 FIX: use reactive `frequency` variable */}
           <Autocomplete
             id="frequency"
-            value={useTreatmentStore((state) => state.formStep2Item.frequency_id)}
+            value={frequency}
             options={frequencyList}
             onChange={(e, val) => onChange('frequency_id', val)}
             renderInput={(params) => <TextField {...params} />}
@@ -261,12 +271,13 @@ export default function FormService({ step, setStep, setParams }) {
           <InputLabel sx={{ mt: 2 }} htmlFor="duration">
             {<FormattedMessage id="duration" />} *
           </InputLabel>
+          {/* BUG 3 & 11 FIX: use reactive `duration` and `start` variables */}
           <Select
             id="duration"
-            value={useTreatmentStore((state) => state.formStep2Item.duration)}
+            value={duration}
             onChange={(e) => onChange('duration', e.target.value)}
           >
-            {Array.from({ length: totalColumn - (useTreatmentStore.getState().formStep2Item.start - 1) }, (_, i) => (
+            {Array.from({ length: totalColumn - (Number(start) - 1) }, (_, i) => (
               <MenuItem value={i + 1} key={i}>
                 {i + 1}
               </MenuItem>
@@ -277,9 +288,10 @@ export default function FormService({ step, setStep, setParams }) {
           <InputLabel sx={{ mt: 2 }} htmlFor="duration">
             {<FormattedMessage id="notes" />}
           </InputLabel>
+          {/* BUG 11 FIX: use reactive `notes` variable */}
           <TextField
             id="notes"
-            value={useTreatmentStore((state) => state.formStep2Item.notes)}
+            value={notes}
             multiline
             rows={3}
             onChange={(e) => onChange('notes', e.target.value)}
@@ -291,7 +303,7 @@ export default function FormService({ step, setStep, setParams }) {
               control={
                 <Checkbox
                   sx={{ mt: -0.1 }}
-                  defaultChecked={useTreatmentStore((state) => state.formStep2Item.isAnother == 1)}
+                  checked={!!isAnother}
                   onChange={(e) => onChange('isAnother', e.target.checked)}
                 />
               }

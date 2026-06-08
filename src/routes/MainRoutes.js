@@ -100,6 +100,8 @@ const LocationList = Loadable(lazy(() => import('pages/location/location-list'))
 const LocationDetail = Loadable(lazy(() => import('pages/location/location-list/detail')));
 const LocationFacilities = Loadable(lazy(() => import('pages/location/facility/facility-list')));
 const LocationFacilitiesDetail = Loadable(lazy(() => import('pages/location/facility/detail')));
+const CageManagement = Loadable(lazy(() => import('pages/location/cage-management')));
+const CageManagementDetail = Loadable(lazy(() => import('pages/location/cage-management/detail')));
 const LocationStaticData = Loadable(lazy(() => import('pages/location/static-data/static-data-list')));
 
 // Finance
@@ -276,6 +278,8 @@ const MainRoutes = {
             { path: 'facilities', element: <LocationFacilities /> },
             { path: 'facilities/add', element: <LocationFacilitiesDetail /> },
             { path: 'facilities/:id', element: <LocationFacilitiesDetail /> },
+            { path: 'cage-management', element: <CageManagement /> },
+            { path: 'cage-management/:id', element: <CageManagementDetail /> },
             { path: 'material-data', element: <LocationStaticData /> }
           ]
         },

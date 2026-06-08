@@ -95,7 +95,7 @@ const Payment = (props) => {
         const new_services = (services || []).map((dt) => ({
           ...dt,
           serviceId: +dt.serviceId,
-          basedPrice: +dt.basedPrice.replace(/,/g, ''),
+          basedPrice: +String(dt.basedPrice ?? 0).replace(/,/g, ''),
           unitPrice: '',
           totalPrice: '',
           unitPriceErr: ''

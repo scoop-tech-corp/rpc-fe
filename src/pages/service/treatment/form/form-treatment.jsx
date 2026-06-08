@@ -57,7 +57,7 @@ const FormServiceCategory = (props) => {
       title={<FormattedMessage id="create-treatment" />}
       open={props.open}
       onOk={onSubmit}
-      disabledOk={form.name === '' || form.location_id === '' || form.diagnose_id === ''}
+      disabledOk={!form.name || !form.location_id || !form.diagnose_id}
       onCancel={onCancel}
       sx={{ '& .MuiDialog-paper': { width: '50%', maxHeight: 650 } }}
       maxWidth="md"

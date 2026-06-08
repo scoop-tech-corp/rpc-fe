@@ -76,10 +76,41 @@ export const exportFacility = async (property) => {
   });
 };
 
-export const getCageFacilityLocationList = async (locationIds = []) => {
-  const getResp = await axios.get('location/facility/cage', { params: { locationId: locationIds.length ? locationIds : [''] } });
+/**
+ * Ambil daftar kandang yang tersedia di lokasi tertentu.
+ *
+ * @param {number[]} locationIds  - array locationId
+ * @param {object}   conditionOpts - opsi kondisi pet untuk filter tipe kandang
+ *   @param {boolean} conditionOpts.isPregnant     - pet hamil → kandang maternal
+ *   @param {boolean} conditionOpts.isParent       - pet induk + anak
+ *   @param {number}  conditionOpts.minCapacity    - kapasitas minimum (induk + jumlah anak)
+ */
+export const getCageFacilityLocationList = async (locationIds = [], conditionOpts = {}) => {
+  const { isPregnant = false, isParent = false, minCapacity = 1 } = conditionOpts;
+
+  const getResp = await axios.get('location/facility/cage', {
+    params: {
+      locationId: locationIds.length ? locationIds : [''],
+      isPregnant: isPregnant ? 1 : 0,
+      isParent: isParent ? 1 : 0,
+      minCapacity: minCapacity || 1
+    }
+  });
 
   return getResp.data.map((dt) => {
-    return { label: dt.unitName, value: +dt.id };
+    const remaining = dt.remainingCapacity !== undefined ? +dt.remainingCapacity : +dt.capacity;
+    const total     = +dt.capacity;
+    const capLabel  = remaining < total
+      ? `sisa ${remaining}/${total}`
+      : `${total}`;
+    return {
+      label: `${dt.cageName || dt.unitName}${dt.size ? ` (${dt.size})` : ''} — cap. ${capLabel}`,
+      value: +dt.id,
+      cageName: dt.cageName || dt.unitName,
+      type: dt.type,
+      size: dt.size,
+      capacity: total,
+      remainingCapacity: remaining
+    };
   });
 };
