@@ -29,7 +29,7 @@ const Booking = () => {
   const dispatch = useDispatch();
   const calendar = useSelector((state) => state.calendar);
   const { calendarView, events, isModalOpen, selectedEventId } = calendar;
-  const selectedEvent = selectedEventId ? events.find((e) => e.id === selectedEventId) : null;
+  const selectedEvent = selectedEventId ? events.find((e) => String(e.id) === String(selectedEventId)) : null;
 
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
@@ -219,7 +219,7 @@ const Booking = () => {
           weekends
           editable
           droppable
-          events={events}
+          events={events.filter((e) => !e.isCancelled)}
           ref={calendarRef}
           rerenderDelay={10}
           initialDate={date}
@@ -241,7 +241,15 @@ const Booking = () => {
       {/* Dialog renders its body even if not open */}
       <Dialog maxWidth="sm" fullWidth onClose={handleModal} open={isModalOpen} sx={{ '& .MuiDialog-paper': { p: 0 } }}>
         {isModalOpen && selectedEvent && (
-          <AddEventForm mode="edit" eventId={selectedEventId} bookingStatus={selectedEvent.status} onCancel={handleModal} onCreated={fetchEvents} />
+          <AddEventForm
+            mode="edit"
+            eventId={selectedEventId}
+            bookingStatus={selectedEvent.status}
+            isCancelled={Boolean(selectedEvent.isCancelled)}
+            initialColor={selectedEvent.color}
+            onCancel={handleModal}
+            onCreated={fetchEvents}
+          />
         )}
         {isModalOpen && !selectedEvent && <AddEventForm onCancel={handleModal} onCreated={fetchEvents} />}
       </Dialog>

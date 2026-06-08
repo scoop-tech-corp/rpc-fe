@@ -11,7 +11,8 @@ import {
   SolutionOutlined,
   DollarCircleOutlined,
   EditOutlined,
-  UserOutlined
+  UserOutlined,
+  OrderedListOutlined
 } from '@ant-design/icons';
 
 import { LocationOn } from '@mui/icons-material';
@@ -99,7 +100,8 @@ const icons = {
   People: PeopleIcon,
   Paid: PaidIcon,
   AttachMoneyIcon,
-  GridViewIcon
+  GridViewIcon,
+  OrderedListOutlined
 };
 
 // ==============================|| MENU ITEMS ||============================== //

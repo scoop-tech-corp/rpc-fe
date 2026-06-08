@@ -68,6 +68,10 @@ export const deleteBooking = async (ids) => {
   return await axios.delete('booking', { data: { id: idArray } });
 };
 
+export const cancelBooking = async (id, cancellationReason) => {
+  return await axios.put('booking/cancel', { id, cancellationReason });
+};
+
 export const getBookingListTransaction = async (params = {}) => {
   const getResp = await axios.get('booking/list', { params });
   return getResp.data.map((dt) => ({

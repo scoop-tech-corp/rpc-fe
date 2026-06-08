@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 
 // project import
@@ -17,6 +17,8 @@ import TransactionDataStatic from 'pages/transaction/pages/material-data';
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Booking = Loadable(lazy(() => import('pages/booking')));
+const QueueManagement = Loadable(lazy(() => import('pages/queue')));
+const QueueDisplay = lazy(() => import('pages/queue/display'));
 const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
@@ -142,6 +144,7 @@ const MainRoutes = {
       children: [
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'booking', element: <Booking /> },
+        { path: 'queue', element: <QueueManagement /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },
@@ -314,6 +317,15 @@ const MainRoutes = {
           element: <SamplePage />
         }
       ]
+    },
+    // Queue Display — publik, tanpa auth, tanpa layout
+    {
+      path: '/queue/display',
+      element: (
+        <Suspense fallback={<div style={{ background: '#0d1117', minHeight: '100vh' }} />}>
+          <QueueDisplay />
+        </Suspense>
+      )
     }
   ]
 };
