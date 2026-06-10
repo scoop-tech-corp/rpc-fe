@@ -24,6 +24,7 @@ import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import CustomerDetailModal from './detail';
 import DownloadIcon from '@mui/icons-material/Download';
 import iconWhatsapp from '../../../../src/assets/images/ico-whatsapp.png';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -49,6 +50,7 @@ const CustomerList = () => {
   const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
   const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const [detailModal, setDetailModal] = useState({ open: false, customerId: null });
   const { user } = useAuth();
   const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
 
@@ -82,7 +84,16 @@ const CustomerList = () => {
         accessor: 'customerName',
         Cell: (data) => {
           const getId = data.row.original.id;
-          return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
+          return (
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => setDetailModal({ open: true, customerId: getId })}
+              sx={{ cursor: 'pointer', textAlign: 'left' }}
+            >
+              {data.value}
+            </Link>
+          );
         }
       },
       {
@@ -325,6 +336,12 @@ const CustomerList = () => {
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
+      />
+
+      <CustomerDetailModal
+        open={detailModal.open}
+        customerId={detailModal.customerId}
+        onClose={() => setDetailModal({ open: false, customerId: null })}
       />
     </>
   );

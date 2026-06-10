@@ -88,7 +88,7 @@ export const getProductSellClinicByLocation = async (key, locationIds = []) => {
   });
 
   return getResp.data.map((dt) => {
-    return { label: dt.fullName, value: dt.fullName, id: +dt.id };
+    return { label: dt.fullName, value: dt.fullName, id: +dt.id, unit: dt.unit || null };
   });
 };
 

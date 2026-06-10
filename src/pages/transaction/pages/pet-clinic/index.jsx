@@ -1,62 +1,79 @@
-import { FormattedMessage, useIntl } from 'react-intl';
-import { TabList } from './service';
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import DownloadIcon from '@mui/icons-material/Download';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
-  Button,
-  Stack,
+  Autocomplete,
   Box,
+  Button,
+  FormControl,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  Stack,
   Tab,
   Tabs,
-  Autocomplete,
   TextField,
-  Grid,
-  Link,
-  Tooltip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  Tooltip
 } from '@mui/material';
-import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
-import { GlobalFilter } from 'utils/react-table';
+import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
+import IconButton from 'components/@extended/IconButton';
+import ConfirmationC from 'components/ConfirmationC';
+import FormReject from 'components/FormReject';
+import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
+import MainCard from 'components/MainCard';
+import ScrollX from 'components/ScrollX';
+import TabPanel from 'components/TabPanelC';
+import { ReactTable } from 'components/third-party/ReactTable';
+import {
+  CONSTANT_ADMINISTRATOR,
+  CONSTANT_MANAGER,
+  JOB_DOKTER,
+  JOB_KASIR,
+  JOB_PARAMEDIS,
+  JOB_VETNURSE,
+  isAdminOrManager
+} from 'constant/role';
+import useAuth from 'hooks/useAuth';
+import useGetList from 'hooks/useGetList';
 import { useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import {
   createMessageBackend,
-  getCustomerGroupList,
   getDoctorStaffByLocationList,
+  getCustomerGroupList,
   getLocationList,
   processDownloadExcel
 } from 'service/service-global';
-import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { useDispatch } from 'react-redux';
-import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
-import { useSearchParams } from 'react-router-dom';
-import { TransactionType, exportTransaction } from 'pages/transaction/service';
-import { TYPE_OF_CARE, getTransactionPetClinicIndex, deleteTransactionPetClinic } from './service.jsx';
-
-import MainCard from 'components/MainCard';
-import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
-import DownloadIcon from '@mui/icons-material/Download';
-import ScrollX from 'components/ScrollX';
-import TabPanel from 'components/TabPanelC';
-import ConfirmationC from 'components/ConfirmationC';
-import useGetList from 'hooks/useGetList';
-import useAuth from 'hooks/useAuth';
-import IconButton from 'components/@extended/IconButton';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ChecklistIcon from '@mui/icons-material/Checklist';
-import TransactionDetail from 'pages/transaction/detail';
+import { GlobalFilter } from 'utils/react-table';
+import { TabList } from '../../service';
+import TransactionPetClinicDetail from './detail';
 import FormTransaction from 'pages/transaction/form-transaction';
 import ReassignModalC from 'pages/transaction/reassign';
 import CheckPetConditionPetClinic from './components/check-pet-condition';
 import ServiceAndRecipe from './components/service-recipe';
 import Payment from './components/payment';
+import PrepaymentPetClinic from './components/prepayment';
+import AdditionalTreatmentPetClinic from './components/additional-treatment';
+import PapanKerjaHarianPetClinic from './components/papan-kerja-harian';
+import {
+  TYPE_OF_CARE,
+  getTransactionPetClinicIndex,
+  deleteTransactionPetClinic,
+  acceptTransactionPetClinic,
+  exportTransactionPetClinic,
+  initiateCheckoutPetClinic
+} from './service.jsx';
 
 const TransactionPetClinic = () => {
   const { user } = useAuth();
   let [searchParams, setSearchParams] = useSearchParams();
-  const tabQueryParam = searchParams.get('tab') || 'rawat-jalan';
+  const tabQueryParam = useMemo(() => searchParams.get('tab') || 'rawat-jalan', [searchParams]);
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getTransactionPetClinicIndex,
@@ -72,37 +89,43 @@ const TransactionPetClinic = () => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [filterLocationList, setFilterLocationList] = useState([]);
-
   const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
   const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
-
   const [selectedFilterTypeOfCare, setFilterTypeOfCare] = useState('');
 
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
+
+  // Accept / Reject
+  const [acceptRejectDialog, setAcceptRejectDialog] = useState({ accept: false, reject: false, transactionId: null });
+
+  // Per-step modals
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: {} });
   const [serviceAndRecipeDialog, setServiceAndRecipeDialog] = useState({ isOpen: false, data: {} });
   const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
 
-  const onClickAdd = () => {
-    setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
-  };
+  // Rawat inap modals
+  const [papanKerjaHarianDialog, setPapanKerjaHarianDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [prepaymentDialog, setPrepaymentDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [additionalTreatmentDialog, setAdditionalTreatmentDialog] = useState({ isOpen: false, data: { transactionId: null } });
 
-  const onConfirm = async (value) => {
+  // ─── Handlers ────────────────────────────────────────────────────────────
+
+  const onClickAdd = () => setFormTransactionConfig((prev) => ({ ...prev, isOpen: true }));
+
+  const onConfirmDelete = async (value) => {
     if (value) {
       await deleteTransactionPetClinic(selectedRow)
         .then((resp) => {
           if (resp.status === 200) {
             setDialog(false);
-            dispatch(snackbarSuccess('Success Delete Transaction'));
-            setParams((_params) => ({ ..._params }));
+            dispatch(snackbarSuccess(intl.formatMessage({ id: 'success-delete-transaction' })));
+            setParams((_p) => ({ ..._p }));
           }
         })
         .catch((err) => {
-          if (err) {
-            dispatch(snackbarError(createMessageBackend(err)));
-          }
+          if (err) dispatch(snackbarError(createMessageBackend(err)));
         });
     } else {
       setDialog(false);
@@ -110,13 +133,34 @@ const TransactionPetClinic = () => {
   };
 
   const onExport = async () => {
-    await exportTransaction(params)
+    await exportTransactionPetClinic(params)
       .then(processDownloadExcel)
       .catch((err) => {
-        if (err) {
-          dispatch(snackbarError(createMessageBackend(err)));
-        }
+        if (err) dispatch(snackbarError(createMessageBackend(err)));
       });
+  };
+
+  const onConfirmAcceptReject = async (val, type) => {
+    if (val) {
+      await acceptTransactionPetClinic({
+        transactionId: acceptRejectDialog.transactionId,
+        status: type === 'accept' ? 1 : 0,
+        reason: type === 'reject' ? val : ''
+      })
+        .then((resp) => {
+          if (resp.status === 200) {
+            setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+            dispatch(snackbarSuccess(intl.formatMessage({ id: type === 'accept' ? 'success-accept-patient' : 'success-cancel-patient' })));
+            setParams((_p) => ({ ..._p }));
+          }
+        })
+        .catch((err) => {
+          setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+          dispatch(snackbarError(createMessageBackend(err)));
+        });
+    } else {
+      setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+    }
   };
 
   const getDataDropdown = async () => {
@@ -135,112 +179,225 @@ const TransactionPetClinic = () => {
 
   useEffect(() => {
     setSearchParams({ tab: tabQueryParam });
-    setTabSelected(TabList[tabQueryParam]);
-
+    setTabSelected(TabList[tabQueryParam] ?? 0);
     getDataDropdown();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const columnCheckbox = () => {
-    return user?.role === CONSTANT_ADMINISTRATOR
-      ? [
-          {
-            title: 'Row Selection',
-            Header: (header) => {
-              useEffect(() => {
-                const selectRows = header.selectedFlatRows.map(({ original }) => original.id);
-                setSelectedRow(selectRows);
-              }, [header.selectedFlatRows]);
+  // ─── Column helpers ───────────────────────────────────────────────────────
 
-              return <IndeterminateCheckbox indeterminate {...header.getToggleAllRowsSelectedProps()} />;
-            },
-            accessor: 'selection',
-            Cell: (cell) => <IndeterminateCheckbox {...cell.row.getToggleRowSelectedProps()} />,
-            disableSortBy: true,
-            style: { width: '10px' }
-          }
-        ]
+  const columnCustomerGroup = () =>
+    user?.role === CONSTANT_ADMINISTRATOR
+      ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }]
       : [];
-  };
 
-  const columnCustomerGroup = () => {
-    return user?.role === CONSTANT_ADMINISTRATOR ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
-  };
+  // Di tab finished, non-admin tidak perlu kolom action
+  const showActionColumn = !(tabQueryParam === 'finished' && user?.role !== CONSTANT_ADMINISTRATOR);
 
   const columns = useMemo(
     () => [
-      ...columnCheckbox(),
-      {
-        Header: <FormattedMessage id="action" />,
-        accessor: 'action',
-        style: { textAlign: 'center' },
-        isNotSorting: true,
-        Cell: (data) => {
-          const statusRow = data.row.original.status;
-          // const isPetCheckRow = +data.row.original.isPetCheck;
-          const transactionIdRow = +data.row.original.id;
-          const locationIdRow = +data.row.original.locationId;
+      ...(showActionColumn
+        ? [
+            {
+              Header: <FormattedMessage id="action" />,
+              accessor: 'action',
+              style: { textAlign: 'center' },
+              isNotSorting: true,
+              Cell: (data) => {
+                const statusRow = data.row.original.status?.toLowerCase() || '';
+                const transactionIdRow = +data.row.original.id;
+                const locationIdRow = +data.row.original.locationId;
 
-          const doReassign = async () => {
-            const getLocations = await getDoctorStaffByLocationList(locationIdRow);
-            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: transactionIdRow } });
-          };
+                const isFinished = ['selesai', 'batal'].includes(statusRow);
 
-          return (
-            <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'ditolak dokter' && (
-                <Tooltip title={'Reassign'} arrow>
-                  <IconButton size="large" color="success" onClick={doReassign}>
-                    <RefreshIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
+                const doReassign = async () => {
+                  const getLocations = await getDoctorStaffByLocationList(locationIdRow);
+                  setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: transactionIdRow } });
+                };
 
-              {statusRow.toLowerCase() === 'cek kondisi pet' && (
-                <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
-                  <IconButton
-                    size="large"
-                    color="success"
-                    onClick={() => {
-                      setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
-                    }}
-                  >
-                    <ChecklistIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
+                return (
+                  <Stack spacing={0.1} direction={'row'} justifyContent="center">
 
-              {statusRow.toLowerCase() === 'input service dan obat' && (
-                <Tooltip title={<FormattedMessage id="service-and-recipe" />} arrow>
-                  <IconButton
-                    size="large"
-                    color="success"
-                    onClick={() => {
-                      setServiceAndRecipeDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
-                    }}
-                  >
-                    <ChecklistIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
+                    {/* ── Edit: admin/manager/kasir, non-finished ── */}
+                    {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && !isFinished && (
+                      <Tooltip title={<FormattedMessage id="edit" />} arrow>
+                        <IconButton
+                          size="large"
+                          color="primary"
+                          onClick={() => setFormTransactionConfig({ isOpen: true, id: transactionIdRow })}
+                        >
+                          <EditOutlined />
+                        </IconButton>
+                      </Tooltip>
+                    )}
 
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
-                <Tooltip title={<FormattedMessage id="payment" />} arrow>
-                  <IconButton
-                    size="large"
-                    color="success"
-                    onClick={() => {
-                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
-                    }}
-                  >
-                    <ChecklistIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Stack>
-          );
-        }
-      },
+                    {/* ── Accept / Reject: menunggu dokter ── */}
+                    {(isAdminOrManager(user?.role) || user?.jobName === JOB_DOKTER) &&
+                      statusRow === 'menunggu dokter' && (
+                      <>
+                        <Tooltip title={<FormattedMessage id="accept-patient" />} arrow>
+                          <IconButton
+                            size="large"
+                            color="success"
+                            onClick={() => setAcceptRejectDialog({ accept: true, reject: false, transactionId: transactionIdRow })}
+                          >
+                            <CheckOutlined />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={<FormattedMessage id="cancel-patient" />} arrow>
+                          <IconButton
+                            size="large"
+                            color="error"
+                            onClick={() => setAcceptRejectDialog({ accept: false, reject: true, transactionId: transactionIdRow })}
+                          >
+                            <CloseOutlined />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+
+                    {/* ── Reassign: ditolak dokter ── */}
+                    {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) &&
+                      statusRow === 'ditolak dokter' && (
+                      <Tooltip title={<FormattedMessage id="reassign" />} arrow>
+                        <IconButton size="large" color="success" onClick={doReassign}>
+                          <RefreshIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    {/* ── Cek Kondisi Pet: dokter/admin/manager ── */}
+                    {(isAdminOrManager(user?.role) || user?.jobName === JOB_DOKTER) &&
+                      statusRow === 'cek kondisi pet' && (
+                      <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
+                        <IconButton
+                          size="large"
+                          color="success"
+                          onClick={() => setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                        >
+                          <ChecklistIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    {/* ── Input Service & Resep: dokter/admin/manager ── */}
+                    {(isAdminOrManager(user?.role) || user?.jobName === JOB_DOKTER) &&
+                      statusRow === 'input service dan obat' && (
+                      <Tooltip title={<FormattedMessage id="service-and-recipe" />} arrow>
+                        <IconButton
+                          size="large"
+                          color="success"
+                          onClick={() =>
+                            setServiceAndRecipeDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })
+                          }
+                        >
+                          <ChecklistIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    {/* ── Dalam Perawatan (rawat inap) ── */}
+                    {statusRow === 'dalam perawatan' && (
+                      <>
+                        {/* Papan Kerja Harian: dokter/vetnurse/paramedis/admin/manager */}
+                        {(isAdminOrManager(user?.role) || [JOB_DOKTER, JOB_VETNURSE, JOB_PARAMEDIS].includes(user?.jobName)) && (
+                          <Tooltip title={<FormattedMessage id="papan-kerja-harian" />} arrow>
+                            <IconButton
+                              size="large"
+                              color="warning"
+                              onClick={() => setPapanKerjaHarianDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                            >
+                              <ChecklistIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                        {/* Bayar DP: kasir/admin/manager */}
+                        {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                          <Tooltip title={<FormattedMessage id="bayar-dp" />} arrow>
+                            <IconButton
+                              size="large"
+                              color="success"
+                              onClick={() => setPrepaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                            >
+                              <ChecklistIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                        {/* Tindakan Tambahan: dokter/admin/manager */}
+                        {(isAdminOrManager(user?.role) || user?.jobName === JOB_DOKTER) && (
+                          <Tooltip title={<FormattedMessage id="additional-treatment" />} arrow>
+                            <IconButton
+                              size="large"
+                              color="secondary"
+                              onClick={() => setAdditionalTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                            >
+                              <ChecklistIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                        {/* Initiate Checkout → Proses Pembayaran: kasir/admin/manager */}
+                        {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && (
+                          <Tooltip title={<FormattedMessage id="initiate-checkout" />} arrow>
+                            <IconButton
+                              size="large"
+                              color="error"
+                              onClick={async () => {
+                                try {
+                                  await initiateCheckoutPetClinic({ transactionId: transactionIdRow });
+                                  dispatch(snackbarSuccess(intl.formatMessage({ id: 'initiate-checkout-success' })));
+                                  setParams((_p) => ({ ..._p }));
+                                } catch (err) {
+                                  dispatch(snackbarError(createMessageBackend(err)));
+                                }
+                              }}
+                            >
+                              <ChecklistIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </>
+                    )}
+
+                    {/* ── Proses Pembayaran: kasir/admin/manager ── */}
+                    {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) &&
+                      statusRow === 'proses pembayaran' && (
+                      <Tooltip title={<FormattedMessage id="payment" />} arrow>
+                        <IconButton
+                          size="large"
+                          color="success"
+                          onClick={() =>
+                            setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })
+                          }
+                        >
+                          <ChecklistIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    {/* ── Delete: admin saja, status selesai/batal ── */}
+                    {user?.role === CONSTANT_ADMINISTRATOR && isFinished && (
+                      <Tooltip title={<FormattedMessage id="delete-transaction" />} arrow>
+                        <IconButton
+                          size="large"
+                          color="error"
+                          onClick={() => {
+                            setSelectedRow([transactionIdRow]);
+                            setDialog(true);
+                          }}
+                        >
+                          <DeleteFilled />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Stack>
+                );
+              }
+            }
+          ]
+        : []),
       {
         Header: <FormattedMessage id="registration-no" />,
         accessor: 'registrationNo',
@@ -250,9 +407,7 @@ const TransactionPetClinic = () => {
 
           return (
             <Link
-              onClick={() => {
-                setDetailTransactionConfig({ isOpen: true, data: { id: getId, locationId } });
-              }}
+              onClick={() => setDetailTransactionConfig({ isOpen: true, data: { id: getId, locationId } })}
             >
               {data.value}
             </Link>
@@ -270,30 +425,26 @@ const TransactionPetClinic = () => {
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [showActionColumn, user]
   );
 
-  const renderContent = () => {
-    return (
-      <>
-        <Stack spacing={3}>
-          <ScrollX>
-            <ReactTable
-              columns={columns}
-              data={list || []}
-              colSpanPagination={12}
-              totalPagination={totalPagination}
-              setPageNumber={params.goToPage}
-              setPageRow={params.rowPerPage}
-              onGotoPage={goToPage}
-              onOrder={orderingChange}
-              onPageSize={changeLimit}
-            />
-          </ScrollX>
-        </Stack>
-      </>
-    );
-  };
+  const renderContent = () => (
+    <Stack spacing={3}>
+      <ScrollX>
+        <ReactTable
+          columns={columns}
+          data={list || []}
+          colSpanPagination={12}
+          totalPagination={totalPagination}
+          setPageNumber={params.goToPage}
+          setPageRow={params.rowPerPage}
+          onGotoPage={goToPage}
+          onOrder={orderingChange}
+          onPageSize={changeLimit}
+        />
+      </ScrollX>
+    </Stack>
+  );
 
   return (
     <>
@@ -324,9 +475,9 @@ const TransactionPetClinic = () => {
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, selected) => {
                         setFilterLocation(selected);
-                        setParams((prevParams) => ({ ...prevParams, locationId: selected.map((dt) => dt.value) }));
+                        setParams((prev) => ({ ...prev, locationId: selected.map((dt) => dt.value) }));
                       }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
+                      renderInput={(p) => <TextField {...p} label={<FormattedMessage id="filter-location" />} />}
                     />
                   </Grid>
                   <Grid item sm={12} xs={12} md={6}>
@@ -340,9 +491,9 @@ const TransactionPetClinic = () => {
                       isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                       onChange={(_, selected) => {
                         setFilterCustomerGroup(selected);
-                        setParams((prevParams) => ({ ...prevParams, customerGroupId: selected.map((dt) => dt.value) }));
+                        setParams((prev) => ({ ...prev, customerGroupId: selected.map((dt) => dt.value) }));
                       }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="customer-group" />} />}
+                      renderInput={(p) => <TextField {...p} label={<FormattedMessage id="customer-group" />} />}
                     />
                   </Grid>
                   {tabQueryParam === 'finished' && (
@@ -353,13 +504,11 @@ const TransactionPetClinic = () => {
                         </InputLabel>
                         <Select
                           id="filter-type-of-care"
-                          name="filter-type-of-care"
                           value={selectedFilterTypeOfCare}
                           onChange={(event) => {
                             setFilterTypeOfCare(event.target.value);
-                            setParams((_params) => ({ ..._params, typeOfCare: event.target.value }));
+                            setParams((_p) => ({ ..._p, typeOfCare: event.target.value }));
                           }}
-                          placeholder="Select type"
                         >
                           <MenuItem value="">
                             <em>
@@ -380,30 +529,17 @@ const TransactionPetClinic = () => {
               )}
             </Grid>
           </Grid>
+
           <Grid item xs={12} sm={12} md={4}>
-            <Stack spacing={1}>
-              <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
+            <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                <FormattedMessage id="export" />
+              </Button>
+              {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) &&
+                (tabQueryParam === 'rawat-jalan' || tabQueryParam === 'rawat-inap') && (
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="transaction" />
                 </Button>
-                {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'rawat-jalan' && (
-                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                    <FormattedMessage id="transaction" />
-                  </Button>
-                )}
-              </Stack>
-              {selectedRow.length > 0 && (
-                <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<DeleteFilled />}
-                    color="error"
-                    onClick={() => setDialog(true)}
-                    style={{ width: 100 }}
-                  >
-                    <FormattedMessage id="delete" />
-                  </Button>
-                </Stack>
               )}
             </Stack>
           </Grid>
@@ -415,44 +551,31 @@ const TransactionPetClinic = () => {
             onChange={(_, value) => {
               const tabs = ['rawat-jalan', 'rawat-inap', 'finished'];
               setSearchParams({ tab: tabs[value] });
-
               setTabSelected(value);
               setSelectedRow([]);
-              setParams((prevParams) => {
-                if (tabs[value] === 'finished') return { ...prevParams, status: tabs[value], typeOfCare: '' };
-                else {
-                  const type_of_care = tabs[value] === 'rawat-jalan' ? '1' : '2';
-                  return { ...prevParams, status: '', typeOfCare: type_of_care };
-                }
+              setParams((prev) => {
+                if (tabs[value] === 'finished') return { ...prev, status: tabs[value], typeOfCare: '' };
+                const typeOfCare = tabs[value] === 'rawat-jalan' ? '1' : '2';
+                return { ...prev, status: '', typeOfCare };
               });
-              // setParams((_params) => ({ ..._params, typeOfCare: event.target.value }));
             }}
             variant="scrollable"
             scrollButtons="auto"
             aria-label="transaction list tab"
           >
-            <Tab
-              label={<FormattedMessage id="outpatient-care" />}
-              id="transaction-list-tab-0"
-              aria-controls="transaction-list-tabpanel-0"
-            />
-            <Tab label={<FormattedMessage id="inpatient-care" />} id="transaction-list-tab-1" aria-controls="transaction-list-tabpanel-1" />
-            <Tab label={<FormattedMessage id="finished" />} id="transaction-list-tab-2" aria-controls="transaction-list-tabpanel-2" />
+            <Tab label={<FormattedMessage id="outpatient-care" />} id="tab-0" aria-controls="tabpanel-0" />
+            <Tab label={<FormattedMessage id="inpatient-care" />} id="tab-1" aria-controls="tabpanel-1" />
+            <Tab label={<FormattedMessage id="finished" />} id="tab-2" aria-controls="tabpanel-2" />
           </Tabs>
         </Box>
         <Box sx={{ mt: 2.5 }}>
-          <TabPanel value={tabSelected} index={0} name="transaction-list">
-            {renderContent()}
-          </TabPanel>
-          <TabPanel value={tabSelected} index={1} name="transaction-list">
-            {renderContent()}
-          </TabPanel>
-          <TabPanel value={tabSelected} index={2} name="transaction-list">
-            {renderContent()}
-          </TabPanel>
+          <TabPanel value={tabSelected} index={0} name="transaction-list">{renderContent()}</TabPanel>
+          <TabPanel value={tabSelected} index={1} name="transaction-list">{renderContent()}</TabPanel>
+          <TabPanel value={tabSelected} index={2} name="transaction-list">{renderContent()}</TabPanel>
         </Box>
       </MainCard>
 
+      {/* ─── Form Transaksi Baru / Edit ─── */}
       {formTransactionConfig.isOpen && (
         <FormTransaction
           open={formTransactionConfig.isOpen}
@@ -460,24 +583,27 @@ const TransactionPetClinic = () => {
           type="pet-clinic"
           onClose={(e) => {
             setFormTransactionConfig({ isOpen: false, id: null });
-            if (e) setParams((_params) => ({ ..._params }));
+            if (e) setParams((_p) => ({ ..._p }));
           }}
         />
       )}
 
+      {/* ─── Detail Transaksi ─── */}
       {detailTransactionConfig.isOpen && (
-        <TransactionDetail
+        <TransactionPetClinicDetail
           open={detailTransactionConfig.isOpen}
           data={detailTransactionConfig.data}
-          type="pet-clinic"
           onClose={async (action) => {
             if (action === 'edit') {
               setFormTransactionConfig({ isOpen: true, id: +detailTransactionConfig.data.id });
             } else if (['accept-patient', 'cancel-patient'].includes(action)) {
-              setParams((_params) => ({ ..._params }));
+              setParams((_p) => ({ ..._p }));
             } else if (action === 'delete') {
-              setDialog(true);
               setSelectedRow([detailTransactionConfig.data.id]);
+              setDialog(true);
+            } else if (action === 'reassign') {
+              const listDoctor = await getDoctorStaffByLocationList(+detailTransactionConfig.data.locationId);
+              setReassignDialog({ isOpen: true, data: { listDoctor, transactionId: detailTransactionConfig.data.id } });
             } else if (action === 'check-pet-condition') {
               setCheckConditionPetDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
             } else if (action === 'service-and-recipe') {
@@ -485,66 +611,133 @@ const TransactionPetClinic = () => {
                 isOpen: true,
                 data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId }
               });
+            } else if (action === 'papan-kerja-harian') {
+              setPapanKerjaHarianDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'prepayment') {
+              setPrepaymentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'additional-treatment') {
+              setAdditionalTreatmentDialog({ isOpen: true, data: { transactionId: detailTransactionConfig.data.id } });
+            } else if (action === 'initiate-checkout') {
+              try {
+                await initiateCheckoutPetClinic({ transactionId: detailTransactionConfig.data.id });
+                dispatch(snackbarSuccess(intl.formatMessage({ id: 'initiate-checkout-success' })));
+                setParams((_p) => ({ ..._p }));
+              } catch (err) {
+                dispatch(snackbarError(createMessageBackend(err)));
+              }
             } else if (action === 'payment') {
               setPaymentDialog({
                 isOpen: true,
                 data: { transactionId: detailTransactionConfig.data.id, locationId: detailTransactionConfig.data.locationId }
               });
             }
-
             setDetailTransactionConfig({ isOpen: false, data: { id: null, locationId: null } });
           }}
         />
       )}
 
+
+      {/* ─── Konfirmasi Hapus ─── */}
       <ConfirmationC
         open={dialog}
         title={<FormattedMessage id="delete" />}
         content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" />}
-        onClose={(response) => onConfirm(response)}
+        onClose={(response) => onConfirmDelete(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
       />
 
+      {/* ─── Accept Patient ─── */}
+      <ConfirmationC
+        open={acceptRejectDialog.accept}
+        title={<FormattedMessage id="accept-patient" />}
+        content={<FormattedMessage id="are-you-sure-want-to-accept-this-patient" />}
+        onClose={(response) => onConfirmAcceptReject(response, 'accept')}
+        btnTrueText="Ok"
+        btnFalseText="Cancel"
+      />
+
+      {/* ─── Reject Patient ─── */}
+      <FormReject
+        open={acceptRejectDialog.reject}
+        title={<FormattedMessage id="confirm-and-please-fill-in-the-reasons-for-cancel-this-patient" />}
+        onSubmit={(response) => onConfirmAcceptReject(response, 'reject')}
+        onClose={() => setAcceptRejectDialog({ accept: false, reject: false, transactionId: null })}
+      />
+
+      {/* ─── Reassign ─── */}
       {reassignDialog.isOpen && (
         <ReassignModalC
           open={reassignDialog.isOpen}
           data={reassignDialog.data}
           onClose={(resp) => {
-            if (resp) setParams((_params) => ({ ..._params }));
+            if (resp) setParams((_p) => ({ ..._p }));
             setReassignDialog({ isOpen: false, data: { listDoctor: [], transactionId: null } });
           }}
         />
       )}
 
+      {/* ─── Cek Kondisi Pet ─── */}
       {checkConditionPetDialog.isOpen && (
         <CheckPetConditionPetClinic
           open={checkConditionPetDialog.isOpen}
           data={checkConditionPetDialog.data}
           onClose={(resp) => {
-            if (resp) setParams((_params) => ({ ..._params }));
+            if (resp) setParams((_p) => ({ ..._p }));
             setCheckConditionPetDialog({ isOpen: false, data: {} });
           }}
         />
       )}
 
+      {/* ─── Input Service & Resep ─── */}
       {serviceAndRecipeDialog.isOpen && (
         <ServiceAndRecipe
           open={serviceAndRecipeDialog.isOpen}
           data={serviceAndRecipeDialog.data}
           onClose={(resp) => {
-            if (resp) setParams((_params) => ({ ..._params }));
+            if (resp) setParams((_p) => ({ ..._p }));
             setServiceAndRecipeDialog({ isOpen: false, data: {} });
           }}
         />
       )}
 
+      {/* ─── Papan Kerja Harian (rawat inap) ─── */}
+      {papanKerjaHarianDialog.isOpen && (
+        <PapanKerjaHarianPetClinic
+          open={papanKerjaHarianDialog.isOpen}
+          data={papanKerjaHarianDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_p) => ({ ..._p }));
+            setPapanKerjaHarianDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ─── Bayar DP (rawat inap) ─── */}
+      {prepaymentDialog.isOpen && (
+        <PrepaymentPetClinic
+          open={prepaymentDialog.isOpen}
+          data={prepaymentDialog.data}
+          onClose={() => setPrepaymentDialog({ isOpen: false, data: { transactionId: null } })}
+        />
+      )}
+
+      {/* ─── Tindakan Tambahan (rawat inap) ─── */}
+      {additionalTreatmentDialog.isOpen && (
+        <AdditionalTreatmentPetClinic
+          open={additionalTreatmentDialog.isOpen}
+          data={additionalTreatmentDialog.data}
+          onClose={() => setAdditionalTreatmentDialog({ isOpen: false, data: { transactionId: null } })}
+        />
+      )}
+
+      {/* ─── Pembayaran ─── */}
       {paymentDialog.isOpen && (
         <Payment
           open={paymentDialog.isOpen}
           data={paymentDialog.data}
           onClose={(resp) => {
-            if (resp) setParams((_params) => ({ ..._params }));
+            if (resp) setParams((_p) => ({ ..._p }));
             setPaymentDialog({ isOpen: false, data: {} });
           }}
         />
@@ -552,9 +745,5 @@ const TransactionPetClinic = () => {
     </>
   );
 };
-
-// TransactionPetClinic.propTypes = {
-//   type: PropTypes.string
-// };
 
 export default TransactionPetClinic;

@@ -27,7 +27,7 @@ const CustomerDashboard = Loadable(lazy(() => import('pages/customer/dashboard')
 const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
 const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/customer/template')));
-const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerMerge = Loadable(lazy(() => import('pages/customer/merge')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/customer/static-data')));
 const CustomerImport = Loadable(lazy(() => import('pages/customer/import')));
 

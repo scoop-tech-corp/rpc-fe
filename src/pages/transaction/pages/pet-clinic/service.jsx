@@ -280,8 +280,6 @@ export const checkPetConditionTransactionPetClinic = async (payload) => {
     formData.append(x, appendValue);
   }
 
-  for (const pair of formData.entries()) console.log(pair[0] + ', ' + pair[1]);
-
   return await axios.post(url + '/petcheck', formData);
 };
 
@@ -293,6 +291,12 @@ export const getOrderNumberTransactionPetClinic = async (id) => {
 
 export const getLoadPetCheckTransactionPetClinic = async (id) => {
   return await axios.get(url + '/load-petcheck', {
+    params: { id }
+  });
+};
+
+export const getCheckConditionPetClinic = async (id) => {
+  return await axios.get(url + '/check-condition', {
     params: { id }
   });
 };
@@ -415,17 +419,12 @@ export const createPaymentPetClinicOutpatient = async (transactionId, formValue)
   return await axios.post(url + '/payment/outpatient', formData);
 };
 
-export const printInvoicePetClinicOutpatient = async (transactionId, formValue) => {
-  const { detail_total, payment_method } = constructPayloadCreatePrintPetClinicOutpatient(transactionId, formValue);
+export const printInvoicePetClinicOutpatient = async (transactionId) => {
+  const formData = new FormData();
+  formData.append('transactionPetClinicId', transactionId);
 
-  return await axios.get(url + '/invoice/outpatient', {
-    responseType: 'blob',
-    params: {
-      transactionPetClinicId: transactionId,
-      purchases: JSON.stringify(formValue.summaryList),
-      detail_total: JSON.stringify(detail_total),
-      payment_method: JSON.stringify(payment_method)
-    }
+  return await axios.post(url + '/invoice/outpatient', formData, {
+    responseType: 'blob'
   });
 };
 
@@ -442,4 +441,89 @@ export const uploadProofOfPayment = async (payload) => {
   formData.append('proof', payload.file);
 
   return await axios.post(url + '/confirm-payment', formData);
+};
+
+// ─── Accept / Reject patient ───────────────────────────────────────────────
+export const acceptTransactionPetClinic = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('status', payload.status);
+  formData.append('reason', payload.reason || '');
+
+  return await axios.post(url + '/accept', formData);
+};
+
+// ─── Export ────────────────────────────────────────────────────────────────
+export const exportTransactionPetClinic = async (payload) => {
+  return await axios.get(url + '/export', {
+    responseType: 'blob',
+    params: {
+      locationId: payload?.locationId?.length ? payload.locationId : [''],
+      customerGroupId: payload?.customerGroupId?.length ? payload.customerGroupId : ['']
+    }
+  });
+};
+
+// ─── Rawat Inap — Initiate Checkout ────────────────────────────────────────
+export const initiateCheckoutPetClinic = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+
+  return await axios.post(url + '/initiate-checkout', formData);
+};
+
+// ─── Rawat Inap — Prepayment / DP ──────────────────────────────────────────
+export const getPrepaymentsPetClinic = async (transactionId) => {
+  return await axios.get(url + '/prepayments', { params: { transactionId } });
+};
+
+export const addPrepaymentPetClinic = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('paymentMethodId', payload.paymentMethodId);
+  formData.append('amount', payload.amount);
+  formData.append('catatan', payload.catatan || '');
+  if (payload.proof) formData.append('proof', payload.proof);
+
+  return await axios.post(url + '/prepayments', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const getPrepaymentReceiptPetClinic = async (prepaymentId) => {
+  return await axios.get(url + '/prepayment-receipt', {
+    responseType: 'blob',
+    params: { id: prepaymentId }
+  });
+};
+
+// ─── Rawat Inap — Additional Treatment ─────────────────────────────────────
+export const getAdditionalTreatmentsPetClinic = async (transactionId) => {
+  return await axios.get(url + '/additional-treatments', { params: { transactionId } });
+};
+
+export const addAdditionalTreatmentPetClinic = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('type', payload.type);
+  formData.append('itemId', payload.itemId);
+  formData.append('quantity', payload.quantity);
+  formData.append('catatan', payload.catatan || '');
+
+  return await axios.post(url + '/additional-treatments', formData);
+};
+
+export const getAvailableItemsPetClinic = async (transactionId, type, search = '') => {
+  return await axios.get(url + '/available-items', { params: { transactionId, type, search } });
+};
+
+// ─── Rawat Inap — Papan Kerja Harian ───────────────────────────────────────
+export const getPapanKerjaHarianPetClinic = async (transactionId) => {
+  return await axios.get(url + '/papan-kerja-harian', { params: { transactionId } });
+};
+
+export const markPapanKerjaHarianPetClinicDone = async (payload) => {
+  return await axios.put(url + '/papan-kerja-harian/done', payload);
+};
+
+export const getActiveTodayPromos = async (locationId) => {
+  return await axios.get('promotion/discount/active-today', { params: { locationId } });
 };
