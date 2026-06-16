@@ -154,6 +154,11 @@ const Profile = () => {
                                   {user.jobName}
                                 </Typography>
                               )}
+                              {user?.locations?.length > 0 && (
+                                <Typography variant="caption" color="primary" sx={{ mt: 0.25 }}>
+                                  {user.locations.map((l) => l.locationName).join(', ')}
+                                </Typography>
+                              )}
                             </Stack>
                           </Stack>
                         </Grid>

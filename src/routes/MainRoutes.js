@@ -19,6 +19,7 @@ const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Booking = Loadable(lazy(() => import('pages/booking')));
 const QueueManagement = Loadable(lazy(() => import('pages/queue')));
 const QueueDisplay = lazy(() => import('pages/queue/display'));
+const TransactionDashboard = Loadable(lazy(() => import('pages/transaction/dashboard')));
 const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
@@ -32,7 +33,7 @@ const CustomerStaticData = Loadable(lazy(() => import('pages/customer/static-dat
 const CustomerImport = Loadable(lazy(() => import('pages/customer/import')));
 
 // Staff
-const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const StaffDashboard = Loadable(lazy(() => import('pages/staff/dashboard')));
 const StaffList = Loadable(lazy(() => import('pages/staff/staff-list')));
 const StaffForm = Loadable(lazy(() => import('pages/staff/staff-list/form')));
 const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
@@ -109,7 +110,10 @@ const LocationStaticData = Loadable(lazy(() => import('pages/location/static-dat
 // Finance
 const FinanceDashboard = Loadable(lazy(() => import('pages/finance/dashboard')));
 const FinanceSales = Loadable(lazy(() => import('pages/finance/sales')));
-const FinanceQuotation = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const FinancePaymentRecord = Loadable(lazy(() => import('pages/finance/payment-record')));
+const FinancePiutang = Loadable(lazy(() => import('pages/finance/piutang')));
+const FinanceRefund = Loadable(lazy(() => import('pages/finance/refund')));
+const FinanceQuotation = Loadable(lazy(() => import('pages/finance/quotation')));
 const FinanceExpenses = Loadable(lazy(() => import('pages/finance/expenses')));
 const FinanceStaticData = Loadable(lazy(() => import('pages/finance/static-data')));
 
@@ -151,6 +155,8 @@ const MainRoutes = {
         {
           path: 'transaction',
           children: [
+            { path: '', element: <Navigate to="/transaction/dashboard" /> },
+            { path: 'dashboard', element: <TransactionDashboard /> },
             { path: 'pet-clinic', element: <TransactionPetClinic /> },
             { path: 'pet-hotel', element: <TransactionPetHotel /> },
             { path: 'pet-salon', element: <TransactionPetSalon /> },
@@ -291,6 +297,9 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <FinanceDashboard /> },
             { path: 'finance-sales', element: <FinanceSales /> },
+            { path: 'payment-record', element: <FinancePaymentRecord /> },
+            { path: 'piutang', element: <FinancePiutang /> },
+            { path: 'refund', element: <FinanceRefund /> },
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
             { path: 'material-data', element: <FinanceStaticData /> }

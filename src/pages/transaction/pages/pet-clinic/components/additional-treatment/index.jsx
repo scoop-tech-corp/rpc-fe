@@ -23,14 +23,11 @@ import {
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import {
-  getAdditionalTreatmentsPetClinic,
-  addAdditionalTreatmentPetClinic,
-  getAvailableItemsPetClinic
-} from '../../service.jsx';
+import { getAdditionalTreatmentsPetClinic, addAdditionalTreatmentPetClinic, getAvailableItemsPetClinic } from '../../service.jsx';
 
 const AdditionalTreatmentPetClinic = (props) => {
   const { data } = props;
@@ -48,7 +45,9 @@ const AdditionalTreatmentPetClinic = (props) => {
 
   const fetchRows = async () => {
     await getAdditionalTreatmentsPetClinic(data.transactionId)
-      .then((resp) => { if (resp?.data) setRows(resp.data); })
+      .then((resp) => {
+        if (resp?.data) setRows(resp.data);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
   };
 
@@ -66,7 +65,9 @@ const AdditionalTreatmentPetClinic = (props) => {
   const loadItems = async (search = '') => {
     setLoadingItems(true);
     await getAvailableItemsPetClinic(data.transactionId, type, search)
-      .then((resp) => { if (resp?.data) setItemOptions(resp.data); })
+      .then((resp) => {
+        if (resp?.data) setItemOptions(resp.data);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))))
       .finally(() => setLoadingItems(false));
   };
@@ -100,7 +101,7 @@ const AdditionalTreatmentPetClinic = (props) => {
 
   return (
     <ModalC
-      title="Tindakan Tambahan Selama Rawat Inap"
+      title={<FormattedMessage id="additional-treatment-inpatient" />}
       open={props.open}
       onCancel={() => props.onClose(false)}
       isModalAction={false}

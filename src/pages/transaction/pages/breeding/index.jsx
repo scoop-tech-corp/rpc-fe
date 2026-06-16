@@ -1,8 +1,33 @@
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
-import ChecklistIcon from '@mui/icons-material/Checklist';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DownloadIcon from '@mui/icons-material/Download';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import PaidIcon from '@mui/icons-material/Paid';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import PetsIcon from '@mui/icons-material/Pets';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Autocomplete, Box, Button, Grid, Link, Stack, Tab, Tabs, TextField, Tooltip } from '@mui/material'; // useMediaQuery
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Collapse,
+  FormControl,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ConfirmationC from 'components/ConfirmationC';
@@ -14,7 +39,7 @@ import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactT
 import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import useGetList from 'hooks/useGetList';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
@@ -32,10 +57,52 @@ import CheckPetCondition from './components/check-pet-condition';
 import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
-import { deleteTransactionBreeding, exportTransactionBreeding, getTransactionBreedingIndex } from './service';
+import { deleteTransactionBreeding, exportTransactionBreeding, getTransactionBreedingIndex, getTransactionBreedingStats } from './service';
 import TreatmentBreeding from './components/treatment';
 import Payment from './components/payment';
 
+// ─── Status chip config ───────────────────────────────────────────────────────
+const STATUS_CONFIG = {
+  'menunggu dokter': { color: 'warning', label: 'Menunggu Dokter' },
+  'ditolak dokter': { color: 'error', label: 'Ditolak Dokter' },
+  'cek kondisi pet': { color: 'info', label: 'Cek Kondisi Pet' },
+  'proses pacak': { color: 'primary', label: 'Proses Pacak' },
+  'proses pembayaran': { color: 'warning', label: 'Proses Pembayaran' },
+  selesai: { color: 'success', label: 'Selesai' },
+  batal: { color: 'error', label: 'Batal' }
+};
+
+const StatusChip = ({ value }) => {
+  const cfg = STATUS_CONFIG[(value || '').toLowerCase()];
+  return <Chip label={cfg?.label ?? value} color={cfg?.color ?? 'default'} size="small" sx={{ fontWeight: 500, minWidth: 110 }} />;
+};
+
+// ─── Status options per tab untuk filter ─────────────────────────────────────
+const STATUS_OPTIONS = {
+  ongoing: ['Menunggu Dokter', 'Ditolak Dokter', 'Cek Kondisi Pet', 'Proses Pacak', 'Proses Pembayaran'],
+  finished: ['Selesai', 'Batal']
+};
+
+// ─── Mini Dashboard Card ──────────────────────────────────────────────────────
+const StatCard = ({ icon, label, value, color }) => (
+  <Card variant="outlined" sx={{ borderLeft: 4, borderColor: `${color}.main` }}>
+    <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+      <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Box sx={{ color: `${color}.main`, display: 'flex' }}>{icon}</Box>
+        <Box>
+          <Typography variant="h5" fontWeight="bold" color={`${color}.main`}>
+            {value ?? '—'}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {label}
+          </Typography>
+        </Box>
+      </Stack>
+    </CardContent>
+  </Card>
+);
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const TransactionBreeding = () => {
   const { user } = useAuth();
   let [searchParams, setSearchParams] = useSearchParams();
@@ -45,28 +112,42 @@ const TransactionBreeding = () => {
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getTransactionBreedingIndex,
-    { status: tabQueryParam, locationId: [], customerGroupId: [] },
+    { status: tabQueryParam, locationId: [], customerGroupId: [], statusFilter: '', startDateFrom: '', startDateTo: '' },
     'search'
   );
 
   const intl = useIntl();
   const dispatch = useDispatch();
 
+  // ── State ──
+  const [stats, setStats] = useState(null);
   const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [filterLocationList, setFilterLocationList] = useState([]);
-
   const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
   const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
-
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStartDateFrom, setFilterStartDateFrom] = useState('');
+  const [filterStartDateTo, setFilterStartDateTo] = useState('');
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
   const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
   const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
+
+  // ── Fetch stats ──
+  const fetchStats = useCallback(async () => {
+    try {
+      const resp = await getTransactionBreedingStats();
+      if (resp?.data) setStats(resp.data);
+    } catch (_) {
+      /* silent */
+    }
+  }, []);
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
@@ -119,11 +200,30 @@ const TransactionBreeding = () => {
   useEffect(() => {
     setSearchParams({ tab: tabQueryParam });
     setTabSelected(TabList[tabQueryParam]);
-
     getDataDropdown();
+    fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    fetchStats();
+  }, [list, fetchStats]);
+
+  // ── Advanced filter handlers ──
+  const applyAdvancedFilter = () => {
+    setParams((prev) => ({ ...prev, statusFilter: filterStatus, startDateFrom: filterStartDateFrom, startDateTo: filterStartDateTo }));
+  };
+
+  const resetAdvancedFilter = () => {
+    setFilterStatus('');
+    setFilterStartDateFrom('');
+    setFilterStartDateTo('');
+    setParams((prev) => ({ ...prev, statusFilter: '', startDateFrom: '', startDateTo: '' }));
+  };
+
+  const hasAdvancedFilter = !!(filterStatus || filterStartDateFrom || filterStartDateTo);
+
+  // ── Columns ──
   const columnCheckbox = () => {
     return user?.role === CONSTANT_ADMINISTRATOR
       ? [
@@ -147,7 +247,22 @@ const TransactionBreeding = () => {
   };
 
   const columnCustomerGroup = () => {
-    return user?.role === CONSTANT_ADMINISTRATOR ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
+    return user?.role === CONSTANT_ADMINISTRATOR
+      ? [
+          {
+            Header: 'Customer Group',
+            accessor: 'customerGroup',
+            Cell: (data) =>
+              data.value ? (
+                <Chip label={data.value} size="small" color="primary" variant="outlined" />
+              ) : (
+                <Typography variant="caption" color="text.disabled">
+                  —
+                </Typography>
+              )
+          }
+        ]
+      : [];
   };
 
   const columns = useMemo(
@@ -171,53 +286,53 @@ const TransactionBreeding = () => {
           };
 
           return (
-            <Stack spacing={0.1} direction={'row'} justifyContent="center">
+            <Stack spacing={0.1} direction="row" justifyContent="center">
+              {/* ── Ditolak Dokter: Reassign ── */}
               {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'ditolak dokter' && (
-                <Tooltip title={'Reassign'} arrow>
-                  <IconButton size="large" color="success" onClick={doReassign}>
+                <Tooltip title={<FormattedMessage id="reassign" />} arrow>
+                  <IconButton size="large" color="warning" onClick={doReassign}>
                     <RefreshIcon />
                   </IconButton>
                 </Tooltip>
               )}
 
+              {/* ── Cek Kondisi Pet ── */}
               {Boolean(isPetCheckRow) && (
                 <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
                   <IconButton
                     size="large"
-                    color="success"
-                    onClick={() => {
-                      setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
-                    }}
+                    color="info"
+                    onClick={() => setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
                   >
-                    <ChecklistIcon />
+                    <PetsIcon />
                   </IconButton>
                 </Tooltip>
               )}
 
+              {/* ── Treatment (Proses Pacak) ── */}
               {Boolean(isTreatmentRow) && (
                 <Tooltip title={<FormattedMessage id="treatment" />} arrow>
                   <IconButton
                     size="large"
-                    color="success"
-                    onClick={() => {
-                      setTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
-                    }}
+                    color="secondary"
+                    onClick={() =>
+                      setTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })
+                    }
                   >
-                    <ChecklistIcon />
+                    <FavoriteIcon />
                   </IconButton>
                 </Tooltip>
               )}
 
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
+              {/* ── Proses Pembayaran: Payment ── */}
+              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'proses pembayaran' && (
                 <Tooltip title={<FormattedMessage id="payment" />} arrow>
                   <IconButton
                     size="large"
                     color="success"
-                    onClick={() => {
-                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
-                    }}
+                    onClick={() => setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })}
                   >
-                    <ChecklistIcon />
+                    <PaidIcon />
                   </IconButton>
                 </Tooltip>
               )}
@@ -230,12 +345,10 @@ const TransactionBreeding = () => {
         accessor: 'registrationNo',
         Cell: (data) => {
           const getId = data.row.original.id;
-
           return (
             <Link
-              onClick={() => {
-                setDetailTransactionConfig({ isOpen: true, data: { id: getId } });
-              }}
+              sx={{ cursor: 'pointer', fontWeight: 500, fontSize: 13 }}
+              onClick={() => setDetailTransactionConfig({ isOpen: true, data: { id: getId } })}
             >
               {data.value}
             </Link>
@@ -243,136 +356,244 @@ const TransactionBreeding = () => {
         }
       },
       {
-        Header: <FormattedMessage id="customer-name" />,
-        accessor: 'firstName'
+        Header: 'Pasien',
+        accessor: 'petName',
+        Cell: (data) => (
+          <Stack spacing={0}>
+            <Typography variant="body2" fontWeight={600}>
+              🐾 {data.value || '—'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {data.row.original.firstName || '—'}
+            </Typography>
+          </Stack>
+        )
       },
       ...columnCustomerGroup(),
-      { Header: <FormattedMessage id="start-date" />, accessor: 'startDate' },
-      { Header: <FormattedMessage id="end-date" />, accessor: 'endDate' },
-      { Header: 'Status', accessor: 'status' },
-      { Header: 'PIC Dokter', accessor: 'picDoctor' },
-      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
-      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' }
+      {
+        Header: 'Periode',
+        accessor: 'startDate',
+        Cell: (data) => {
+          const start = data.value;
+          const end = data.row.original.endDate;
+          if (!start)
+            return (
+              <Typography variant="caption" color="text.disabled">
+                —
+              </Typography>
+            );
+          return (
+            <Stack spacing={0}>
+              <Typography variant="caption" fontWeight={500}>
+                {start}
+              </Typography>
+              {end && (
+                <Typography variant="caption" color="text.secondary">
+                  s/d {end}
+                </Typography>
+              )}
+            </Stack>
+          );
+        }
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: (data) => <StatusChip value={data.value} />
+      },
+      {
+        Header: 'PIC Dokter',
+        accessor: 'picDoctor',
+        Cell: (data) => <Typography variant="caption">{data.value || '—'}</Typography>
+      }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [user]
   );
 
-  const renderContent = () => {
-    return (
-      <>
-        <Stack spacing={3}>
-          <ScrollX>
-            <ReactTable
-              columns={columns}
-              data={list || []}
-              colSpanPagination={12}
-              totalPagination={totalPagination}
-              setPageNumber={params.goToPage}
-              setPageRow={params.rowPerPage}
-              onGotoPage={goToPage}
-              onOrder={orderingChange}
-              onPageSize={changeLimit}
-            />
-          </ScrollX>
-        </Stack>
-      </>
-    );
-  };
+  const renderContent = () => (
+    <ScrollX>
+      <ReactTable
+        columns={columns}
+        data={list || []}
+        colSpanPagination={8}
+        totalPagination={totalPagination}
+        setPageNumber={params.goToPage}
+        setPageRow={params.rowPerPage}
+        onGotoPage={goToPage}
+        onOrder={orderingChange}
+        onPageSize={changeLimit}
+      />
+    </ScrollX>
+  );
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id={`transaction-pacak`} />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="transaction-pacak" />} isBreadcrumb={true} />
+
+      {/* ─── Mini Dashboard Stats ─── */}
+      <Grid container spacing={2} mb={2}>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<PetsIcon />} label="Pacak Aktif" value={stats?.aktif} color="primary" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<FavoriteIcon />} label="Dalam Proses" value={stats?.dalamProses} color="secondary" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<CheckCircleIcon />} label="Selesai Hari Ini" value={stats?.finishedToday} color="success" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<PaymentsIcon />} label="Proses Pembayaran" value={stats?.prosesPembayaran} color="warning" />
+        </Grid>
+      </Grid>
+
       <MainCard content={true} boxShadow>
-        <Grid container spacing={2} width={'100%'} marginBottom={'20px'}>
-          <Grid item sm={12} xs={12} md={8}>
-            <Grid container spacing={2}>
-              <Grid item sm={12} xs={12} md={6}>
-                <GlobalFilter
-                  placeHolder={intl.formatMessage({ id: 'search' })}
-                  globalFilter={keyword}
-                  setGlobalFilter={changeKeyword}
-                  className={'fullWidth'}
-                  style={{ height: '41.3px' }}
+        {/* ─── Filter Bar ─── */}
+        <Grid container spacing={2} mb={2} alignItems="center">
+          {/* Search */}
+          <Grid item xs={12} sm={user?.role === CONSTANT_ADMINISTRATOR ? 4 : 6}>
+            <GlobalFilter
+              placeHolder={intl.formatMessage({ id: 'search' })}
+              globalFilter={keyword}
+              setGlobalFilter={changeKeyword}
+              className="fullWidth"
+              style={{ height: '41.3px' }}
+            />
+          </Grid>
+          {/* Admin: Location + Customer Group */}
+          {user?.role === CONSTANT_ADMINISTRATOR && (
+            <>
+              <Grid item xs={12} sm={4}>
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  limitTags={1}
+                  options={filterLocationList}
+                  value={selectedFilterLocation}
+                  className="fullWidth"
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, selected) => {
+                    setFilterLocation(selected);
+                    setParams((prevParams) => ({ ...prevParams, locationId: selected.map((dt) => dt.value) }));
+                  }}
+                  renderInput={(p) => <TextField {...p} label={<FormattedMessage id="filter-location" />} />}
                 />
               </Grid>
-              {user?.role === CONSTANT_ADMINISTRATOR && (
-                <>
-                  <Grid item sm={12} xs={12} md={6}>
-                    <Autocomplete
-                      id="filterLocation"
-                      multiple
-                      limitTags={1}
-                      options={filterLocationList}
-                      value={selectedFilterLocation}
-                      className={'fullWidth'}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, selected) => {
-                        setFilterLocation(selected);
-                        setParams((prevParams) => ({ ...prevParams, locationId: selected.map((dt) => dt.value) }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                    />
-                  </Grid>
-                  <Grid item sm={12} xs={12} md={6}>
-                    <Autocomplete
-                      id="filter-customer-group"
-                      multiple
-                      limitTags={1}
-                      options={filterCustomerGroupList}
-                      value={selectedFilterCustomerGroup}
-                      className={'fullWidth'}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, selected) => {
-                        setFilterCustomerGroup(selected);
-                        setParams((prevParams) => ({ ...prevParams, customerGroupId: selected.map((dt) => dt.value) }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="customer-group" />} />}
-                    />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={12} md={4}>
-            <Stack spacing={1}>
-              <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
+              <Grid item xs={12} sm={4}>
+                <Autocomplete
+                  id="filter-customer-group"
+                  multiple
+                  limitTags={1}
+                  options={filterCustomerGroupList}
+                  value={selectedFilterCustomerGroup}
+                  className="fullWidth"
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, selected) => {
+                    setFilterCustomerGroup(selected);
+                    setParams((prevParams) => ({ ...prevParams, customerGroupId: selected.map((dt) => dt.value) }));
+                  }}
+                  renderInput={(p) => <TextField {...p} label={<FormattedMessage id="customer-group" />} />}
+                />
+              </Grid>
+            </>
+          )}
+          {/* Action Buttons */}
+          <Grid item xs={12} sm={user?.role === CONSTANT_ADMINISTRATOR ? 12 : 6}>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FilterListIcon />}
+                color={showAdvancedFilter ? 'primary' : 'inherit'}
+                onClick={() => setShowAdvancedFilter((v) => !v)}
+              >
+                Filter Lanjutan
+                {hasAdvancedFilter && <Chip label="aktif" size="small" color="primary" sx={{ ml: 0.5, height: 16, fontSize: 10 }} />}
+              </Button>
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                <FormattedMessage id="export" />
+              </Button>
+              {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="transaction" />
                 </Button>
-                {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
-                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                    <FormattedMessage id="transaction" />
-                  </Button>
-                )}
-              </Stack>
-              {selectedRow.length > 0 && (
-                <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<DeleteFilled />}
-                    color="error"
-                    onClick={() => setDialog(true)}
-                    style={{ width: 100 }}
-                  >
-                    <FormattedMessage id="delete" />
-                  </Button>
-                </Stack>
               )}
             </Stack>
           </Grid>
+
+          {/* Advanced Filter (collapsible) */}
+          <Grid item xs={12}>
+            <Collapse in={showAdvancedFilter}>
+              <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" color="text.secondary" mb={1.5}>
+                  <FilterListIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
+                  Filter Lanjutan
+                </Typography>
+                <Grid container spacing={2} alignItems="flex-end">
+                  <Grid item xs={12} sm={4}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Filter Status</InputLabel>
+                      <Select value={filterStatus} label="Filter Status" onChange={(e) => setFilterStatus(e.target.value)}>
+                        <MenuItem value="">
+                          <em>Semua Status</em>
+                        </MenuItem>
+                        {(STATUS_OPTIONS[tabQueryParam] || []).map((s) => (
+                          <MenuItem key={s} value={s}>
+                            {s}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Tgl Mulai (Dari)"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={filterStartDateFrom}
+                      onChange={(e) => setFilterStartDateFrom(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Tgl Mulai (Sampai)"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={filterStartDateTo}
+                      onChange={(e) => setFilterStartDateTo(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2}>
+                    <Stack direction="row" spacing={1}>
+                      <Button variant="contained" size="small" onClick={applyAdvancedFilter} fullWidth>
+                        Terapkan
+                      </Button>
+                      <Button variant="outlined" size="small" onClick={resetAdvancedFilter} fullWidth>
+                        Reset
+                      </Button>
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Collapse>
+          </Grid>
         </Grid>
 
+        {/* ─── Tabs ─── */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
           <Tabs
             value={tabSelected}
             onChange={(_, value) => {
               const tabs = ['ongoing', 'finished'];
               setSearchParams({ tab: tabs[value] });
-
               setTabSelected(value);
               setSelectedRow([]);
-              setParams((prevParams) => ({ ...prevParams, status: tabs[value] }));
+              resetAdvancedFilter();
+              setParams((prevParams) => ({ ...prevParams, status: tabs[value], statusFilter: '', startDateFrom: '', startDateTo: '' }));
             }}
             variant="scrollable"
             scrollButtons="auto"
@@ -390,7 +611,18 @@ const TransactionBreeding = () => {
             {renderContent()}
           </TabPanel>
         </Box>
+
+        {/* ── Delete selected rows ── */}
+        {selectedRow.length > 0 && (
+          <Stack direction="row" justifyContent="flex-end" mt={1}>
+            <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)} style={{ width: 160 }}>
+              Hapus ({selectedRow.length})
+            </Button>
+          </Stack>
+        )}
       </MainCard>
+
+      {/* ─── Modals ─── */}
       {formTransactionConfig.isOpen && (
         <FormTransaction
           open={formTransactionConfig.isOpen}
@@ -412,7 +644,6 @@ const TransactionBreeding = () => {
             } else if (['accept-patient', 'cancel-patient', 'delete'].includes(action)) {
               setParams((_params) => ({ ..._params }));
             }
-
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
           }}
         />

@@ -1,7 +1,9 @@
 import {
+  Alert,
   Box,
   Button,
   Chip,
+  Collapse,
   Divider,
   IconButton,
   InputAdornment,
@@ -18,13 +20,20 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend, getPaymentMethodList, processDownloadPDF } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { getPrepaymentsPetClinic, addPrepaymentPetClinic, getPrepaymentReceiptPetClinic } from '../../service.jsx';
+import {
+  getPrepaymentsPetClinic,
+  addPrepaymentPetClinic,
+  getPrepaymentReceiptPetClinic,
+  getEstimatedCostPetClinic
+} from '../../service.jsx';
 import { AttachFile, DeleteOutline, Print } from '@mui/icons-material';
 
 const PrepaymentPetClinic = (props) => {
@@ -37,6 +46,8 @@ const PrepaymentPetClinic = (props) => {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [printingId, setPrintingId] = useState(null);
+  const [estimatedCost, setEstimatedCost] = useState({ items: [], estimatedTotal: 0, note: '' });
+  const [showEstimateDetail, setShowEstimateDetail] = useState(false);
 
   const [form, setForm] = useState({
     paymentMethodId: '',
@@ -60,8 +71,15 @@ const PrepaymentPetClinic = (props) => {
   useEffect(() => {
     fetchRows();
     getPaymentMethodList()
-      .then((list) => { if (list?.length) setPaymentMethods(list); })
+      .then((list) => {
+        if (list?.length) setPaymentMethods(list);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
+    getEstimatedCostPetClinic(data.transactionId)
+      .then((resp) => {
+        if (resp?.data) setEstimatedCost(resp.data);
+      })
+      .catch(() => {}); // estimasi gagal — tidak perlu blokir UI
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -114,7 +132,7 @@ const PrepaymentPetClinic = (props) => {
 
   return (
     <ModalC
-      title="Pembayaran Awal / DP"
+      title={<FormattedMessage id="bayar-dp" />}
       open={props.open}
       onCancel={() => props.onClose(false)}
       isModalAction={false}
@@ -122,8 +140,80 @@ const PrepaymentPetClinic = (props) => {
       maxWidth="md"
     >
       <Stack spacing={2.5}>
-        <Box sx={{ p: 1.5, bgcolor: 'primary.lighter', borderRadius: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body2" color="text.secondary">Total sudah dibayar (DP)</Typography>
+        {/* Estimasi total tagihan */}
+        <Alert
+          severity="info"
+          sx={{ py: 0.5 }}
+          action={
+            estimatedCost.items.length > 0 ? (
+              <IconButton size="small" onClick={() => setShowEstimateDetail((v) => !v)}>
+                {showEstimateDetail ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+              </IconButton>
+            ) : null
+          }
+        >
+          <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
+            <Typography variant="body2">Estimasi Total Tagihan{estimatedCost.items.length === 0 ? ' (belum ada item)' : ''}</Typography>
+            <Typography variant="subtitle1" fontWeight="bold">
+              {formatCurrency(estimatedCost.estimatedTotal)}
+            </Typography>
+          </Stack>
+          {estimatedCost.note && (
+            <Typography variant="caption" color="text.secondary" display="block" mt={0.25}>
+              * {estimatedCost.note}
+            </Typography>
+          )}
+        </Alert>
+
+        {/* Detail rincian estimasi */}
+        <Collapse in={showEstimateDetail}>
+          <TableContainer sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ '& th': { fontWeight: 'bold', whiteSpace: 'nowrap', bgcolor: 'grey.50' } }}>
+                  <TableCell>Item</TableCell>
+                  <TableCell align="center">Qty</TableCell>
+                  <TableCell align="right">Harga Satuan</TableCell>
+                  <TableCell align="right">Subtotal</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {estimatedCost.items.map((item, idx) => (
+                  <TableRow key={idx} hover>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell align="center">{item.quantity}</TableCell>
+                    <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      {formatCurrency(item.subtotal)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow sx={{ bgcolor: 'info.lighter' }}>
+                  <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>
+                    Total Estimasi
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold', color: 'info.main' }}>
+                    {formatCurrency(estimatedCost.estimatedTotal)}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Collapse>
+
+        <Box
+          sx={{
+            p: 1.5,
+            bgcolor: 'primary.lighter',
+            borderRadius: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            Total sudah dibayar (DP)
+          </Typography>
           <Typography variant="h6" fontWeight="bold" color="primary.main">
             {formatCurrency(totalPrepaid)}
           </Typography>
@@ -145,7 +235,9 @@ const PrepaymentPetClinic = (props) => {
                 sx={{ minWidth: 180 }}
               >
                 {paymentMethods.map((pm) => (
-                  <MenuItem key={pm.value} value={pm.value}>{pm.label}</MenuItem>
+                  <MenuItem key={pm.value} value={pm.value}>
+                    {pm.label}
+                  </MenuItem>
                 ))}
               </TextField>
 
@@ -174,13 +266,7 @@ const PrepaymentPetClinic = (props) => {
             />
 
             <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*,application/pdf"
-                style={{ display: 'none' }}
-                onChange={onFileChange}
-              />
+              <input ref={fileRef} type="file" accept="image/*,application/pdf" style={{ display: 'none' }} onChange={onFileChange} />
               <Button
                 variant="outlined"
                 size="small"
@@ -192,7 +278,10 @@ const PrepaymentPetClinic = (props) => {
               </Button>
 
               {form.proofName ? (
-                <Stack direction="row" alignItems="center" spacing={0.5}
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.5}
                   sx={{ px: 1.5, py: 0.5, bgcolor: 'grey.100', borderRadius: 1, maxWidth: 220 }}
                 >
                   <Typography variant="caption" noWrap sx={{ flex: 1, color: 'text.secondary' }}>
@@ -226,8 +315,12 @@ const PrepaymentPetClinic = (props) => {
         <Divider />
 
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" fontWeight="bold">Riwayat Pembayaran Awal</Typography>
-          <Typography variant="caption" color="text.secondary">{rows.length} transaksi</Typography>
+          <Typography variant="subtitle2" fontWeight="bold">
+            Riwayat Pembayaran Awal
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {rows.length} transaksi
+          </Typography>
         </Stack>
 
         <TableContainer>
@@ -264,19 +357,16 @@ const PrepaymentPetClinic = (props) => {
                         {row.proofOriginalName || 'Lihat'}
                       </Link>
                     ) : (
-                      <Typography variant="caption" color="text.disabled">-</Typography>
+                      <Typography variant="caption" color="text.disabled">
+                        -
+                      </Typography>
                     )}
                   </TableCell>
                   <TableCell>{row.recordedBy}</TableCell>
                   <TableCell align="center">
-                    <Tooltip title="Cetak Tanda Terima DP">
+                    <Tooltip title={<FormattedMessage id="print-dp-receipt" />}>
                       <span>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => printReceipt(row)}
-                          disabled={printingId === row.id}
-                        >
+                        <IconButton size="small" color="primary" onClick={() => printReceipt(row)} disabled={printingId === row.id}>
                           <Print fontSize="small" />
                         </IconButton>
                       </span>

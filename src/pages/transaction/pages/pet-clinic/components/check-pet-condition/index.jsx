@@ -8,6 +8,7 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import PetsIcon from '@mui/icons-material/Pets';
 import {
   Box,
+  Button,
   Checkbox,
   Chip,
   Divider,
@@ -25,6 +26,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
 import { useTheme } from '@mui/material/styles';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -187,7 +189,8 @@ const CheckPetConditionPetClinic = (props) => {
       title={<FormattedMessage id="check-pet-condition" />}
       open={props.open}
       onOk={onSubmit}
-      disabledOk={disabledOke}
+      disabledOk={tabActive !== 3 || disabledOke}
+      okText={tabActive !== 3 ? `Lanjut ke tab ${tabActive + 2} dahulu` : 'Submit'}
       onCancel={() => props.onClose(false)}
       fullWidth
       maxWidth="lg"
@@ -893,6 +896,21 @@ const CheckPetConditionPetClinic = (props) => {
             </Grid>
           </Grid>
         </SectionCard>
+
+        {/* ── Submit Button ── */}
+        <Box display="flex" justifyContent="flex-end" mt={1} mb={2}>
+          <Button
+            variant="contained"
+            size="large"
+            color="primary"
+            startIcon={<SaveIcon />}
+            disabled={disabledOke}
+            onClick={onSubmit}
+            sx={{ minWidth: 200, fontWeight: 700 }}
+          >
+            Simpan Data Pemeriksaan
+          </Button>
+        </Box>
 
       </TabPanel>
     </ModalC>

@@ -3,6 +3,10 @@ import { formateDateYYYMMDD } from 'utils/func';
 
 const url = 'transaction/breeding';
 
+export const getTransactionBreedingStats = async () => {
+  return await axios.get(`${url}/stats`);
+};
+
 export const getTransactionBreedingIndex = async (payload) => {
   return await axios.get(url, {
     params: {
@@ -13,7 +17,10 @@ export const getTransactionBreedingIndex = async (payload) => {
       search: payload.search,
       locationId: payload.locationId,
       customerGroupId: payload.customerGroupId,
-      status: payload.status // ongoing or finished
+      status: payload.status, // ongoing or finished
+      statusFilter: payload.statusFilter || '',
+      startDateFrom: payload.startDateFrom || '',
+      startDateTo: payload.startDateTo || ''
     }
   });
 };

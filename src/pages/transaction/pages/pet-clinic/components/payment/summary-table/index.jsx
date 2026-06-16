@@ -120,22 +120,21 @@ const SummaryTable = (props) => {
                   </TableCell>
                   <TableCell>{formValue.summarySubtotal}</TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell>
-                    <b>
-                      {/* <FormattedMessage id="discount-nominal" /> */}
-                      {formValue.summaryDiscountNote}
-                    </b>
-                  </TableCell>
-                  <TableCell>{formValue.summaryTotalDiscount}</TableCell>
-                </TableRow>
+                {Boolean(formValue.summaryTotalDiscount) && (
+                  <TableRow>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>
+                      <b>{formValue.summaryDiscountNote || 'Diskon'}</b>
+                    </TableCell>
+                    <TableCell>- {formValue.summaryTotalDiscount}</TableCell>
+                  </TableRow>
+                )}
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell></TableCell>

@@ -1,8 +1,36 @@
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
-import ChecklistIcon from '@mui/icons-material/Checklist';
+import { CheckOutlined, CloseOutlined, DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
+import DrawIcon from '@mui/icons-material/Draw';
 import DownloadIcon from '@mui/icons-material/Download';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import PaidIcon from '@mui/icons-material/Paid';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import PetsIcon from '@mui/icons-material/Pets';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Autocomplete, Box, Button, Grid, Link, Stack, Tab, Tabs, TextField, Tooltip } from '@mui/material'; // useMediaQuery
+import ScienceIcon from '@mui/icons-material/Science';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Collapse,
+  FormControl,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ConfirmationC from 'components/ConfirmationC';
@@ -14,7 +42,7 @@ import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactT
 import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import useGetList from 'hooks/useGetList';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
@@ -32,9 +60,73 @@ import CheckPetCondition from './components/check-pet-condition';
 import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
-import { deleteTransactionPetSalon, exportTransactionPetSalon, getTransactionPetSalonIndex } from './service';
+import {
+  deleteTransactionPetSalon,
+  exportTransactionPetSalon,
+  getTransactionPetSalonIndex,
+  getTransactionPetSalonStats,
+  acceptTransactionPetSalon,
+  initiateCheckoutPetSalon
+} from './service';
 import Payment from './components/payment';
+import TreatmentPetSalon from './components/treatment';
+import PolicyAgreementPetSalon from './components/policy-agreement';
+import MarkSalonDone from './components/mark-done';
 
+// ─── Status chip config ───────────────────────────────────────────────────────
+const STATUS_CONFIG = {
+  'menunggu dokter': { color: 'warning', label: 'Menunggu Dokter' },
+  'ditolak dokter': { color: 'error', label: 'Ditolak Dokter' },
+  'cek kondisi pet': { color: 'info', label: 'Cek Kondisi Pet' },
+  'pet diterima masuk pet hotel': { color: 'primary', label: 'Pet Diterima' },
+  'menunggu persetujuan policy': { color: 'warning', label: 'Menunggu Policy' },
+  'proses salon': { color: 'secondary', label: 'Proses Salon' },
+  'menunggu penjemputan': { color: 'info', label: 'Menunggu Jemput' },
+  'proses pembayaran': { color: 'warning', label: 'Proses Pembayaran' },
+  selesai: { color: 'success', label: 'Selesai' },
+  batal: { color: 'error', label: 'Batal' }
+};
+
+const StatusChip = ({ value }) => {
+  const cfg = STATUS_CONFIG[(value || '').toLowerCase()];
+  return <Chip label={cfg?.label ?? value} color={cfg?.color ?? 'default'} size="small" sx={{ fontWeight: 500, minWidth: 115 }} />;
+};
+
+// ─── Status options per tab untuk filter ─────────────────────────────────────
+const STATUS_OPTIONS = {
+  ongoing: [
+    'Menunggu Dokter',
+    'Ditolak Dokter',
+    'Cek Kondisi Pet',
+    'Pet Diterima Masuk Pet Hotel',
+    'Menunggu Persetujuan Policy',
+    'Proses Salon',
+    'Menunggu Penjemputan',
+    'Proses Pembayaran'
+  ],
+  finished: ['Selesai', 'Batal']
+};
+
+// ─── Mini Dashboard Card ──────────────────────────────────────────────────────
+const StatCard = ({ icon, label, value, color }) => (
+  <Card variant="outlined" sx={{ borderLeft: 4, borderColor: `${color}.main` }}>
+    <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+      <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Box sx={{ color: `${color}.main`, display: 'flex' }}>{icon}</Box>
+        <Box>
+          <Typography variant="h5" fontWeight="bold" color={`${color}.main`}>
+            {value ?? '—'}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {label}
+          </Typography>
+        </Box>
+      </Stack>
+    </CardContent>
+  </Card>
+);
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const TransactionPetSalon = () => {
   const { user } = useAuth();
   let [searchParams, setSearchParams] = useSearchParams();
@@ -44,30 +136,64 @@ const TransactionPetSalon = () => {
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
     getTransactionPetSalonIndex,
-    { status: tabQueryParam, locationId: [], customerGroupId: [] },
+    { status: tabQueryParam, locationId: [], customerGroupId: [], statusFilter: '', startDateFrom: '', startDateTo: '' },
     'search'
   );
 
   const intl = useIntl();
   const dispatch = useDispatch();
 
+  // ── State ──
+  const [stats, setStats] = useState(null);
   const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
   const [filterLocationList, setFilterLocationList] = useState([]);
-
   const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
   const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
-
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStartDateFrom, setFilterStartDateFrom] = useState('');
+  const [filterStartDateTo, setFilterStartDateTo] = useState('');
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState(false);
+  const [acceptRejectDialog, setAcceptRejectDialog] = useState({ accept: false, reject: false, transactionId: null });
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { transactionId: null, locationId: null } });
+  const [policyAgreementDialog, setPolicyAgreementDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [markDoneDialog, setMarkDoneDialog] = useState({ isOpen: false, data: { transactionId: null, locationId: null } });
   const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
+
+  // ── Fetch stats ──
+  const fetchStats = useCallback(async () => {
+    try {
+      const resp = await getTransactionPetSalonStats();
+      if (resp?.data) setStats(resp.data);
+    } catch (_) {
+      /* silent */
+    }
+  }, []);
 
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
+  };
+
+  const onAcceptReject = async (type) => {
+    await acceptTransactionPetSalon({
+      transactionId: acceptRejectDialog.transactionId,
+      status: type === 'accept' ? 1 : 0,
+      reason: ''
+    })
+      .then((resp) => {
+        if (resp && resp.status === 200) {
+          setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+          dispatch(snackbarSuccess(type === 'accept' ? 'Transaksi diterima' : 'Transaksi ditolak'));
+          setParams((_params) => ({ ..._params }));
+        }
+      })
+      .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
   };
 
   const onConfirm = async (value) => {
@@ -117,11 +243,30 @@ const TransactionPetSalon = () => {
   useEffect(() => {
     setSearchParams({ tab: tabQueryParam });
     setTabSelected(TabList[tabQueryParam]);
-
     getDataDropdown();
+    fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    fetchStats();
+  }, [list, fetchStats]);
+
+  // ── Advanced filter handlers ──
+  const applyAdvancedFilter = () => {
+    setParams((prev) => ({ ...prev, statusFilter: filterStatus, startDateFrom: filterStartDateFrom, startDateTo: filterStartDateTo }));
+  };
+
+  const resetAdvancedFilter = () => {
+    setFilterStatus('');
+    setFilterStartDateFrom('');
+    setFilterStartDateTo('');
+    setParams((prev) => ({ ...prev, statusFilter: '', startDateFrom: '', startDateTo: '' }));
+  };
+
+  const hasAdvancedFilter = !!(filterStatus || filterStartDateFrom || filterStartDateTo);
+
+  // ── Columns ──
   const columnCheckbox = () => {
     return user?.role === CONSTANT_ADMINISTRATOR
       ? [
@@ -145,7 +290,22 @@ const TransactionPetSalon = () => {
   };
 
   const columnCustomerGroup = () => {
-    return user?.role === CONSTANT_ADMINISTRATOR ? [{ Header: <FormattedMessage id="customer-group" />, accessor: 'customerGroup' }] : [];
+    return user?.role === CONSTANT_ADMINISTRATOR
+      ? [
+          {
+            Header: 'Customer Group',
+            accessor: 'customerGroup',
+            Cell: (data) =>
+              data.value ? (
+                <Chip label={data.value} size="small" color="primary" variant="outlined" />
+              ) : (
+                <Typography variant="caption" color="text.disabled">
+                  —
+                </Typography>
+              )
+          }
+        ]
+      : [];
   };
 
   const columns = useMemo(
@@ -157,50 +317,137 @@ const TransactionPetSalon = () => {
         style: { textAlign: 'center' },
         isNotSorting: true,
         Cell: (data) => {
-          const statusRow = data.row.original.status;
+          const statusRow = (data.row.original.status ?? '').toLowerCase();
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
           const locationIdRow = +data.row.original.locationId;
+          const isAdminOrStaff = [CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role);
 
           const doReassign = async () => {
-            const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
-            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
+            const getLocations = await getDoctorStaffByLocationList(locationIdRow);
+            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: transactionIdRow } });
           };
 
           return (
-            <Stack spacing={0.1} direction={'row'} justifyContent="center">
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'ditolak dokter' && (
-                <Tooltip title={'Reassign'} arrow>
-                  <IconButton size="large" color="success" onClick={doReassign}>
+            <Stack spacing={0.1} direction="row" justifyContent="center">
+              {/* ── Menunggu Dokter: Accept + Reject ── */}
+              {isAdminOrStaff && statusRow === 'menunggu dokter' && (
+                <>
+                  <Tooltip title={<FormattedMessage id="accept-patient" />} arrow>
+                    <IconButton
+                      size="large"
+                      color="success"
+                      onClick={() => setAcceptRejectDialog({ accept: true, reject: false, transactionId: transactionIdRow })}
+                    >
+                      <CheckOutlined />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={<FormattedMessage id="cancel-patient" />} arrow>
+                    <IconButton
+                      size="large"
+                      color="error"
+                      onClick={() => setAcceptRejectDialog({ accept: false, reject: true, transactionId: transactionIdRow })}
+                    >
+                      <CloseOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+
+              {/* ── Ditolak Dokter: Reassign ── */}
+              {isAdminOrStaff && statusRow === 'ditolak dokter' && (
+                <Tooltip title={<FormattedMessage id="reassign" />} arrow>
+                  <IconButton size="large" color="warning" onClick={doReassign}>
                     <RefreshIcon />
                   </IconButton>
                 </Tooltip>
               )}
 
+              {/* ── Cek Kondisi Pet ── */}
               {Boolean(isPetCheckRow) && (
                 <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
                   <IconButton
                     size="large"
-                    color="success"
-                    onClick={() => {
-                      setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } });
-                    }}
+                    color="info"
+                    onClick={() => setCheckConditionPetDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
                   >
-                    <ChecklistIcon />
+                    <PetsIcon />
                   </IconButton>
                 </Tooltip>
               )}
 
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow.toLowerCase() === 'proses pembayaran' && (
+              {/* ── Pet diterima: Input Treatment ── */}
+              {statusRow === 'pet diterima masuk pet hotel' && (
+                <Tooltip title={<FormattedMessage id="treatment" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="primary"
+                    onClick={() =>
+                      setTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })
+                    }
+                  >
+                    <ScienceIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Menunggu Persetujuan Policy ── */}
+              {isAdminOrStaff && statusRow === 'menunggu persetujuan policy' && (
+                <Tooltip title={<FormattedMessage id="policy-agreement" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="primary"
+                    onClick={() => setPolicyAgreementDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                  >
+                    <DrawIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Proses Salon: Tandai Selesai ── */}
+              {statusRow === 'proses salon' && (
+                <Tooltip title={<FormattedMessage id="mark-salon-done" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() =>
+                      setMarkDoneDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })
+                    }
+                  >
+                    <ContentCutIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Menunggu Penjemputan: Initiate Checkout ── */}
+              {isAdminOrStaff && statusRow === 'menunggu penjemputan' && (
+                <Tooltip title={<FormattedMessage id="initiate-checkout" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={async () => {
+                      try {
+                        await initiateCheckoutPetSalon(transactionIdRow);
+                        setParams((_params) => ({ ..._params }));
+                      } catch (err) {
+                        dispatch(snackbarError(createMessageBackend(err)));
+                      }
+                    }}
+                  >
+                    <ExitToAppIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Proses Pembayaran: Payment ── */}
+              {isAdminOrStaff && statusRow === 'proses pembayaran' && (
                 <Tooltip title={<FormattedMessage id="payment" />} arrow>
                   <IconButton
                     size="large"
                     color="success"
-                    onClick={() => {
-                      setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } });
-                    }}
+                    onClick={() => setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })}
                   >
-                    <ChecklistIcon />
+                    <PaidIcon />
                   </IconButton>
                 </Tooltip>
               )}
@@ -213,12 +460,10 @@ const TransactionPetSalon = () => {
         accessor: 'registrationNo',
         Cell: (data) => {
           const getId = data.row.original.id;
-
           return (
             <Link
-              onClick={() => {
-                setDetailTransactionConfig({ isOpen: true, data: { id: getId } });
-              }}
+              sx={{ cursor: 'pointer', fontWeight: 500, fontSize: 13 }}
+              onClick={() => setDetailTransactionConfig({ isOpen: true, data: { id: getId } })}
             >
               {data.value}
             </Link>
@@ -226,136 +471,244 @@ const TransactionPetSalon = () => {
         }
       },
       {
-        Header: <FormattedMessage id="customer-name" />,
-        accessor: 'firstName'
+        Header: 'Pasien',
+        accessor: 'petName',
+        Cell: (data) => (
+          <Stack spacing={0}>
+            <Typography variant="body2" fontWeight={600}>
+              🐾 {data.value || '—'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {data.row.original.firstName || '—'}
+            </Typography>
+          </Stack>
+        )
       },
       ...columnCustomerGroup(),
-      { Header: <FormattedMessage id="start-date" />, accessor: 'startDate' },
-      { Header: <FormattedMessage id="end-date" />, accessor: 'endDate' },
-      { Header: 'Status', accessor: 'status' },
-      { Header: 'PIC Dokter', accessor: 'picDoctor' },
-      { Header: <FormattedMessage id="created-at" />, accessor: 'createdAt' },
-      { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy' }
+      {
+        Header: 'Periode',
+        accessor: 'startDate',
+        Cell: (data) => {
+          const start = data.value;
+          const end = data.row.original.endDate;
+          if (!start)
+            return (
+              <Typography variant="caption" color="text.disabled">
+                —
+              </Typography>
+            );
+          return (
+            <Stack spacing={0}>
+              <Typography variant="caption" fontWeight={500}>
+                {start}
+              </Typography>
+              {end && (
+                <Typography variant="caption" color="text.secondary">
+                  s/d {end}
+                </Typography>
+              )}
+            </Stack>
+          );
+        }
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: (data) => <StatusChip value={data.value} />
+      },
+      {
+        Header: 'PIC Dokter',
+        accessor: 'picDoctor',
+        Cell: (data) => <Typography variant="caption">{data.value || '—'}</Typography>
+      }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [user]
   );
 
-  const renderContent = () => {
-    return (
-      <>
-        <Stack spacing={3}>
-          <ScrollX>
-            <ReactTable
-              columns={columns}
-              data={list || []}
-              colSpanPagination={12}
-              totalPagination={totalPagination}
-              setPageNumber={params.goToPage}
-              setPageRow={params.rowPerPage}
-              onGotoPage={goToPage}
-              onOrder={orderingChange}
-              onPageSize={changeLimit}
-            />
-          </ScrollX>
-        </Stack>
-      </>
-    );
-  };
+  const renderContent = () => (
+    <ScrollX>
+      <ReactTable
+        columns={columns}
+        data={list || []}
+        colSpanPagination={8}
+        totalPagination={totalPagination}
+        setPageNumber={params.goToPage}
+        setPageRow={params.rowPerPage}
+        onGotoPage={goToPage}
+        onOrder={orderingChange}
+        onPageSize={changeLimit}
+      />
+    </ScrollX>
+  );
 
   return (
     <>
-      <HeaderPageCustom title={<FormattedMessage id={`transaction-pet-salon`} />} isBreadcrumb={true} />
+      <HeaderPageCustom title={<FormattedMessage id="transaction-pet-salon" />} isBreadcrumb={true} />
+
+      {/* ─── Mini Dashboard Stats ─── */}
+      <Grid container spacing={2} mb={2}>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<PetsIcon />} label="Antrian Grooming" value={stats?.antrianGrooming} color="info" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<ContentCutIcon />} label="Proses Salon" value={stats?.prosesSalon} color="primary" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<CheckCircleIcon />} label="Selesai Hari Ini" value={stats?.finishedToday} color="success" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<PaymentsIcon />} label="Proses Pembayaran" value={stats?.prosesPembayaran} color="warning" />
+        </Grid>
+      </Grid>
+
       <MainCard content={true} boxShadow>
-        <Grid container spacing={2} width={'100%'} marginBottom={'20px'}>
-          <Grid item sm={12} xs={12} md={8}>
-            <Grid container spacing={2}>
-              <Grid item sm={12} xs={12} md={6}>
-                <GlobalFilter
-                  placeHolder={intl.formatMessage({ id: 'search' })}
-                  globalFilter={keyword}
-                  setGlobalFilter={changeKeyword}
-                  className={'fullWidth'}
-                  style={{ height: '41.3px' }}
+        {/* ─── Filter Bar ─── */}
+        <Grid container spacing={2} mb={2} alignItems="center">
+          {/* Search */}
+          <Grid item xs={12} sm={user?.role === CONSTANT_ADMINISTRATOR ? 4 : 6}>
+            <GlobalFilter
+              placeHolder={intl.formatMessage({ id: 'search' })}
+              globalFilter={keyword}
+              setGlobalFilter={changeKeyword}
+              className="fullWidth"
+              style={{ height: '41.3px' }}
+            />
+          </Grid>
+          {/* Admin: Location + Customer Group */}
+          {user?.role === CONSTANT_ADMINISTRATOR && (
+            <>
+              <Grid item xs={12} sm={4}>
+                <Autocomplete
+                  id="filterLocation"
+                  multiple
+                  limitTags={1}
+                  options={filterLocationList}
+                  value={selectedFilterLocation}
+                  className="fullWidth"
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, selected) => {
+                    setFilterLocation(selected);
+                    setParams((prevParams) => ({ ...prevParams, locationId: selected.map((dt) => dt.value) }));
+                  }}
+                  renderInput={(p) => <TextField {...p} label={<FormattedMessage id="filter-location" />} />}
                 />
               </Grid>
-              {user?.role === CONSTANT_ADMINISTRATOR && (
-                <>
-                  <Grid item sm={12} xs={12} md={6}>
-                    <Autocomplete
-                      id="filterLocation"
-                      multiple
-                      limitTags={1}
-                      options={filterLocationList}
-                      value={selectedFilterLocation}
-                      className={'fullWidth'}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, selected) => {
-                        setFilterLocation(selected);
-                        setParams((prevParams) => ({ ...prevParams, locationId: selected.map((dt) => dt.value) }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="filter-location" />} />}
-                    />
-                  </Grid>
-                  <Grid item sm={12} xs={12} md={6}>
-                    <Autocomplete
-                      id="filter-customer-group"
-                      multiple
-                      limitTags={1}
-                      options={filterCustomerGroupList}
-                      value={selectedFilterCustomerGroup}
-                      className={'fullWidth'}
-                      isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                      onChange={(_, selected) => {
-                        setFilterCustomerGroup(selected);
-                        setParams((prevParams) => ({ ...prevParams, customerGroupId: selected.map((dt) => dt.value) }));
-                      }}
-                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="customer-group" />} />}
-                    />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={12} md={4}>
-            <Stack spacing={1}>
-              <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
+              <Grid item xs={12} sm={4}>
+                <Autocomplete
+                  id="filter-customer-group"
+                  multiple
+                  limitTags={1}
+                  options={filterCustomerGroupList}
+                  value={selectedFilterCustomerGroup}
+                  className="fullWidth"
+                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                  onChange={(_, selected) => {
+                    setFilterCustomerGroup(selected);
+                    setParams((prevParams) => ({ ...prevParams, customerGroupId: selected.map((dt) => dt.value) }));
+                  }}
+                  renderInput={(p) => <TextField {...p} label={<FormattedMessage id="customer-group" />} />}
+                />
+              </Grid>
+            </>
+          )}
+          {/* Action Buttons */}
+          <Grid item xs={12} sm={user?.role === CONSTANT_ADMINISTRATOR ? 12 : 6}>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FilterListIcon />}
+                color={showAdvancedFilter ? 'primary' : 'inherit'}
+                onClick={() => setShowAdvancedFilter((v) => !v)}
+              >
+                Filter Lanjutan
+                {hasAdvancedFilter && <Chip label="aktif" size="small" color="primary" sx={{ ml: 0.5, height: 16, fontSize: 10 }} />}
+              </Button>
+              <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
+                <FormattedMessage id="export" />
+              </Button>
+              {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
+                <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
+                  <FormattedMessage id="transaction" />
                 </Button>
-                {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
-                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
-                    <FormattedMessage id="transaction" />
-                  </Button>
-                )}
-              </Stack>
-              {selectedRow.length > 0 && (
-                <Stack direction={'row'} justifyContent="flex-end" alignItems="center" spacing={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<DeleteFilled />}
-                    color="error"
-                    onClick={() => setDialog(true)}
-                    style={{ width: 100 }}
-                  >
-                    <FormattedMessage id="delete" />
-                  </Button>
-                </Stack>
               )}
             </Stack>
           </Grid>
+
+          {/* Advanced Filter (collapsible) */}
+          <Grid item xs={12}>
+            <Collapse in={showAdvancedFilter}>
+              <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" color="text.secondary" mb={1.5}>
+                  <FilterListIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
+                  Filter Lanjutan
+                </Typography>
+                <Grid container spacing={2} alignItems="flex-end">
+                  <Grid item xs={12} sm={4}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Filter Status</InputLabel>
+                      <Select value={filterStatus} label="Filter Status" onChange={(e) => setFilterStatus(e.target.value)}>
+                        <MenuItem value="">
+                          <em>Semua Status</em>
+                        </MenuItem>
+                        {(STATUS_OPTIONS[tabQueryParam] || []).map((s) => (
+                          <MenuItem key={s} value={s}>
+                            {s}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Tgl Mulai (Dari)"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={filterStartDateFrom}
+                      onChange={(e) => setFilterStartDateFrom(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Tgl Mulai (Sampai)"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={filterStartDateTo}
+                      onChange={(e) => setFilterStartDateTo(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2}>
+                    <Stack direction="row" spacing={1}>
+                      <Button variant="contained" size="small" onClick={applyAdvancedFilter} fullWidth>
+                        Terapkan
+                      </Button>
+                      <Button variant="outlined" size="small" onClick={resetAdvancedFilter} fullWidth>
+                        Reset
+                      </Button>
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Collapse>
+          </Grid>
         </Grid>
 
+        {/* ─── Tabs ─── */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
           <Tabs
             value={tabSelected}
             onChange={(_, value) => {
               const tabs = ['ongoing', 'finished'];
               setSearchParams({ tab: tabs[value] });
-
               setTabSelected(value);
               setSelectedRow([]);
-              setParams((prevParams) => ({ ...prevParams, status: tabs[value] }));
+              resetAdvancedFilter();
+              setParams((prevParams) => ({ ...prevParams, status: tabs[value], statusFilter: '', startDateFrom: '', startDateTo: '' }));
             }}
             variant="scrollable"
             scrollButtons="auto"
@@ -373,7 +726,18 @@ const TransactionPetSalon = () => {
             {renderContent()}
           </TabPanel>
         </Box>
+
+        {/* ── Delete selected rows ── */}
+        {selectedRow.length > 0 && (
+          <Stack direction="row" justifyContent="flex-end" mt={1}>
+            <Button variant="contained" startIcon={<DeleteFilled />} color="error" onClick={() => setDialog(true)} style={{ width: 160 }}>
+              Hapus ({selectedRow.length})
+            </Button>
+          </Stack>
+        )}
       </MainCard>
+
+      {/* ─── Modals ─── */}
       {formTransactionConfig.isOpen && (
         <FormTransaction
           open={formTransactionConfig.isOpen}
@@ -395,7 +759,6 @@ const TransactionPetSalon = () => {
             } else if (['accept-patient', 'cancel-patient', 'delete'].includes(action)) {
               setParams((_params) => ({ ..._params }));
             }
-
             setDetailTransactionConfig({ isOpen: false, data: { id: null } });
           }}
         />
@@ -439,6 +802,68 @@ const TransactionPetSalon = () => {
           onClose={(resp) => {
             if (resp) setParams((_params) => ({ ..._params }));
             setPaymentDialog({ isOpen: false, data: {} });
+          }}
+        />
+      )}
+
+      {/* ── Accept Confirmation ── */}
+      <ConfirmationC
+        open={acceptRejectDialog.accept}
+        title={<FormattedMessage id="accept-patient" />}
+        content={<FormattedMessage id="confirm-accept-booking" />}
+        onClose={(confirmed) => {
+          if (confirmed) onAcceptReject('accept');
+          else setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+        }}
+        btnTrueText={<FormattedMessage id="accept" />}
+        btnFalseText={<FormattedMessage id="cancel" />}
+      />
+
+      {/* ── Reject Confirmation ── */}
+      <ConfirmationC
+        open={acceptRejectDialog.reject}
+        title={<FormattedMessage id="cancel-patient" />}
+        content={<FormattedMessage id="confirm-and-please-fill-in-the-reasons-for-cancel-this-patient" />}
+        onClose={(confirmed) => {
+          if (confirmed) onAcceptReject('reject');
+          else setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+        }}
+        btnTrueText={<FormattedMessage id="cancel-patient" />}
+        btnFalseText={<FormattedMessage id="cancel" />}
+      />
+
+      {/* ── Treatment Input ── */}
+      {treatmentDialog.isOpen && (
+        <TreatmentPetSalon
+          open={treatmentDialog.isOpen}
+          data={treatmentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setTreatmentDialog({ isOpen: false, data: { transactionId: null, locationId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Policy Agreement ── */}
+      {policyAgreementDialog.isOpen && (
+        <PolicyAgreementPetSalon
+          open={policyAgreementDialog.isOpen}
+          data={policyAgreementDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPolicyAgreementDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Mark Salon Done ── */}
+      {markDoneDialog.isOpen && (
+        <MarkSalonDone
+          open={markDoneDialog.isOpen}
+          data={markDoneDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setMarkDoneDialog({ isOpen: false, data: { transactionId: null, locationId: null } });
           }}
         />
       )}
