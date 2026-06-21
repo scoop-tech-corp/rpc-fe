@@ -84,6 +84,7 @@ export const createTransactionPetClinic = async (payload) => {
   formData.append('endDate', endDate);
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
+  if (payload.queueId) formData.append('queueId', payload.queueId);
 
   return await axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -95,7 +96,8 @@ const mapPayloadTransactionForm = (payload) => {
 
   const isNewCustomer = payload.customer === 'old' ? 0 : 1;
   const isNewPet = () => {
-    if (isNewCustomer || payload.petName) return 1;
+    if (isNewCustomer) return 1; // new customer always needs new pet
+    if (payload.petName && !payload.pets && payload.petId === '') return 1; // old customer entering a brand-new pet
     return 0;
   };
   const customer = isNewCustomer ? payload.customerName : payload.customerName.value;
@@ -356,9 +358,17 @@ export const calculatePetClinicOutpatient = async (payload) => {
   formData.append('services', JSON.stringify(payload.services ?? []));
   formData.append('recipes', JSON.stringify(payload.recipes ?? []));
   formData.append('products', JSON.stringify(payload.products ?? []));
-  formData.append('selectedPromos', JSON.stringify(payload.selectedPromos ?? {
-    freeItems: [], discounts: [], bundles: [], basedSaleId: null
-  }));
+  formData.append(
+    'selectedPromos',
+    JSON.stringify(
+      payload.selectedPromos ?? {
+        freeItems: [],
+        discounts: [],
+        bundles: [],
+        basedSaleId: null
+      }
+    )
+  );
 
   return await axios.post(url + '/calculate', formData);
 };
@@ -473,12 +483,26 @@ export const printInvoicePetClinic = async (paymentId) => {
   });
 };
 
+// Step 1: Staff upload bukti → status = 'pending'
 export const uploadProofOfPayment = async (payload) => {
   const formData = new FormData();
   formData.append('id', payload.paymentId);
   formData.append('proof', payload.file);
 
+  return await axios.post(url + '/upload-payment-proof', formData);
+};
+
+// Step 2: Finance/Manager konfirmasi (harus orang berbeda dari uploader)
+export const confirmPaymentPetClinic = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+
   return await axios.post(url + '/confirm-payment', formData);
+};
+
+// Tolak bukti pembayaran
+export const rejectPaymentPetClinic = async (payload) => {
+  return await axios.post(url + '/reject-payment', { id: payload.id, note: payload.note });
 };
 
 // ─── Accept / Reject patient ───────────────────────────────────────────────
@@ -550,7 +574,8 @@ export const markPapanKerjaHarianPetClinicDone = async (payload) => {
   if (payload.nafsuMakan) formData.append('nafsuMakan', payload.nafsuMakan);
   if (payload.outputFeses) formData.append('outputFeses', payload.outputFeses);
   if (payload.outputUrin) formData.append('outputUrin', payload.outputUrin);
-  if (payload.obatDiberikan !== undefined && payload.obatDiberikan !== null) formData.append('obatDiberikan', payload.obatDiberikan ? 1 : 0);
+  if (payload.obatDiberikan !== undefined && payload.obatDiberikan !== null)
+    formData.append('obatDiberikan', payload.obatDiberikan ? 1 : 0);
   if (payload.catatanObat) formData.append('catatanObat', payload.catatanObat);
   if (payload.catatan) formData.append('catatan', payload.catatan);
   if (payload.foto) formData.append('foto', payload.foto);

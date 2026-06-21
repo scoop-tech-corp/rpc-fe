@@ -1,8 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  Box, Button, Chip, Divider, FormControlLabel, MenuItem, Select,
-  Stack, Switch, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TextField, Typography, InputLabel
+  Box,
+  Button,
+  Chip,
+  Divider,
+  FormControlLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  InputLabel
 } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
@@ -11,34 +26,36 @@ import { createMessageBackend } from 'service/service-global';
 import { getInspections, storeInspection } from '../../service';
 import PropTypes from 'prop-types';
 
-const COND_OPTIONS  = ['baik', 'perlu_perhatian', 'tidak_layak'];
-const condLabel     = { baik: 'Baik', perlu_perhatian: 'Perlu Perhatian', tidak_layak: 'Tidak Layak' };
-const condColor     = { baik: 'success', perlu_perhatian: 'warning', tidak_layak: 'error' };
+const COND_OPTIONS = ['baik', 'perlu_perhatian', 'tidak_layak'];
+const condLabel = { baik: 'Baik', perlu_perhatian: 'Perlu Perhatian', tidak_layak: 'Tidak Layak' };
+const condColor = { baik: 'success', perlu_perhatian: 'warning', tidak_layak: 'error' };
 
 const defaultForm = {
-  conditionResult:    'baik',
-  findings:           '',
-  recommendation:     '',
-  createMaintenance:  false,
-  maintenanceTitle:   '',
+  conditionResult: 'baik',
+  findings: '',
+  recommendation: '',
+  createMaintenance: false,
+  maintenanceTitle: ''
 };
 
 export default function TabInspeksi({ cageId, canInspect }) {
   const dispatch = useDispatch();
-  const [rows, setRows]         = useState([]);
+  const [rows, setRows] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm]         = useState(defaultForm);
+  const [form, setForm] = useState(defaultForm);
   const [submitting, setSubmitting] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo]     = useState('');
+  const [dateTo, setDateTo] = useState('');
 
-  const load = () => {
+  const load = useCallback(() => {
     getInspections({ cageId, dateFrom, dateTo, rowPerPage: 20, goToPage: 1 })
       .then((res) => setRows(res?.data?.data ?? []))
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
-  };
+  }, [cageId, dateFrom, dateTo, dispatch]);
 
-  useEffect(() => { load(); }, [cageId]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const f = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
 
@@ -46,11 +63,11 @@ export default function TabInspeksi({ cageId, canInspect }) {
     setSubmitting(true);
     await storeInspection({
       cageId,
-      conditionResult:   form.conditionResult,
-      findings:          form.findings,
-      recommendation:    form.recommendation,
+      conditionResult: form.conditionResult,
+      findings: form.findings,
+      recommendation: form.recommendation,
       createMaintenance: form.createMaintenance ? 1 : 0,
-      maintenanceTitle:  form.maintenanceTitle,
+      maintenanceTitle: form.maintenanceTitle
     })
       .then(() => {
         dispatch(snackbarSuccess('Inspeksi berhasil disimpan'));
@@ -87,27 +104,43 @@ export default function TabInspeksi({ cageId, canInspect }) {
                 </Select>
               </Stack>
 
-              <TextField multiline rows={3} size="small" label="Temuan"
-                value={form.findings} onChange={(e) => f('findings', e.target.value)} />
+              <TextField
+                multiline
+                rows={3}
+                size="small"
+                label="Temuan"
+                value={form.findings}
+                onChange={(e) => f('findings', e.target.value)}
+              />
 
-              <TextField multiline rows={2} size="small" label="Rekomendasi Tindakan"
-                value={form.recommendation} onChange={(e) => f('recommendation', e.target.value)} />
+              <TextField
+                multiline
+                rows={2}
+                size="small"
+                label="Rekomendasi Tindakan"
+                value={form.recommendation}
+                onChange={(e) => f('recommendation', e.target.value)}
+              />
 
               <FormControlLabel
-                control={
-                  <Switch checked={form.createMaintenance}
-                    onChange={(e) => f('createMaintenance', e.target.checked)} />
-                }
+                control={<Switch checked={form.createMaintenance} onChange={(e) => f('createMaintenance', e.target.checked)} />}
                 label="Buat Maintenance Request otomatis"
               />
 
               {form.createMaintenance && (
-                <TextField size="small" label="Judul Maintenance" required
-                  value={form.maintenanceTitle} onChange={(e) => f('maintenanceTitle', e.target.value)} />
+                <TextField
+                  size="small"
+                  label="Judul Maintenance"
+                  required
+                  value={form.maintenanceTitle}
+                  onChange={(e) => f('maintenanceTitle', e.target.value)}
+                />
               )}
 
               <Stack direction="row" spacing={1}>
-                <Button variant="outlined" onClick={() => setShowForm(false)}>Batal</Button>
+                <Button variant="outlined" onClick={() => setShowForm(false)}>
+                  Batal
+                </Button>
                 <Button variant="contained" onClick={onSubmit} disabled={submitting}>
                   {submitting ? 'Menyimpan...' : 'Simpan Inspeksi'}
                 </Button>
@@ -122,11 +155,27 @@ export default function TabInspeksi({ cageId, canInspect }) {
       {/* Filter tanggal */}
       <Stack direction="row" spacing={2} alignItems="center">
         <Typography variant="subtitle2">Riwayat Inspeksi</Typography>
-        <TextField type="date" size="small" label="Dari" InputLabelProps={{ shrink: true }}
-          value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} sx={{ width: 160 }} />
-        <TextField type="date" size="small" label="Sampai" InputLabelProps={{ shrink: true }}
-          value={dateTo} onChange={(e) => setDateTo(e.target.value)} sx={{ width: 160 }} />
-        <Button size="small" variant="outlined" onClick={load}>Cari</Button>
+        <TextField
+          type="date"
+          size="small"
+          label="Dari"
+          InputLabelProps={{ shrink: true }}
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          sx={{ width: 160 }}
+        />
+        <TextField
+          type="date"
+          size="small"
+          label="Sampai"
+          InputLabelProps={{ shrink: true }}
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          sx={{ width: 160 }}
+        />
+        <Button size="small" variant="outlined" onClick={load}>
+          Cari
+        </Button>
       </Stack>
 
       {/* Tabel riwayat */}
@@ -145,20 +194,24 @@ export default function TabInspeksi({ cageId, canInspect }) {
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} align="center">
-                  <Typography color="text.secondary" variant="body2">Belum ada riwayat inspeksi</Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    Belum ada riwayat inspeksi
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ) : rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.inspectedAt}</TableCell>
-                <TableCell>
-                  <Chip size="small" label={condLabel[row.conditionResult]} color={condColor[row.conditionResult]} />
-                </TableCell>
-                <TableCell>{row.findings || '-'}</TableCell>
-                <TableCell>{row.recommendation || '-'}</TableCell>
-                <TableCell>{row.inspectedBy}</TableCell>
-              </TableRow>
-            ))}
+            ) : (
+              rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.inspectedAt}</TableCell>
+                  <TableCell>
+                    <Chip size="small" label={condLabel[row.conditionResult]} color={condColor[row.conditionResult]} />
+                  </TableCell>
+                  <TableCell>{row.findings || '-'}</TableCell>
+                  <TableCell>{row.recommendation || '-'}</TableCell>
+                  <TableCell>{row.inspectedBy}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

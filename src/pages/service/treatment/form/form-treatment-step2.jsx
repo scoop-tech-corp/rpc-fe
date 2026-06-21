@@ -57,6 +57,7 @@ export default function App() {
     }
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setTotalColumn = (e) => {
@@ -138,7 +139,7 @@ export default function App() {
       });
     }
     setColumn(newColumn);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalColumn, totalData]);
 
   return (

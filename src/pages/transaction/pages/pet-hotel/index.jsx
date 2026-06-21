@@ -157,7 +157,7 @@ const TransactionPetHotel = () => {
 
   // ── State ──
   const [stats, setStats] = useState(null);
-  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
+  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null, queueId: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
@@ -191,6 +191,22 @@ const TransactionPetHotel = () => {
     } catch (_) {
       /* silent — backend endpoint optional */
     }
+  }, []);
+
+  // Auto-open form create jika ada ?queueId= di URL (dari Queue Management)
+  useEffect(() => {
+    const queueId = searchParams.get('queueId');
+    if (queueId) {
+      setFormTransactionConfig({ isOpen: true, id: null, queueId: Number(queueId) });
+      setSearchParams(
+        (prev) => {
+          prev.delete('queueId');
+          return prev;
+        },
+        { replace: true }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onClickAdd = () => {
@@ -844,8 +860,9 @@ const TransactionPetHotel = () => {
         <FormTransaction
           open={formTransactionConfig.isOpen}
           id={Number(formTransactionConfig.id)}
+          queueId={formTransactionConfig.queueId}
           onClose={(e) => {
-            setFormTransactionConfig({ isOpen: false, id: null });
+            setFormTransactionConfig({ isOpen: false, id: null, queueId: null });
             if (e) setParams((_params) => ({ ..._params }));
           }}
         />

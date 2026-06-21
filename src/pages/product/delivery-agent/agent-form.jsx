@@ -67,7 +67,12 @@ const AgentForm = ({ open, locationList, data, onClose, onSuccess }) => {
   return (
     <ModalC
       open={open}
-      title={<FormattedMessage id={data ? 'edit-delivery-agent' : 'add-delivery-agent'} defaultMessage={data ? 'Edit Delivery Agent' : 'Add Delivery Agent'} />}
+      title={
+        <FormattedMessage
+          id={data ? 'edit-delivery-agent' : 'add-delivery-agent'}
+          defaultMessage={data ? 'Edit Delivery Agent' : 'Add Delivery Agent'}
+        />
+      }
       onOk={onSubmit}
       onCancel={onClose}
       disabledOk={isDisabledOk}
@@ -82,11 +87,7 @@ const AgentForm = ({ open, locationList, data, onClose, onSuccess }) => {
             isOptionEqualToValue={(opt, val) => opt.value === val.value}
             onChange={(_, val) => setForm((prev) => ({ ...prev, locationId: val }))}
             renderInput={(params) => (
-              <TextField
-                {...params}
-                required
-                label={<FormattedMessage id="location" defaultMessage="Location" />}
-              />
+              <TextField {...params} required label={<FormattedMessage id="location" defaultMessage="Location" />} />
             )}
           />
         </Grid>
@@ -117,13 +118,17 @@ const AgentForm = ({ open, locationList, data, onClose, onSuccess }) => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth>
-            <InputLabel><FormattedMessage id="vehicle-type" defaultMessage="Vehicle Type" /></InputLabel>
+            <InputLabel>
+              <FormattedMessage id="vehicle-type" defaultMessage="Vehicle Type" />
+            </InputLabel>
             <Select
               value={form.vehicleType}
               label={<FormattedMessage id="vehicle-type" defaultMessage="Vehicle Type" />}
               onChange={onChange('vehicleType')}
             >
-              <MenuItem value=""><em>-</em></MenuItem>
+              <MenuItem value="">
+                <em>-</em>
+              </MenuItem>
               <MenuItem value="motor">Motor</MenuItem>
               <MenuItem value="mobil">Mobil</MenuItem>
               <MenuItem value="sepeda">Sepeda</MenuItem>
@@ -152,12 +157,7 @@ const AgentForm = ({ open, locationList, data, onClose, onSuccess }) => {
         {data && (
           <Grid item xs={12}>
             <FormControlLabel
-              control={
-                <Switch
-                  checked={form.isActive}
-                  onChange={(e) => setForm((prev) => ({ ...prev, isActive: e.target.checked }))}
-                />
-              }
+              control={<Switch checked={form.isActive} onChange={(e) => setForm((prev) => ({ ...prev, isActive: e.target.checked }))} />}
               label={<FormattedMessage id="active" defaultMessage="Active" />}
             />
           </Grid>

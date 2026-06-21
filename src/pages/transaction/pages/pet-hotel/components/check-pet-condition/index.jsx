@@ -58,7 +58,9 @@ const SectionCard = ({ icon, title, children }) => (
   <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
     <Box sx={{ px: 2, py: 1.25, bgcolor: 'grey.50', display: 'flex', alignItems: 'center', gap: 1 }}>
       {icon}
-      <Typography variant="subtitle2" fontWeight="bold">{title}</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">
+        {title}
+      </Typography>
     </Box>
     <Divider />
     <Box sx={{ px: 2, py: 2 }}>{children}</Box>
@@ -83,7 +85,11 @@ const CheckNoteRow = ({ checked, onCheck, label, noteValue, onNoteChange, notePl
   >
     <FormControlLabel
       control={<Checkbox checked={checked} onChange={onCheck} size="small" />}
-      label={<Typography variant="body2" fontWeight={checked ? 600 : 400}>{label}</Typography>}
+      label={
+        <Typography variant="body2" fontWeight={checked ? 600 : 400}>
+          {label}
+        </Typography>
+      }
       sx={{ minWidth: 150, m: 0 }}
     />
     <TextField
@@ -112,19 +118,12 @@ const HplStatusBadge = ({ status }) => {
   if (!status) return null;
   const isWarning = ['hpl sudah dekat', 'hpl sudah lewat'].includes(status.toLowerCase());
   return (
-    <Alert
-      severity={isWarning ? 'error' : 'success'}
-      icon={<FavoriteIcon fontSize="small" />}
-      sx={{ py: 0.5 }}
-    >
+    <Alert severity={isWarning ? 'error' : 'success'} icon={<FavoriteIcon fontSize="small" />} sx={{ py: 0.5 }}>
       <Stack direction="row" spacing={1} alignItems="center">
-        <Typography variant="body2" fontWeight={500}>Status HPL:</Typography>
-        <Chip
-          label={status}
-          size="small"
-          color={isWarning ? 'error' : 'success'}
-          variant="filled"
-        />
+        <Typography variant="body2" fontWeight={500}>
+          Status HPL:
+        </Typography>
+        <Chip label={status} size="small" color={isWarning ? 'error' : 'success'} variant="filled" />
       </Stack>
     </Alert>
   );
@@ -215,13 +214,14 @@ const CheckPetCondition = (props) => {
         }
       >
         <Stack spacing={2}>
-
           {/* ── Vaksinasi ── */}
           <SectionCard icon={<VaccinesIcon fontSize="small" color="primary" />} title="Vaksinasi">
             <Stack spacing={0.75}>
               <InputLabel htmlFor="numberOfVaccines" sx={{ fontWeight: 600 }}>
                 <FormattedMessage id="number-of-vaccines" />
-                <Typography component="span" color="error" ml={0.5}>*</Typography>
+                <Typography component="span" color="error" ml={0.5}>
+                  *
+                </Typography>
               </InputLabel>
               <TextField
                 fullWidth
@@ -244,7 +244,13 @@ const CheckPetCondition = (props) => {
             <Stack spacing={1.25}>
               <CheckNoteRow
                 checked={formValue.isLiceFree}
-                onCheck={(e) => setFormValue((prev) => ({ ...prev, isLiceFree: e.target.checked, noteLiceFree: e.target.checked ? prev.noteLiceFree : '' }))}
+                onCheck={(e) =>
+                  setFormValue((prev) => ({
+                    ...prev,
+                    isLiceFree: e.target.checked,
+                    noteLiceFree: e.target.checked ? prev.noteLiceFree : ''
+                  }))
+                }
                 label={intl.formatMessage({ id: 'lice-free' })}
                 noteValue={formValue.noteLiceFree}
                 onNoteChange={(e) => setFormValue((prev) => ({ ...prev, noteLiceFree: e.target.value }))}
@@ -252,7 +258,13 @@ const CheckPetCondition = (props) => {
               />
               <CheckNoteRow
                 checked={formValue.isFungusFree}
-                onCheck={(e) => setFormValue((prev) => ({ ...prev, isFungusFree: e.target.checked, noteFungusFree: e.target.checked ? prev.noteFungusFree : '' }))}
+                onCheck={(e) =>
+                  setFormValue((prev) => ({
+                    ...prev,
+                    isFungusFree: e.target.checked,
+                    noteFungusFree: e.target.checked ? prev.noteFungusFree : ''
+                  }))
+                }
                 label={intl.formatMessage({ id: 'fungus-free' })}
                 noteValue={formValue.noteFungusFree}
                 onNoteChange={(e) => setFormValue((prev) => ({ ...prev, noteFungusFree: e.target.value }))}
@@ -268,14 +280,16 @@ const CheckPetCondition = (props) => {
                 control={
                   <Checkbox
                     checked={formValue.isPregnant}
-                    onChange={(e) => setFormValue((prev) => ({
-                      ...prev,
-                      isPregnant: e.target.checked,
-                      estimateDateofBirth: e.target.checked ? prev.estimateDateofBirth : null,
-                      hplStatus: e.target.checked ? prev.hplStatus : '',
-                      isRecomendInpatient: false,
-                      noteInpatient: ''
-                    }))}
+                    onChange={(e) =>
+                      setFormValue((prev) => ({
+                        ...prev,
+                        isPregnant: e.target.checked,
+                        estimateDateofBirth: e.target.checked ? prev.estimateDateofBirth : null,
+                        hplStatus: e.target.checked ? prev.hplStatus : '',
+                        isRecomendInpatient: false,
+                        noteInpatient: ''
+                      }))
+                    }
                     size="small"
                   />
                 }
@@ -364,12 +378,14 @@ const CheckPetCondition = (props) => {
                 control={
                   <Checkbox
                     checked={formValue.isParent}
-                    onChange={(e) => setFormValue((prev) => ({
-                      ...prev,
-                      isParent: e.target.checked,
-                      isBreastfeeding: false,
-                      numberofChildren: ''
-                    }))}
+                    onChange={(e) =>
+                      setFormValue((prev) => ({
+                        ...prev,
+                        isParent: e.target.checked,
+                        isBreastfeeding: false,
+                        numberofChildren: ''
+                      }))
+                    }
                     size="small"
                   />
                 }
@@ -450,7 +466,6 @@ const CheckPetCondition = (props) => {
               ID Transaksi: <strong>{data?.transactionId}</strong>
             </Typography>
           </Box>
-
         </Stack>
       </ModalC>
 

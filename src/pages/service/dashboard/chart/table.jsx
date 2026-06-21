@@ -1,10 +1,5 @@
-import { Link as RouterLink } from 'react-router-dom';
-
 // material-ui
-import { Chip, Link, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-
-// project imports
-import MainCard from 'components/MainCard';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 // table data
 const createData = (badgeText, badgeType, subject, dept, date) => ({

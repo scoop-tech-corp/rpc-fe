@@ -27,7 +27,7 @@ const TreatmentPetHotel = (props) => {
     productClinic: null,
     qtyClinic: '',
     cage: null,
-    stayService: null,  // tarif menginap per hari
+    stayService: null, // tarif menginap per hari
     stayServiceId: null,
     serviceCategory: 'Pet Hotel',
     treatmentPlans: [],
@@ -41,8 +41,8 @@ const TreatmentPetHotel = (props) => {
 
   const [formDropdown, setFormDropdown] = useState({
     treatmentPlanList: [],
-    stayServiceList: [],  // tarif menginap per hari (kategori 25 saja)
-    serviceList: [],      // layanan perawatan (exclude kategori 25)
+    stayServiceList: [], // tarif menginap per hari (kategori 25 saja)
+    serviceList: [], // layanan perawatan (exclude kategori 25)
     productSellList: [],
     productClinicList: [],
     cageList: []
@@ -118,20 +118,21 @@ const TreatmentPetHotel = (props) => {
         // Hitung minCapacity: induk + jumlah anak
         const minCapacity = condition.isParent ? (condition.numberofChildren || 0) + 1 : 1;
 
-        const [respTreatmentList, respProductClinicList, respStayService, respService, respProductSellList, respCageList] = await Promise.all([
-          getTreatmentListByLocation([data.locationId]),
-          getProductSellClinicByLocation('clinic', [data.locationId]),
-          // Tarif menginap: HANYA kategori 25 (Tarif Menginap Pet Hotel)
-          getServiceListByLocation([data.locationId], { categoryId: STAY_SERVICE_CATEGORY_ID }),
-          // Service list: semua KECUALI kategori 25
-          getServiceListByLocation([data.locationId], { excludeCategoryId: STAY_SERVICE_CATEGORY_ID }),
-          getProductSellClinicByLocation('sell', [data.locationId]),
-          getCageFacilityLocationList([data.locationId], {
-            isPregnant: condition.isPregnant,
-            isParent: condition.isParent,
-            minCapacity
-          })
-        ]);
+        const [respTreatmentList, respProductClinicList, respStayService, respService, respProductSellList, respCageList] =
+          await Promise.all([
+            getTreatmentListByLocation([data.locationId]),
+            getProductSellClinicByLocation('clinic', [data.locationId]),
+            // Tarif menginap: HANYA kategori 25 (Tarif Menginap Pet Hotel)
+            getServiceListByLocation([data.locationId], { categoryId: STAY_SERVICE_CATEGORY_ID }),
+            // Service list: semua KECUALI kategori 25
+            getServiceListByLocation([data.locationId], { excludeCategoryId: STAY_SERVICE_CATEGORY_ID }),
+            getProductSellClinicByLocation('sell', [data.locationId]),
+            getCageFacilityLocationList([data.locationId], {
+              isPregnant: condition.isPregnant,
+              isParent: condition.isParent,
+              minCapacity
+            })
+          ]);
 
         setFormDropdown((prevState) => ({
           ...prevState,
@@ -163,13 +164,7 @@ const TreatmentPetHotel = (props) => {
             severity="warning"
             sx={{ mb: 1 }}
             action={
-              petCondition.estimateDateofBirth && (
-                <Chip
-                  label={`HPL: ${petCondition.estimateDateofBirth}`}
-                  color="warning"
-                  size="small"
-                />
-              )
+              petCondition.estimateDateofBirth && <Chip label={`HPL: ${petCondition.estimateDateofBirth}`} color="warning" size="small" />
             }
           >
             <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
@@ -188,8 +183,7 @@ const TreatmentPetHotel = (props) => {
               🐣 Pet Induk {petCondition.isBreastfeeding ? '(Masih Menyusui)' : ''}
             </Typography>
             <Typography variant="body2">
-              Jumlah anak: <strong>{petCondition.numberofChildren || 0}</strong>.
-              Kandang yang ditampilkan memiliki kapasitas minimal{' '}
+              Jumlah anak: <strong>{petCondition.numberofChildren || 0}</strong>. Kandang yang ditampilkan memiliki kapasitas minimal{' '}
               <strong>{(petCondition.numberofChildren || 0) + 1}</strong> (induk + anak).
             </Typography>
           </Alert>
@@ -350,7 +344,6 @@ const TreatmentPetHotel = (props) => {
         maxWidth="sm"
       >
         <Grid container spacing={3}>
-
           {/* ── Banner kondisi pet (hamil / induk) ── */}
           {renderConditionBanner()}
 
@@ -599,9 +592,7 @@ const TreatmentPetHotel = (props) => {
             <Stack spacing={1.25}>
               <InputLabel htmlFor="cage" required>
                 <FormattedMessage id="cage" />
-                {petCondition.isPregnant && (
-                  <Chip label="Maternal" color="warning" size="small" sx={{ ml: 1 }} />
-                )}
+                {petCondition.isPregnant && <Chip label="Maternal" color="warning" size="small" sx={{ ml: 1 }} />}
                 {petCondition.isParent && !petCondition.isPregnant && (
                   <Chip label="Induk + Anak" color="info" size="small" sx={{ ml: 1 }} />
                 )}

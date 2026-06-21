@@ -100,7 +100,7 @@ const SignaturePad = ({ onSignatureChange, cleared }) => {
         position: 'relative',
         cursor: 'crosshair',
         userSelect: 'none',
-        touchAction: 'none',
+        touchAction: 'none'
       }}
     >
       <canvas
@@ -137,7 +137,7 @@ const PolicyAgreement = (props) => {
   const { data } = props;
   const dispatch = useDispatch();
 
-  const [allPolicies, setAllPolicies] = useState([]);        // semua policy aktif
+  const [allPolicies, setAllPolicies] = useState([]); // semua policy aktif
   const [selectedPolicies, setSelectedPolicies] = useState([]); // yang dipilih kasir
   const [expanded, setExpanded] = useState(false);
   const [signerName, setSignerName] = useState('');
@@ -195,11 +195,10 @@ const PolicyAgreement = (props) => {
       maxWidth="md"
     >
       <Stack spacing={3}>
-
         {/* Info */}
         <Alert severity="info" icon={<DrawIcon />}>
-          Pilih policy yang berlaku, minta owner membaca isinya, kemudian owner menandatangani di kolom tanda tangan di bawah.
-          Setelah disimpan, status akan berubah menjadi <strong>Dalam Perawatan</strong>.
+          Pilih policy yang berlaku, minta owner membaca isinya, kemudian owner menandatangani di kolom tanda tangan di bawah. Setelah
+          disimpan, status akan berubah menjadi <strong>Dalam Perawatan</strong>.
         </Alert>
 
         {/* Step 1: Pilih policy */}
@@ -216,7 +215,13 @@ const PolicyAgreement = (props) => {
             onChange={(_, val) => setSelectedPolicies(val)}
             renderTags={(tagValue, getTagProps) =>
               tagValue.map((option, index) => (
-                <Chip key={option.id} label={`${option.title} v${option.version}`} size="small" color="primary" {...getTagProps({ index })} />
+                <Chip
+                  key={option.id}
+                  label={`${option.title} v${option.version}`}
+                  size="small"
+                  color="primary"
+                  {...getTagProps({ index })}
+                />
               ))
             }
             renderInput={(params) => (
@@ -309,7 +314,6 @@ const PolicyAgreement = (props) => {
             <SignaturePad onSignatureChange={setSignatureData} cleared={cleared} />
           </Box>
         </Box>
-
       </Stack>
     </ModalC>
   );

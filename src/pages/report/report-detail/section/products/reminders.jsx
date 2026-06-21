@@ -52,51 +52,6 @@ export default function ProductsReminders({ data, filter, setFilter }) {
     []
   );
 
-  const dataDummy = [
-    {
-      customerName: 'Fariez Tachsin',
-      subAccount: 'Kimi',
-      productName: 'Vaksin Felocell 4 / F4 (1 pcs)',
-      phoneNumber: '62811999338',
-      dueDate: '2022-05-31'
-    },
-    {
-      customerName: 'Fariez Tachsin',
-      subAccount: 'Kimi',
-      productName: 'Vaksin Felocell 4 / F4 (1 pcs)',
-      phoneNumber: '62811999338',
-      dueDate: '2022-05-31'
-    },
-    {
-      customerName: 'Belia',
-      subAccount: 'Pino',
-      productName: 'Vaksin Felocell 4 / F4 (1 pcs)',
-      phoneNumber: '62812299338',
-      dueDate: '2022-05-31'
-    },
-    {
-      customerName: 'Fariez Tachsin',
-      subAccount: 'Kimi',
-      productName: 'Vaksin Felocell 4 / F4 (1 pcs)',
-      phoneNumber: '62811999338',
-      dueDate: '2022-05-31'
-    },
-    {
-      customerName: 'Fariez Tachsin',
-      subAccount: 'Kimi',
-      productName: 'Vaksin Felocell 4 / F4 (1 pcs)',
-      phoneNumber: '62811999338',
-      dueDate: '2022-05-31'
-    },
-    {
-      customerName: 'Fariez Tachsin',
-      subAccount: 'Kimi',
-      productName: 'Vaksin Felocell 4 / F4 (1 pcs)',
-      phoneNumber: '62811999338',
-      dueDate: '2022-05-31'
-    }
-  ];
-
   return (
     <div>
       <ReactTable

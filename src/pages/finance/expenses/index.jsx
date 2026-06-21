@@ -78,6 +78,24 @@ const FinanceExpenses = () => {
     setSearchParams({ tab: tabQueryParam });
     setTabSelected(TabList[tabQueryParam]);
     getDataDropdown();
+
+    // Auto-buka detail jika datang dari report dengan expenseId param
+    const expenseIdParam = searchParams.get('expenseId');
+    if (expenseIdParam) {
+      (async () => {
+        try {
+          setLoadingDetail(true);
+          setViewModalOpen(true);
+          const resp = await getFinanceExpenseDetail(expenseIdParam);
+          const detail = resp.data?.data || resp.data?.detail || resp.data;
+          setViewDetailData(detail);
+        } catch (_) {
+          // ignore
+        } finally {
+          setLoadingDetail(false);
+        }
+      })();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

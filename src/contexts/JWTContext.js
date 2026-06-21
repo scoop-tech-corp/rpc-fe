@@ -122,8 +122,21 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post('login', { email, password });
-    const { token, emailAddress, usersId, userName, role, imagePath, isAbsent, masterMenu, profileMenu, settingMenu, reportMenu, jobName, locations } =
-      response.data;
+    const {
+      token,
+      emailAddress,
+      usersId,
+      userName,
+      role,
+      imagePath,
+      isAbsent,
+      masterMenu,
+      profileMenu,
+      settingMenu,
+      reportMenu,
+      jobName,
+      locations
+    } = response.data;
     setSession(token);
 
     const setUser = {
@@ -176,9 +189,9 @@ export const JWTProvider = ({ children }) => {
     window.localStorage.setItem('users', JSON.stringify(users));
   };
 
-  const resetPassword = async () => { };
+  const resetPassword = async () => {};
 
-  const updateProfile = () => { };
+  const updateProfile = () => {};
 
   if (state.isInitialized !== undefined && !state.isInitialized) {
     return <Loader />;

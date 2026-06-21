@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import {
   calculatePetHotelOutpatient,
-  confirmPaymentPetHotel,
+  uploadPaymentProofPetHotel,
   createPaymentPetHotelOutpatient,
   getBeforePayment,
   getPaymentMethodsPetHotel,
@@ -65,7 +65,9 @@ const SectionCard = ({ icon, title, children }) => (
   <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
     <Box sx={{ px: 2, py: 1.25, bgcolor: 'grey.50', display: 'flex', alignItems: 'center', gap: 1 }}>
       {icon}
-      <Typography variant="subtitle2" fontWeight="bold">{title}</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">
+        {title}
+      </Typography>
     </Box>
     <Divider />
     <Box sx={{ px: 2, py: 2 }}>{children}</Box>
@@ -76,8 +78,12 @@ SectionCard.propTypes = { icon: PropTypes.node, title: PropTypes.string, childre
 const InfoField = ({ label, value }) => (
   <Grid item xs={12} sm={4}>
     <Stack spacing={0.25}>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
-      <Typography variant="body2" fontWeight={500}>{value || '-'}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body2" fontWeight={500}>
+        {value || '-'}
+      </Typography>
     </Stack>
   </Grid>
 );
@@ -91,10 +97,10 @@ const TabPanel = ({ children, value, index }) => (
 TabPanel.propTypes = { children: PropTypes.node, value: PropTypes.number, index: PropTypes.number };
 
 const PROMO_TYPE_CONFIG = {
-  'Free Item':   { color: 'success', label: 'Free Item' },
-  'Discount':    { color: 'error',   label: 'Diskon' },
-  'Bundle':      { color: 'warning', label: 'Bundle' },
-  'Based Sales': { color: 'info',    label: 'Based Sales' },
+  'Free Item': { color: 'success', label: 'Free Item' },
+  Discount: { color: 'error', label: 'Diskon' },
+  Bundle: { color: 'warning', label: 'Bundle' },
+  'Based Sales': { color: 'info', label: 'Based Sales' }
 };
 
 const PromoTypeBadge = ({ type }) => {
@@ -177,58 +183,60 @@ const Payment = (props) => {
         getProductSellDropdown(data.locationId),
         getActiveTodayPromos(data.locationId),
         getPaymentMethodsPetHotel()
-      ]).then(([respBeforePayment, respService, respProductSell, respPromos, respPaymentMethods]) => {
-        setPaymentMethods(respPaymentMethods.data || []);
-        setTodayPromos(respPromos.data || []);
-        setTodayPromosLoading(false);
-        const beforePaymentData = respBeforePayment.data;
-        const { services, products } = beforePaymentData.data;
-        const customerName = beforePaymentData.customerName;
-        const phoneNumber = beforePaymentData.phoneNumber;
-        const arrivalTime = beforePaymentData.arrivalTime;
-        const finishTime = beforePaymentData.finishTime;
-        const cage = beforePaymentData.cage;
+      ])
+        .then(([respBeforePayment, respService, respProductSell, respPromos, respPaymentMethods]) => {
+          setPaymentMethods(respPaymentMethods.data || []);
+          setTodayPromos(respPromos.data || []);
+          setTodayPromosLoading(false);
+          const beforePaymentData = respBeforePayment.data;
+          const { services, products } = beforePaymentData.data;
+          const customerName = beforePaymentData.customerName;
+          const phoneNumber = beforePaymentData.phoneNumber;
+          const arrivalTime = beforePaymentData.arrivalTime;
+          const finishTime = beforePaymentData.finishTime;
+          const cage = beforePaymentData.cage;
 
-        const new_services = (services || []).map((dt) => ({
-          ...dt,
-          serviceId: +dt.serviceId,
-          basedPrice: +String(dt.basedPrice ?? 0).replace(/,/g, ''),
-          unitPrice: '',
-          totalPrice: '',
-          unitPriceErr: ''
-        }));
-        const new_products = (products || []).map((dt) => ({
-          ...dt,
-          productId: +dt.productId,
-          basedPrice: +String(dt.basedPrice ?? 0).replace(/,/g, ''),
-          unitPrice: '',
-          totalPrice: '',
-          unitPriceErr: ''
-        }));
+          const new_services = (services || []).map((dt) => ({
+            ...dt,
+            serviceId: +dt.serviceId,
+            basedPrice: +String(dt.basedPrice ?? 0).replace(/,/g, ''),
+            unitPrice: '',
+            totalPrice: '',
+            unitPriceErr: ''
+          }));
+          const new_products = (products || []).map((dt) => ({
+            ...dt,
+            productId: +dt.productId,
+            basedPrice: +String(dt.basedPrice ?? 0).replace(/,/g, ''),
+            unitPrice: '',
+            totalPrice: '',
+            unitPriceErr: ''
+          }));
 
-        const new_service_dropdown_list = [...respService].map((dt) => ({
-          ...dt,
-          label: `${dt.label} - ${dt.price}`,
-          name: dt.label
-        }));
-        const new_product_sell_list = [...respProductSell].map((dt) => ({
-          ...dt,
-          label: `${dt.label} - ${dt.data.price}`
-        }));
+          const new_service_dropdown_list = [...respService].map((dt) => ({
+            ...dt,
+            label: `${dt.label} - ${dt.price}`,
+            name: dt.label
+          }));
+          const new_product_sell_list = [...respProductSell].map((dt) => ({
+            ...dt,
+            label: `${dt.label} - ${dt.data.price}`
+          }));
 
-        setFormValue((prevState) => ({
-          ...prevState,
-          customerName,
-          phoneNumber,
-          arrivalTime,
-          finishTime,
-          cage,
-          serviceList: new_services,
-          productList: new_products,
-          serviceDropdownList: new_service_dropdown_list,
-          productSellDropdownList: new_product_sell_list
-        }));
-      }).catch(() => setTodayPromosLoading(false));
+          setFormValue((prevState) => ({
+            ...prevState,
+            customerName,
+            phoneNumber,
+            arrivalTime,
+            finishTime,
+            cage,
+            serviceList: new_services,
+            productList: new_products,
+            serviceDropdownList: new_service_dropdown_list,
+            productSellDropdownList: new_product_sell_list
+          }));
+        })
+        .catch(() => setTodayPromosLoading(false));
     };
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -443,8 +451,13 @@ const Payment = (props) => {
   };
 
   const onDisabledProductSell = () =>
-    Boolean(!formValue.productSell || !formValue.unitPriceProductSell || !formValue.quantityProductSell ||
-      formValue.unitPriceProductSellErr || formValue.quantityProductSellErr);
+    Boolean(
+      !formValue.productSell ||
+        !formValue.unitPriceProductSell ||
+        !formValue.quantityProductSell ||
+        formValue.unitPriceProductSellErr ||
+        formValue.quantityProductSellErr
+    );
 
   const onDeleteRowHandler = (procedure, rowIndex) => {
     setFormValue((prev) => {
@@ -458,20 +471,21 @@ const Payment = (props) => {
 
   const onSubmit = async () => {
     try {
-      // 1. Create payment → get paymentId
+      // 1. Create payment record → get paymentId
       const paymentResp = await createPaymentPetHotelOutpatient(data.transactionId, formValue);
       const paymentId = paymentResp?.data?.id;
 
-      // 2. Upload proof of payment
+      // 2. Upload bukti pembayaran → status = 'pending' (menunggu konfirmasi Finance/Manager)
+      //    Konfirmasi dilakukan terpisah oleh orang berbeda (4-eyes principle)
       if (paymentId && paymentProof) {
-        await confirmPaymentPetHotel({ id: paymentId, file: paymentProof });
+        await uploadPaymentProofPetHotel({ id: paymentId, file: paymentProof });
       }
 
-      // 3. Print invoice — reads from DB
+      // 3. Print invoice
       const resp = await printInvoicePetHotelOutpatientNew(data.transactionId);
       if (resp && resp.status === 200) {
         processDownloadPDF(resp);
-        dispatch(snackbarSuccess(intl.formatMessage({ id: 'transaction-payment-success' })));
+        dispatch(snackbarSuccess('Pembayaran berhasil disimpan. Bukti menunggu verifikasi Finance/Manager.'));
         props.onClose(true);
       }
     } catch (error) {
@@ -483,16 +497,14 @@ const Payment = (props) => {
     intl.formatMessage({ id: 'transaction-information' }),
     intl.formatMessage({ id: 'add-service-and-product' }),
     intl.formatMessage({ id: 'promo-and-summary' }),
-    intl.formatMessage({ id: 'payment-method' }),
+    intl.formatMessage({ id: 'payment-method' })
   ];
 
   // ── Validasi per-tab ────────────────────────────────────────────────────────
   // Tab 0: always valid (no prescriptions to fill)
   const tab0Valid = true;
 
-  const tab1Valid =
-    (formValue.serviceList.length === 0 ||
-      formValue.serviceList.every((s) => s.unitPrice > 0 && !s.unitPriceErr));
+  const tab1Valid = formValue.serviceList.length === 0 || formValue.serviceList.every((s) => s.unitPrice > 0 && !s.unitPriceErr);
 
   // Tab 2 valid once calculate has run at least once
   const tab2Valid = calculateDone;
@@ -501,14 +513,12 @@ const Payment = (props) => {
   const paymentMethodValid =
     Boolean(formValue.paymentMethodId) &&
     (formValue.paymentMethod === 'full' ||
-    (formValue.paymentMethod === 'dp' &&
-      +formValue.dpNominal >= minDp &&
-      formValue.dpNominal !== '' &&
-      Boolean(formValue.dpNextPayment) &&
-      !formValue.dpNominalErr) ||
-    (formValue.paymentMethod === 'cicilan' &&
-      Boolean(formValue.installmentDuration) &&
-      Boolean(formValue.installmentTenor)));
+      (formValue.paymentMethod === 'dp' &&
+        +formValue.dpNominal >= minDp &&
+        formValue.dpNominal !== '' &&
+        Boolean(formValue.dpNextPayment) &&
+        !formValue.dpNominalErr) ||
+      (formValue.paymentMethod === 'cicilan' && Boolean(formValue.installmentDuration) && Boolean(formValue.installmentTenor)));
   const tab3Valid = paymentMethodValid && Boolean(paymentProof);
 
   const tabValid = [tab0Valid, tab1Valid, tab2Valid, tab3Valid];
@@ -552,12 +562,7 @@ const Payment = (props) => {
       >
         {/* ── Tab Navigation ── */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 0 }}>
-          <Tabs
-            value={tabActive}
-            onChange={onTabChange}
-            variant={matchDownSM ? 'scrollable' : 'fullWidth'}
-            scrollButtons="auto"
-          >
+          <Tabs value={tabActive} onChange={onTabChange} variant={matchDownSM ? 'scrollable' : 'fullWidth'} scrollButtons="auto">
             {TABS.map((label, i) => {
               const isDone = tabValid[i] && tabActive > i;
               const isBlocked = i > 0 && !Array.from({ length: i }, (_, j) => tabValid[j]).every(Boolean);
@@ -588,8 +593,10 @@ const Payment = (props) => {
         {/* TAB 0 — Info Transaksi                                        */}
         {/* ══════════════════════════════════════════════════════════════ */}
         <TabPanel value={tabActive} index={0}>
-
-          <SectionCard icon={<AccountCircleIcon fontSize="small" color="primary" />} title={intl.formatMessage({ id: 'transaction-information' })}>
+          <SectionCard
+            icon={<AccountCircleIcon fontSize="small" color="primary" />}
+            title={intl.formatMessage({ id: 'transaction-information' })}
+          >
             <Grid container spacing={2}>
               <InfoField label={intl.formatMessage({ id: 'customer-name' })} value={formValue.customerName} />
               <InfoField label={intl.formatMessage({ id: 'phone-number' })} value={formValue.phoneNumber} />
@@ -610,7 +617,6 @@ const Payment = (props) => {
         {/* TAB 1 — Tambah Layanan & Produk Jual                          */}
         {/* ══════════════════════════════════════════════════════════════ */}
         <TabPanel value={tabActive} index={1}>
-
           {/* ── Promo Aktif Hari Ini ── */}
           <SectionCard icon={<CampaignIcon fontSize="small" color="warning" />} title={intl.formatMessage({ id: 'active-promo-today' })}>
             {todayPromosLoading ? (
@@ -629,18 +635,26 @@ const Payment = (props) => {
                   <Box
                     key={promo.id}
                     sx={{
-                      display: 'flex', alignItems: 'flex-start', gap: 1.5,
-                      p: 1.25, borderRadius: 1.5, border: '1px solid',
-                      borderColor: 'divider', bgcolor: 'background.paper'
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 1.5,
+                      p: 1.25,
+                      borderRadius: 1.5,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: 'background.paper'
                     }}
                   >
                     <PromoTypeBadge type={promo.type} />
                     <Box flex={1} minWidth={0}>
-                      <Typography variant="body2" fontWeight={600} noWrap>{promo.name}</Typography>
+                      <Typography variant="body2" fontWeight={600} noWrap>
+                        {promo.name}
+                      </Typography>
                       {promo.note && (
                         <Tooltip title={promo.note} placement="top-start" arrow>
                           <Typography
-                            variant="caption" color="text.secondary"
+                            variant="caption"
+                            color="text.secondary"
                             sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                           >
                             {promo.note}
@@ -662,7 +676,9 @@ const Payment = (props) => {
             <Grid container spacing={2} alignItems="flex-end">
               <Grid item xs={12} sm={5}>
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" fontWeight={600}><FormattedMessage id="service" /></Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="service" />
+                  </Typography>
                   <Autocomplete
                     size="small"
                     options={formValue.serviceDropdownList}
@@ -678,10 +694,16 @@ const Payment = (props) => {
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" fontWeight={600}><FormattedMessage id="unit-price" /></Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="unit-price" />
+                  </Typography>
                   <TextField
-                    size="small" fullWidth type="number" name="unitPriceService"
-                    value={formValue.unitPriceService} inputProps={{ min: 0 }}
+                    size="small"
+                    fullWidth
+                    type="number"
+                    name="unitPriceService"
+                    value={formValue.unitPriceService}
+                    inputProps={{ min: 0 }}
                     onChange={(e) => {
                       onFieldHandler(e);
                       setFormValue((prev) => ({
@@ -696,10 +718,16 @@ const Payment = (props) => {
               </Grid>
               <Grid item xs={10} sm={3}>
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" fontWeight={600}><FormattedMessage id="quantity" /></Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="quantity" />
+                  </Typography>
                   <TextField
-                    size="small" fullWidth type="number" name="quantityService"
-                    value={formValue.quantityService} inputProps={{ min: 0 }}
+                    size="small"
+                    fullWidth
+                    type="number"
+                    name="quantityService"
+                    value={formValue.quantityService}
+                    inputProps={{ min: 0 }}
                     onChange={onFieldHandler}
                   />
                 </Stack>
@@ -707,8 +735,11 @@ const Payment = (props) => {
               <Grid item xs={2} sm={1} display="flex" alignItems="flex-end" justifyContent="center">
                 <IconButton
                   style={{ width: matchDownSM ? '100%' : 'unset' }}
-                  size="medium" variant="contained" color="primary"
-                  onClick={onAddService} disabled={onDisabledService()}
+                  size="medium"
+                  variant="contained"
+                  color="primary"
+                  onClick={onAddService}
+                  disabled={onDisabledService()}
                 >
                   <PlusOutlined />
                 </IconButton>
@@ -732,7 +763,9 @@ const Payment = (props) => {
             <Grid container spacing={2} alignItems="flex-end">
               <Grid item xs={12} sm={5}>
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" fontWeight={600}><FormattedMessage id="product-sell" /></Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="product-sell" />
+                  </Typography>
                   <Autocomplete
                     size="small"
                     options={formValue.productSellDropdownList}
@@ -748,10 +781,16 @@ const Payment = (props) => {
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" fontWeight={600}><FormattedMessage id="unit-price" /></Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="unit-price" />
+                  </Typography>
                   <TextField
-                    size="small" fullWidth type="number" name="unitPriceProductSell"
-                    value={formValue.unitPriceProductSell} inputProps={{ min: 0 }}
+                    size="small"
+                    fullWidth
+                    type="number"
+                    name="unitPriceProductSell"
+                    value={formValue.unitPriceProductSell}
+                    inputProps={{ min: 0 }}
                     onChange={(e) => {
                       onFieldHandler(e);
                       setFormValue((prev) => ({
@@ -766,10 +805,16 @@ const Payment = (props) => {
               </Grid>
               <Grid item xs={10} sm={3}>
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" fontWeight={600}><FormattedMessage id="quantity" /></Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="quantity" />
+                  </Typography>
                   <TextField
-                    size="small" fullWidth type="number" name="quantityProductSell"
-                    value={formValue.quantityProductSell} inputProps={{ min: 0 }}
+                    size="small"
+                    fullWidth
+                    type="number"
+                    name="quantityProductSell"
+                    value={formValue.quantityProductSell}
+                    inputProps={{ min: 0 }}
                     onChange={(e) => {
                       onFieldHandler(e);
                       setFormValue((prev) => {
@@ -788,8 +833,11 @@ const Payment = (props) => {
               <Grid item xs={2} sm={1} display="flex" alignItems="flex-end" justifyContent="center">
                 <IconButton
                   style={{ width: matchDownSM ? '100%' : 'unset' }}
-                  size="medium" variant="contained" color="primary"
-                  onClick={onAddProductSell} disabled={onDisabledProductSell()}
+                  size="medium"
+                  variant="contained"
+                  color="primary"
+                  onClick={onAddProductSell}
+                  disabled={onDisabledProductSell()}
                 >
                   <PlusOutlined />
                 </IconButton>
@@ -811,19 +859,29 @@ const Payment = (props) => {
           {/* Catatan */}
           <SectionCard icon={<ReceiptLongIcon fontSize="small" color="primary" />} title={intl.formatMessage({ id: 'notes' })}>
             <TextField
-              multiline fullWidth rows={3} size="small"
-              name="notes" value={formValue.notes}
+              multiline
+              fullWidth
+              rows={3}
+              size="small"
+              name="notes"
+              value={formValue.notes}
               onChange={onFieldHandler}
               placeholder={intl.formatMessage({ id: 'payment-note-placeholder' })}
             />
           </SectionCard>
 
           {tab1InvalidMsg && (
-            <Alert severity="error" sx={{ borderRadius: 1, mb: 1.5 }}>{tab1InvalidMsg}</Alert>
+            <Alert severity="error" sx={{ borderRadius: 1, mb: 1.5 }}>
+              {tab1InvalidMsg}
+            </Alert>
           )}
           <Box display="flex" justifyContent="space-between">
-            <Button variant="outlined" size="small" onClick={() => setTabActive(0)}>← <FormattedMessage id="back" /></Button>
-            <Button variant="contained" size="small" disabled={!tab1Valid} onClick={() => setTabActive(2)}><FormattedMessage id="next" /> →</Button>
+            <Button variant="outlined" size="small" onClick={() => setTabActive(0)}>
+              ← <FormattedMessage id="back" />
+            </Button>
+            <Button variant="contained" size="small" disabled={!tab1Valid} onClick={() => setTabActive(2)}>
+              <FormattedMessage id="next" /> →
+            </Button>
           </Box>
         </TabPanel>
 
@@ -831,97 +889,201 @@ const Payment = (props) => {
         {/* TAB 2 — Promo & Ringkasan                                     */}
         {/* ══════════════════════════════════════════════════════════════ */}
         <TabPanel value={tabActive} index={2}>
-
           {promoLoading ? (
             <Box display="flex" justifyContent="center" alignItems="center" py={6}>
               <Stack alignItems="center" spacing={1}>
                 <CircularProgress size={32} />
-                <Typography variant="caption" color="text.secondary"><FormattedMessage id="calculating" /></Typography>
+                <Typography variant="caption" color="text.secondary">
+                  <FormattedMessage id="calculating" />
+                </Typography>
               </Stack>
             </Box>
           ) : (
             <>
               {/* ── Promo Tersedia ── */}
-              {(availablePromos.freeItems.length > 0 ||
-                availablePromos.discounts.length > 0 ||
-                availablePromos.bundles.length > 0 ||
-                availablePromos.basedSales.length > 0) ? (
-                <SectionCard icon={<LocalOfferIcon fontSize="small" color="warning" />} title={intl.formatMessage({ id: 'promo-available-title' })}>
+              {availablePromos.freeItems.length > 0 ||
+              availablePromos.discounts.length > 0 ||
+              availablePromos.bundles.length > 0 ||
+              availablePromos.basedSales.length > 0 ? (
+                <SectionCard
+                  icon={<LocalOfferIcon fontSize="small" color="warning" />}
+                  title={intl.formatMessage({ id: 'promo-available-title' })}
+                >
                   <Stack spacing={1}>
                     {availablePromos.freeItems.map((promo) => (
-                      <Box key={promo.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.25, borderRadius: 1.5, border: '1px solid', borderColor: selectedPromos.freeItems.includes(promo.id) ? 'success.main' : 'divider', bgcolor: selectedPromos.freeItems.includes(promo.id) ? 'success.50' : 'background.paper' }}>
+                      <Box
+                        key={promo.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.25,
+                          borderRadius: 1.5,
+                          border: '1px solid',
+                          borderColor: selectedPromos.freeItems.includes(promo.id) ? 'success.main' : 'divider',
+                          bgcolor: selectedPromos.freeItems.includes(promo.id) ? 'success.50' : 'background.paper'
+                        }}
+                      >
                         <Chip label="Free Item" size="small" color="success" variant="filled" sx={{ fontSize: 10, fontWeight: 600 }} />
                         <Box flex={1} minWidth={0}>
-                          <Typography variant="body2" fontWeight={600}>{promo.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">{promo.note}</Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {promo.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {promo.note}
+                          </Typography>
                         </Box>
                         <FormControlLabel
-                          control={<Switch size="small" checked={selectedPromos.freeItems.includes(promo.id)} onChange={() => onTogglePromo('freeItem', promo.id)} />}
+                          control={
+                            <Switch
+                              size="small"
+                              checked={selectedPromos.freeItems.includes(promo.id)}
+                              onChange={() => onTogglePromo('freeItem', promo.id)}
+                            />
+                          }
                           label=""
                         />
                       </Box>
                     ))}
                     {availablePromos.discounts.map((promo) => (
-                      <Box key={promo.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.25, borderRadius: 1.5, border: '1px solid', borderColor: selectedPromos.discounts.includes(promo.id) ? 'error.main' : 'divider', bgcolor: selectedPromos.discounts.includes(promo.id) ? 'error.50' : 'background.paper' }}>
+                      <Box
+                        key={promo.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.25,
+                          borderRadius: 1.5,
+                          border: '1px solid',
+                          borderColor: selectedPromos.discounts.includes(promo.id) ? 'error.main' : 'divider',
+                          bgcolor: selectedPromos.discounts.includes(promo.id) ? 'error.50' : 'background.paper'
+                        }}
+                      >
                         <Chip label="Diskon" size="small" color="error" variant="filled" sx={{ fontSize: 10, fontWeight: 600 }} />
                         <Box flex={1} minWidth={0}>
-                          <Typography variant="body2" fontWeight={600}>{promo.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">{promo.note}</Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {promo.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {promo.note}
+                          </Typography>
                         </Box>
                         <FormControlLabel
-                          control={<Switch size="small" checked={selectedPromos.discounts.includes(promo.id)} onChange={() => onTogglePromo('discount', promo.id)} />}
+                          control={
+                            <Switch
+                              size="small"
+                              checked={selectedPromos.discounts.includes(promo.id)}
+                              onChange={() => onTogglePromo('discount', promo.id)}
+                            />
+                          }
                           label=""
                         />
                       </Box>
                     ))}
                     {availablePromos.bundles.map((promo) => (
-                      <Box key={promo.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.25, borderRadius: 1.5, border: '1px solid', borderColor: selectedPromos.bundles.includes(promo.id) ? 'warning.main' : 'divider', bgcolor: selectedPromos.bundles.includes(promo.id) ? 'warning.50' : 'background.paper' }}>
+                      <Box
+                        key={promo.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.25,
+                          borderRadius: 1.5,
+                          border: '1px solid',
+                          borderColor: selectedPromos.bundles.includes(promo.id) ? 'warning.main' : 'divider',
+                          bgcolor: selectedPromos.bundles.includes(promo.id) ? 'warning.50' : 'background.paper'
+                        }}
+                      >
                         <Chip label="Bundle" size="small" color="warning" variant="filled" sx={{ fontSize: 10, fontWeight: 600 }} />
                         <Box flex={1} minWidth={0}>
-                          <Typography variant="body2" fontWeight={600}>{promo.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">{promo.note}</Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {promo.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {promo.note}
+                          </Typography>
                         </Box>
                         <FormControlLabel
-                          control={<Switch size="small" checked={selectedPromos.bundles.includes(promo.id)} onChange={() => onTogglePromo('bundle', promo.id)} />}
+                          control={
+                            <Switch
+                              size="small"
+                              checked={selectedPromos.bundles.includes(promo.id)}
+                              onChange={() => onTogglePromo('bundle', promo.id)}
+                            />
+                          }
                           label=""
                         />
                       </Box>
                     ))}
                     {availablePromos.basedSales.map((promo) => (
-                      <Box key={promo.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.25, borderRadius: 1.5, border: '1px solid', borderColor: selectedPromos.basedSaleId === promo.id ? 'info.main' : 'divider', bgcolor: selectedPromos.basedSaleId === promo.id ? 'info.50' : 'background.paper' }}>
+                      <Box
+                        key={promo.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.25,
+                          borderRadius: 1.5,
+                          border: '1px solid',
+                          borderColor: selectedPromos.basedSaleId === promo.id ? 'info.main' : 'divider',
+                          bgcolor: selectedPromos.basedSaleId === promo.id ? 'info.50' : 'background.paper'
+                        }}
+                      >
                         <Chip label="Belanja" size="small" color="info" variant="filled" sx={{ fontSize: 10, fontWeight: 600 }} />
                         <Box flex={1} minWidth={0}>
-                          <Typography variant="body2" fontWeight={600}>{promo.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">{promo.note}</Typography>
+                          <Typography variant="body2" fontWeight={600}>
+                            {promo.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {promo.note}
+                          </Typography>
                         </Box>
                         <FormControlLabel
-                          control={<Switch size="small" checked={selectedPromos.basedSaleId === promo.id} onChange={() => onTogglePromo('basedSale', promo.id)} />}
+                          control={
+                            <Switch
+                              size="small"
+                              checked={selectedPromos.basedSaleId === promo.id}
+                              onChange={() => onTogglePromo('basedSale', promo.id)}
+                            />
+                          }
                           label=""
                         />
                       </Box>
                     ))}
                   </Stack>
                 </SectionCard>
-              ) : calculateDone && (
-                <Alert severity="info" sx={{ borderRadius: 1, mb: 2 }}>
-                  <FormattedMessage id="no-available-promo" />
-                </Alert>
+              ) : (
+                calculateDone && (
+                  <Alert severity="info" sx={{ borderRadius: 1, mb: 2 }}>
+                    <FormattedMessage id="no-available-promo" />
+                  </Alert>
+                )
               )}
 
               {/* ── Ringkasan ── */}
-              <SectionCard icon={<ReceiptLongIcon fontSize="small" color="primary" />} title={intl.formatMessage({ id: 'transaction-summary' })}>
+              <SectionCard
+                icon={<ReceiptLongIcon fontSize="small" color="primary" />}
+                title={intl.formatMessage({ id: 'transaction-summary' })}
+              >
                 {!calculateDone ? (
-                  <Alert severity="warning" sx={{ borderRadius: 1 }}><FormattedMessage id="waiting-calculation" /></Alert>
+                  <Alert severity="warning" sx={{ borderRadius: 1 }}>
+                    <FormattedMessage id="waiting-calculation" />
+                  </Alert>
                 ) : (
                   <SummaryTable formValue={formValue} />
                 )}
               </SectionCard>
 
               {Boolean(formValue.summaryPromoNotes.length) && (
-                <SectionCard icon={<LocalOfferIcon fontSize="small" color="success" />} title={intl.formatMessage({ id: 'applied-promo-detail' })}>
+                <SectionCard
+                  icon={<LocalOfferIcon fontSize="small" color="success" />}
+                  title={intl.formatMessage({ id: 'applied-promo-detail' })}
+                >
                   <Box component="ul" sx={{ m: 0, pl: 2 }}>
                     {formValue.summaryPromoNotes.map((item, idx) => (
-                      <Typography key={idx} component="li" variant="body2" sx={{ mb: 0.5 }}>{item}</Typography>
+                      <Typography key={idx} component="li" variant="body2" sx={{ mb: 0.5 }}>
+                        {item}
+                      </Typography>
                     ))}
                   </Box>
                 </SectionCard>
@@ -930,7 +1092,9 @@ const Payment = (props) => {
           )}
 
           <Box display="flex" justifyContent="space-between">
-            <Button variant="outlined" size="small" onClick={() => setTabActive(1)}>← <FormattedMessage id="back" /></Button>
+            <Button variant="outlined" size="small" onClick={() => setTabActive(1)}>
+              ← <FormattedMessage id="back" />
+            </Button>
             <Button variant="contained" size="small" disabled={!tab2Valid || promoLoading} onClick={() => setTabActive(3)}>
               <FormattedMessage id="next" /> →
             </Button>
@@ -941,30 +1105,38 @@ const Payment = (props) => {
         {/* TAB 3 — Metode Pembayaran                                     */}
         {/* ══════════════════════════════════════════════════════════════ */}
         <TabPanel value={tabActive} index={3}>
-
           {/* Total Summary */}
           {calculateDone && (
-            <Paper
-              variant="outlined"
-              sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: 'primary.50', borderColor: 'primary.light' }}
-            >
+            <Paper variant="outlined" sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: 'primary.50', borderColor: 'primary.light' }}>
               <Grid container spacing={2}>
                 <Grid item xs={4}>
                   <Stack spacing={0.25} alignItems="center">
-                    <Typography variant="caption" color="text.secondary"><FormattedMessage id="subtotal" /></Typography>
-                    <Typography variant="subtitle2" fontWeight="bold">{formValue.summarySubtotal}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      <FormattedMessage id="subtotal" />
+                    </Typography>
+                    <Typography variant="subtitle2" fontWeight="bold">
+                      {formValue.summarySubtotal}
+                    </Typography>
                   </Stack>
                 </Grid>
                 <Grid item xs={4}>
                   <Stack spacing={0.25} alignItems="center">
-                    <Typography variant="caption" color="text.secondary">{formValue.summaryDiscountNote || 'Diskon'}</Typography>
-                    <Typography variant="subtitle2" fontWeight="bold" color="error.main">-{formValue.summaryTotalDiscount}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formValue.summaryDiscountNote || 'Diskon'}
+                    </Typography>
+                    <Typography variant="subtitle2" fontWeight="bold" color="error.main">
+                      -{formValue.summaryTotalDiscount}
+                    </Typography>
                   </Stack>
                 </Grid>
                 <Grid item xs={4}>
                   <Stack spacing={0.25} alignItems="center">
-                    <Typography variant="caption" color="text.secondary"><FormattedMessage id="total-payment" /></Typography>
-                    <Typography variant="h6" fontWeight="bold" color="primary.main">{formValue.summaryTotalPayment}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      <FormattedMessage id="total-payment" />
+                    </Typography>
+                    <Typography variant="h6" fontWeight="bold" color="primary.main">
+                      {formValue.summaryTotalPayment}
+                    </Typography>
                   </Stack>
                 </Grid>
               </Grid>
@@ -975,23 +1147,33 @@ const Payment = (props) => {
             <Stack spacing={2}>
               {/* ── Sumber Pembayaran ── */}
               <Stack spacing={0.5}>
-                <Typography variant="caption" fontWeight={600}><FormattedMessage id="payment-source" /> *</Typography>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="payment-source" /> *
+                </Typography>
                 <Select
                   size="small"
                   value={formValue.paymentMethodId}
                   onChange={(e) => setFormValue((prev) => ({ ...prev, paymentMethodId: e.target.value }))}
                   sx={{ maxWidth: 300 }}
                 >
-                  <MenuItem value=""><em><FormattedMessage id="select-payment-source" /></em></MenuItem>
+                  <MenuItem value="">
+                    <em>
+                      <FormattedMessage id="select-payment-source" />
+                    </em>
+                  </MenuItem>
                   {paymentMethods.map((m) => (
-                    <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>
+                    <MenuItem key={m.id} value={m.id}>
+                      {m.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </Stack>
 
               {/* ── Tipe Pembayaran ── */}
               <Stack spacing={0.5}>
-                <Typography variant="caption" fontWeight={600}><FormattedMessage id="payment-type" /></Typography>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="payment-type" />
+                </Typography>
                 <Select
                   size="small"
                   name="paymentMethod"
@@ -999,10 +1181,20 @@ const Payment = (props) => {
                   onChange={(e) => setFormValue((prev) => ({ ...prev, dpNominal: '', dpNominalErr: '', paymentMethod: e.target.value }))}
                   sx={{ maxWidth: 300 }}
                 >
-                  <MenuItem value=""><em><FormattedMessage id="select-payment-type" /></em></MenuItem>
-                  <MenuItem value="full"><FormattedMessage id="full-payment" /></MenuItem>
-                  <MenuItem value="dp"><FormattedMessage id="dp-installment" /></MenuItem>
-                  <MenuItem value="cicilan"><FormattedMessage id="installment" /></MenuItem>
+                  <MenuItem value="">
+                    <em>
+                      <FormattedMessage id="select-payment-type" />
+                    </em>
+                  </MenuItem>
+                  <MenuItem value="full">
+                    <FormattedMessage id="full-payment" />
+                  </MenuItem>
+                  <MenuItem value="dp">
+                    <FormattedMessage id="dp-installment" />
+                  </MenuItem>
+                  <MenuItem value="cicilan">
+                    <FormattedMessage id="installment" />
+                  </MenuItem>
                 </Select>
               </Stack>
 
@@ -1012,17 +1204,24 @@ const Payment = (props) => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <Stack spacing={0.5}>
-                        <Typography variant="caption" fontWeight={600}><FormattedMessage id="dp-nominal" /></Typography>
+                        <Typography variant="caption" fontWeight={600}>
+                          <FormattedMessage id="dp-nominal" />
+                        </Typography>
                         <TextField
-                          size="small" fullWidth type="number" name="dpNominal"
+                          size="small"
+                          fullWidth
+                          type="number"
+                          name="dpNominal"
                           value={formValue.dpNominal}
                           inputProps={{ min: minimumDownPaymentNominal() }}
                           onChange={(e) => {
                             onFieldHandler(e);
                             setFormValue((prev) => ({
                               ...prev,
-                              dpNominalErr: +e.target.value < minimumDownPaymentNominal()
-                                ? `Minimum down payment is ${minimumDownPaymentNominal()}.` : ''
+                              dpNominalErr:
+                                +e.target.value < minimumDownPaymentNominal()
+                                  ? `Minimum down payment is ${minimumDownPaymentNominal()}.`
+                                  : ''
                             }));
                           }}
                           error={Boolean(formValue.dpNominalErr)}
@@ -1032,10 +1231,13 @@ const Payment = (props) => {
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Stack spacing={0.5}>
-                        <Typography variant="caption" fontWeight={600}><FormattedMessage id="next-payment" /></Typography>
+                        <Typography variant="caption" fontWeight={600}>
+                          <FormattedMessage id="next-payment" />
+                        </Typography>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DesktopDatePicker
-                            disablePast inputFormat="DD/MM/YYYY"
+                            disablePast
+                            inputFormat="DD/MM/YYYY"
                             value={formValue.dpNextPayment}
                             onChange={(v) => onFieldHandler({ target: { name: 'dpNextPayment', value: v } })}
                             renderInput={(params) => <TextField {...params} size="small" fullWidth />}
@@ -1053,40 +1255,70 @@ const Payment = (props) => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={4}>
                       <Stack spacing={0.5}>
-                        <Typography variant="caption" fontWeight={600}><FormattedMessage id="duration" /></Typography>
+                        <Typography variant="caption" fontWeight={600}>
+                          <FormattedMessage id="duration" />
+                        </Typography>
                         <Select
-                          size="small" fullWidth name="installmentDuration"
+                          size="small"
+                          fullWidth
+                          name="installmentDuration"
                           value={formValue.installmentDuration}
                           onChange={(e) => setFormValue((prev) => ({ ...prev, installmentDuration: e.target.value }))}
                         >
-                          <MenuItem value=""><em><FormattedMessage id="select-duration" /></em></MenuItem>
-                          <MenuItem value="harian"><FormattedMessage id="daily" /></MenuItem>
-                          <MenuItem value="mingguan"><FormattedMessage id="weekly" /></MenuItem>
-                          <MenuItem value="bulanan"><FormattedMessage id="monthly" /></MenuItem>
+                          <MenuItem value="">
+                            <em>
+                              <FormattedMessage id="select-duration" />
+                            </em>
+                          </MenuItem>
+                          <MenuItem value="harian">
+                            <FormattedMessage id="daily" />
+                          </MenuItem>
+                          <MenuItem value="mingguan">
+                            <FormattedMessage id="weekly" />
+                          </MenuItem>
+                          <MenuItem value="bulanan">
+                            <FormattedMessage id="monthly" />
+                          </MenuItem>
                         </Select>
                       </Stack>
                     </Grid>
                     <Grid item xs={12} sm={4}>
                       <Stack spacing={0.5}>
-                        <Typography variant="caption" fontWeight={600}><FormattedMessage id="tenor" /></Typography>
+                        <Typography variant="caption" fontWeight={600}>
+                          <FormattedMessage id="tenor" />
+                        </Typography>
                         <Select
-                          size="small" fullWidth name="installmentTenor"
+                          size="small"
+                          fullWidth
+                          name="installmentTenor"
                           value={formValue.installmentTenor}
                           onChange={(e) => setFormValue((prev) => ({ ...prev, installmentTenor: e.target.value }))}
                         >
-                          <MenuItem value=""><em><FormattedMessage id="select-tenor" /></em></MenuItem>
+                          <MenuItem value="">
+                            <em>
+                              <FormattedMessage id="select-tenor" />
+                            </em>
+                          </MenuItem>
                           {Array.from({ length: 6 }, (_, i) => i + 1).map((num) => (
-                            <MenuItem key={num} value={num}>{num}</MenuItem>
+                            <MenuItem key={num} value={num}>
+                              {num}
+                            </MenuItem>
                           ))}
                         </Select>
                       </Stack>
                     </Grid>
                     <Grid item xs={12} sm={4}>
                       <Stack spacing={0.5}>
-                        <Typography variant="caption" fontWeight={600}><FormattedMessage id="installment-down-payment" /></Typography>
+                        <Typography variant="caption" fontWeight={600}>
+                          <FormattedMessage id="installment-down-payment" />
+                        </Typography>
                         <TextField
-                          size="small" fullWidth type="number" name="installmentDp"
-                          value={formValue.installmentDp} inputProps={{ min: 0 }}
+                          size="small"
+                          fullWidth
+                          type="number"
+                          name="installmentDp"
+                          value={formValue.installmentDp}
+                          inputProps={{ min: 0 }}
                           onChange={onFieldHandler}
                         />
                       </Stack>
@@ -1104,7 +1336,10 @@ const Payment = (props) => {
           </SectionCard>
 
           {/* ── Bukti Pembayaran ── */}
-          <SectionCard icon={<CloudUploadIcon fontSize="small" color="primary" />} title={`${intl.formatMessage({ id: 'proof-of-payment' })} *`}>
+          <SectionCard
+            icon={<CloudUploadIcon fontSize="small" color="primary" />}
+            title={`${intl.formatMessage({ id: 'proof-of-payment' })} *`}
+          >
             <input
               ref={fileInputRef}
               type="file"
@@ -1179,21 +1414,48 @@ const Payment = (props) => {
                     component="img"
                     src={proofPreview}
                     alt="preview"
-                    sx={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 1.5, flexShrink: 0, border: '1px solid', borderColor: 'divider' }}
+                    sx={{
+                      width: 72,
+                      height: 72,
+                      objectFit: 'cover',
+                      borderRadius: 1.5,
+                      flexShrink: 0,
+                      border: '1px solid',
+                      borderColor: 'divider'
+                    }}
                   />
                 ) : (
-                  <Box sx={{ width: 72, height: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'error.50', borderRadius: 1.5, flexShrink: 0 }}>
+                  <Box
+                    sx={{
+                      width: 72,
+                      height: 72,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: 'error.50',
+                      borderRadius: 1.5,
+                      flexShrink: 0
+                    }}
+                  >
                     <InsertDriveFileIcon sx={{ fontSize: 36, color: 'error.main' }} />
                   </Box>
                 )}
 
                 <Box flex={1} minWidth={0}>
-                  <Typography variant="body2" fontWeight={600} noWrap>{paymentProof.name}</Typography>
+                  <Typography variant="body2" fontWeight={600} noWrap>
+                    {paymentProof.name}
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {(paymentProof.size / 1024).toFixed(1)} KB
                   </Typography>
                   <Box mt={0.5}>
-                    <Chip label={intl.formatMessage({ id: 'ready-to-upload' })} size="small" color="success" variant="filled" sx={{ fontSize: 10 }} />
+                    <Chip
+                      label={intl.formatMessage({ id: 'ready-to-upload' })}
+                      size="small"
+                      color="success"
+                      variant="filled"
+                      sx={{ fontSize: 10 }}
+                    />
                   </Box>
                 </Box>
 
@@ -1205,8 +1467,12 @@ const Payment = (props) => {
                   </Tooltip>
                   <Tooltip title={intl.formatMessage({ id: 'delete' })}>
                     <IconButton
-                      size="small" color="error"
-                      onClick={() => { setPaymentProof(null); setProofPreview(null); }}
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        setPaymentProof(null);
+                        setProofPreview(null);
+                      }}
                     >
                       <CloseIcon fontSize="small" />
                     </IconButton>
@@ -1217,10 +1483,14 @@ const Payment = (props) => {
           </SectionCard>
 
           {tab3InvalidMsg && (
-            <Alert severity="error" sx={{ borderRadius: 1, mb: 1.5 }}>{tab3InvalidMsg}</Alert>
+            <Alert severity="error" sx={{ borderRadius: 1, mb: 1.5 }}>
+              {tab3InvalidMsg}
+            </Alert>
           )}
           <Box display="flex" justifyContent="flex-start">
-            <Button variant="outlined" size="small" onClick={() => setTabActive(2)}>← <FormattedMessage id="back" /></Button>
+            <Button variant="outlined" size="small" onClick={() => setTabActive(2)}>
+              ← <FormattedMessage id="back" />
+            </Button>
           </Box>
         </TabPanel>
       </ModalC>

@@ -40,11 +40,8 @@ const TransactionDetailAction = (props) => {
   const showCheckCondition = isDokterOrAbove && status === 'cek kondisi pet';
   const showTreatment = isDokterOrAbove && status === 'pet check-in';
   const showPapanKerjaHarian =
-    (isAdminOrMgr || [JOB_HELPER, JOB_VETNURSE, JOB_PARAMEDIS].includes(jobName)) &&
-    status === 'dalam perawatan';
-  const showPapanKerjaVetnurse =
-    (isAdminOrMgr || [JOB_VETNURSE, JOB_PARAMEDIS].includes(jobName)) &&
-    status === 'dalam perawatan';
+    (isAdminOrMgr || [JOB_HELPER, JOB_VETNURSE, JOB_PARAMEDIS].includes(jobName)) && status === 'dalam perawatan';
+  const showPapanKerjaVetnurse = (isAdminOrMgr || [JOB_VETNURSE, JOB_PARAMEDIS].includes(jobName)) && status === 'dalam perawatan';
   const showAdditionalTreatment = isDokterOrAbove && status === 'dalam perawatan';
   const showExtendStay = isKasirOrAbove && status === 'dalam perawatan';
   const showPrepayment = isKasirOrAbove && status === 'dalam perawatan';
@@ -132,97 +129,225 @@ const TransactionDetailAction = (props) => {
                   }}
                 >
                   {showEdit && (
-                    <ListItemButton onClick={() => { props.onAction('edit'); setOpen(false); }}>
-                      <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="edit" /></Typography>} />
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('edit');
+                        setOpen(false);
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography color="textPrimary">
+                            <FormattedMessage id="edit" />
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
                   )}
 
                   {showAcceptReject && (
                     <>
-                      <ListItemButton onClick={() => { props.onAction('accept-patient'); setOpen(false); }}>
-                        <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="accept-patient" /></Typography>} />
+                      <ListItemButton
+                        onClick={() => {
+                          props.onAction('accept-patient');
+                          setOpen(false);
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography color="textPrimary">
+                              <FormattedMessage id="accept-patient" />
+                            </Typography>
+                          }
+                        />
                       </ListItemButton>
-                      <ListItemButton onClick={() => { props.onAction('cancel-patient'); setOpen(false); }}>
-                        <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="cancel-patient" /></Typography>} />
+                      <ListItemButton
+                        onClick={() => {
+                          props.onAction('cancel-patient');
+                          setOpen(false);
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography color="textPrimary">
+                              <FormattedMessage id="cancel-patient" />
+                            </Typography>
+                          }
+                        />
                       </ListItemButton>
                     </>
                   )}
 
                   {showReassign && (
-                    <ListItemButton onClick={() => { props.onAction('reassign'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('reassign');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="textPrimary">Reassign Dokter</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showCheckCondition && (
-                    <ListItemButton onClick={() => { props.onAction('check-pet-condition'); setOpen(false); }}>
-                      <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="check-pet-condition" /></Typography>} />
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('check-pet-condition');
+                        setOpen(false);
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography color="textPrimary">
+                            <FormattedMessage id="check-pet-condition" />
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
                   )}
 
                   {showTreatment && (
-                    <ListItemButton onClick={() => { props.onAction('treatment'); setOpen(false); }}>
-                      <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="treatment" /></Typography>} />
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('treatment');
+                        setOpen(false);
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography color="textPrimary">
+                            <FormattedMessage id="treatment" />
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
                   )}
 
                   {showPapanKerjaHarian && (
-                    <ListItemButton onClick={() => { props.onAction('papan-kerja-harian'); setOpen(false); }}>
-                      <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="papan-kerja-harian" /></Typography>} />
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('papan-kerja-harian');
+                        setOpen(false);
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography color="textPrimary">
+                            <FormattedMessage id="papan-kerja-harian" />
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
                   )}
 
                   {showPapanKerjaVetnurse && (
-                    <ListItemButton onClick={() => { props.onAction('papan-kerja-vetnurse'); setOpen(false); }}>
-                      <ListItemText primary={<Typography color="textPrimary"><FormattedMessage id="papan-kerja-vetnurse" /></Typography>} />
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('papan-kerja-vetnurse');
+                        setOpen(false);
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography color="textPrimary">
+                            <FormattedMessage id="papan-kerja-vetnurse" />
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
                   )}
 
                   {showAdditionalTreatment && (
-                    <ListItemButton onClick={() => { props.onAction('additional-treatment'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('additional-treatment');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="textPrimary">Treatment Tambahan</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showExtendStay && (
-                    <ListItemButton onClick={() => { props.onAction('extend-stay'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('extend-stay');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="textPrimary">Perpanjang Menginap</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showPrepayment && (
-                    <ListItemButton onClick={() => { props.onAction('prepayment'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('prepayment');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="textPrimary">Bayar DP / Pembayaran Awal</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showInitiateCheckout && (
-                    <ListItemButton onClick={() => { props.onAction('initiate-checkout'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('initiate-checkout');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="error">Inisiasi Check-Out</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showCheckout && (
-                    <ListItemButton onClick={() => { props.onAction('checkout'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('checkout');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="textPrimary">Proses Pembayaran Check-Out</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showConfirmPayment && (
-                    <ListItemButton onClick={() => { props.onAction('confirm-payment'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('confirm-payment');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="textPrimary">Konfirmasi Pembayaran</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showPrintInvoice && (
-                    <ListItemButton onClick={() => { props.onAction('print-invoice'); setOpen(false); }}>
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('print-invoice');
+                        setOpen(false);
+                      }}
+                    >
                       <ListItemText primary={<Typography color="primary">🖨️ Cetak Struk / Invoice</Typography>} />
                     </ListItemButton>
                   )}
 
                   {showDelete && (
-                    <ListItemButton onClick={() => { props.onAction('delete'); setOpen(false); }}>
-                      <ListItemText primary={<Typography color="error"><FormattedMessage id="delete-transaction" /></Typography>} />
+                    <ListItemButton
+                      onClick={() => {
+                        props.onAction('delete');
+                        setOpen(false);
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography color="error">
+                            <FormattedMessage id="delete-transaction" />
+                          </Typography>
+                        }
+                      />
                     </ListItemButton>
                   )}
                 </List>

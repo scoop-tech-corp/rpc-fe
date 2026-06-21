@@ -153,146 +153,15 @@ export default function ProductsCost({ data, filter, setFilter }) {
     [extData.location]
   );
 
-  const dataDummy = useMemo(
-    () => [
-      {
-        productName: 'Zoletil Inj (1 ml)',
-        brandName: 'KLN',
-        supplierName: 'PT Emvi Indonesia',
-        averagePrice: 0,
-        averageCost: 0,
-        quantities: [
-          {
-            location: 'RPC Buaran Klender',
-            qty: 0
-          },
-          {
-            location: 'RPC Condet',
-            qty: 0
-          },
-          {
-            location: 'RPC Pulogebang',
-            qty: 20
-          },
-          {
-            location: 'RPC Karawang Tengah',
-            qty: 0
-          },
-          {
-            location: 'RPC Karawaci',
-            qty: 10
-          },
-          {
-            location: 'RPC Lippo Cikarang',
-            qty: 0
-          },
-          {
-            location: 'RPC Pulogebang',
-            qty: 0
-          },
-          {
-            location: 'RPC Rawamangu',
-            qty: 0
-          }
-        ]
-      },
-      {
-        productName: 'Zentonil Advance (SAme) Kapsul (1 Kapsul)',
-        brandName: 'KLN',
-        supplierName: 'Online',
-        averagePrice: 0,
-        averageCost: 1400,
-        quantities: [
-          {
-            location: 'RPC Buaran Klender',
-            qty: 0
-          },
-          {
-            location: 'RPC Condet',
-            qty: 0
-          },
-          {
-            location: 'RPC Hankam Pondok Gede',
-            qty: 0
-          },
-          {
-            location: 'RPC Karawang Tengah',
-            qty: 0
-          },
-          {
-            location: 'RPC Karawaci',
-            qty: 0
-          },
-          {
-            location: 'RPC Lippo Cikarang',
-            qty: 0
-          },
-          {
-            location: 'RPC Pulogebang',
-            qty: 0
-          },
-          {
-            location: 'RPC Rawamangu',
-            qty: 0
-          }
-        ]
-      },
-      {
-        productName: 'Yummy Raw Food Turkey 500gr',
-        brandName: 'PTS',
-        supplierName: 'Online',
-        averagePrice: 80500,
-        averageCost: 8000,
-        quantities: [
-          {
-            location: 'RPC Buaran Klender',
-            qty: 0
-          },
-          {
-            location: 'RPC Condet',
-            qty: 0
-          },
-          {
-            location: 'RPC Hankam Pondok Gede',
-            qty: 0
-          },
-          {
-            location: 'RPC Karawang Tengah',
-            qty: 0
-          },
-          {
-            location: 'RPC Karawaci',
-            qty: 0
-          },
-          {
-            location: 'RPC Lippo Cikarang',
-            qty: 0
-          },
-          {
-            location: 'RPC Pulogebang',
-            qty: 0
-          },
-          {
-            location: 'RPC Rawamangu',
-            qty: 0
-          }
-        ]
-      }
-    ],
-    []
-  );
-
+  // Summary stats dari backend (totalProducts, totalQuantity, totalCost mencakup semua halaman)
   const statisticsTotal = useMemo(() => {
-    const totalProducts = dataDummy.length;
-    const totalQuantity = dataDummy.reduce((acc, item) => acc + item.quantities.reduce((sum, q) => sum + q.qty, 0), 0);
-    const totalCost = dataDummy.reduce((acc, item) => acc + item.averageCost, 0);
-
+    const summary = data?.summary;
     return {
-      totalProducts,
-      totalQuantity,
-      totalCost
+      totalProducts: summary?.totalProducts ?? 0,
+      totalQuantity: summary?.totalQuantity ?? 0,
+      totalCost: summary?.totalCost ?? 0
     };
-  }, [dataDummy]);
+  }, [data?.summary]);
 
   if (!extData.location.length) return null;
 

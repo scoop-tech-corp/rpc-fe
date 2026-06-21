@@ -94,12 +94,9 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
 
       <DialogContent dividers>
         <Stack spacing={3} sx={{ mt: 0.5 }}>
-
           {/* 1. Status aktivitas */}
           <FormControl>
-            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 0.5 }}>
-              1. Status Aktivitas
-            </FormLabel>
+            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 0.5 }}>1. Status Aktivitas</FormLabel>
             <RadioGroup
               row
               value={formValue.statusAktivitas}
@@ -116,32 +113,32 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
 
               {/* 2. Kondisi umum */}
               <FormControl fullWidth>
-                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                  2. Kondisi Umum Hewan
-                </FormLabel>
+                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>2. Kondisi Umum Hewan</FormLabel>
                 <Select
                   size="small"
                   value={formValue.kondisiUmum}
                   onChange={(e) => setFormValue((prev) => ({ ...prev, kondisiUmum: e.target.value }))}
                 >
                   {KONDISI_UMUM_OPTIONS.map((opt) => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    <MenuItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
 
               {/* 3. Nafsu makan */}
               <FormControl fullWidth>
-                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                  3. Nafsu Makan
-                </FormLabel>
+                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>3. Nafsu Makan</FormLabel>
                 <Select
                   size="small"
                   value={formValue.nafsuMakan}
                   onChange={(e) => setFormValue((prev) => ({ ...prev, nafsuMakan: e.target.value }))}
                 >
                   {NAFSU_MAKAN_OPTIONS.map((opt) => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    <MenuItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -149,31 +146,31 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
               {/* 4. Output eliminasi */}
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <FormControl fullWidth>
-                  <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                    4a. Output BAB (Feses)
-                  </FormLabel>
+                  <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>4a. Output BAB (Feses)</FormLabel>
                   <Select
                     size="small"
                     value={formValue.outputFeses}
                     onChange={(e) => setFormValue((prev) => ({ ...prev, outputFeses: e.target.value }))}
                   >
                     {OUTPUT_FESES_OPTIONS.map((opt) => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      <MenuItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
 
                 <FormControl fullWidth>
-                  <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                    4b. Output BAK (Urin)
-                  </FormLabel>
+                  <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>4b. Output BAK (Urin)</FormLabel>
                   <Select
                     size="small"
                     value={formValue.outputUrin}
                     onChange={(e) => setFormValue((prev) => ({ ...prev, outputUrin: e.target.value }))}
                   >
                     {OUTPUT_URIN_OPTIONS.map((opt) => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      <MenuItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -181,9 +178,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
 
               {/* 5. Obat diberikan */}
               <FormControl>
-                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 0.5 }}>
-                  5. Obat / Tindakan Medis
-                </FormLabel>
+                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 0.5 }}>5. Obat / Tindakan Medis</FormLabel>
                 <Stack direction="row" alignItems="center" spacing={1.5}>
                   <Switch
                     checked={formValue.obatDiberikan}
@@ -208,9 +203,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
 
               {/* 6. Catatan klinis */}
               <FormControl fullWidth>
-                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                  6. Catatan Klinis / Perilaku
-                </FormLabel>
+                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>6. Catatan Klinis / Perilaku</FormLabel>
                 <TextField
                   multiline
                   rows={3}
@@ -223,9 +216,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
 
               {/* 7. Foto bukti */}
               <FormControl>
-                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                  7. Foto Bukti Perawatan (Opsional)
-                </FormLabel>
+                <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>7. Foto Bukti Perawatan (Opsional)</FormLabel>
                 <Button variant="outlined" component="label" size="small" sx={{ width: 'fit-content' }}>
                   {formValue.foto ? `📷 ${formValue.foto.name}` : '📷 Upload Foto'}
                   <input hidden accept="image/*" type="file" onChange={onChangeFoto} />
@@ -236,9 +227,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
 
           {isSkipped && (
             <FormControl fullWidth>
-              <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-                Alasan Dilewati
-              </FormLabel>
+              <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>Alasan Dilewati</FormLabel>
               <TextField
                 multiline
                 rows={2}
@@ -249,7 +238,6 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose, submitting }) => {
               />
             </FormControl>
           )}
-
         </Stack>
       </DialogContent>
 

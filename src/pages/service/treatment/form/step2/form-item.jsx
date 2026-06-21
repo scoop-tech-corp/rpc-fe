@@ -24,24 +24,24 @@ import { createMessageBackend, generateUniqueIdByDate } from 'service/service-gl
 export default function FormService({ step, setStep, setParams }) {
   const dispatch = useDispatch();
 
-  const totalColumn    = useTreatmentStore((state) => state.formStep2.totalColumn);
-  const frequencyList  = useTreatmentStore((state) => state.dataSupport.frequencyList);
-  const serviceList    = useTreatmentStore((state) => state.dataSupport.serviceList);
-  const taskList       = useTreatmentStore((state) => state.dataSupport.taskList);
+  const totalColumn = useTreatmentStore((state) => state.formStep2.totalColumn);
+  const frequencyList = useTreatmentStore((state) => state.dataSupport.frequencyList);
+  const serviceList = useTreatmentStore((state) => state.dataSupport.serviceList);
+  const taskList = useTreatmentStore((state) => state.dataSupport.taskList);
   const treatmentDetail = useTreatmentStore((state) => state.dataSupport.treatmentDetail);
 
-  const serviceId  = useTreatmentStore((state) => state.formStep2Item.service_id);
-  const taskId     = useTreatmentStore((state) => state.formStep2Item.task_id);
+  const serviceId = useTreatmentStore((state) => state.formStep2Item.service_id);
+  const taskId = useTreatmentStore((state) => state.formStep2Item.task_id);
   const productName = useTreatmentStore((state) => state.formStep2Item.product_name);
   const productType = useTreatmentStore((state) => state.formStep2Item.product_type);
-  const quantity   = useTreatmentStore((state) => state.formStep2Item.quantity);
-  const isEdit     = useTreatmentStore((state) => state.formStep2Item.isEdit);
-  const isAnother  = useTreatmentStore((state) => state.formStep2Item.isAnother);
-  const notes      = useTreatmentStore((state) => state.formStep2Item.notes);
-  const frequency  = useTreatmentStore((state) => state.formStep2Item.frequency_id);
+  const quantity = useTreatmentStore((state) => state.formStep2Item.quantity);
+  const isEdit = useTreatmentStore((state) => state.formStep2Item.isEdit);
+  const isAnother = useTreatmentStore((state) => state.formStep2Item.isAnother);
+  const notes = useTreatmentStore((state) => state.formStep2Item.notes);
+  const frequency = useTreatmentStore((state) => state.formStep2Item.frequency_id);
   // BUG 2 & 3 FIX: extract start & duration as reactive selectors (not getState())
-  const start      = useTreatmentStore((state) => state.formStep2Item.start);
-  const duration   = useTreatmentStore((state) => state.formStep2Item.duration);
+  const start = useTreatmentStore((state) => state.formStep2Item.start);
+  const duration = useTreatmentStore((state) => state.formStep2Item.duration);
 
   const [inputValue, setInputValue] = useState('');
 
@@ -126,14 +126,18 @@ export default function FormService({ step, setStep, setParams }) {
         api: productType === 'product-sell' ? 'product/sell/list/location' : 'product/clinic/list/location'
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productType, step, treatmentDetail?.location_id]);
 
   // BUG 2 FIX: use reactive `duration` and `start` selectors (not getState())
   const validation =
-    step == 3 ? serviceId && frequency && duration && start
-    : step == 2 ? productName && quantity && frequency && duration && start
-    : step == 4 ? taskId && frequency && duration && start
-    : '';
+    step == 3
+      ? serviceId && frequency && duration && start
+      : step == 2
+      ? productName && quantity && frequency && duration && start
+      : step == 4
+      ? taskId && frequency && duration && start
+      : '';
 
   return (
     <div>
@@ -234,11 +238,7 @@ export default function FormService({ step, setStep, setParams }) {
             {<FormattedMessage id="start" />} *
           </InputLabel>
           {/* BUG 11 FIX: use reactive `start` variable (not hook inside JSX prop) */}
-          <Select
-            id="start"
-            value={start}
-            onChange={(e) => onChange('start', e.target.value, 'duration')}
-          >
+          <Select id="start" value={start} onChange={(e) => onChange('start', e.target.value, 'duration')}>
             {Array.from({ length: totalColumn }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
                 {i + 1}
@@ -272,11 +272,7 @@ export default function FormService({ step, setStep, setParams }) {
             {<FormattedMessage id="duration" />} *
           </InputLabel>
           {/* BUG 3 & 11 FIX: use reactive `duration` and `start` variables */}
-          <Select
-            id="duration"
-            value={duration}
-            onChange={(e) => onChange('duration', e.target.value)}
-          >
+          <Select id="duration" value={duration} onChange={(e) => onChange('duration', e.target.value)}>
             {Array.from({ length: totalColumn - (Number(start) - 1) }, (_, i) => (
               <MenuItem value={i + 1} key={i}>
                 {i + 1}
@@ -289,24 +285,12 @@ export default function FormService({ step, setStep, setParams }) {
             {<FormattedMessage id="notes" />}
           </InputLabel>
           {/* BUG 11 FIX: use reactive `notes` variable */}
-          <TextField
-            id="notes"
-            value={notes}
-            multiline
-            rows={3}
-            onChange={(e) => onChange('notes', e.target.value)}
-          />
+          <TextField id="notes" value={notes} multiline rows={3} onChange={(e) => onChange('notes', e.target.value)} />
         </Stack>
         <Stack>
           <FormControl sx={{ mt: 2 }}>
             <FormControlLabel
-              control={
-                <Checkbox
-                  sx={{ mt: -0.1 }}
-                  checked={!!isAnother}
-                  onChange={(e) => onChange('isAnother', e.target.checked)}
-                />
-              }
+              control={<Checkbox sx={{ mt: -0.1 }} checked={!!isAnother} onChange={(e) => onChange('isAnother', e.target.checked)} />}
               label={
                 <FormattedMessage
                   id={step == 2 ? 'create-another-product' : step == 3 ? 'create-another-service' : step == 4 ? 'create-another-task' : ''}

@@ -26,7 +26,6 @@ import {
   TableRow,
   Tabs,
   TextField,
-  Tooltip,
   Typography
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -55,8 +54,7 @@ import EmailIcon from '@mui/icons-material/Email';
 // STEPS are built inside the component so intl is available
 
 // ── Helper: format nama lengkap ───────────────────────────────────────────────
-const fullName = (c) =>
-  [c?.firstName, c?.middleName, c?.lastName].filter(Boolean).join(' ') || c?.customerName || '-';
+const fullName = (c) => [c?.firstName, c?.middleName, c?.lastName].filter(Boolean).join(' ') || c?.customerName || '-';
 
 // ── Customer Info Card ────────────────────────────────────────────────────────
 const CustomerInfoCard = ({ customer, label, color, counts }) => {
@@ -79,26 +77,38 @@ const CustomerInfoCard = ({ customer, label, color, counts }) => {
             {label}
           </Typography>
         </Stack>
-        <Typography variant="h6" fontWeight="bold">{fullName(customer)}</Typography>
+        <Typography variant="h6" fontWeight="bold">
+          {fullName(customer)}
+        </Typography>
         {customer.memberNo && (
-          <Typography variant="body2" color="text.secondary"><FormattedMessage id="card-number" />: {customer.memberNo}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            <FormattedMessage id="card-number" />: {customer.memberNo}
+          </Typography>
         )}
         {customer.customerGroupName && (
-          <Typography variant="body2" color="text.secondary"><FormattedMessage id="customer-group" />: {customer.customerGroupName}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            <FormattedMessage id="customer-group" />: {customer.customerGroupName}
+          </Typography>
         )}
         {customer.locationName && (
-          <Typography variant="body2" color="text.secondary"><FormattedMessage id="location" />: {customer.locationName}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            <FormattedMessage id="location" />: {customer.locationName}
+          </Typography>
         )}
         {customer.phoneNumber && (
           <Stack direction="row" spacing={0.5} alignItems="center" mt={0.5}>
             <PhoneIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">{customer.phoneNumber}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {customer.phoneNumber}
+            </Typography>
           </Stack>
         )}
         {customer.email && (
           <Stack direction="row" spacing={0.5} alignItems="center" mt={0.5}>
             <EmailIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">{customer.email}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {customer.email}
+            </Typography>
           </Stack>
         )}
       </Box>
@@ -107,9 +117,25 @@ const CustomerInfoCard = ({ customer, label, color, counts }) => {
       {counts && (
         <Box sx={{ bgcolor: `${color}.lighter`, px: 2, py: 1, borderTop: `1px solid`, borderColor: `${color}.light` }}>
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            <Chip icon={<PetsIcon />} label={`${counts.pets} ${intl.formatMessage({ id: 'pet-animal' })}`} size="small" color={color === 'error' ? 'error' : 'success'} variant="filled" />
-            <Chip icon={<ReceiptLongIcon />} label={`${counts.transactions} ${intl.formatMessage({ id: 'transaction' })}`} size="small" variant="outlined" />
-            <Chip icon={<PhoneIcon />} label={`${counts.telephones} ${intl.formatMessage({ id: 'phone-number' })}`} size="small" variant="outlined" />
+            <Chip
+              icon={<PetsIcon />}
+              label={`${counts.pets} ${intl.formatMessage({ id: 'pet-animal' })}`}
+              size="small"
+              color={color === 'error' ? 'error' : 'success'}
+              variant="filled"
+            />
+            <Chip
+              icon={<ReceiptLongIcon />}
+              label={`${counts.transactions} ${intl.formatMessage({ id: 'transaction' })}`}
+              size="small"
+              variant="outlined"
+            />
+            <Chip
+              icon={<PhoneIcon />}
+              label={`${counts.telephones} ${intl.formatMessage({ id: 'phone-number' })}`}
+              size="small"
+              variant="outlined"
+            />
             <Chip icon={<EmailIcon />} label={`${counts.emails} Email`} size="small" variant="outlined" />
           </Stack>
         </Box>
@@ -123,15 +149,15 @@ const MergeHistoryTab = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
 
-  const [rows, setRows]             = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [page, setPage]             = useState(1);
-  const [loading, setLoading]       = useState(false);
-  const [exporting, setExporting]   = useState(false);
+  const [rows, setRows] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [locationList, setLocationList] = useState([]);
 
-  const [dateFrom, setDateFrom]     = useState(null);
-  const [dateTo, setDateTo]         = useState(null);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
   const [locationId, setLocationId] = useState('');
 
   const rowPerPage = 10;
@@ -140,43 +166,46 @@ const MergeHistoryTab = () => {
     getLocationList().then(setLocationList);
   }, []);
 
-  const loadHistory = useCallback(async (pg = 1) => {
-    setLoading(true);
-    try {
-      const params = {
-        rowPerPage,
-        goToPage: pg,
-        dateFrom:   dateFrom ? dayjs(dateFrom).format('YYYY-MM-DD') : undefined,
-        dateTo:     dateTo   ? dayjs(dateTo).format('YYYY-MM-DD')   : undefined,
-        locationId: locationId || undefined,
-      };
-      const resp = await getMergeHistory(params);
-      setRows(resp.data.data || []);
-      setTotal(resp.data.totalPagination || 0);
-    } catch (err) {
-      dispatch(snackbarError(createMessageBackend(err)));
-    } finally {
-      setLoading(false);
-    }
-  }, [dateFrom, dateTo, locationId, dispatch]);
+  const loadHistory = useCallback(
+    async (pg = 1) => {
+      setLoading(true);
+      try {
+        const params = {
+          rowPerPage,
+          goToPage: pg,
+          dateFrom: dateFrom ? dayjs(dateFrom).format('YYYY-MM-DD') : undefined,
+          dateTo: dateTo ? dayjs(dateTo).format('YYYY-MM-DD') : undefined,
+          locationId: locationId || undefined
+        };
+        const resp = await getMergeHistory(params);
+        setRows(resp.data.data || []);
+        setTotal(resp.data.totalPagination || 0);
+      } catch (err) {
+        dispatch(snackbarError(createMessageBackend(err)));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [dateFrom, dateTo, locationId, dispatch]
+  );
 
   useEffect(() => {
     loadHistory(1);
     setPage(1);
-  }, [dateFrom, dateTo, locationId]);
+  }, [dateFrom, dateTo, locationId, loadHistory]);
 
   const handleExport = async () => {
     setExporting(true);
     try {
       const params = {
-        dateFrom:   dateFrom ? dayjs(dateFrom).format('YYYY-MM-DD') : undefined,
-        dateTo:     dateTo   ? dayjs(dateTo).format('YYYY-MM-DD')   : undefined,
-        locationId: locationId || undefined,
+        dateFrom: dateFrom ? dayjs(dateFrom).format('YYYY-MM-DD') : undefined,
+        dateTo: dateTo ? dayjs(dateTo).format('YYYY-MM-DD') : undefined,
+        locationId: locationId || undefined
       };
       const resp = await exportMergeHistory(params);
-      const url  = window.URL.createObjectURL(new Blob([resp.data]));
+      const url = window.URL.createObjectURL(new Blob([resp.data]));
       const link = document.createElement('a');
-      link.href  = url;
+      link.href = url;
       link.setAttribute('download', `riwayat-merge-customer-${dayjs().format('YYYYMMDD-HHmmss')}.xlsx`);
       document.body.appendChild(link);
       link.click();
@@ -194,25 +223,27 @@ const MergeHistoryTab = () => {
       const obj = typeof json === 'string' ? JSON.parse(json) : json;
       if (!obj || !Object.keys(obj).length) return '-';
       const labelMap = {
-        pets:                  intl.formatMessage({ id: 'pet-animal' }),
-        telephones:            intl.formatMessage({ id: 'phone-number' }),
-        emails:                'Email',
-        addresses:             intl.formatMessage({ id: 'address' }),
+        pets: intl.formatMessage({ id: 'pet-animal' }),
+        telephones: intl.formatMessage({ id: 'phone-number' }),
+        emails: 'Email',
+        addresses: intl.formatMessage({ id: 'address' }),
         transactionPetClinics: 'Klinik',
-        transactionPetHotels:  'Hotel',
-        transactionPetShop:    'Petshop',
-        transactionPetSalons:  'Salon',
-        transactionBreedings:  intl.formatMessage({ id: 'breeding' }),
-        transactions:          intl.formatMessage({ id: 'transaction' }),
-        bookings:              intl.formatMessage({ id: 'booking' }),
-        deliveryOrders:        'Delivery',
-        queues:                'Antrian',
-        reminders:             'Reminder',
+        transactionPetHotels: 'Hotel',
+        transactionPetShop: 'Petshop',
+        transactionPetSalons: 'Salon',
+        transactionBreedings: intl.formatMessage({ id: 'breeding' }),
+        transactions: intl.formatMessage({ id: 'transaction' }),
+        bookings: intl.formatMessage({ id: 'booking' }),
+        deliveryOrders: 'Delivery',
+        queues: 'Antrian',
+        reminders: 'Reminder'
       };
       return Object.entries(obj)
         .map(([k, v]) => `${labelMap[k] || k}: ${v}`)
         .join(' · ');
-    } catch { return '-'; }
+    } catch {
+      return '-';
+    }
   };
 
   return (
@@ -239,15 +270,19 @@ const MergeHistoryTab = () => {
         </Grid>
         <Grid item xs={12} sm={3}>
           <FormControl fullWidth size="small">
-            <InputLabel><FormattedMessage id="location" /></InputLabel>
-            <Select
-              value={locationId}
-              label={intl.formatMessage({ id: 'location' })}
-              onChange={(e) => setLocationId(e.target.value)}
-            >
-              <MenuItem value=""><em><FormattedMessage id="all-location" /></em></MenuItem>
+            <InputLabel>
+              <FormattedMessage id="location" />
+            </InputLabel>
+            <Select value={locationId} label={intl.formatMessage({ id: 'location' })} onChange={(e) => setLocationId(e.target.value)}>
+              <MenuItem value="">
+                <em>
+                  <FormattedMessage id="all-location" />
+                </em>
+              </MenuItem>
               {locationList.map((loc) => (
-                <MenuItem key={loc.value} value={loc.value}>{loc.label}</MenuItem>
+                <MenuItem key={loc.value} value={loc.value}>
+                  {loc.label}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -256,7 +291,11 @@ const MergeHistoryTab = () => {
           <Button
             variant="outlined"
             size="small"
-            onClick={() => { setDateFrom(null); setDateTo(null); setLocationId(''); }}
+            onClick={() => {
+              setDateFrom(null);
+              setDateTo(null);
+              setLocationId('');
+            }}
           >
             <FormattedMessage id="reset" />
           </Button>
@@ -283,13 +322,39 @@ const MergeHistoryTab = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: 'action.hover' }}>
-                    <TableCell width={40}><strong>No.</strong></TableCell>
-                    <TableCell><strong><FormattedMessage id="customer-source" /></strong></TableCell>
-                    <TableCell><strong><FormattedMessage id="customer-target" /></strong></TableCell>
-                    <TableCell><strong><FormattedMessage id="location" /></strong></TableCell>
-                    <TableCell><strong><FormattedMessage id="transferred-relations" /></strong></TableCell>
-                    <TableCell><strong><FormattedMessage id="performed-by" /></strong></TableCell>
-                    <TableCell><strong><FormattedMessage id="merge-date" /></strong></TableCell>
+                    <TableCell width={40}>
+                      <strong>No.</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="customer-source" />
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="customer-target" />
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="location" />
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="transferred-relations" />
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="performed-by" />
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="merge-date" />
+                      </strong>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -299,37 +364,37 @@ const MergeHistoryTab = () => {
                         <FormattedMessage id="no-merge-history" />
                       </TableCell>
                     </TableRow>
-                  ) : rows.map((row, idx) => (
-                    <TableRow key={row.id} hover>
-                      <TableCell>{(page - 1) * rowPerPage + idx + 1}</TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color="error.main" fontWeight="medium">
-                          {row.sourceCustomerName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color="success.main" fontWeight="medium">
-                          {row.targetCustomerName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{row.locationName || '-'}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
-                          {parseRelations(row.transferredRelations)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{row.performedBy || '-'}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {row.created_at ? dayjs(row.created_at).format('DD/MM/YYYY HH:mm') : '-'}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  ) : (
+                    rows.map((row, idx) => (
+                      <TableRow key={row.id} hover>
+                        <TableCell>{(page - 1) * rowPerPage + idx + 1}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="error.main" fontWeight="medium">
+                            {row.sourceCustomerName}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="success.main" fontWeight="medium">
+                            {row.targetCustomerName}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">{row.locationName || '-'}</Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary">
+                            {parseRelations(row.transferredRelations)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">{row.performedBy || '-'}</Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">{row.created_at ? dayjs(row.created_at).format('DD/MM/YYYY HH:mm') : '-'}</Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
 
@@ -339,7 +404,10 @@ const MergeHistoryTab = () => {
                     count={Math.ceil(total / rowPerPage)}
                     page={page}
                     color="primary"
-                    onChange={(_, val) => { setPage(val); loadHistory(val); }}
+                    onChange={(_, val) => {
+                      setPage(val);
+                      loadHistory(val);
+                    }}
                   />
                 </Box>
               )}
@@ -359,10 +427,10 @@ const CustomerMerge = () => {
   const STEPS = [
     intl.formatMessage({ id: 'step-select-customer' }),
     intl.formatMessage({ id: 'step-preview-confirm' }),
-    intl.formatMessage({ id: 'step-done' }),
+    intl.formatMessage({ id: 'step-done' })
   ];
 
-  const [activeTab, setActiveTab]   = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -469,7 +537,11 @@ const CustomerMerge = () => {
         </Typography>
         <Autocomplete
           options={sourceOptions}
-          getOptionLabel={(o) => `${fullName(o)}${o.memberNo ? ` (${o.memberNo})` : ''}${o.phoneNumber ? ` · ${o.phoneNumber}` : ''}${o.location ? ` — ${o.location}` : ''}`}
+          getOptionLabel={(o) =>
+            `${fullName(o)}${o.memberNo ? ` (${o.memberNo})` : ''}${o.phoneNumber ? ` · ${o.phoneNumber}` : ''}${
+              o.location ? ` — ${o.location}` : ''
+            }`
+          }
           loading={sourceLoading}
           value={sourceCustomer}
           onChange={(_, val) => setSourceCustomer(val)}
@@ -511,7 +583,11 @@ const CustomerMerge = () => {
         </Typography>
         <Autocomplete
           options={targetOptions}
-          getOptionLabel={(o) => `${fullName(o)}${o.memberNo ? ` (${o.memberNo})` : ''}${o.phoneNumber ? ` · ${o.phoneNumber}` : ''}${o.location ? ` — ${o.location}` : ''}`}
+          getOptionLabel={(o) =>
+            `${fullName(o)}${o.memberNo ? ` (${o.memberNo})` : ''}${o.phoneNumber ? ` · ${o.phoneNumber}` : ''}${
+              o.location ? ` — ${o.location}` : ''
+            }`
+          }
           loading={targetLoading}
           value={targetCustomer}
           onChange={(_, val) => setTargetCustomer(val)}
@@ -565,7 +641,12 @@ const CustomerMerge = () => {
       <Grid container spacing={3}>
         {/* Header: info kedua customer */}
         <Grid item xs={12} md={6}>
-          <CustomerInfoCard customer={source} label={intl.formatMessage({ id: 'source-will-be-deactivated' })} color="error" counts={sourceCounts} />
+          <CustomerInfoCard
+            customer={source}
+            label={intl.formatMessage({ id: 'source-will-be-deactivated' })}
+            color="error"
+            counts={sourceCounts}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           <CustomerInfoCard customer={target} label={intl.formatMessage({ id: 'target-master' })} color="success" counts={targetCounts} />
@@ -586,10 +667,26 @@ const CustomerMerge = () => {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: 'action.hover' }}>
-                <TableCell><strong><FormattedMessage id="field" /></strong></TableCell>
-                <TableCell><strong><FormattedMessage id="source-value" /></strong></TableCell>
-                <TableCell><strong><FormattedMessage id="target-value" /></strong></TableCell>
-                <TableCell align="center"><strong><FormattedMessage id="choice" /></strong></TableCell>
+                <TableCell>
+                  <strong>
+                    <FormattedMessage id="field" />
+                  </strong>
+                </TableCell>
+                <TableCell>
+                  <strong>
+                    <FormattedMessage id="source-value" />
+                  </strong>
+                </TableCell>
+                <TableCell>
+                  <strong>
+                    <FormattedMessage id="target-value" />
+                  </strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>
+                    <FormattedMessage id="choice" />
+                  </strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -603,7 +700,9 @@ const CustomerMerge = () => {
                 return (
                   <TableRow key={row.field} hover>
                     <TableCell>
-                      <Typography variant="body2" fontWeight="medium">{row.label}</Typography>
+                      <Typography variant="body2" fontWeight="medium">
+                        {row.label}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography
@@ -611,7 +710,11 @@ const CustomerMerge = () => {
                         color={choice === 'source' ? 'error.main' : 'text.secondary'}
                         fontWeight={choice === 'source' ? 'bold' : 'normal'}
                       >
-                        {srcLabel || <em style={{ color: '#aaa' }}><FormattedMessage id="empty" /></em>}
+                        {srcLabel || (
+                          <em style={{ color: '#aaa' }}>
+                            <FormattedMessage id="empty" />
+                          </em>
+                        )}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -620,7 +723,11 @@ const CustomerMerge = () => {
                         color={choice === 'target' ? 'success.main' : 'text.secondary'}
                         fontWeight={choice === 'target' ? 'bold' : 'normal'}
                       >
-                        {tgtLabel || <em style={{ color: '#aaa' }}><FormattedMessage id="empty" /></em>}
+                        {tgtLabel || (
+                          <em style={{ color: '#aaa' }}>
+                            <FormattedMessage id="empty" />
+                          </em>
+                        )}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
@@ -660,15 +767,27 @@ const CustomerMerge = () => {
               ℹ️ <FormattedMessage id="merge-auto-transfer-info" />
             </Typography>
             <Typography variant="body2">
-              ✅ <strong><FormattedMessage id="pet-animal" /></strong> ({sourceCounts.pets}) &nbsp;|&nbsp;
-              ✅ <strong><FormattedMessage id="transaction-history" /></strong> ({sourceCounts.transactions}) &nbsp;|&nbsp;
-              ✅ <strong><FormattedMessage id="phone-number" /></strong> &nbsp;|&nbsp;
-              ✅ <strong>Email</strong> &nbsp;|&nbsp;
-              ✅ <strong><FormattedMessage id="address" /></strong> &nbsp;|&nbsp;
-              ✅ <strong>Reminder</strong>
+              ✅{' '}
+              <strong>
+                <FormattedMessage id="pet-animal" />
+              </strong>{' '}
+              ({sourceCounts.pets}) &nbsp;|&nbsp; ✅{' '}
+              <strong>
+                <FormattedMessage id="transaction-history" />
+              </strong>{' '}
+              ({sourceCounts.transactions}) &nbsp;|&nbsp; ✅{' '}
+              <strong>
+                <FormattedMessage id="phone-number" />
+              </strong>{' '}
+              &nbsp;|&nbsp; ✅ <strong>Email</strong> &nbsp;|&nbsp; ✅{' '}
+              <strong>
+                <FormattedMessage id="address" />
+              </strong>{' '}
+              &nbsp;|&nbsp; ✅ <strong>Reminder</strong>
             </Typography>
             <Typography variant="body2" mt={1} color="warning.main">
-              ⚠️ <FormattedMessage id="customer-source" /> (<strong>{fullName(source)}</strong>) <FormattedMessage id="source-will-be-deactivated" defaultMessage="will be deactivated" />.
+              ⚠️ <FormattedMessage id="customer-source" /> (<strong>{fullName(source)}</strong>){' '}
+              <FormattedMessage id="source-will-be-deactivated" defaultMessage="will be deactivated" />.
             </Typography>
           </Box>
         </Grid>
@@ -700,21 +819,21 @@ const CustomerMerge = () => {
     const { transferredRelations, targetCustomerId } = mergeResult;
 
     const relationLabels = {
-      telephones:            intl.formatMessage({ id: 'phone-number' }),
-      emails:                'Email',
-      addresses:             intl.formatMessage({ id: 'address' }),
-      messengers:            'Messenger',
-      pets:                  intl.formatMessage({ id: 'pets' }),
-      reminders:             'Reminder',
+      telephones: intl.formatMessage({ id: 'phone-number' }),
+      emails: 'Email',
+      addresses: intl.formatMessage({ id: 'address' }),
+      messengers: 'Messenger',
+      pets: intl.formatMessage({ id: 'pets' }),
+      reminders: 'Reminder',
       transactionPetClinics: `${intl.formatMessage({ id: 'transaction' })} Pet Clinic`,
-      transactionPetHotels:  `${intl.formatMessage({ id: 'transaction' })} Pet Hotel`,
-      transactionPetShop:    `${intl.formatMessage({ id: 'transaction' })} Petshop`,
-      transactionPetSalons:  `${intl.formatMessage({ id: 'transaction' })} Salon`,
-      transactionBreedings:  `${intl.formatMessage({ id: 'transaction' })} ${intl.formatMessage({ id: 'breeding' })}`,
-      transactions:          intl.formatMessage({ id: 'transaction' }),
-      bookings:              intl.formatMessage({ id: 'booking' }),
-      deliveryOrders:        'Delivery Order',
-      queues:                'Antrian',
+      transactionPetHotels: `${intl.formatMessage({ id: 'transaction' })} Pet Hotel`,
+      transactionPetShop: `${intl.formatMessage({ id: 'transaction' })} Petshop`,
+      transactionPetSalons: `${intl.formatMessage({ id: 'transaction' })} Salon`,
+      transactionBreedings: `${intl.formatMessage({ id: 'transaction' })} ${intl.formatMessage({ id: 'breeding' })}`,
+      transactions: intl.formatMessage({ id: 'transaction' }),
+      bookings: intl.formatMessage({ id: 'booking' }),
+      deliveryOrders: 'Delivery Order',
+      queues: 'Antrian'
     };
 
     return (
@@ -732,13 +851,23 @@ const CustomerMerge = () => {
 
           <MainCard title={intl.formatMessage({ id: 'merge-summary' })}>
             {Object.keys(transferredRelations).length === 0 ? (
-              <Typography variant="body2" color="text.secondary"><FormattedMessage id="no-transferred-relations" /></Typography>
+              <Typography variant="body2" color="text.secondary">
+                <FormattedMessage id="no-transferred-relations" />
+              </Typography>
             ) : (
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: 'action.hover' }}>
-                    <TableCell><strong><FormattedMessage id="data-type" /></strong></TableCell>
-                    <TableCell align="right"><strong><FormattedMessage id="amount" /></strong></TableCell>
+                    <TableCell>
+                      <strong>
+                        <FormattedMessage id="data-type" />
+                      </strong>
+                    </TableCell>
+                    <TableCell align="right">
+                      <strong>
+                        <FormattedMessage id="amount" />
+                      </strong>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -804,7 +933,8 @@ const CustomerMerge = () => {
           <Typography>
             <strong>{fullName(preview?.source)}</strong> → <strong>{fullName(preview?.target)}</strong>.<br />
             <br />
-            <FormattedMessage id="source-will-be-deactivated" /> — <FormattedMessage id="no-transferred-relations" defaultMessage="This action cannot be undone." />
+            <FormattedMessage id="source-will-be-deactivated" /> —{' '}
+            <FormattedMessage id="no-transferred-relations" defaultMessage="This action cannot be undone." />
           </Typography>
         }
         onClose={(isOk) => {

@@ -88,7 +88,7 @@ const TransactionDataStatic = () => {
         accessor: 'name'
       }
     ],
-    []
+    [intl]
   );
 
   const onOrderingChange = (event) => {

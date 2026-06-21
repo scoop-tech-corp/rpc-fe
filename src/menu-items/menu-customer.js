@@ -57,6 +57,18 @@ const customer = {
           title: <FormattedMessage id="import" />,
           type: 'item',
           url: '/customer/import'
+        },
+        {
+          id: 'customer-feedback',
+          title: <FormattedMessage id="feedback" />,
+          type: 'item',
+          url: '/customer/feedback'
+        },
+        {
+          id: 'customer-support-request',
+          title: <FormattedMessage id="support-requested" />,
+          type: 'item',
+          url: '/customer/support-request'
         }
       ]
     }

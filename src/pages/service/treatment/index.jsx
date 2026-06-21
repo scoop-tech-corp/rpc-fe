@@ -143,7 +143,7 @@ export default function Index() {
         }
       }
     ],
-    []
+    [intl, navigate]
   );
 
   const onExport = async () => {
@@ -192,7 +192,7 @@ export default function Index() {
     }
 
     fetchData();
-  }, []);
+  }, [intl]);
 
   const handleFilter = () => {
     let tempFilter = {

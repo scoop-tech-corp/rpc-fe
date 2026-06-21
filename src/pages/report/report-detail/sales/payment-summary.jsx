@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 
-export default function SalesPaymentSummary({ data, filter, setFilter }) {
+export default function SalesPaymentSummary({ data, setFilter }) {
   const pieChart = useMemo(() => {
     return {
       series: data?.chartsDiscountValueByStaff.series || [],
@@ -14,7 +14,6 @@ export default function SalesPaymentSummary({ data, filter, setFilter }) {
   }, [data]);
 
   const tablesData = data?.table.data || [];
-  const totalPagination = data?.table.totalPagination;
 
   const columns = useMemo(
     () => [
@@ -123,12 +122,6 @@ export default function SalesPaymentSummary({ data, filter, setFilter }) {
       <ReactTable
         columns={columns}
         data={tablesData}
-        totalPagination={totalPagination || 0}
-        colSpanPagination={14}
-        setPageNumber={filter.goToPage}
-        onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
-        setPageRow={filter.rowPerPage}
-        onPageSize={(event) => setFilter((e) => ({ ...e, rowPerPage: event }))}
         onOrder={(event) => {
           setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
         }}

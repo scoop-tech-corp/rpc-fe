@@ -69,6 +69,12 @@ const finance = {
           title: <FormattedMessage id="material-data" />,
           type: 'item',
           url: '/finance/material-data'
+        },
+        {
+          id: 'finance-installment',
+          title: 'Cicilan',
+          type: 'item',
+          url: '/finance/installment'
         }
       ]
     }

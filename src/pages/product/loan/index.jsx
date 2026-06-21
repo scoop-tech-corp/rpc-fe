@@ -65,7 +65,7 @@ const ProductLoan = () => {
   const [selectedFilterLocation, setSelectedFilterLocation] = useState([]);
   const [selectedFilterStaff, setSelectedFilterStaff] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('');
-const [keywordSearch, setKeywordSearch] = useState('');
+  const [keywordSearch, setKeywordSearch] = useState('');
   const [dialog, setDialog] = useState(false);
 
   const columns = useMemo(
@@ -88,10 +88,7 @@ const [keywordSearch, setKeywordSearch] = useState('');
         Header: <FormattedMessage id="loan-number" />,
         accessor: 'loanNumber',
         Cell: (data) => (
-          <Link
-            sx={{ cursor: 'pointer' }}
-            onClick={() => navigate(`/product/loan/detail/${data.row.original.id}`)}
-          >
+          <Link sx={{ cursor: 'pointer' }} onClick={() => navigate(`/product/loan/detail/${data.row.original.id}`)}>
             {data.value}
           </Link>
         )
@@ -266,7 +263,7 @@ const [keywordSearch, setKeywordSearch] = useState('');
                   onChange={(_, value) => onFilterStaff(value)}
                   renderInput={(params) => <TextField {...params} label={<FormattedMessage id="staff" />} />}
                 />
-<FormControl sx={{ minWidth: 140 }}>
+                <FormControl sx={{ minWidth: 140 }}>
                   <InputLabel>Status</InputLabel>
                   <Select value={selectedStatus} label="Status" onChange={(e) => onFilterStatus(e.target.value)}>
                     {STATUS_OPTIONS.map((s) => (

@@ -105,7 +105,7 @@ const SectionLabel = ({ children }) => (
 SectionLabel.propTypes = { children: PropTypes.node };
 
 const FormTransaction = (props) => {
-  const { id } = props;
+  const { id, queueId } = props;
   const customerList = dropdownList((state) => state.customerList);
   const customerPetList = dropdownList((state) => state.customerPetList);
 
@@ -171,7 +171,7 @@ const FormTransaction = (props) => {
         .catch(responseError);
     } else {
       try {
-        const response = await createTransactionPetSalon(formValue);
+        const response = await createTransactionPetSalon({ ...formValue, queueId });
         responseSuccess(response);
       } catch (error) {
         responseError(error);
@@ -367,7 +367,7 @@ const FormTransaction = (props) => {
   useEffect(() => {
     if (visitSource === 'booking' && bookingList.length === 0) {
       const userStorage = JSON.parse(localStorage.getItem('user') || '{}');
-      getBookingListTransaction({ locationId: userStorage?.locations, serviceType: 'Pet Salon' })
+      getBookingListTransaction({ locationId: userStorage?.locations?.map((l) => l.id), serviceType: 'Pet Salon' })
         .then(setBookingList)
         .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
     }
@@ -1159,7 +1159,8 @@ const FormTransaction = (props) => {
 FormTransaction.propTypes = {
   id: PropTypes.number,
   open: PropTypes.bool,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  queueId: PropTypes.number
 };
 
 export default FormTransaction;

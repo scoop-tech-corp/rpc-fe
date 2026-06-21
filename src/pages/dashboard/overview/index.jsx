@@ -185,7 +185,7 @@ const DashboardOverview = () => {
       <Grid container spacing={3} sx={{ marginBottom: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
-            title="Bookings"
+            title={intl.formatMessage({ id: 'bookings' })}
             count={dashboardOverview?.bookings.total}
             isLoss={Boolean(dashboardOverview?.bookings.isLoss)}
             percentage={Number(dashboardOverview?.bookings.percentage)}
@@ -193,7 +193,7 @@ const DashboardOverview = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
-            title="Total sales value (Rp)"
+            title={intl.formatMessage({ id: 'total-sales-value' })}
             count={dashboardOverview?.totalSaleValue.total}
             isLoss={Boolean(dashboardOverview?.totalSaleValue.isLoss)}
             color="success"
@@ -202,7 +202,7 @@ const DashboardOverview = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
-            title="New Customers"
+            title={intl.formatMessage({ id: 'new-customer' })}
             count={dashboardOverview?.newCustomer.total}
             isLoss={Boolean(dashboardOverview?.newCustomer.isLoss)}
             color="warning"
@@ -211,7 +211,7 @@ const DashboardOverview = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-          <MainCard title="Booking By Category" content={false} sx={{ height: '100%' }}>
+          <MainCard title={intl.formatMessage({ id: 'bookings-by-category' })} content={false} sx={{ height: '100%' }}>
             <ApexPieChart
               labelsProps={dashboardOverview.chartsBookingCategory.labels}
               seriesProps={dashboardOverview.chartsBookingCategory.series}
@@ -220,7 +220,7 @@ const DashboardOverview = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-          <MainCard title="Sales by reporting group (Rp)" content={false} sx={{ height: '100%' }}>
+          <MainCard title={intl.formatMessage({ id: 'sales-by-reporting-group' })} content={false} sx={{ height: '100%' }}>
             <ApexPieChart
               labelsProps={dashboardOverview.chartsReportingGroup.labels}
               seriesProps={dashboardOverview.chartsReportingGroup.series}
@@ -230,7 +230,7 @@ const DashboardOverview = () => {
 
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
-            title="Rebook Rate"
+            title={intl.formatMessage({ id: 'rebook-rate' })}
             count={dashboardOverview?.rebookRate.total}
             isLoss={Boolean(dashboardOverview?.rebookRate.isLoss)}
             percentage={Number(dashboardOverview?.rebookRate.percentage)}
@@ -238,7 +238,7 @@ const DashboardOverview = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
-            title="Customer Retention"
+            title={intl.formatMessage({ id: 'customer-retention' })}
             count={dashboardOverview?.customerRetention.total}
             isLoss={Boolean(dashboardOverview?.customerRetention.isLoss)}
             percentage={Number(dashboardOverview?.customerRetention.percentage)}
@@ -247,7 +247,7 @@ const DashboardOverview = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <AnalyticEcommerce
-            title="Average Sale Value (Rp)"
+            title={intl.formatMessage({ id: 'average-sales-value' })}
             count={dashboardOverview?.avgSaleValue.total}
             isLoss={Boolean(dashboardOverview?.avgSaleValue.isLoss)}
             percentage={Number(dashboardOverview?.avgSaleValue.percentage)}

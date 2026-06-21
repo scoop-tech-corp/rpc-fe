@@ -178,7 +178,9 @@ export const getReportCustomerLeaving = async (payload) => {
       orderColumn: payload.orderColumn,
       locationId: location,
       customerGroup,
-      status: payload.status
+      status: payload.status,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage
     }
   });
 };
@@ -217,6 +219,8 @@ export const getReportCustomerList = async (payload) => {
       dateTo,
       orderValue: payload.orderValue,
       orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
       locationId: location,
       customerGroup,
       status: payload.status,
@@ -254,6 +258,8 @@ export const getReportCustomerReferralSpend = async (payload) => {
       dateTo,
       orderValue: payload.orderValue,
       orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
       locationId: location,
       search: payload.search
     }
@@ -297,7 +303,9 @@ export const getReportCustomerSubAccount = async (payload) => {
       customerGroup,
       sterile: payload.sterile,
       gender: payload.gender,
-      search: payload.search
+      search: payload.search,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage
     }
   });
 };
@@ -485,9 +493,9 @@ export const exportReportProductsLowStock = async (payload) => {
   return await axios.get(`${urlProductsLowStock}/export`, {
     responseType: 'blob',
     params: {
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -520,9 +528,9 @@ export const exportReportProductsStockCount = async (payload) => {
   return await axios.get(`${urlProductsStockCount}/export`, {
     responseType: 'blob',
     params: {
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -560,12 +568,11 @@ export const exportReportProductsCost = async (payload) => {
     params: {
       orderValue: payload.orderValue,
       orderColumn: payload.orderColumn,
-      goToPage: payload.goToPage,
-      rowPerPage: payload.rowPerPage,
       dateFrom,
       dateTo,
-      locationId: location.length ? location : [''],
-      productId: product.length ? product : ['']
+      locationId: location,
+      productId: product,
+      search: payload.search
     }
   });
 };
@@ -597,9 +604,9 @@ export const exportReportProductsNoStock = async (payload) => {
   return await axios.get(`${urlProductsNoStock}/export`, {
     responseType: 'blob',
     params: {
-      locationId: location.length ? location : [''],
-      brandId: brand.length ? brand : [''],
-      supplierId: supplier.length ? supplier : [''],
+      locationId: location,
+      brandId: brand,
+      supplierId: supplier,
       search: payload.search
     }
   });
@@ -644,6 +651,84 @@ export const exportReportProductsReminders = async (payload) => {
       locationId: location.length ? location : [''],
       search: payload.search,
       customerId: customer.length ? customer : ['']
+    }
+  });
+};
+
+const urlProductsBatches = 'report/products/batches';
+
+export const getReportProductsBatches = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlProductsBatches, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      search: payload.search,
+      expiryStatus: payload.expiryStatus
+    }
+  });
+};
+
+export const exportReportProductsBatches = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlProductsBatches}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      search: payload.search,
+      expiryStatus: payload.expiryStatus
+    }
+  });
+};
+
+const urlProductsExpiry = 'report/products/expiry';
+
+export const getReportProductsExpiry = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlProductsExpiry, {
+    params: {
+      orderValue: payload.orderValue,
+      orderColumn: payload.orderColumn,
+      goToPage: payload.goToPage,
+      rowPerPage: payload.rowPerPage,
+      dateFrom,
+      dateTo,
+      locationId: location,
+      search: payload.search,
+      status: payload.status
+    }
+  });
+};
+
+export const exportReportProductsExpiry = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlProductsExpiry}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      search: payload.search,
+      status: payload.status
     }
   });
 };
@@ -722,6 +807,36 @@ export const exportReportDepositSummary = async (payload) => {
       methodId: method.length ? method : ['']
     }
   });
+};
+
+export const getExpensesOptionPayment = async () => {
+  const resp = await axios.get('report/expenses/options/payment');
+  return resp.data;
+};
+
+export const getExpensesOptionStatus = async () => {
+  const resp = await axios.get('report/expenses/options/status');
+  return resp.data;
+};
+
+export const getExpensesOptionSubmiter = async () => {
+  const resp = await axios.get('report/expenses/options/submiter');
+  return resp.data;
+};
+
+export const getExpensesOptionRecipient = async () => {
+  const resp = await axios.get('report/expenses/options/recipient');
+  return resp.data;
+};
+
+export const getExpensesOptionCategory = async () => {
+  const resp = await axios.get('report/expenses/options/category');
+  return resp.data;
+};
+
+export const getExpensesOptionSupplier = async () => {
+  const resp = await axios.get('report/expenses/options/supplier');
+  return resp.data;
 };
 
 export const getReportExpensesList = async (payload) => {
@@ -1271,23 +1386,28 @@ export const exportReportSalesStaffServiceSales = async (payload) => {
   });
 };
 
-export const getReportSalesNetIncome = async (payload) => {
+export const getReportSalesNetIncome = async () => {
   return await axios.get(urlSalesNetIncome);
 };
 
-export const exportReportSalesNetIncome = async (payload) => {
+export const exportReportSalesNetIncome = async () => {
   return await axios.get(`${urlSalesNetIncome}/export`, {
     responseType: 'blob'
   });
 };
 
-export const getReportSalesDiscountSummary = async (payload) => {
+export const getReportSalesDiscountSummary = async () => {
   const res = await axios.get(urlSalesDiscountSummary);
   return res;
 };
 
-export const getReportSalesPaymentSummary = async (payload) => {
+export const getReportSalesPaymentSummary = async () => {
   return await axios.get(urlSalesPaymentsSummary);
+};
+
+export const getReportBookingDiagnoseOptions = async () => {
+  const resp = await axios.get('report/booking/diagnoseoptions');
+  return resp.data; // [{value, label}]
 };
 
 export const getReportBookingByDiagnosisSpeciesGender = async (payload) => {
@@ -1331,6 +1451,95 @@ export const exportReportBookingByDiagnosisSpeciesGender = async (payload) => {
       genderId: gender.length ? gender : [''],
       diagnoseId: diagnose.length ? diagnose : [''],
       speciesId: species.length ? species : ['']
+    }
+  });
+};
+
+// ─── Booking Diagnosis List ───────────────────────────────────────────────────
+const urlBookingDiagnosisList = 'report/booking/diagnose';
+
+export const getReportBookingDiagnosisList = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(urlBookingDiagnosisList, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      search: payload.search || '',
+      status: payload.status || '',
+      orderValue: payload.orderValue || 'desc',
+      orderColumn: payload.orderColumn || 't.startDate',
+      goToPage: payload.goToPage || 1,
+      rowPerPage: payload.rowPerPage || 10
+    }
+  });
+};
+
+// ─── Booking List ─────────────────────────────────────────────────────────────
+const urlBookingList = 'report/booking/list';
+
+export const getReportBookingList = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(urlBookingList, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      orderValue: payload.orderValue || 'desc',
+      orderColumn: payload.orderColumn || 'e.bookingTime',
+      goToPage: payload.goToPage || 1,
+      rowPerPage: payload.rowPerPage || 10
+    }
+  });
+};
+
+// ─── Booking By Cancellation Reason ──────────────────────────────────────────
+const urlBookingByCancelReason = 'report/booking/cancellationreason';
+
+export const getReportBookingByCancellationReason = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(urlBookingByCancelReason, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : ['']
+    }
+  });
+};
+
+// ─── Booking By Status ────────────────────────────────────────────────────────
+const urlBookingByStatus = 'report/booking/status';
+
+export const getReportBookingByStatus = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(urlBookingByStatus, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : ['']
+    }
+  });
+};
+
+// ─── Booking By Location ──────────────────────────────────────────────────────
+const urlBookingByLocation = 'report/booking/location';
+
+export const getReportBookingByLocation = async (payload) => {
+  return await axios.get(urlBookingByLocation, {
+    params: {
+      year: payload.year
     }
   });
 };

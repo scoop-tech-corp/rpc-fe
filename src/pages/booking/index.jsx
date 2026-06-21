@@ -159,7 +159,10 @@ const Booking = () => {
 
       // Format new bookingTime from the dropped date
       const newDate = event.start;
-      const bookingTime = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')} ${String(newDate.getHours()).padStart(2, '0')}:${String(newDate.getMinutes()).padStart(2, '0')}`;
+      const bookingTime = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(
+        2,
+        '0'
+      )} ${String(newDate.getHours()).padStart(2, '0')}:${String(newDate.getMinutes()).padStart(2, '0')}`;
 
       await updateBooking({
         id: event.id,

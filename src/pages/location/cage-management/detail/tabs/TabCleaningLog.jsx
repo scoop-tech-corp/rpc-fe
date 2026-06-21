@@ -1,8 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  Box, Button, Chip, Divider, MenuItem, Select,
-  Stack, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TextField, Typography, InputLabel
+  Box,
+  Button,
+  Chip,
+  Divider,
+  MenuItem,
+  Select,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  InputLabel
 } from '@mui/material';
 import { PlusOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
@@ -12,27 +25,29 @@ import { getCleaningLogs, storeCleaningLog } from '../../service';
 import PropTypes from 'prop-types';
 
 const CLEAN_OPTIONS = ['bersih', 'perlu_pembersihan_ulang', 'dilewati'];
-const cleanLabel    = { bersih: 'Bersih', perlu_pembersihan_ulang: 'Perlu Pembersihan Ulang', dilewati: 'Dilewati' };
-const cleanColor    = { bersih: 'success', perlu_pembersihan_ulang: 'warning', dilewati: 'default' };
+const cleanLabel = { bersih: 'Bersih', perlu_pembersihan_ulang: 'Perlu Pembersihan Ulang', dilewati: 'Dilewati' };
+const cleanColor = { bersih: 'success', perlu_pembersihan_ulang: 'warning', dilewati: 'default' };
 
 const defaultForm = { cleaningStatus: 'bersih', catatan: '' };
 
 export default function TabCleaningLog({ cageId, canLog }) {
   const dispatch = useDispatch();
-  const [rows, setRows]         = useState([]);
+  const [rows, setRows] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm]         = useState(defaultForm);
+  const [form, setForm] = useState(defaultForm);
   const [submitting, setSubmitting] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo]     = useState('');
+  const [dateTo, setDateTo] = useState('');
 
-  const load = () => {
+  const load = useCallback(() => {
     getCleaningLogs({ cageId, dateFrom, dateTo, rowPerPage: 20, goToPage: 1 })
       .then((res) => setRows(res?.data?.data ?? []))
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
-  };
+  }, [cageId, dateFrom, dateTo, dispatch]);
 
-  useEffect(() => { load(); }, [cageId]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const f = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
 
@@ -64,8 +79,7 @@ export default function TabCleaningLog({ cageId, canLog }) {
 
               <Stack spacing={1}>
                 <InputLabel required>Status Kebersihan</InputLabel>
-                <Select size="small" value={form.cleaningStatus}
-                  onChange={(e) => f('cleaningStatus', e.target.value)}>
+                <Select size="small" value={form.cleaningStatus} onChange={(e) => f('cleaningStatus', e.target.value)}>
                   {CLEAN_OPTIONS.map((o) => (
                     <MenuItem key={o} value={o}>
                       <Chip size="small" label={cleanLabel[o]} color={cleanColor[o]} sx={{ mr: 1 }} />
@@ -75,11 +89,19 @@ export default function TabCleaningLog({ cageId, canLog }) {
                 </Select>
               </Stack>
 
-              <TextField multiline rows={2} size="small" label="Catatan"
-                value={form.catatan} onChange={(e) => f('catatan', e.target.value)} />
+              <TextField
+                multiline
+                rows={2}
+                size="small"
+                label="Catatan"
+                value={form.catatan}
+                onChange={(e) => f('catatan', e.target.value)}
+              />
 
               <Stack direction="row" spacing={1}>
-                <Button variant="outlined" onClick={() => setShowForm(false)}>Batal</Button>
+                <Button variant="outlined" onClick={() => setShowForm(false)}>
+                  Batal
+                </Button>
                 <Button variant="contained" onClick={onSubmit} disabled={submitting}>
                   {submitting ? 'Menyimpan...' : 'Simpan Log'}
                 </Button>
@@ -94,11 +116,27 @@ export default function TabCleaningLog({ cageId, canLog }) {
       {/* Filter tanggal */}
       <Stack direction="row" spacing={2} alignItems="center">
         <Typography variant="subtitle2">Riwayat Log Kebersihan</Typography>
-        <TextField type="date" size="small" label="Dari" InputLabelProps={{ shrink: true }}
-          value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} sx={{ width: 160 }} />
-        <TextField type="date" size="small" label="Sampai" InputLabelProps={{ shrink: true }}
-          value={dateTo} onChange={(e) => setDateTo(e.target.value)} sx={{ width: 160 }} />
-        <Button size="small" variant="outlined" onClick={load}>Cari</Button>
+        <TextField
+          type="date"
+          size="small"
+          label="Dari"
+          InputLabelProps={{ shrink: true }}
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          sx={{ width: 160 }}
+        />
+        <TextField
+          type="date"
+          size="small"
+          label="Sampai"
+          InputLabelProps={{ shrink: true }}
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          sx={{ width: 160 }}
+        />
+        <Button size="small" variant="outlined" onClick={load}>
+          Cari
+        </Button>
       </Stack>
 
       {/* Tabel */}
@@ -116,19 +154,23 @@ export default function TabCleaningLog({ cageId, canLog }) {
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} align="center">
-                  <Typography color="text.secondary" variant="body2">Belum ada log kebersihan</Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    Belum ada log kebersihan
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ) : rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.cleanedAt}</TableCell>
-                <TableCell>
-                  <Chip size="small" label={cleanLabel[row.cleaningStatus]} color={cleanColor[row.cleaningStatus]} />
-                </TableCell>
-                <TableCell>{row.catatan || '-'}</TableCell>
-                <TableCell>{row.cleanedBy}</TableCell>
-              </TableRow>
-            ))}
+            ) : (
+              rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.cleanedAt}</TableCell>
+                  <TableCell>
+                    <Chip size="small" label={cleanLabel[row.cleaningStatus]} color={cleanColor[row.cleaningStatus]} />
+                  </TableCell>
+                  <TableCell>{row.catatan || '-'}</TableCell>
+                  <TableCell>{row.cleanedBy}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

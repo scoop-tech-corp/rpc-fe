@@ -1,12 +1,18 @@
-import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DescriptionIcon from '@mui/icons-material/Description';
 import DownloadIcon from '@mui/icons-material/Download';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import PaidIcon from '@mui/icons-material/Paid';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import PetsIcon from '@mui/icons-material/Pets';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ScienceIcon from '@mui/icons-material/Science';
 import {
   Autocomplete,
   Box,
@@ -31,12 +37,22 @@ import {
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
 import ConfirmationC from 'components/ConfirmationC';
+import FormReject from 'components/FormReject';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import TabPanel from 'components/TabPanelC';
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
-import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
+import {
+  CONSTANT_ADMINISTRATOR,
+  CONSTANT_STAFF,
+  JOB_DOKTER,
+  JOB_HELPER,
+  JOB_KASIR,
+  JOB_PARAMEDIS,
+  JOB_VETNURSE,
+  isAdminOrManager
+} from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import useGetList from 'hooks/useGetList';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -57,17 +73,33 @@ import CheckPetCondition from './components/check-pet-condition';
 import ReassignModalC from './components/reassign';
 import TransactionDetail from './detail';
 import FormTransaction from './form-transaction';
-import { deleteTransactionBreeding, exportTransactionBreeding, getTransactionBreedingIndex, getTransactionBreedingStats } from './service';
+import {
+  acceptTransactionBreeding,
+  deleteTransactionBreeding,
+  exportTransactionBreeding,
+  getTransactionBreedingIndex,
+  getTransactionBreedingStats,
+  initiateBreedingCheckout
+} from './service';
 import TreatmentBreeding from './components/treatment';
 import Payment from './components/payment';
+import PolicyAgreementBreeding from './components/policy-agreement';
+import PrepaymentBreeding from './components/prepayment';
+import PapanKerjaHarianBreeding from './components/papan-kerja-harian';
+import AdditionalTreatmentBreeding from './components/additional-treatment';
+import CheckoutBreeding from './components/checkout';
 
 // ─── Status chip config ───────────────────────────────────────────────────────
 const STATUS_CONFIG = {
   'menunggu dokter': { color: 'warning', label: 'Menunggu Dokter' },
   'ditolak dokter': { color: 'error', label: 'Ditolak Dokter' },
   'cek kondisi pet': { color: 'info', label: 'Cek Kondisi Pet' },
+  'pet diterima masuk breeding': { color: 'info', label: 'Pet Diterima' },
+  'pet ditolak breeding': { color: 'error', label: 'Pet Ditolak' },
+  'pet dipindahkan ke pet clinic': { color: 'warning', label: 'Pindah ke Klinik' },
+  'menunggu persetujuan policy': { color: 'warning', label: 'Menunggu Policy' },
   'proses pacak': { color: 'primary', label: 'Proses Pacak' },
-  'proses pembayaran': { color: 'warning', label: 'Proses Pembayaran' },
+  'proses check-out': { color: 'warning', label: 'Proses Check-Out' },
   selesai: { color: 'success', label: 'Selesai' },
   batal: { color: 'error', label: 'Batal' }
 };
@@ -79,7 +111,17 @@ const StatusChip = ({ value }) => {
 
 // ─── Status options per tab untuk filter ─────────────────────────────────────
 const STATUS_OPTIONS = {
-  ongoing: ['Menunggu Dokter', 'Ditolak Dokter', 'Cek Kondisi Pet', 'Proses Pacak', 'Proses Pembayaran'],
+  ongoing: [
+    'Menunggu Dokter',
+    'Ditolak Dokter',
+    'Cek Kondisi Pet',
+    'Pet Diterima Masuk Breeding',
+    'Pet Ditolak Breeding',
+    'Pet Dipindahkan ke Pet Clinic',
+    'Menunggu Persetujuan Policy',
+    'Proses Pacak',
+    'Proses Check-Out'
+  ],
   finished: ['Selesai', 'Batal']
 };
 
@@ -121,7 +163,7 @@ const TransactionBreeding = () => {
 
   // ── State ──
   const [stats, setStats] = useState(null);
-  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
+  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null, queueId: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
@@ -138,6 +180,12 @@ const TransactionBreeding = () => {
   const [checkConditionPetDialog, setCheckConditionPetDialog] = useState({ isOpen: false, data: { transactionId: null } });
   const [treatmentDialog, setTreatmentDialog] = useState({ isOpen: false, data: { locationId: null } });
   const [paymentDialog, setPaymentDialog] = useState({ isOpen: false, data: {} });
+  const [policyDialog, setPolicyDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [prepaymentDialog, setPrepaymentDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [papanKerjaDialog, setPapanKerjaDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [additionalTreatmentDialog, setAdditionalTreatmentDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [checkoutDialog, setCheckoutDialog] = useState({ isOpen: false, data: { transactionId: null } });
+  const [acceptRejectDialog, setAcceptRejectDialog] = useState({ accept: false, reject: false, transactionId: null });
 
   // ── Fetch stats ──
   const fetchStats = useCallback(async () => {
@@ -147,6 +195,22 @@ const TransactionBreeding = () => {
     } catch (_) {
       /* silent */
     }
+  }, []);
+
+  // Auto-open form create jika ada ?queueId= di URL (dari Queue Management)
+  useEffect(() => {
+    const queueId = searchParams.get('queueId');
+    if (queueId) {
+      setFormTransactionConfig({ isOpen: true, id: null, queueId: Number(queueId) });
+      setSearchParams(
+        (prev) => {
+          prev.delete('queueId');
+          return prev;
+        },
+        { replace: true }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onClickAdd = () => {
@@ -170,6 +234,28 @@ const TransactionBreeding = () => {
         });
     } else {
       setDialog(false);
+    }
+  };
+
+  const onAcceptReject = async (value, reason) => {
+    const { transactionId } = acceptRejectDialog;
+    setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+
+    if (!value) return; // user batal / tutup dialog
+
+    try {
+      if (acceptRejectDialog.accept) {
+        // status=1 → terima → Cek Kondisi Pet
+        await acceptTransactionBreeding({ transactionId, status: 1 });
+        dispatch(snackbarSuccess('Pasien diterima — lanjut ke Cek Kondisi Pet'));
+      } else {
+        // status=0 → tolak → wajib kirim reason
+        await acceptTransactionBreeding({ transactionId, status: 0, reason });
+        dispatch(snackbarSuccess('Pasien ditolak'));
+      }
+      setParams((_params) => ({ ..._params }));
+    } catch (err) {
+      dispatch(snackbarError(createMessageBackend(err)));
     }
   };
 
@@ -275,20 +361,61 @@ const TransactionBreeding = () => {
         isNotSorting: true,
         Cell: (data) => {
           const statusRow = data.row.original.status;
+          const statusLower = (statusRow || '').toLowerCase();
           const isPetCheckRow = +data.row.original.isPetCheck;
-          const transactionIdRow = +data.row.original.id;
           const isTreatmentRow = +data.row.original.isTreatment;
+          const transactionIdRow = +data.row.original.id;
           const locationIdRow = +data.row.original.locationId;
+          const isFinished = ['selesai', 'batal'].includes(statusLower);
+
+          // Role helpers
+          const isAdminMgr = isAdminOrManager(user?.role);
+          const isKasir = user?.jobName === JOB_KASIR;
+          const isDokter = user?.jobName === JOB_DOKTER;
+          const isMonitoring = [JOB_VETNURSE, JOB_HELPER, JOB_PARAMEDIS].includes(user?.jobName);
 
           const doReassign = async () => {
-            const getLocations = await getDoctorStaffByLocationList(+data.row.original.locationId);
-            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: +data.row.original.id } });
+            const getLocations = await getDoctorStaffByLocationList(locationIdRow);
+            setReassignDialog({ isOpen: true, data: { listDoctor: getLocations, transactionId: transactionIdRow } });
           };
 
           return (
-            <Stack spacing={0.1} direction="row" justifyContent="center">
-              {/* ── Ditolak Dokter: Reassign ── */}
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'ditolak dokter' && (
+            <Stack spacing={0.1} direction="row" justifyContent="center" flexWrap="wrap">
+              {/* ── Edit: Admin/Manager/Kasir, status ongoing ── */}
+              {(isAdminMgr || isKasir) && !isFinished && (
+                <Tooltip title={<FormattedMessage id="edit" />} arrow>
+                  <IconButton size="large" color="primary" onClick={() => setFormTransactionConfig({ isOpen: true, id: transactionIdRow })}>
+                    <EditOutlined />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Menunggu Dokter: Terima + Tolak (Dokter/Admin) ── */}
+              {(isAdminMgr || isDokter) && statusLower === 'menunggu dokter' && (
+                <>
+                  <Tooltip title={<FormattedMessage id="accept-patient" />} arrow>
+                    <IconButton
+                      size="large"
+                      color="success"
+                      onClick={() => setAcceptRejectDialog({ accept: true, reject: false, transactionId: transactionIdRow })}
+                    >
+                      <CheckOutlined />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={<FormattedMessage id="cancel-patient" />} arrow>
+                    <IconButton
+                      size="large"
+                      color="error"
+                      onClick={() => setAcceptRejectDialog({ accept: false, reject: true, transactionId: transactionIdRow })}
+                    >
+                      <CloseOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+
+              {/* ── Menunggu Dokter: Reassign (Admin/Kasir) ── */}
+              {(isAdminMgr || isKasir) && statusLower === 'menunggu dokter' && (
                 <Tooltip title={<FormattedMessage id="reassign" />} arrow>
                   <IconButton size="large" color="warning" onClick={doReassign}>
                     <RefreshIcon />
@@ -296,8 +423,17 @@ const TransactionBreeding = () => {
                 </Tooltip>
               )}
 
-              {/* ── Cek Kondisi Pet ── */}
-              {Boolean(isPetCheckRow) && (
+              {/* ── Ditolak Dokter: Reassign (Admin/Kasir) ── */}
+              {(isAdminMgr || isKasir) && statusLower === 'ditolak dokter' && (
+                <Tooltip title={<FormattedMessage id="reassign" />} arrow>
+                  <IconButton size="large" color="warning" onClick={doReassign}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Cek Kondisi Pet (Dokter — via flag isPetCheck) ── */}
+              {Boolean(isPetCheckRow) && statusLower === 'cek kondisi pet' && (
                 <Tooltip title={<FormattedMessage id="check-pet-condition" />} arrow>
                   <IconButton
                     size="large"
@@ -309,8 +445,8 @@ const TransactionBreeding = () => {
                 </Tooltip>
               )}
 
-              {/* ── Treatment (Proses Pacak) ── */}
-              {Boolean(isTreatmentRow) && (
+              {/* ── Pet diterima masuk Breeding: Input Treatment (Dokter/Admin — via flag isTreatment) ── */}
+              {Boolean(isTreatmentRow) && statusLower === 'pet diterima masuk breeding' && (isAdminMgr || isDokter) && (
                 <Tooltip title={<FormattedMessage id="treatment" />} arrow>
                   <IconButton
                     size="large"
@@ -324,8 +460,99 @@ const TransactionBreeding = () => {
                 </Tooltip>
               )}
 
-              {/* ── Proses Pembayaran: Payment ── */}
-              {[CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role) && statusRow?.toLowerCase() === 'proses pembayaran' && (
+              {/* ── Menunggu Persetujuan Policy: TTD Owner (Admin/Kasir) ── */}
+              {(isAdminMgr || isKasir) && statusLower === 'menunggu persetujuan policy' && (
+                <Tooltip title="Policy Agreement Owner" arrow>
+                  <IconButton
+                    size="large"
+                    color="warning"
+                    onClick={() => setPolicyDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                  >
+                    <DescriptionIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Proses Pacak ── */}
+              {statusLower === 'proses pacak' && (
+                <>
+                  {/* Papan Kerja Harian: Admin/Dokter/Vetnurse/Helper/Paramedis */}
+                  {(isAdminMgr || isDokter || isMonitoring) && (
+                    <Tooltip title="Papan Kerja Harian" arrow>
+                      <IconButton
+                        size="large"
+                        color="info"
+                        onClick={() => setPapanKerjaDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                      >
+                        <AssignmentIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+
+                  {/* Tindakan Tambahan: Admin/Dokter */}
+                  {(isAdminMgr || isDokter) && (
+                    <Tooltip title="Tindakan Tambahan" arrow>
+                      <IconButton
+                        size="large"
+                        color="secondary"
+                        onClick={() => setAdditionalTreatmentDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                      >
+                        <ScienceIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+
+                  {/* Bayar DP: Admin/Kasir */}
+                  {(isAdminMgr || isKasir) && (
+                    <Tooltip title="Bayar DP" arrow>
+                      <IconButton
+                        size="large"
+                        color="success"
+                        onClick={() => setPrepaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                      >
+                        <AccountBalanceWalletIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+
+                  {/* Inisiasi Check-Out: Admin/Kasir */}
+                  {(isAdminMgr || isKasir) && (
+                    <Tooltip title="Inisiasi Check-Out" arrow>
+                      <IconButton
+                        size="large"
+                        color="error"
+                        onClick={async () => {
+                          try {
+                            await initiateBreedingCheckout(transactionIdRow);
+                            dispatch(snackbarSuccess('Check-out diinisiasi. Silakan proses pembayaran.'));
+                            setParams((_params) => ({ ..._params }));
+                          } catch (err) {
+                            dispatch(snackbarError(createMessageBackend(err)));
+                          }
+                        }}
+                      >
+                        <ExitToAppIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </>
+              )}
+
+              {/* ── Proses Check-Out: Bayar (Admin/Kasir) ── */}
+              {(isAdminMgr || isKasir) && statusLower === 'proses check-out' && (
+                <Tooltip title="Proses Pembayaran Akhir" arrow>
+                  <IconButton
+                    size="large"
+                    color="success"
+                    onClick={() => setCheckoutDialog({ isOpen: true, data: { transactionId: transactionIdRow } })}
+                  >
+                    <ReceiptIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Legacy fallback: Proses Pembayaran ── */}
+              {(isAdminMgr || isKasir) && statusLower === 'proses pembayaran' && (
                 <Tooltip title={<FormattedMessage id="payment" />} arrow>
                   <IconButton
                     size="large"
@@ -333,6 +560,22 @@ const TransactionBreeding = () => {
                     onClick={() => setPaymentDialog({ isOpen: true, data: { transactionId: transactionIdRow, locationId: locationIdRow } })}
                   >
                     <PaidIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* ── Hapus: hanya Admin, status Selesai/Batal ── */}
+              {user?.role === CONSTANT_ADMINISTRATOR && isFinished && (
+                <Tooltip title={<FormattedMessage id="delete" />} arrow>
+                  <IconButton
+                    size="large"
+                    color="error"
+                    onClick={() => {
+                      setSelectedRow([transactionIdRow]);
+                      setDialog(true);
+                    }}
+                  >
+                    <DeleteFilled />
                   </IconButton>
                 </Tooltip>
               )}
@@ -434,16 +677,16 @@ const TransactionBreeding = () => {
       {/* ─── Mini Dashboard Stats ─── */}
       <Grid container spacing={2} mb={2}>
         <Grid item xs={6} sm={3}>
-          <StatCard icon={<PetsIcon />} label="Pacak Aktif" value={stats?.aktif} color="primary" />
+          <StatCard icon={<PetsIcon />} label="Semua Aktif" value={stats?.aktif} color="primary" />
         </Grid>
         <Grid item xs={6} sm={3}>
-          <StatCard icon={<FavoriteIcon />} label="Dalam Proses" value={stats?.dalamProses} color="secondary" />
+          <StatCard icon={<FavoriteIcon />} label="Proses Pacak" value={stats?.dalamProses} color="secondary" />
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <StatCard icon={<PaymentsIcon />} label="Proses Check-Out" value={stats?.prosesCheckout} color="warning" />
         </Grid>
         <Grid item xs={6} sm={3}>
           <StatCard icon={<CheckCircleIcon />} label="Selesai Hari Ini" value={stats?.finishedToday} color="success" />
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <StatCard icon={<PaymentsIcon />} label="Proses Pembayaran" value={stats?.prosesPembayaran} color="warning" />
         </Grid>
       </Grid>
 
@@ -627,8 +870,9 @@ const TransactionBreeding = () => {
         <FormTransaction
           open={formTransactionConfig.isOpen}
           id={Number(formTransactionConfig.id)}
+          queueId={formTransactionConfig.queueId}
           onClose={(e) => {
-            setFormTransactionConfig({ isOpen: false, id: null });
+            setFormTransactionConfig({ isOpen: false, id: null, queueId: null });
             if (e) setParams((_params) => ({ ..._params }));
           }}
         />
@@ -699,6 +943,86 @@ const TransactionBreeding = () => {
             if (resp) setParams((_params) => ({ ..._params }));
             setPaymentDialog({ isOpen: false, data: {} });
           }}
+        />
+      )}
+
+      {/* ── Policy Agreement ── */}
+      {policyDialog.isOpen && (
+        <PolicyAgreementBreeding
+          open={policyDialog.isOpen}
+          data={policyDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPolicyDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Prepayment / DP ── */}
+      {prepaymentDialog.isOpen && (
+        <PrepaymentBreeding
+          open={prepaymentDialog.isOpen}
+          data={prepaymentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPrepaymentDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Papan Kerja Harian ── */}
+      {papanKerjaDialog.isOpen && (
+        <PapanKerjaHarianBreeding
+          open={papanKerjaDialog.isOpen}
+          data={papanKerjaDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setPapanKerjaDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Tindakan Tambahan ── */}
+      {additionalTreatmentDialog.isOpen && (
+        <AdditionalTreatmentBreeding
+          open={additionalTreatmentDialog.isOpen}
+          data={additionalTreatmentDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setAdditionalTreatmentDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Checkout ── */}
+      {checkoutDialog.isOpen && (
+        <CheckoutBreeding
+          open={checkoutDialog.isOpen}
+          data={checkoutDialog.data}
+          onClose={(resp) => {
+            if (resp) setParams((_params) => ({ ..._params }));
+            setCheckoutDialog({ isOpen: false, data: { transactionId: null } });
+          }}
+        />
+      )}
+
+      {/* ── Accept Pasien ── */}
+      <ConfirmationC
+        open={acceptRejectDialog.accept}
+        title="Terima Pasien Breeding"
+        content="Apakah Anda yakin ingin menerima pasien ini untuk proses breeding?"
+        onClose={(response) => onAcceptReject(response)}
+        btnTrueText="Ya, Terima"
+        btnFalseText="Batal"
+      />
+
+      {/* ── Reject Pasien ── */}
+      {acceptRejectDialog.reject && (
+        <FormReject
+          open={acceptRejectDialog.reject}
+          title="Alasan Penolakan Pasien"
+          onClose={() => onAcceptReject(false)}
+          onSubmit={(reason) => onAcceptReject(true, reason)}
         />
       )}
     </>

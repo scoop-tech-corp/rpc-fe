@@ -8,8 +8,8 @@ export default function SalesSummary({ data, filter, setFilter }) {
   const tableTotalData = data?.table.totalData;
   const totalPagination = data?.totalPagination;
 
-  const chartSeries = data?.charts.series || [];
-  const chartCategories = data?.charts.categories || [];
+  const chartSeries = useMemo(() => data?.charts.series || [], [data]);
+  const chartCategories = useMemo(() => data?.charts.categories || [], [data]);
 
   const columns = useMemo(
     () => [
@@ -51,59 +51,6 @@ export default function SalesSummary({ data, filter, setFilter }) {
     ],
     []
   );
-
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        location: 'RPC SUMATERA UTARA',
-        grossAmount: 100,
-        discounts: 10,
-        netAmount: 1_500_000,
-        taxesAmount: 0,
-        chargesAmount: 0,
-        totalAmount: 0
-      },
-      {
-        location: 'RPC ACEH',
-        grossAmount: 200,
-        discounts: 15,
-        netAmount: 3_000_000,
-        taxesAmount: 0,
-        chargesAmount: 0,
-        totalAmount: 0
-      },
-      {
-        location: 'RPC HANKAM',
-        grossAmount: 200,
-        discounts: 15,
-        netAmount: 3_000_000,
-        taxesAmount: 0,
-        chargesAmount: 0,
-        totalAmount: 0
-      }
-    ],
-    []
-  );
-
-  // Dummy data for the chart
-  const dummyChartData = {
-    series: [
-      {
-        name: 'RPC ACEH',
-        data: [10, 10, 10, 10, 30, 20, 10]
-      },
-      {
-        name: 'RPC SUMATERA UTARA',
-        data: [20, 40, 20, 10, 80, 30, 10]
-      },
-      {
-        name: 'RPC HANKAM',
-        data: [25, 20, 40, 20, 90, 10, 20]
-      }
-    ],
-    categories: ['1 May', '2 May', '3 May', '4 May', '5 May', '6 May', '7 May']
-  };
 
   useEffect(() => {
     // Create the chart options using dummyChartData

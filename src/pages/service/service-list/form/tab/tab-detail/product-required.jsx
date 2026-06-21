@@ -40,6 +40,7 @@ const ProductRequired = () => {
         api: form.productType === 'product-sell' ? 'product/sell/list/location' : 'product/clinic/list/location'
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.productType]);
 
   useEffect(() => {
@@ -50,6 +51,7 @@ const ProductRequired = () => {
         locationId: '[' + location.map((item) => item.value).join(',') + ']'
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const handleDeleteList = (id) => {
@@ -96,7 +98,7 @@ const ProductRequired = () => {
         }
       }
     ],
-    []
+    [isDetail] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (

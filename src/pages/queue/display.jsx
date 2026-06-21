@@ -8,60 +8,60 @@ import { getDisplayData } from './service';
 
 const THEMES = {
   dark: {
-    page:          '#0d1117',
-    card:          '#161b22',
-    cardAlt:       '#1c2128',
-    border:        '#30363d',
-    divider:       '#30363d',
-    textPrimary:   '#e6edf3',
+    page: '#0d1117',
+    card: '#161b22',
+    cardAlt: '#1c2128',
+    border: '#30363d',
+    divider: '#30363d',
+    textPrimary: '#e6edf3',
     textSecondary: '#8b949e',
-    textMuted:     '#484f58',
-    header:        '#58a6ff',
-    green:         '#3fb950',
-    yellow:        '#d29922',
-    blue:          '#58a6ff',
-    toggleTip:     'Ganti ke Light Mode',
+    textMuted: '#484f58',
+    header: '#58a6ff',
+    green: '#3fb950',
+    yellow: '#d29922',
+    blue: '#58a6ff',
+    toggleTip: 'Ganti ke Light Mode',
     inServiceText: '#e6edf3',
-    inServiceSub:  '#8b949e',
+    inServiceSub: '#8b949e'
   },
   light: {
-    page:          '#f0f4f8',
-    card:          '#ffffff',
-    cardAlt:       '#f8fafc',
-    border:        '#d0d7de',
-    divider:       '#d0d7de',
-    textPrimary:   '#1f2328',
+    page: '#f0f4f8',
+    card: '#ffffff',
+    cardAlt: '#f8fafc',
+    border: '#d0d7de',
+    divider: '#d0d7de',
+    textPrimary: '#1f2328',
     textSecondary: '#636c76',
-    textMuted:     '#9a9fa7',
-    header:        '#0969da',
-    green:         '#1a7f37',
-    yellow:        '#9a6700',
-    blue:          '#0969da',
-    toggleTip:     'Ganti ke Dark Mode',
+    textMuted: '#9a9fa7',
+    header: '#0969da',
+    green: '#1a7f37',
+    yellow: '#9a6700',
+    blue: '#0969da',
+    toggleTip: 'Ganti ke Dark Mode',
     inServiceText: '#1f2328',
-    inServiceSub:  '#636c76',
+    inServiceSub: '#636c76'
   }
 };
 
 const SERVICE_COLOR = {
   'Pet Clinic': '#1565C0',
-  'Pet Hotel':  '#C62828',
-  'Pet Salon':  '#D97706',
-  'Breeding':   '#2E7D32'
+  'Pet Hotel': '#C62828',
+  'Pet Salon': '#D97706',
+  Breeding: '#2E7D32'
 };
 
 const SERVICE_BG_DARK = {
   'Pet Clinic': '#0d2340',
-  'Pet Hotel':  '#3b0d0d',
-  'Pet Salon':  '#3b2800',
-  'Breeding':   '#0d2e14'
+  'Pet Hotel': '#3b0d0d',
+  'Pet Salon': '#3b2800',
+  Breeding: '#0d2e14'
 };
 
 const SERVICE_BG_LIGHT = {
   'Pet Clinic': '#dbeafe',
-  'Pet Hotel':  '#fee2e2',
-  'Pet Salon':  '#fef3c7',
-  'Breeding':   '#dcfce7'
+  'Pet Hotel': '#fee2e2',
+  'Pet Salon': '#fef3c7',
+  Breeding: '#dcfce7'
 };
 
 // ── CSS keyframe animations (injected once) ───────────────────────────────────
@@ -103,7 +103,7 @@ const playNotificationSound = () => {
     const ctx = new AudioCtx();
 
     const playTone = (freq, startTime, duration, gainVal) => {
-      const osc  = ctx.createOscillator();
+      const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -118,9 +118,9 @@ const playNotificationSound = () => {
 
     // 3-tone chime: C5 → E5 → G5
     const now = ctx.currentTime;
-    playTone(523.25, now,        0.18, 0.4); // C5
+    playTone(523.25, now, 0.18, 0.4); // C5
     playTone(659.25, now + 0.22, 0.18, 0.4); // E5
-    playTone(783.99, now + 0.44, 0.30, 0.5); // G5
+    playTone(783.99, now + 0.44, 0.3, 0.5); // G5
   } catch (_) {
     // Silently ignore if audio not supported
   }
@@ -133,10 +133,12 @@ const speakQueueNumbers = (queues) => {
   window.speechSynthesis.cancel();
 
   queues.forEach((q, idx) => {
-    const text = `Nomor antrian ${q.queueNumber.split('').join(' ')}, ${q.customerName?.trim() || ''}, silakan menuju ruang ${q.serviceType}`;
+    const text = `Nomor antrian ${q.queueNumber.split('').join(' ')}, ${q.customerName?.trim() || ''}, silakan menuju ruang ${
+      q.serviceType
+    }`;
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang  = 'id-ID';
-    utterance.rate  = 0.88;
+    utterance.lang = 'id-ID';
+    utterance.rate = 0.88;
     utterance.pitch = 1.05;
     utterance.volume = 1;
 
@@ -153,20 +155,20 @@ const speakQueueNumbers = (queues) => {
 
 const QueueDisplay = () => {
   const [searchParams] = useSearchParams();
-  const token      = searchParams.get('token');
+  const token = searchParams.get('token');
   const locationId = searchParams.get('locationId');
 
-  const [data,        setData]        = useState(null);
-  const [error,       setError]       = useState(null);
-  const [lastUpdate,  setLastUpdate]  = useState(null);
-  const [themeKey,    setThemeKey]    = useState(() => localStorage.getItem('queueDisplayTheme') || 'dark');
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(null);
+  const [themeKey, setThemeKey] = useState(() => localStorage.getItem('queueDisplayTheme') || 'dark');
   const [newlyCalledIds, setNewlyCalledIds] = useState(new Set());
 
-  const intervalRef    = useRef(null);
-  const prevCalledIds  = useRef(new Set());
+  const intervalRef = useRef(null);
+  const prevCalledIds = useRef(new Set());
 
-  const t         = THEMES[themeKey];
-  const isDark    = themeKey === 'dark';
+  const t = THEMES[themeKey];
+  const isDark = themeKey === 'dark';
   const serviceBg = isDark ? SERVICE_BG_DARK : SERVICE_BG_LIGHT;
 
   const toggleTheme = () => {
@@ -213,7 +215,10 @@ const QueueDisplay = () => {
 
   useEffect(() => {
     injectAnimations();
-    if (!token) { setError('unauthorized'); return; }
+    if (!token) {
+      setError('unauthorized');
+      return;
+    }
     fetchDisplay();
     intervalRef.current = setInterval(fetchDisplay, 5000);
     return () => clearInterval(intervalRef.current);
@@ -225,7 +230,9 @@ const QueueDisplay = () => {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: t.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Stack spacing={2} alignItems="center">
-          <Typography variant="h3" sx={{ color: '#ef4444', fontWeight: 700 }}>🔒 Akses Ditolak</Typography>
+          <Typography variant="h3" sx={{ color: '#ef4444', fontWeight: 700 }}>
+            🔒 Akses Ditolak
+          </Typography>
           <Typography sx={{ color: t.textSecondary }}>Token tidak valid atau tidak ditemukan.</Typography>
         </Stack>
       </Box>
@@ -246,7 +253,6 @@ const QueueDisplay = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: t.page, color: t.textPrimary, p: 3, transition: 'background-color 0.3s, color 0.3s' }}>
-
       {/* Header */}
       <Box sx={{ position: 'relative', textAlign: 'center', mb: 4 }}>
         <Typography variant="h3" fontWeight={800} letterSpacing={3} sx={{ color: t.header }}>
@@ -259,7 +265,9 @@ const QueueDisplay = () => {
           <IconButton
             onClick={toggleTheme}
             sx={{
-              position: 'absolute', top: 0, right: 0,
+              position: 'absolute',
+              top: 0,
+              right: 0,
               color: t.yellow,
               bgcolor: isDark ? '#2d2d00' : '#fef9c3',
               border: `1px solid ${t.border}`,
@@ -272,11 +280,21 @@ const QueueDisplay = () => {
       </Box>
 
       <Grid container spacing={3}>
-
         {/* ── Sedang Dilayani ── */}
         <Grid item xs={12} md={7}>
-          <Box sx={{ bgcolor: t.card, border: `1px solid ${t.border}`, borderRadius: 3, p: 3, minHeight: 320, boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <Typography variant="h5" fontWeight={700} sx={{ color: t.green, mb: 2 }}>✅ SEDANG DILAYANI</Typography>
+          <Box
+            sx={{
+              bgcolor: t.card,
+              border: `1px solid ${t.border}`,
+              borderRadius: 3,
+              p: 3,
+              minHeight: 320,
+              boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.1)'
+            }}
+          >
+            <Typography variant="h5" fontWeight={700} sx={{ color: t.green, mb: 2 }}>
+              ✅ SEDANG DILAYANI
+            </Typography>
             <Divider sx={{ borderColor: t.divider, mb: 3 }} />
 
             {inService.length === 0 ? (
@@ -289,17 +307,31 @@ const QueueDisplay = () => {
                     sx={{
                       bgcolor: serviceBg[q.serviceType] || t.cardAlt,
                       border: `2px solid ${SERVICE_COLOR[q.serviceType] || t.blue}`,
-                      borderRadius: 2, p: 2.5,
-                      display: 'flex', alignItems: 'center', gap: 3,
+                      borderRadius: 2,
+                      p: 2.5,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 3,
                       transition: 'background-color 0.3s'
                     }}
                   >
-                    <Typography sx={{ fontSize: '3.5rem', fontWeight: 900, color: SERVICE_COLOR[q.serviceType] || t.blue, minWidth: 130, textAlign: 'center', lineHeight: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: '3.5rem',
+                        fontWeight: 900,
+                        color: SERVICE_COLOR[q.serviceType] || t.blue,
+                        minWidth: 130,
+                        textAlign: 'center',
+                        lineHeight: 1
+                      }}
+                    >
                       {q.queueNumber}
                     </Typography>
                     <Box>
                       <Typography sx={{ color: t.inServiceText, fontWeight: 700, fontSize: '1.1rem' }}>{q.customerName?.trim()}</Typography>
-                      <Typography sx={{ color: t.inServiceSub, fontSize: '0.9rem' }}>🐶 {q.petName}&nbsp;|&nbsp;{q.serviceType}</Typography>
+                      <Typography sx={{ color: t.inServiceSub, fontSize: '0.9rem' }}>
+                        🐶 {q.petName}&nbsp;|&nbsp;{q.serviceType}
+                      </Typography>
                     </Box>
                   </Box>
                 ))}
@@ -311,10 +343,19 @@ const QueueDisplay = () => {
         {/* ── Dipanggil + Menunggu ── */}
         <Grid item xs={12} md={5}>
           <Stack spacing={3}>
-
             {/* Dipanggil */}
-            <Box sx={{ bgcolor: t.card, border: `1px solid ${t.border}`, borderRadius: 3, p: 3, boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <Typography variant="h6" fontWeight={700} sx={{ color: t.yellow, mb: 2 }}>📣 DIPANGGIL</Typography>
+            <Box
+              sx={{
+                bgcolor: t.card,
+                border: `1px solid ${t.border}`,
+                borderRadius: 3,
+                p: 3,
+                boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.1)'
+              }}
+            >
+              <Typography variant="h6" fontWeight={700} sx={{ color: t.yellow, mb: 2 }}>
+                📣 DIPANGGIL
+              </Typography>
               <Divider sx={{ borderColor: t.divider, mb: 2 }} />
 
               {called.length === 0 ? (
@@ -328,9 +369,13 @@ const QueueDisplay = () => {
                         key={q.id}
                         className={isNew ? 'queue-newly-called' : ''}
                         sx={{
-                          display: 'flex', alignItems: 'center', gap: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
                           bgcolor: isNew ? (isDark ? '#3d2e00' : '#fef9c3') : t.cardAlt,
-                          borderRadius: 1.5, px: 2, py: 1.5,
+                          borderRadius: 1.5,
+                          px: 2,
+                          py: 1.5,
                           border: `1px solid ${isNew ? '#f59e0b' : t.border}`,
                           transition: 'background-color 0.3s, border-color 0.3s'
                         }}
@@ -342,8 +387,12 @@ const QueueDisplay = () => {
                           {q.queueNumber}
                         </Typography>
                         <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: t.textPrimary }}>{q.customerName?.trim()}</Typography>
-                          <Typography sx={{ fontSize: '0.75rem', color: t.textSecondary }}>{q.petName} | {q.serviceType}</Typography>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: t.textPrimary }}>
+                            {q.customerName?.trim()}
+                          </Typography>
+                          <Typography sx={{ fontSize: '0.75rem', color: t.textSecondary }}>
+                            {q.petName} | {q.serviceType}
+                          </Typography>
                         </Box>
                         {isNew && (
                           <Typography sx={{ ml: 'auto', fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', whiteSpace: 'nowrap' }}>
@@ -358,8 +407,18 @@ const QueueDisplay = () => {
             </Box>
 
             {/* Antrian Berikutnya */}
-            <Box sx={{ bgcolor: t.card, border: `1px solid ${t.border}`, borderRadius: 3, p: 3, boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <Typography variant="h6" fontWeight={700} sx={{ color: t.blue, mb: 2 }}>⏳ ANTRIAN BERIKUTNYA</Typography>
+            <Box
+              sx={{
+                bgcolor: t.card,
+                border: `1px solid ${t.border}`,
+                borderRadius: 3,
+                p: 3,
+                boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.1)'
+              }}
+            >
+              <Typography variant="h6" fontWeight={700} sx={{ color: t.blue, mb: 2 }}>
+                ⏳ ANTRIAN BERIKUTNYA
+              </Typography>
               <Divider sx={{ borderColor: t.divider, mb: 2 }} />
 
               {waiting.length === 0 ? (
@@ -370,23 +429,31 @@ const QueueDisplay = () => {
                     <Box
                       key={q.id}
                       sx={{
-                        display: 'flex', alignItems: 'center', gap: 2,
-                        bgcolor: t.cardAlt, borderRadius: 1.5, px: 2, py: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        bgcolor: t.cardAlt,
+                        borderRadius: 1.5,
+                        px: 2,
+                        py: 1,
                         border: `1px solid ${t.border}`,
                         opacity: idx === 0 ? 1 : Math.max(0.4, 0.9 - idx * 0.15)
                       }}
                     >
                       <Typography sx={{ fontWeight: 700, fontSize: '1.2rem', color: t.blue, minWidth: 80 }}>{q.queueNumber}</Typography>
                       <Box>
-                        <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: t.textPrimary }}>{q.customerName?.trim()}</Typography>
-                        <Typography sx={{ fontSize: '0.72rem', color: t.textSecondary }}>{q.petName} | {q.serviceType}</Typography>
+                        <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: t.textPrimary }}>
+                          {q.customerName?.trim()}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.72rem', color: t.textSecondary }}>
+                          {q.petName} | {q.serviceType}
+                        </Typography>
                       </Box>
                     </Box>
                   ))}
                 </Stack>
               )}
             </Box>
-
           </Stack>
         </Grid>
       </Grid>
@@ -395,7 +462,6 @@ const QueueDisplay = () => {
       <Box sx={{ textAlign: 'center', mt: 5, color: t.textMuted, fontSize: '0.8rem' }}>
         Refresh otomatis setiap 5 detik &nbsp;•&nbsp; Radhiyan Pet &amp; Care
       </Box>
-
     </Box>
   );
 };

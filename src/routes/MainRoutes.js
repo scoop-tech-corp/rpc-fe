@@ -9,7 +9,6 @@ import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
 import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
 import TransactionBreeding from 'pages/transaction/pages/breeding';
 import TransactionPetShop from 'pages/transaction/pages/pet-shop';
-import FormTransactionPetShop from 'pages/transaction/pages/pet-shop/form-transaction';
 import TransactionDataStatic from 'pages/transaction/pages/material-data';
 // import { Outlet } from 'react-router-dom';
 
@@ -31,6 +30,9 @@ const CustomerTemplate = Loadable(lazy(() => import('pages/customer/template')))
 const CustomerMerge = Loadable(lazy(() => import('pages/customer/merge')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/customer/static-data')));
 const CustomerImport = Loadable(lazy(() => import('pages/customer/import')));
+const CustomerFeedback = Loadable(lazy(() => import('pages/customer/feedback')));
+const CustomerSupportRequest = Loadable(lazy(() => import('pages/customer/support-request')));
+const CustomerSupportPortal = Loadable(lazy(() => import('pages/customer/support-request/portal')));
 
 // Staff
 const StaffDashboard = Loadable(lazy(() => import('pages/staff/dashboard')));
@@ -116,6 +118,7 @@ const FinanceRefund = Loadable(lazy(() => import('pages/finance/refund')));
 const FinanceQuotation = Loadable(lazy(() => import('pages/finance/quotation')));
 const FinanceExpenses = Loadable(lazy(() => import('pages/finance/expenses')));
 const FinanceStaticData = Loadable(lazy(() => import('pages/finance/static-data')));
+const FinanceInstallment = Loadable(lazy(() => import('pages/finance/installment')));
 
 // Report
 const Report = Loadable(lazy(() => import('pages/report')));
@@ -162,8 +165,6 @@ const MainRoutes = {
             { path: 'pet-salon', element: <TransactionPetSalon /> },
             { path: 'breeding', element: <TransactionBreeding /> },
             { path: 'pet-shop', element: <TransactionPetShop /> },
-            { path: 'pet-shop/create', element: <FormTransactionPetShop /> },
-            { path: 'pet-shop/edit/:id', element: <FormTransactionPetShop /> },
             { path: 'material-data', element: <TransactionDataStatic /> }
           ]
         },
@@ -178,7 +179,10 @@ const MainRoutes = {
             { path: 'template', element: <CustomerTemplate /> },
             { path: 'merge', element: <CustomerMerge /> },
             { path: 'material-data', element: <CustomerStaticData /> },
-            { path: 'import', element: <CustomerImport /> }
+            { path: 'import', element: <CustomerImport /> },
+            { path: 'feedback', element: <CustomerFeedback /> },
+            { path: 'support-request', element: <CustomerSupportRequest /> },
+            { path: 'support-request/portal', element: <CustomerSupportPortal /> }
           ]
         },
         {
@@ -302,7 +306,8 @@ const MainRoutes = {
             { path: 'refund', element: <FinanceRefund /> },
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
-            { path: 'material-data', element: <FinanceStaticData /> }
+            { path: 'material-data', element: <FinanceStaticData /> },
+            { path: 'installment', element: <FinanceInstallment /> }
           ]
         },
         {

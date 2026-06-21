@@ -50,6 +50,7 @@ export const createTransactionPetHotel = async (payload) => {
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
   if (payload.image) formData.append('image', payload.image);
+  if (payload.queueId) formData.append('queueId', payload.queueId);
 
   return await axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -329,12 +330,24 @@ export const createPaymentPetHotelOutpatient = async (transactionId, formValue) 
   return await axios.post(url + '/payment', formData);
 };
 
+// Step 1: Staff upload bukti → status = 'pending'
+export const uploadPaymentProofPetHotel = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('proof', payload.file);
+  return await axios.post(url + '/upload-payment-proof', formData);
+};
+
+// Step 2: Finance/Manager konfirmasi → 4-eyes check → status = 'verified'
 export const confirmPaymentPetHotel = async (payload) => {
   const formData = new FormData();
   formData.append('id', payload.id);
-  if (payload.file) formData.append('proof', payload.file);
-
   return await axios.post(url + '/confirm-payment', formData);
+};
+
+// Tolak bukti (Finance/Manager, orang berbeda dari yang upload)
+export const rejectPaymentPetHotel = async (payload) => {
+  return await axios.post(url + '/reject-payment', { id: payload.id, note: payload.note });
 };
 
 export const getPapanKerjaHarian = async (transactionId) => {

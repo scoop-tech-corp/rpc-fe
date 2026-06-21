@@ -49,6 +49,7 @@ export const createTransactionBreeding = async (payload) => {
   formData.append('endDate', endDate);
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
+  if (payload.queueId) formData.append('queueId', payload.queueId);
 
   return await axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -286,4 +287,122 @@ export const createPaymentBreedingOutpatient = async (transactionId, formValue) 
   formData.append('payment_method', JSON.stringify(payment_method));
 
   return await axios.post(url + '/payment', formData);
+};
+
+// ─── Policy Agreement ─────────────────────────────────────────────────────────
+export const getPoliciesForBreeding = async () => {
+  return await axios.get(url + '/policies');
+};
+
+export const savePolicyAgreementBreeding = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('signerName', payload.signerName);
+  formData.append('signatureData', payload.signatureData);
+  formData.append('policies', JSON.stringify(payload.policies));
+  return await axios.post(url + '/policy-agreement', formData);
+};
+
+// ─── Prepayment / DP ─────────────────────────────────────────────────────────
+export const getBreedingPrepayments = async (transactionId) => {
+  return await axios.get(url + '/prepayments', { params: { transactionId } });
+};
+
+export const addBreedingPrepayment = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('paymentMethodId', payload.paymentMethodId);
+  formData.append('amount', payload.amount);
+  formData.append('catatan', payload.catatan || '');
+  return await axios.post(url + '/prepayments', formData);
+};
+
+export const deleteBreedingPrepayment = async (id) => {
+  return await axios.delete(url + '/prepayments', { data: { id } });
+};
+
+export const printBreedingPrepaymentReceipt = async (id) => {
+  return await axios.get(url + '/prepayments/receipt', {
+    responseType: 'blob',
+    params: { id }
+  });
+};
+
+// ─── Papan Kerja Harian ───────────────────────────────────────────────────────
+export const getBreedingPapanKerja = async (transactionId) => {
+  return await axios.get(url + '/papan-kerja', { params: { transactionId } });
+};
+
+export const addBreedingPapanKerja = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('activity', payload.activity);
+  formData.append('scheduledDate', payload.scheduledDate);
+  formData.append('time', payload.time || '');
+  return await axios.post(url + '/papan-kerja', formData);
+};
+
+export const markBreedingPapanKerjaDone = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('statusAktivitas', payload.statusAktivitas || '');
+  formData.append('temuan', payload.temuan || '');
+  formData.append('catatan', payload.catatan || '');
+  return await axios.post(url + '/papan-kerja/done', formData);
+};
+
+// ─── Additional Treatment ─────────────────────────────────────────────────────
+export const getBreedingAdditionalTreatments = async (transactionId) => {
+  return await axios.get(url + '/additional-treatments', { params: { transactionId } });
+};
+
+export const addBreedingAdditionalTreatment = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('type', payload.type);
+  formData.append('itemId', payload.itemId || '');
+  formData.append('itemName', payload.itemName);
+  formData.append('quantity', payload.quantity);
+  formData.append('price', payload.price);
+  formData.append('catatan', payload.catatan || '');
+  return await axios.post(url + '/additional-treatments', formData);
+};
+
+export const deleteBreedingAdditionalTreatment = async (id) => {
+  return await axios.delete(url + '/additional-treatments', { data: { id } });
+};
+
+// ─── Checkout ────────────────────────────────────────────────────────────────
+export const initiateBreedingCheckout = async (transactionId) => {
+  const formData = new FormData();
+  formData.append('transactionId', transactionId);
+  return await axios.post(url + '/checkout', formData);
+};
+
+export const getBreedingCheckoutSummary = async (transactionId) => {
+  return await axios.get(url + '/checkout/summary', { params: { transactionId } });
+};
+
+// ── Secure Payment Verification ──────────────────────────────────────────────
+
+// Step 1: Staff upload bukti → status = 'pending'
+export const uploadPaymentProofBreeding = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('proof', payload.file);
+
+  return await axios.post(url + '/upload-payment-proof', formData);
+};
+
+// Step 2: Finance/Manager konfirmasi (harus orang berbeda dari uploader)
+export const confirmPaymentBreeding = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+
+  return await axios.post(url + '/confirm-payment', formData);
+};
+
+// Tolak bukti pembayaran
+export const rejectPaymentBreeding = async (payload) => {
+  return await axios.post(url + '/reject-payment', { id: payload.id, note: payload.note });
 };

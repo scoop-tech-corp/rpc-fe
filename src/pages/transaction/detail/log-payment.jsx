@@ -32,15 +32,17 @@ const LogPaymentDetailTransaction = (props) => {
         Cell: ({ value }) => {
           const isDP = value === 'DP / Pembayaran Awal';
           return (
-            <span style={{
-              display: 'inline-block',
-              padding: '2px 8px',
-              borderRadius: 12,
-              fontSize: 11,
-              fontWeight: 600,
-              background: isDP ? '#fff3e0' : '#e8f5e9',
-              color: isDP ? '#e65100' : '#2e7d32'
-            }}>
+            <span
+              style={{
+                display: 'inline-block',
+                padding: '2px 8px',
+                borderRadius: 12,
+                fontSize: 11,
+                fontWeight: 600,
+                background: isDP ? '#fff3e0' : '#e8f5e9',
+                color: isDP ? '#e65100' : '#2e7d32'
+              }}
+            >
               {value || '-'}
             </span>
           );
@@ -51,23 +53,23 @@ const LogPaymentDetailTransaction = (props) => {
       { Header: <FormattedMessage id="payment-method" />, accessor: 'paymentMethod', isNotSorting: true },
       { Header: 'Catatan', accessor: 'note', isNotSorting: true, Cell: ({ value }) => value || '-' },
       { Header: <FormattedMessage id="created-by" />, accessor: 'createdBy', isNotSorting: true },
-      ...(props.onPrint ? [{
-        Header: 'Cetak',
-        accessor: 'cetak',
-        isNotSorting: true,
-        style: { textAlign: 'center' },
-        Cell: ({ row }) => (
-          <Tooltip title="Cetak Struk" arrow>
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={() => props.onPrint(row.original)}
-            >
-              <PrinterOutlined />
-            </IconButton>
-          </Tooltip>
-        )
-      }] : [])
+      ...(props.onPrint
+        ? [
+            {
+              Header: 'Cetak',
+              accessor: 'cetak',
+              isNotSorting: true,
+              style: { textAlign: 'center' },
+              Cell: ({ row }) => (
+                <Tooltip title="Cetak Struk" arrow>
+                  <IconButton size="small" color="primary" onClick={() => props.onPrint(row.original)}>
+                    <PrinterOutlined />
+                  </IconButton>
+                </Tooltip>
+              )
+            }
+          ]
+        : [])
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [props.onPrint]

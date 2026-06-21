@@ -1,149 +1,154 @@
 import { ReactTable } from 'components/third-party/ReactTable';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Box, CircularProgress, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { getReportBookingByLocation } from 'pages/report/service';
 
-export default function BookingByLocation({ data }) {
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        location: 'RPC SUMATERA UTARA',
-        bookings: '100',
-        quantity: 10,
-        value: 'Rp. 1.500.000'
-      },
-      {
-        location: 'RPC ACEH',
-        bookings: '200',
-        quantity: 15,
-        value: 'Rp. 3.000.000'
-      }
-    ],
-    []
-  );
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-  // Dummy data for the chart
-  const dummyChartData = {
-    series: [
-      {
-        name: 'RPC ACEH',
-        data: [10, 10, 10, 10, 30, 20, 10]
-      },
-      {
-        name: 'RPC SUMATERA UTARA',
-        data: [20, 40, 20, 10, 80, 30, 10]
+const CHART_COLORS = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#3F51B5', '#03A9F4', '#4CAF50', '#F9CE1D', '#FF9800'];
+
+export default function BookingByLocation() {
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [reportData, setReportData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const chartRef = useRef(null);
+
+  const yearOptions = useMemo(() => {
+    const current = new Date().getFullYear();
+    return Array.from({ length: 5 }, (_, i) => current - i);
+  }, []);
+
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        const res = await getReportBookingByLocation({ year });
+        setReportData(res?.data?.data || []);
+      } catch (e) {
+        setReportData([]);
+      } finally {
+        setLoading(false);
       }
-    ],
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-  };
+    };
+    fetch();
+  }, [year]);
+
+  // Render chart whenever reportData changes
+  useEffect(() => {
+    if (loading || reportData.length === 0) return;
+
+    const series = reportData.map((loc) => ({
+      name: loc.locationName,
+      data: loc.months.map((m) => m.booking)
+    }));
+
+    const options = {
+      series,
+      chart: {
+        height: 350,
+        type: 'line',
+        dropShadow: { enabled: true, color: '#000', top: 18, left: 7, blur: 10, opacity: 0.2 },
+        toolbar: { show: false }
+      },
+      colors: CHART_COLORS,
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 2 },
+      grid: { borderColor: '#e7e7e7', row: { colors: ['#f3f3f3', 'transparent'], opacity: 0.5 } },
+      markers: { size: 4 },
+      xaxis: {
+        categories: MONTH_LABELS,
+        title: { text: 'Bulan' }
+      },
+      yaxis: {
+        title: { text: 'Jumlah Booking' },
+        min: 0
+      },
+      legend: { position: 'top', horizontalAlign: 'right' },
+      tooltip: { y: { formatter: (val) => `${val} booking` } }
+    };
+
+    // Destroy old chart if any
+    if (chartRef.current && chartRef.current._chart) {
+      chartRef.current._chart.destroy();
+    }
+
+    if (window.ApexCharts) {
+      const el = document.querySelector('#booking-location-chart');
+      if (el) {
+        const chart = new window.ApexCharts(el, options);
+        chart.render();
+        if (chartRef.current) chartRef.current._chart = chart;
+      }
+    }
+
+    const chartRefCurrent = chartRef.current;
+    const chartInstance = chartRefCurrent?._chart ?? null;
+    return () => {
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+      if (chartRefCurrent) chartRefCurrent._chart = null;
+    };
+  }, [reportData, loading]);
+
+  // Table: one row per location with total booking & total value
+  const tableData = useMemo(() => {
+    if (!reportData.length) return [];
+    const rows = reportData.map((loc) => ({
+      location: loc.locationName,
+      bookings: loc.totalBooking,
+      value: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(loc.totalValue)
+    }));
+    const totalBooking = reportData.reduce((s, l) => s + l.totalBooking, 0);
+    const totalValue = reportData.reduce((s, l) => s + l.totalValue, 0);
+    rows.push({
+      location: <strong>Total</strong>,
+      bookings: <strong>{totalBooking}</strong>,
+      value: (
+        <strong>
+          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalValue)}
+        </strong>
+      )
+    });
+    return rows;
+  }, [reportData]);
 
   const columns = useMemo(
     () => [
-      {
-        Header: <FormattedMessage id="location" />,
-        accessor: 'location'
-      },
+      { Header: <FormattedMessage id="location" />, accessor: 'location' },
       { Header: <FormattedMessage id="bookings" />, accessor: 'bookings' },
-      { Header: <FormattedMessage id="quantity" />, accessor: 'quantity' },
       { Header: <FormattedMessage id="value-rp" />, accessor: 'value' }
     ],
     []
   );
 
-  useEffect(() => {
-    // Create the chart options using dummyChartData
-    const options = {
-      series: dummyChartData.series,
-      chart: {
-        height: 350,
-        type: 'line',
-        dropShadow: {
-          enabled: true,
-          color: '#000',
-          top: 18,
-          left: 7,
-          blur: 10,
-          opacity: 0.2
-        },
-        toolbar: {
-          show: false
-        }
-      },
-      colors: ['#77B6EA', '#545454'],
-      dataLabels: {
-        enabled: true
-      },
-      stroke: {
-        curve: 'smooth'
-      },
-      title: {
-        text: '',
-        align: 'left'
-      },
-      grid: {
-        borderColor: '#e7e7e7',
-        row: {
-          colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-          opacity: 0.5
-        }
-      },
-      markers: {
-        size: 1
-      },
-      xaxis: {
-        categories: dummyChartData.categories,
-        title: {
-          text: 'Month'
-        }
-      },
-      yaxis: {
-        title: {
-          text: 'Temperature'
-        }
-        // min: 5,
-        // max: 40
-      },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'right',
-        floating: true,
-        offsetY: -25,
-        offsetX: -5
-      }
-    };
-
-    const chart = new ApexCharts(document.querySelector('#chart'), options);
-    chart.render();
-
-    // Cleanup function
-    return () => {
-      chart.destroy();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
-    <div>
-      <div id="chart" style={{ marginBottom: 20 }} />
+    <Box>
+      {/* Year selector */}
+      <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+        <Typography variant="body2">
+          <FormattedMessage id="year" defaultMessage="Tahun" />:
+        </Typography>
+        <Select size="small" value={year} onChange={(e) => setYear(e.target.value)}>
+          {yearOptions.map((y) => (
+            <MenuItem key={y} value={y}>
+              {y}
+            </MenuItem>
+          ))}
+        </Select>
+      </Stack>
 
-      <ReactTable
-        columns={columns}
-        data={[
-          ...dummyTableData,
-          {
-            location: <strong>Total</strong>,
-            bookings: <strong>300</strong>,
-            quantity: <strong>25</strong>,
-            value: <strong>Rp. 4.500.000</strong>
-          }
-        ]}
-        // totalPagination={totalPagination}
-        // setPageNumber={params.goToPage}
-        // setPageRow={params.rowPerPage}
-        // onGotoPage={goToPage}
-        // onOrder={orderingChange}
-        // onPageSize={changeLimit}
-      />
-    </div>
+      {loading ? (
+        <Box display="flex" justifyContent="center" py={4}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <div ref={chartRef} id="booking-location-chart" style={{ marginBottom: 24 }} />
+          <ReactTable columns={columns} data={tableData} />
+        </>
+      )}
+    </Box>
   );
 }

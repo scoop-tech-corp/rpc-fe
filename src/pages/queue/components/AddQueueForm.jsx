@@ -10,11 +10,8 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  FormControl,
   Grid,
   InputLabel,
-  MenuItem,
-  Select,
   Stack,
   TextField
 } from '@mui/material';
@@ -125,18 +122,13 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
 
   const isBookingMode = mode === 'booking';
 
-  const isSubmitDisabled = loading || (
-    isBookingMode
-      ? !form.location || !form.booking
-      : !form.location || !form.customer || !form.pet || !form.serviceType
-  );
+  const isSubmitDisabled =
+    loading || (isBookingMode ? !form.location || !form.booking : !form.location || !form.customer || !form.pet || !form.serviceType);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        {isBookingMode
-          ? <FormattedMessage id="queue-convert-from-booking" />
-          : <FormattedMessage id="queue-add-walkin" />}
+        {isBookingMode ? <FormattedMessage id="queue-convert-from-booking" /> : <FormattedMessage id="queue-add-walkin" />}
       </DialogTitle>
       <Divider />
       <DialogContent sx={{ pt: 2 }}>
@@ -144,7 +136,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
           {/* Lokasi */}
           <Grid item xs={12}>
             <Stack spacing={1}>
-              <InputLabel required><FormattedMessage id="select-location" /></InputLabel>
+              <InputLabel required>
+                <FormattedMessage id="select-location" />
+              </InputLabel>
               <Autocomplete
                 options={dropdowns.locationList}
                 value={form.location}
@@ -159,7 +153,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
             /* Mode Booking: pilih booking yang sudah Accepted */
             <Grid item xs={12}>
               <Stack spacing={1}>
-                <InputLabel required><FormattedMessage id="queue-select-booking" /></InputLabel>
+                <InputLabel required>
+                  <FormattedMessage id="queue-select-booking" />
+                </InputLabel>
                 <Autocomplete
                   options={dropdowns.bookingList}
                   value={form.booking}
@@ -175,7 +171,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
               {/* Mode Walk-in: pilih layanan, customer, pet, dokter */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel required><FormattedMessage id="service-layanan" /></InputLabel>
+                  <InputLabel required>
+                    <FormattedMessage id="service-layanan" />
+                  </InputLabel>
                   <Autocomplete
                     options={SERVICE_OPTIONS}
                     value={form.serviceType}
@@ -188,7 +186,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
 
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel required><FormattedMessage id="customer-name" /></InputLabel>
+                  <InputLabel required>
+                    <FormattedMessage id="customer-name" />
+                  </InputLabel>
                   <Autocomplete
                     options={dropdowns.customerList}
                     value={form.customer}
@@ -202,7 +202,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
 
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel required><FormattedMessage id="pet-animal" /></InputLabel>
+                  <InputLabel required>
+                    <FormattedMessage id="pet-animal" />
+                  </InputLabel>
                   <Autocomplete
                     options={dropdowns.petList}
                     value={form.pet}
@@ -216,7 +218,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
 
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel><FormattedMessage id="doctor" /></InputLabel>
+                  <InputLabel>
+                    <FormattedMessage id="doctor" />
+                  </InputLabel>
                   <Autocomplete
                     options={dropdowns.doctorList}
                     value={form.doctor}
@@ -233,7 +237,9 @@ const AddQueueForm = ({ open, onClose, onSuccess, mode = 'walkin' }) => {
           {/* Keluhan */}
           <Grid item xs={12}>
             <Stack spacing={1}>
-              <InputLabel><FormattedMessage id="queue-chief-complaint" /></InputLabel>
+              <InputLabel>
+                <FormattedMessage id="queue-chief-complaint" />
+              </InputLabel>
               <TextField
                 fullWidth
                 multiline

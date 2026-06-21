@@ -103,7 +103,15 @@ const getInitialValues = () => ({ ...CONSTANT_FORM });
 
 // ==============================|| CALENDAR EVENT ADD / EDIT / DELETE ||============================== //
 
-const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, bookingStatus = null, isCancelled = false, initialColor = null }) => {
+const AddEventFrom = ({
+  onCancel,
+  onCreated,
+  mode = 'add',
+  eventId = null,
+  bookingStatus = null,
+  isCancelled = false,
+  initialColor = null
+}) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const isEdit = mode === 'edit';
@@ -557,7 +565,13 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                     <FormattedMessage id="visiting-category" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="consultationType" value={formValue.consultationType} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
+                    <Select
+                      name="consultationType"
+                      value={formValue.consultationType}
+                      onChange={onFieldHandler}
+                      displayEmpty
+                      disabled={isReadOnly}
+                    >
                       <MenuItem value="" disabled>
                         Pilih Jenis Kunjungan
                       </MenuItem>
@@ -577,7 +591,14 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                   <InputLabel>
                     <FormattedMessage id="drug-allergy-history" />
                   </InputLabel>
-                  <TextField fullWidth name="drugAllergy" value={formValue.drugAllergy} onChange={onFieldHandler} placeholder="Text" disabled={isReadOnly} />
+                  <TextField
+                    fullWidth
+                    name="drugAllergy"
+                    value={formValue.drugAllergy}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    disabled={isReadOnly}
+                  />
                 </Stack>
               </Grid>
 
@@ -688,7 +709,13 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                     <FormattedMessage id="socialization-level" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="socializationType" value={formValue.socializationType} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
+                    <Select
+                      name="socializationType"
+                      value={formValue.socializationType}
+                      onChange={onFieldHandler}
+                      displayEmpty
+                      disabled={isReadOnly}
+                    >
                       <MenuItem value="" disabled>
                         Pilih Tingkat Sosialisasi
                       </MenuItem>
@@ -927,7 +954,14 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                   <InputLabel>
                     <FormattedMessage id="stambum-stamboom" />
                   </InputLabel>
-                  <TextField fullWidth name="stambum" value={formValue.stambum} onChange={onFieldHandler} placeholder="Text" disabled={isReadOnly} />
+                  <TextField
+                    fullWidth
+                    name="stambum"
+                    value={formValue.stambum}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    disabled={isReadOnly}
+                  />
                 </Stack>
               </Grid>
 

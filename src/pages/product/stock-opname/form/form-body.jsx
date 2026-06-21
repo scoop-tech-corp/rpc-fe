@@ -37,17 +37,16 @@ const StockOpnameFormBody = () => {
     useStockOpnameFormStore.setState({ locationId: value, users: [], staffList: [], stockOpnameNumber: '', isFormTouch: true });
     checkFormError();
     if (!value) return;
-    await Promise.all([
-      getStaffScheduleUser(value.value).catch(() => []),
-      generateSoNumber(value.value).catch(() => null)
-    ]).then(([staffList, soResp]) => {
-      useStockOpnameFormStore.setState({
-        staffList,
-        stockOpnameNumber: soResp?.data?.stockOpnameNumber ?? ''
+    await Promise.all([getStaffScheduleUser(value.value).catch(() => []), generateSoNumber(value.value).catch(() => null)])
+      .then(([staffList, soResp]) => {
+        useStockOpnameFormStore.setState({
+          staffList,
+          stockOpnameNumber: soResp?.data?.stockOpnameNumber ?? ''
+        });
+      })
+      .catch((err) => {
+        if (err) dispatch(snackbarError(createMessageBackend(err)));
       });
-    }).catch((err) => {
-      if (err) dispatch(snackbarError(createMessageBackend(err)));
-    });
   };
 
   return (

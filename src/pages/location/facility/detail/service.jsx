@@ -99,10 +99,8 @@ export const getCageFacilityLocationList = async (locationIds = [], conditionOpt
 
   return getResp.data.map((dt) => {
     const remaining = dt.remainingCapacity !== undefined ? +dt.remainingCapacity : +dt.capacity;
-    const total     = +dt.capacity;
-    const capLabel  = remaining < total
-      ? `sisa ${remaining}/${total}`
-      : `${total}`;
+    const total = +dt.capacity;
+    const capLabel = remaining < total ? `sisa ${remaining}/${total}` : `${total}`;
     return {
       label: `${dt.cageName || dt.unitName}${dt.size ? ` (${dt.size})` : ''} — cap. ${capLabel}`,
       value: +dt.id,

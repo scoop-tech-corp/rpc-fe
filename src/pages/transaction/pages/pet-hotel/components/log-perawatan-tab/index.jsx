@@ -102,151 +102,135 @@ const ActivityRow = ({ row }) => {
   const isWarning = !row.isDone ? false : row.statusAktivitas !== 'berhasil' || late;
 
   return (
-  <Box
-    sx={{
-      border: 1,
-      borderColor: 'divider',
-      borderRadius: 1,
-      overflow: 'hidden',
-      mb: 1
-    }}
-  >
-    {/* Header aktivitas */}
     <Box
       sx={{
-        px: 2,
-        py: 0.75,
-        bgcolor: !row.isDone
-          ? 'grey.100'
-          : isWarning
-          ? 'warning.lighter'
-          : 'success.lighter',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        overflow: 'hidden',
+        mb: 1
       }}
     >
-      <Stack direction="row" spacing={1} alignItems="center">
-        <ScheduleIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-        <Typography variant="body2" fontWeight="bold">
-          {row.time} — {row.activity}
-        </Typography>
-      </Stack>
-      <StatusChip status={row.isDone ? row.statusAktivitas : null} late={late} />
+      {/* Header aktivitas */}
+      <Box
+        sx={{
+          px: 2,
+          py: 0.75,
+          bgcolor: !row.isDone ? 'grey.100' : isWarning ? 'warning.lighter' : 'success.lighter',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Stack direction="row" spacing={1} alignItems="center">
+          <ScheduleIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+          <Typography variant="body2" fontWeight="bold">
+            {row.time} — {row.activity}
+          </Typography>
+        </Stack>
+        <StatusChip status={row.isDone ? row.statusAktivitas : null} late={late} />
+      </Box>
+
+      {/* Detail — hanya jika sudah dikerjakan */}
+      {row.isDone ? (
+        <Box sx={{ px: 2, py: 1 }}>
+          <Table size="small">
+            <TableBody>
+              {/* PIC shift — selalu tampil, terutama saat dilewati */}
+              <TableRow>
+                <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <AssignmentIndIcon sx={{ fontSize: 13 }} />
+                    <span>PIC Shift</span>
+                  </Stack>
+                </TableCell>
+                <TableCell sx={{ border: 0, py: 0.5 }}>
+                  {Array.isArray(row.assignedStaff) && row.assignedStaff.length > 0 ? (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                      {row.assignedStaff.map((name) => (
+                        <Tooltip
+                          key={name}
+                          title={row.statusAktivitas === 'dilewati' ? 'Seharusnya dikerjakan oleh petugas ini' : 'Petugas shift'}
+                          arrow
+                        >
+                          <Chip
+                            label={name}
+                            size="small"
+                            color={row.statusAktivitas === 'dilewati' ? 'warning' : 'default'}
+                            variant={row.statusAktivitas === 'dilewati' ? 'filled' : 'outlined'}
+                            icon={<AssignmentIndIcon />}
+                          />
+                        </Tooltip>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Typography variant="caption" color="text.disabled">
+                      Tidak ada data absensi shift ini
+                    </Typography>
+                  )}
+                </TableCell>
+              </TableRow>
+
+              {Array.isArray(row.temuan) && row.temuan.length > 0 && (
+                <TableRow>
+                  <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>Temuan Kotak Pasir</TableCell>
+                  <TableCell sx={{ border: 0, py: 0.5 }}>
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                      {row.temuan.map((t) => (
+                        <Chip key={t} label={TEMUAN_LABEL[t] ?? t} size="small" variant="outlined" />
+                      ))}
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {row.kondisiFeses && (
+                <TableRow>
+                  <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>Kondisi Feses</TableCell>
+                  <TableCell sx={{ border: 0, py: 0.5 }}>{KONDISI_LABEL[row.kondisiFeses] ?? row.kondisiFeses}</TableCell>
+                </TableRow>
+              )}
+
+              {row.catatan && (
+                <TableRow>
+                  <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>Catatan</TableCell>
+                  <TableCell sx={{ border: 0, py: 0.5 }}>{row.catatan}</TableCell>
+                </TableRow>
+              )}
+
+              {row.fotoUrl && (
+                <TableRow>
+                  <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>Foto Bukti</TableCell>
+                  <TableCell sx={{ border: 0, py: 0.5 }}>
+                    <Link href={row.fotoUrl} target="_blank" rel="noopener">
+                      Lihat Foto
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              <TableRow>
+                <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>Dicatat Oleh</TableCell>
+                <TableCell sx={{ border: 0, py: 0.5 }}>
+                  {row.completedBy || '-'}{' '}
+                  {row.completedAt && (
+                    <Typography component="span" variant="caption" color="text.secondary">
+                      ({row.completedAt})
+                    </Typography>
+                  )}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+      ) : (
+        <Box sx={{ px: 2, py: 0.75 }}>
+          <Typography variant="caption" color="text.disabled">
+            Belum dikerjakan
+          </Typography>
+        </Box>
+      )}
     </Box>
-
-    {/* Detail — hanya jika sudah dikerjakan */}
-    {row.isDone ? (
-      <Box sx={{ px: 2, py: 1 }}>
-        <Table size="small">
-          <TableBody>
-            {/* PIC shift — selalu tampil, terutama saat dilewati */}
-            <TableRow>
-              <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <AssignmentIndIcon sx={{ fontSize: 13 }} />
-                  <span>PIC Shift</span>
-                </Stack>
-              </TableCell>
-              <TableCell sx={{ border: 0, py: 0.5 }}>
-                {Array.isArray(row.assignedStaff) && row.assignedStaff.length > 0 ? (
-                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                    {row.assignedStaff.map((name) => (
-                      <Tooltip
-                        key={name}
-                        title={row.statusAktivitas === 'dilewati' ? 'Seharusnya dikerjakan oleh petugas ini' : 'Petugas shift'}
-                        arrow
-                      >
-                        <Chip
-                          label={name}
-                          size="small"
-                          color={row.statusAktivitas === 'dilewati' ? 'warning' : 'default'}
-                          variant={row.statusAktivitas === 'dilewati' ? 'filled' : 'outlined'}
-                          icon={<AssignmentIndIcon />}
-                        />
-                      </Tooltip>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography variant="caption" color="text.disabled">
-                    Tidak ada data absensi shift ini
-                  </Typography>
-                )}
-              </TableCell>
-            </TableRow>
-
-            {Array.isArray(row.temuan) && row.temuan.length > 0 && (
-              <TableRow>
-                <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
-                  Temuan Kotak Pasir
-                </TableCell>
-                <TableCell sx={{ border: 0, py: 0.5 }}>
-                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                    {row.temuan.map((t) => (
-                      <Chip key={t} label={TEMUAN_LABEL[t] ?? t} size="small" variant="outlined" />
-                    ))}
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            )}
-
-            {row.kondisiFeses && (
-              <TableRow>
-                <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
-                  Kondisi Feses
-                </TableCell>
-                <TableCell sx={{ border: 0, py: 0.5 }}>
-                  {KONDISI_LABEL[row.kondisiFeses] ?? row.kondisiFeses}
-                </TableCell>
-              </TableRow>
-            )}
-
-            {row.catatan && (
-              <TableRow>
-                <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
-                  Catatan
-                </TableCell>
-                <TableCell sx={{ border: 0, py: 0.5 }}>{row.catatan}</TableCell>
-              </TableRow>
-            )}
-
-            {row.fotoUrl && (
-              <TableRow>
-                <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
-                  Foto Bukti
-                </TableCell>
-                <TableCell sx={{ border: 0, py: 0.5 }}>
-                  <Link href={row.fotoUrl} target="_blank" rel="noopener">
-                    Lihat Foto
-                  </Link>
-                </TableCell>
-              </TableRow>
-            )}
-
-            <TableRow>
-              <TableCell sx={{ width: 150, color: 'text.secondary', border: 0, pl: 0, py: 0.5 }}>
-                Dicatat Oleh
-              </TableCell>
-              <TableCell sx={{ border: 0, py: 0.5 }}>
-                {row.completedBy || '-'}{' '}
-                {row.completedAt && (
-                  <Typography component="span" variant="caption" color="text.secondary">
-                    ({row.completedAt})
-                  </Typography>
-                )}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Box>
-    ) : (
-      <Box sx={{ px: 2, py: 0.75 }}>
-        <Typography variant="caption" color="text.disabled">
-          Belum dikerjakan
-        </Typography>
-      </Box>
-    )}
-  </Box>
   );
 };
 ActivityRow.propTypes = { row: PropTypes.object.isRequired };

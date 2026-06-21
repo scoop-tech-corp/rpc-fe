@@ -33,8 +33,8 @@ const extractMenuUrls = (menuObj) => {
 };
 
 const PermissionGuard = ({ children }) => {
-  const { user }      = useAuth();
-  const { pathname }  = useLocation();
+  const { user } = useAuth();
+  const { pathname } = useLocation();
 
   // ── 1. Static bypass (403, sample-page, dll) ─────────────────────────────
   if (STATIC_BYPASS.some((p) => pathname.startsWith(p))) {

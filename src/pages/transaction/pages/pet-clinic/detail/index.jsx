@@ -1,34 +1,19 @@
 import BadgeIcon from '@mui/icons-material/Badge';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import EventIcon from '@mui/icons-material/Event';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import PetsIcon from '@mui/icons-material/Pets';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import {
-  Box,
-  Button,
-  Chip,
-  Divider,
-  Grid,
-  Paper,
-  Stack,
-  Tab,
-  Tabs,
-  Typography
-} from '@mui/material';
+import { Box, Button, Chip, Divider, Grid, Paper, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import ConfirmationC from 'components/ConfirmationC';
 import FormReject from 'components/FormReject';
 import ModalC from 'components/ModalC';
+import SingleFileUpload from 'components/third-party/dropzone/SingleFile';
 import TabPanel from 'components/TabPanelC';
-import {
-  CONSTANT_ADMINISTRATOR,
-  JOB_DOKTER,
-  JOB_KASIR,
-  JOB_PARAMEDIS,
-  JOB_VETNURSE,
-  isAdminOrManager
-} from 'constant/role';
+import { CONSTANT_ADMINISTRATOR, JOB_DOKTER, JOB_KASIR, JOB_PARAMEDIS, JOB_VETNURSE, isAdminOrManager } from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import LogActivityDetailTransaction from 'pages/transaction/detail/log-activity';
 import LogPaymentDetailTransaction from 'pages/transaction/detail/log-payment';
@@ -42,10 +27,13 @@ import { createMessageBackend, processDownloadPDF } from 'service/service-global
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import {
   acceptTransactionPetClinic,
+  confirmPaymentPetClinic,
   getPapanKerjaHarianPetClinic,
   getPrepaymentReceiptPetClinic,
   getTransactionPetClinicDetail,
-  printInvoicePetClinic
+  printInvoicePetClinic,
+  rejectPaymentPetClinic,
+  uploadProofOfPayment
 } from '../service';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -57,8 +45,8 @@ const STATUS_COLOR = {
   'input service dan obat': 'primary',
   'proses pembayaran': 'warning',
   'dalam perawatan': 'info',
-  'selesai': 'success',
-  'dibatalkan': 'error'
+  selesai: 'success',
+  dibatalkan: 'error'
 };
 
 const petAge = (year, month) => {
@@ -71,12 +59,14 @@ const petAge = (year, month) => {
 // ── Section Card ─────────────────────────────────────────────────────────────
 const SectionCard = ({ icon, title, children }) => (
   <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-    <Box sx={{ px: 2, py: 1.25, bgcolor: 'grey.50', display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.25 }, bgcolor: 'grey.50', display: 'flex', alignItems: 'center', gap: 1 }}>
       {icon}
-      <Typography variant="subtitle2" fontWeight="bold">{title}</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">
+        {title}
+      </Typography>
     </Box>
     <Divider />
-    <Box sx={{ px: 2, py: 1.5 }}>{children}</Box>
+    <Box sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 } }}>{children}</Box>
   </Paper>
 );
 SectionCard.propTypes = { icon: PropTypes.node, title: PropTypes.string, children: PropTypes.node };
@@ -85,8 +75,12 @@ SectionCard.propTypes = { icon: PropTypes.node, title: PropTypes.string, childre
 const InfoRow = ({ label, value, fullWidth = false }) => (
   <Grid item xs={12} sm={fullWidth ? 12 : 6}>
     <Stack spacing={0.25}>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
-      <Typography variant="body2" fontWeight={500}>{value || '-'}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body2" fontWeight={500}>
+        {value || '-'}
+      </Typography>
     </Stack>
   </Grid>
 );
@@ -101,6 +95,10 @@ const TransactionPetClinicDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
   const [dialog, setDialog] = useState({ accept: false, reject: false });
   const [data, setData] = useState({ detail: {}, log: [], paymentLogs: [] });
+  const [uploadProofDialog, setUploadProofDialog] = useState({ open: false, paymentId: null });
+  const [confirmPayDialog, setConfirmPayDialog] = useState({ open: false, paymentId: null });
+  const [rejectPayDialog, setRejectPayDialog] = useState({ open: false, paymentId: null, note: '' });
+  const [proofFile, setProofFile] = useState(null);
   const [filterLog, setFilterLog] = useState({});
   const [filterLogPayment, setFilterLogPayment] = useState({});
 
@@ -129,11 +127,16 @@ const TransactionPetClinicDetail = (props) => {
     }
   };
 
-  useEffect(() => { fetchData(); }, [filterLog, filterLogPayment]); // eslint-disable-line
+  useEffect(() => {
+    fetchData();
+  }, [filterLog, filterLogPayment]); // eslint-disable-line
 
   // ── Accept / Reject ───────────────────────────────────────────────────────
   const onConfirm = async (val, procedure) => {
-    if (!val) { setDialog({ accept: false, reject: false }); return; }
+    if (!val) {
+      setDialog({ accept: false, reject: false });
+      return;
+    }
     try {
       const resp = await acceptTransactionPetClinic({
         transactionId: +data.detail.id,
@@ -162,6 +165,54 @@ const TransactionPetClinicDetail = (props) => {
         resp = await printInvoicePetClinic(row.id);
         processDownloadPDF(resp, `invoice-petclinic-${id}`);
       }
+    } catch (err) {
+      dispatch(snackbarError(createMessageBackend(err)));
+    }
+  };
+
+  // ── Payment verification handlers ─────────────────────────────────────────
+  const onUploadProofClinic = async () => {
+    if (!proofFile?.[0] && !proofFile) {
+      dispatch(snackbarError('Pilih file bukti pembayaran'));
+      return;
+    }
+    try {
+      const file = Array.isArray(proofFile) ? proofFile[0] : proofFile;
+      await uploadProofOfPayment({ paymentId: uploadProofDialog.paymentId, file });
+      dispatch(snackbarSuccess('Bukti diunggah. Menunggu verifikasi Finance/Manager.'));
+      setUploadProofDialog({ open: false, paymentId: null });
+      setProofFile(null);
+      fetchData();
+    } catch (err) {
+      dispatch(snackbarError(createMessageBackend(err)));
+    }
+  };
+
+  const onConfirmPayClinic = async (confirmed) => {
+    if (!confirmed) {
+      setConfirmPayDialog({ open: false, paymentId: null });
+      return;
+    }
+    try {
+      await confirmPaymentPetClinic({ id: confirmPayDialog.paymentId });
+      dispatch(snackbarSuccess('Pembayaran dikonfirmasi'));
+      setConfirmPayDialog({ open: false, paymentId: null });
+      fetchData();
+    } catch (err) {
+      dispatch(snackbarError(createMessageBackend(err)));
+    }
+  };
+
+  const onRejectPayClinic = async () => {
+    if (!rejectPayDialog.note.trim()) {
+      dispatch(snackbarError('Catatan wajib diisi'));
+      return;
+    }
+    try {
+      await rejectPaymentPetClinic({ id: rejectPayDialog.paymentId, note: rejectPayDialog.note });
+      dispatch(snackbarSuccess('Bukti ditolak. Staff dapat upload ulang.'));
+      setRejectPayDialog({ open: false, paymentId: null, note: '' });
+      fetchData();
     } catch (err) {
       dispatch(snackbarError(createMessageBackend(err)));
     }
@@ -306,42 +357,35 @@ const TransactionPetClinicDetail = (props) => {
             <Tab label={<FormattedMessage id="details" />} id="tab-0" aria-controls="tabpanel-0" />
             <Tab label={<FormattedMessage id="log-activity" />} id="tab-1" aria-controls="tabpanel-1" />
             <Tab label={<FormattedMessage id="log-payment" />} id="tab-2" aria-controls="tabpanel-2" />
-            {isRawatInap && (
-              <Tab label="Log Papan Kerja Harian" id="tab-3" aria-controls="tabpanel-3" />
-            )}
-            <Tab
-              label="Hasil Cek Kondisi Pet"
-              id={`tab-${isRawatInap ? 4 : 3}`}
-              aria-controls={`tabpanel-${isRawatInap ? 4 : 3}`}
-            />
+            {isRawatInap && <Tab label="Log Papan Kerja Harian" id="tab-3" aria-controls="tabpanel-3" />}
+            <Tab label="Hasil Cek Kondisi Pet" id={`tab-${isRawatInap ? 4 : 3}`} aria-controls={`tabpanel-${isRawatInap ? 4 : 3}`} />
           </Tabs>
         </Box>
 
-        <Box sx={{ mt: 2.5 }}>
+        <Box sx={{ mt: { xs: 1.5, sm: 2.5 } }}>
           {/* ── Tab 0: Detail ── */}
           <TabPanel value={tabSelected} index={0} name="detail-transaction">
-            <Stack spacing={2}>
-
+            <Stack spacing={{ xs: 1.5, sm: 2 }}>
               {/* Info Transaksi */}
               <SectionCard icon={<LocalHospitalIcon fontSize="small" color="primary" />} title="Informasi Transaksi">
-                <Grid container spacing={2}>
+                <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                   <InfoRow label="No. Registrasi" value={data.detail.registrationNo} />
                   <Grid item xs={12} sm={6}>
                     <Stack spacing={0.25}>
-                      <Typography variant="caption" color="text.secondary">Status</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Status
+                      </Typography>
                       <Box>
-                        <Chip
-                          label={data.detail.status || '-'}
-                          size="small"
-                          color={STATUS_COLOR[status] || 'default'}
-                        />
+                        <Chip label={data.detail.status || '-'} size="small" color={STATUS_COLOR[status] || 'default'} />
                       </Box>
                     </Stack>
                   </Grid>
                   <InfoRow label="Lokasi" value={data.detail.locationName} />
                   <Grid item xs={12} sm={6}>
                     <Stack spacing={0.25}>
-                      <Typography variant="caption" color="text.secondary">Jenis Perawatan</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Jenis Perawatan
+                      </Typography>
                       <Box>
                         <Chip
                           label={data.detail.typeOfCare || '-'}
@@ -357,20 +401,16 @@ const TransactionPetClinicDetail = (props) => {
                       <Typography variant="caption" color="text.secondary">
                         {isRawatInap ? 'Periode Perawatan' : 'Tanggal Kunjungan'}
                       </Typography>
-                      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                        <Stack direction="row" spacing={0.5} alignItems="center">
-                          <EventIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                          <Typography variant="body2" fontWeight={500}>
-                            {data.detail.startDate || '-'}
-                            {isRawatInap && ` → ${data.detail.endDate || '-'}`}
-                          </Typography>
-                        </Stack>
+                      <Stack direction="row" spacing={0.5} alignItems="flex-start" flexWrap="wrap">
+                        <EventIcon sx={{ fontSize: 14, color: 'text.secondary', mt: '3px', flexShrink: 0 }} />
+                        <Typography variant="body2" fontWeight={500} sx={{ wordBreak: 'break-word', minWidth: 0 }}>
+                          {data.detail.startDate || '-'}
+                          {isRawatInap && ` → ${data.detail.endDate || '-'}`}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </Grid>
-                  {data.detail.note && (
-                    <InfoRow label="Catatan" value={data.detail.note} fullWidth />
-                  )}
+                  {data.detail.note && <InfoRow label="Catatan" value={data.detail.note} fullWidth />}
                   <InfoRow label="Dibuat Oleh" value={data.detail.createdBy} />
                   <InfoRow label="Dibuat Pada" value={data.detail.createdAt} />
                 </Grid>
@@ -378,11 +418,13 @@ const TransactionPetClinicDetail = (props) => {
 
               {/* Info Customer */}
               <SectionCard icon={<BadgeIcon fontSize="small" color="primary" />} title="Informasi Customer">
-                <Grid container spacing={2}>
+                <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                   <InfoRow label="Nama Customer" value={data.detail.customerName} />
                   <Grid item xs={12} sm={6}>
                     <Stack spacing={0.25}>
-                      <Typography variant="caption" color="text.secondary">Tipe Customer</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Tipe Customer
+                      </Typography>
                       <Box>
                         <Chip
                           label={+data.detail.isNewCustomer ? 'Customer Baru' : 'Customer Lama'}
@@ -396,7 +438,9 @@ const TransactionPetClinicDetail = (props) => {
                   {data.detail.customerGroup && (
                     <Grid item xs={12} sm={6}>
                       <Stack spacing={0.25}>
-                        <Typography variant="caption" color="text.secondary">Grup Member</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Grup Member
+                        </Typography>
                         <Box>
                           <Chip
                             icon={<CorporateFareIcon />}
@@ -415,12 +459,14 @@ const TransactionPetClinicDetail = (props) => {
 
               {/* Info Hewan & Medis */}
               <SectionCard icon={<PetsIcon fontSize="small" color="primary" />} title="Informasi Hewan & Medis">
-                <Grid container spacing={2}>
+                <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                   <InfoRow label="Nama Hewan" value={data.detail.petName} />
                   <InfoRow label="Kategori" value={data.detail.petCategoryName} />
                   <Grid item xs={12} sm={6}>
                     <Stack spacing={0.25}>
-                      <Typography variant="caption" color="text.secondary">Jenis Kelamin</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Jenis Kelamin
+                      </Typography>
                       <Box>
                         <Chip
                           label={data.detail.petGender === 'J' ? '♂ Jantan' : data.detail.petGender === 'B' ? '♀ Betina' : '-'}
@@ -433,7 +479,9 @@ const TransactionPetClinicDetail = (props) => {
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <Stack spacing={0.25}>
-                      <Typography variant="caption" color="text.secondary">Status Steril</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Status Steril
+                      </Typography>
                       <Box>
                         <Chip
                           label={data.detail.petSterile ? 'Sudah Steril' : 'Belum Steril'}
@@ -448,10 +496,14 @@ const TransactionPetClinicDetail = (props) => {
                   <InfoRow label="Kondisi Masuk" value={data.detail.condition} />
                   <Grid item xs={12} sm={6}>
                     <Stack spacing={0.25}>
-                      <Typography variant="caption" color="text.secondary">Dokter Penanggung Jawab</Typography>
-                      <Stack direction="row" spacing={0.5} alignItems="center">
-                        <MedicalServicesIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                        <Typography variant="body2" fontWeight={500}>{data.detail.picDoctor || '-'}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Dokter Penanggung Jawab
+                      </Typography>
+                      <Stack direction="row" spacing={0.5} alignItems="flex-start">
+                        <MedicalServicesIcon sx={{ fontSize: 14, color: 'text.secondary', mt: '3px', flexShrink: 0 }} />
+                        <Typography variant="body2" fontWeight={500} sx={{ wordBreak: 'break-word', minWidth: 0 }}>
+                          {data.detail.picDoctor || '-'}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </Grid>
@@ -481,7 +533,12 @@ const TransactionPetClinicDetail = (props) => {
                         </Typography>
                         <Stack direction="row" spacing={1} flexWrap="wrap">
                           {data.detail.recipes.map((r, i) => (
-                            <Chip key={i} label={`${r.productName} ${r.dosage}${r.unit} (${r.giveMedicine})`} size="small" variant="outlined" />
+                            <Chip
+                              key={i}
+                              label={`${r.productName} ${r.dosage}${r.unit} (${r.giveMedicine})`}
+                              size="small"
+                              variant="outlined"
+                            />
                           ))}
                         </Stack>
                       </Box>
@@ -489,7 +546,6 @@ const TransactionPetClinicDetail = (props) => {
                   </Stack>
                 </SectionCard>
               )}
-
             </Stack>
           </TabPanel>
 
@@ -497,15 +553,97 @@ const TransactionPetClinicDetail = (props) => {
           <TabPanel value={tabSelected} index={1} name="detail-transaction">
             <LogActivityDetailTransaction
               data={data.log}
-              onFetchData={(e) => { if (e) setFilterLog(e); }}
+              onFetchData={(e) => {
+                if (e) setFilterLog(e);
+              }}
             />
           </TabPanel>
 
           {/* ── Tab 2: Log Payment ── */}
           <TabPanel value={tabSelected} index={2} name="detail-transaction">
+            {data.paymentLogs.some((p) => p.verificationStatus === 'pending' || (p.isPayed === 0 && !p.proofOfPayment)) && (
+              <Paper variant="outlined" sx={{ p: 2, mb: 2, borderColor: 'warning.main' }}>
+                <Typography variant="subtitle2" color="warning.dark" mb={1}>
+                  Pembayaran Menunggu Verifikasi
+                </Typography>
+                {data.paymentLogs
+                  .filter((p) => p.verificationStatus === 'pending' || (p.isPayed === 0 && !p.proofOfPayment))
+                  .map((pay) => (
+                    <Box
+                      key={pay.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.5,
+                        flexWrap: 'wrap',
+                        mb: 1,
+                        p: 1,
+                        bgcolor: 'warning.lighter',
+                        borderRadius: 1
+                      }}
+                    >
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body2" fontWeight={600}>
+                          {pay.notaNumber} — {pay.amount}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {pay.verificationStatus === 'pending' ? `Bukti diunggah oleh ${pay.uploadedByName || '-'}` : 'Belum ada bukti'}
+                        </Typography>
+                        {pay.verificationStatus === 'rejected' && (
+                          <Typography variant="caption" color="error.main" display="block">
+                            Ditolak: {pay.verificationNote}
+                          </Typography>
+                        )}
+                      </Box>
+                      <Chip
+                        size="small"
+                        label={
+                          pay.verificationStatus === 'pending'
+                            ? 'Pending'
+                            : pay.verificationStatus === 'rejected'
+                            ? 'Ditolak'
+                            : 'Belum Upload'
+                        }
+                        color={
+                          pay.verificationStatus === 'pending' ? 'warning' : pay.verificationStatus === 'rejected' ? 'error' : 'default'
+                        }
+                      />
+                      {(!pay.proofOfPayment || pay.verificationStatus === 'rejected') && (
+                        <Button size="small" variant="outlined" onClick={() => setUploadProofDialog({ open: true, paymentId: pay.id })}>
+                          Upload Bukti
+                        </Button>
+                      )}
+                      {isAdminMgr && pay.verificationStatus === 'pending' && pay.uploadedBy !== user?.id && (
+                        <>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            color="success"
+                            startIcon={<CheckCircleIcon />}
+                            onClick={() => setConfirmPayDialog({ open: true, paymentId: pay.id })}
+                          >
+                            Konfirmasi
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            startIcon={<CancelIcon />}
+                            onClick={() => setRejectPayDialog({ open: true, paymentId: pay.id, note: '' })}
+                          >
+                            Tolak
+                          </Button>
+                        </>
+                      )}
+                    </Box>
+                  ))}
+              </Paper>
+            )}
             <LogPaymentDetailTransaction
               data={data.paymentLogs}
-              onFetchData={(e) => { if (e) setFilterLogPayment(e); }}
+              onFetchData={(e) => {
+                if (e) setFilterLogPayment(e);
+              }}
               onPrint={onPrintPaymentLog}
             />
           </TabPanel>
@@ -543,6 +681,59 @@ const TransactionPetClinicDetail = (props) => {
         onSubmit={(val) => onConfirm(val, 'reject')}
         onClose={() => setDialog({ accept: false, reject: false })}
       />
+
+      {/* ── Payment Verification Dialogs ── */}
+      <ModalC
+        title="Upload Bukti Pembayaran"
+        open={uploadProofDialog.open}
+        onOk={onUploadProofClinic}
+        onCancel={() => {
+          setUploadProofDialog({ open: false, paymentId: null });
+          setProofFile(null);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <Stack spacing={1.5}>
+          <Typography variant="body2" color="text.secondary">
+            Upload bukti transfer. Setelah diunggah, Finance/Manager akan memverifikasi.
+          </Typography>
+          <SingleFileUpload file={proofFile} setFieldValue={(_, v) => setProofFile(v)} />
+        </Stack>
+      </ModalC>
+
+      <ConfirmationC
+        open={confirmPayDialog.open}
+        title="Konfirmasi Pembayaran"
+        content="Yakin ingin mengkonfirmasi bukti pembayaran ini? Pastikan bukti transfer sudah sesuai."
+        onClose={onConfirmPayClinic}
+        btnTrueText="Konfirmasi"
+        btnFalseText="Batal"
+      />
+
+      <ModalC
+        title="Tolak Bukti Pembayaran"
+        open={rejectPayDialog.open}
+        onOk={onRejectPayClinic}
+        onCancel={() => setRejectPayDialog({ open: false, paymentId: null, note: '' })}
+        fullWidth
+        maxWidth="sm"
+      >
+        <Stack spacing={1.5}>
+          <Typography variant="body2" color="text.secondary">
+            Berikan alasan penolakan agar staff dapat mengupload ulang bukti yang benar.
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label="Catatan Penolakan"
+            value={rejectPayDialog.note}
+            onChange={(e) => setRejectPayDialog((prev) => ({ ...prev, note: e.target.value }))}
+            placeholder="Contoh: Bukti tidak terbaca, nominal tidak sesuai"
+          />
+        </Stack>
+      </ModalC>
     </>
   );
 };

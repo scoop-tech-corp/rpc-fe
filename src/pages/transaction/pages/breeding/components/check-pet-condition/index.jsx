@@ -239,7 +239,11 @@ const CheckPetCondition = (props) => {
                 {formValue.hplStatus && (
                   <p>
                     Status:{' '}
-                    <span style={{ color: ['hpl sudah dekat', 'hpl sudah lewat'].includes(formValue.hplStatus.toLowerCase()) ? 'red' : 'green' }}>
+                    <span
+                      style={{
+                        color: ['hpl sudah dekat', 'hpl sudah lewat'].includes(formValue.hplStatus.toLowerCase()) ? 'red' : 'green'
+                      }}
+                    >
                       {formValue.hplStatus}
                     </span>
                   </p>

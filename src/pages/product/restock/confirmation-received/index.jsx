@@ -1,5 +1,4 @@
-import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -18,9 +17,6 @@ const ProductRestockConfirmationReceived = (props) => {
 
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(true);
   const dispatch = useDispatch();
-
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleChangeRestockFinished = (event) => {
     setRestockFinished(event.target.value);

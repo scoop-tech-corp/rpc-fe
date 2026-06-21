@@ -1,10 +1,28 @@
 import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { getLocationList } from 'service/service-global';
 
 export default function ProductsLowStock({ data, filter, setFilter }) {
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
+  const [extData, setExtData] = useState({ location: [] });
+
+  useEffect(() => {
+    getLocationList().then((getLoc) => {
+      setExtData({ location: getLoc });
+    });
+  }, []);
+
+  const getLocationColumns = () => {
+    return extData.location?.map((locationItem) => ({
+      Header: locationItem.label,
+      accessor: (row) => {
+        const locationData = row.quantities?.find((q) => q.location === locationItem.label);
+        return locationData ? locationData.qty : '-';
+      }
+    }));
+  };
 
   const columns = useMemo(
     () => [
@@ -24,76 +42,13 @@ export default function ProductsLowStock({ data, filter, setFilter }) {
         Header: <FormattedMessage id="supplier" />,
         accessor: 'supplierName'
       },
-      {
-        Header: <FormattedMessage id="location" />,
-        accessor: 'locationName'
-      },
-      {
-        Header: <FormattedMessage id="in-stock" />,
-        accessor: 'inStock'
-      }
+      ...getLocationColumns()
     ],
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [extData.location]
   );
-  const dataDummy = [
-    {
-      fullName: 'John Doe',
-      category: 'Category A',
-      sku: 'SKU123',
-      supplierName: 'Supplier A',
-      locationName: 'Location A',
-      inStock: 100
-    },
-    {
-      fullName: 'Jane Smith',
-      category: 'Category B',
-      sku: 'SKU456',
-      supplierName: 'Supplier B',
-      locationName: 'Location B',
-      inStock: 50
-    },
-    {
-      fullName: 'John Doe',
-      category: 'Category A',
-      sku: 'SKU123',
-      supplierName: 'Supplier A',
-      locationName: 'Location A',
-      inStock: 100
-    },
-    {
-      fullName: 'Jane Smith',
-      category: 'Category B',
-      sku: 'SKU456',
-      supplierName: 'Supplier B',
-      locationName: 'Location B',
-      inStock: 50
-    },
-    {
-      fullName: 'John Doe',
-      category: 'Category A',
-      sku: 'SKU123',
-      supplierName: 'Supplier A',
-      locationName: 'Location A',
-      inStock: 100
-    },
-    {
-      fullName: 'Jane Smith',
-      category: 'Category B',
-      sku: 'SKU456',
-      supplierName: 'Supplier B',
-      locationName: 'Location B',
-      inStock: 50
-    },
-    {
-      fullName: 'John Doe',
-      category: 'Category A',
-      sku: 'SKU123',
-      supplierName: 'Supplier A',
-      locationName: 'Location A',
-      inStock: 100
-    }
-    // Add more data as needed
-  ];
+
+  if (!extData.location.length) return null;
 
   return (
     <div>
@@ -101,7 +56,7 @@ export default function ProductsLowStock({ data, filter, setFilter }) {
         columns={columns}
         data={tablesData}
         totalPagination={totalPagination || 0}
-        colSpanPagination={14}
+        colSpanPagination={extData.location.length + 4}
         setPageNumber={filter.goToPage}
         onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
         setPageRow={filter.rowPerPage}

@@ -11,20 +11,6 @@ const SummaryTable = (props) => {
   const { formValue } = props;
 
   const SubRow = ({ row, rowProps }) => {
-    console.log('row', row.original.included_items);
-    const mock = [
-      {
-        no: 1,
-        productName: 'whiskas',
-        category: 'Produk Jual',
-        quantity: '2',
-        bonus: '1',
-        discount: '0%',
-        unitPrice: '25.000',
-        totalPrice: '50.000',
-        subRows: null
-      }
-    ];
     return (
       <>
         {row.original.included_items.map((x, i) => (

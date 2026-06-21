@@ -53,46 +53,6 @@ export default function SalesItems({ data, filter, setFilter }) {
     [locale]
   );
 
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        saleId: 'INV-0001',
-        location: 'RPC Duren',
-        saleDate: '12-05-2024',
-        status: 'Active',
-        items: 'Proplan Sachet',
-        quantity: 2,
-        price: 25000,
-        totalAmount: 29000,
-        payment: 'Paid'
-      },
-      {
-        saleId: 'INV-0001',
-        location: 'RPC Duren',
-        saleDate: '12-05-2024',
-        status: 'Active',
-        items: 'Proplan Sachet',
-        quantity: 2,
-        price: 25000,
-        totalAmount: 25000,
-        payment: 'Paid'
-      },
-      {
-        saleId: 'INV-0001',
-        location: 'RPC Duren',
-        saleDate: '12-05-2024',
-        status: 'Active',
-        items: 'Proplan Sachet',
-        quantity: 2,
-        price: 25000,
-        totalAmount: 25000,
-        payment: 'Paid'
-      }
-    ],
-    []
-  );
-
   return (
     <div>
       <ReactTable

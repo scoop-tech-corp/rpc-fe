@@ -44,7 +44,9 @@ const AdditionalTreatment = (props) => {
 
   const fetchRows = async () => {
     await getAdditionalTreatments(data.transactionId)
-      .then((resp) => { if (resp?.data) setRows(resp.data); })
+      .then((resp) => {
+        if (resp?.data) setRows(resp.data);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
   };
 
@@ -62,7 +64,9 @@ const AdditionalTreatment = (props) => {
   const loadItems = async (search = '') => {
     setLoadingItems(true);
     await getAvailableItems(data.transactionId, type, search)
-      .then((resp) => { if (resp?.data) setItemOptions(resp.data); })
+      .then((resp) => {
+        if (resp?.data) setItemOptions(resp.data);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))))
       .finally(() => setLoadingItems(false));
   };

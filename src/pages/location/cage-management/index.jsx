@@ -2,12 +2,29 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import {
-  Alert, Autocomplete, Button, Chip, Dialog, DialogActions, DialogContent,
-  DialogTitle, FormControl, InputLabel, List, ListItem, ListItemText,
-  MenuItem, Select, Stack, TextField, Tooltip, Typography, useMediaQuery
+  Alert,
+  Autocomplete,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { AlignCenterOutlined, DownloadOutlined, PlusOutlined, UndoOutlined, UploadOutlined } from '@ant-design/icons';
 import DownloadIcon from '@mui/icons-material/Download';
 import useAuth from 'hooks/useAuth';
@@ -24,65 +41,70 @@ import useGetList from 'hooks/useGetList';
 const TYPE_OPTIONS = ['hotel', 'breeding', 'salon', 'general'];
 const SIZE_OPTIONS = ['S', 'M', 'L', 'XL'];
 const COND_OPTIONS = [
-  { label: 'Baik',            value: 'baik' },
+  { label: 'Baik', value: 'baik' },
   { label: 'Perlu Perhatian', value: 'perlu_perhatian' },
-  { label: 'Tidak Layak',     value: 'tidak_layak' },
+  { label: 'Tidak Layak', value: 'tidak_layak' }
 ];
 const STATUS_OPTIONS = [
-  { label: 'Aktif',    value: '1' },
-  { label: 'Nonaktif', value: '0' },
+  { label: 'Aktif', value: '1' },
+  { label: 'Nonaktif', value: '0' }
 ];
 
 const conditionColor = { baik: 'success', perlu_perhatian: 'warning', tidak_layak: 'error' };
 const conditionLabel = { baik: 'Baik', perlu_perhatian: 'Perlu Perhatian', tidak_layak: 'Tidak Layak' };
-const typeLabel      = { hotel: 'Hotel', breeding: 'Breeding', salon: 'Salon', general: 'General' };
+const typeLabel = { hotel: 'Hotel', breeding: 'Breeding', salon: 'Salon', general: 'General' };
 
 const defaultFilter = { locationId: [], type: [], conditionStatus: [], status: '' };
-const defaultForm   = {
-  locationId: '', cageName: '', type: 'hotel', size: '',
-  status: '1', conditionStatus: 'baik', capacity: 1, amount: 1, notes: ''
+const defaultForm = {
+  locationId: '',
+  cageName: '',
+  type: 'hotel',
+  size: '',
+  status: '1',
+  conditionStatus: 'baik',
+  capacity: 1,
+  amount: 1,
+  notes: ''
 };
 
 export default function CageManagement() {
-  const theme       = useTheme();
+  const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate    = useNavigate();
-  const dispatch    = useDispatch();
-  const intl        = useIntl();
-  const { user }    = useAuth();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useAuth();
 
-  const role            = user?.role?.toLowerCase() ?? '';
+  const role = user?.role?.toLowerCase() ?? '';
   const isAdminOrManager = ['administrator', 'manager'].includes(role);
 
   const [locationList, setLocationList] = useState([]);
-  const [filter, setFilter]             = useState(defaultFilter);
+  const [filter, setFilter] = useState(defaultFilter);
   const [isShowFilter, setIsShowFilter] = useState(false);
-  const [openForm, setOpenForm]         = useState(false);
-  const [form, setForm]                 = useState(defaultForm);
-  const [submitting, setSubmitting]     = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const [form, setForm] = useState(defaultForm);
+  const [submitting, setSubmitting] = useState(false);
 
   // Import state
-  const fileInputRef                    = useRef(null);
-  const [importing, setImporting]       = useState(false);
+  const fileInputRef = useRef(null);
+  const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null); // { inserted, skipped, errors }
   const [openImportResult, setOpenImportResult] = useState(false);
 
-  const { list, totalPagination, params, goToPage, setParams, orderingChange, changeLimit } =
-    useGetList(getCageList, {}, 'search');
+  const { list, totalPagination, params, goToPage, setParams, orderingChange, changeLimit } = useGetList(getCageList, {}, 'search');
 
   useEffect(() => {
     getLocationList()
       .then(setLocationList)
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
-  }, []);
+  }, [dispatch]);
 
   const handleFilter = () => {
     setParams((p) => ({
       ...p,
-      locationId:      filter.locationId.map((x) => x.value).join(','),
-      type:            filter.type.join(','),
+      locationId: filter.locationId.map((x) => x.value).join(','),
+      type: filter.type.join(','),
       conditionStatus: filter.conditionStatus.map((x) => x.value).join(','),
-      status:          filter.status?.value ?? '',
+      status: filter.status?.value ?? ''
     }));
   };
 
@@ -96,11 +118,11 @@ export default function CageManagement() {
   // ── Export ──────────────────────────────────────────────────
   const onExport = async () => {
     await exportCage({
-      search:          params.search      ?? '',
-      locationId:      params.locationId  ?? '',
-      type:            params.type        ?? '',
+      search: params.search ?? '',
+      locationId: params.locationId ?? '',
+      type: params.type ?? '',
       conditionStatus: params.conditionStatus ?? '',
-      status:          params.status      ?? '',
+      status: params.status ?? ''
     })
       .then(processDownloadExcel)
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
@@ -138,7 +160,7 @@ export default function CageManagement() {
     setSubmitting(true);
     await createCage({
       ...form,
-      locationId: form.locationId?.value ?? form.locationId,
+      locationId: form.locationId?.value ?? form.locationId
     })
       .then(() => {
         dispatch(snackbarSuccess('Kandang berhasil ditambahkan'));
@@ -150,55 +172,54 @@ export default function CageManagement() {
       .finally(() => setSubmitting(false));
   };
 
-  const columns = useMemo(() => [
-    {
-      Header: 'Nama Kandang',
-      accessor: 'cageName',
-      Cell: ({ row }) => (
-        <Button variant="text" size="small" onClick={() => navigate(`/location/cage-management/${row.original.id}`)}>
-          {row.original.cageName}
-        </Button>
-      )
-    },
-    { Header: 'Lokasi', accessor: 'locationName' },
-    {
-      Header: 'Tipe',
-      accessor: 'type',
-      Cell: ({ value }) => <Chip size="small" label={typeLabel[value] ?? value} />
-    },
-    {
-      Header: 'Ukuran',
-      accessor: 'size',
-      Cell: ({ value }) => value ? <Chip size="small" label={value} variant="outlined" /> : '-'
-    },
-    {
-      Header: 'Status',
-      accessor: 'status',
-      Cell: ({ value }) => (
-        <Chip size="small" label={+value === 1 ? 'Aktif' : 'Nonaktif'} color={+value === 1 ? 'success' : 'default'} />
-      )
-    },
-    {
-      Header: 'Kondisi',
-      accessor: 'conditionStatus',
-      Cell: ({ value }) => (
-        <Chip size="small" label={conditionLabel[value] ?? value} color={conditionColor[value] ?? 'default'} />
-      )
-    },
-    {
-      Header: 'Occupancy',
-      accessor: 'isOccupied',
-      Cell: ({ row }) => {
-        const { isOccupied, occupantPet, occupantCustomer, occupantType } = row.original;
-        if (!isOccupied) return <Chip size="small" label="Kosong" color="default" />;
-        return (
-          <Tooltip title={`${occupantPet} — ${occupantCustomer} (${occupantType})`}>
-            <Chip size="small" label={`Terisi — ${occupantPet}`} color="error" />
-          </Tooltip>
-        );
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Nama Kandang',
+        accessor: 'cageName',
+        Cell: ({ row }) => (
+          <Button variant="text" size="small" onClick={() => navigate(`/location/cage-management/${row.original.id}`)}>
+            {row.original.cageName}
+          </Button>
+        )
+      },
+      { Header: 'Lokasi', accessor: 'locationName' },
+      {
+        Header: 'Tipe',
+        accessor: 'type',
+        Cell: ({ value }) => <Chip size="small" label={typeLabel[value] ?? value} />
+      },
+      {
+        Header: 'Ukuran',
+        accessor: 'size',
+        Cell: ({ value }) => (value ? <Chip size="small" label={value} variant="outlined" /> : '-')
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: ({ value }) => <Chip size="small" label={+value === 1 ? 'Aktif' : 'Nonaktif'} color={+value === 1 ? 'success' : 'default'} />
+      },
+      {
+        Header: 'Kondisi',
+        accessor: 'conditionStatus',
+        Cell: ({ value }) => <Chip size="small" label={conditionLabel[value] ?? value} color={conditionColor[value] ?? 'default'} />
+      },
+      {
+        Header: 'Occupancy',
+        accessor: 'isOccupied',
+        Cell: ({ row }) => {
+          const { isOccupied, occupantPet, occupantCustomer, occupantType } = row.original;
+          if (!isOccupied) return <Chip size="small" label="Kosong" color="default" />;
+          return (
+            <Tooltip title={`${occupantPet} — ${occupantCustomer} (${occupantType})`}>
+              <Chip size="small" label={`Terisi — ${occupantPet}`} color="error" />
+            </Tooltip>
+          );
+        }
       }
-    },
-  ], [navigate]);
+    ],
+    [navigate]
+  );
 
   return (
     <>
@@ -208,21 +229,9 @@ export default function CageManagement() {
         <ScrollX>
           <Stack spacing={3}>
             {/* Toolbar */}
-            <Stack
-              direction={matchDownSM ? 'column' : 'row'}
-              justifyContent="flex-end"
-              spacing={1}
-              sx={{ p: 3, pb: 0 }}
-              flexWrap="wrap"
-            >
+            <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="flex-end" spacing={1} sx={{ p: 3, pb: 0 }} flexWrap="wrap">
               {/* Hidden file input for import */}
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                onChange={onFileSelected}
-              />
+              <input type="file" accept=".xlsx,.xls" ref={fileInputRef} style={{ display: 'none' }} onChange={onFileSelected} />
 
               {isAdminOrManager && (
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setOpenForm(true)}>
@@ -250,12 +259,7 @@ export default function CageManagement() {
                 </Button>
               )}
 
-              <Button
-                variant="contained"
-                color="info"
-                startIcon={<AlignCenterOutlined />}
-                onClick={() => setIsShowFilter((v) => !v)}
-              >
+              <Button variant="contained" color="info" startIcon={<AlignCenterOutlined />} onClick={() => setIsShowFilter((v) => !v)}>
                 <FormattedMessage id="filter" />
               </Button>
             </Stack>
@@ -264,7 +268,8 @@ export default function CageManagement() {
             {isShowFilter && (
               <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} sx={{ px: 3 }} flexWrap="wrap">
                 <Autocomplete
-                  multiple limitTags={1}
+                  multiple
+                  limitTags={1}
                   options={locationList}
                   value={filter.locationId}
                   sx={{ minWidth: 220 }}
@@ -273,7 +278,8 @@ export default function CageManagement() {
                   renderInput={(p) => <TextField {...p} label="Lokasi" size="small" />}
                 />
                 <Autocomplete
-                  multiple limitTags={1}
+                  multiple
+                  limitTags={1}
                   options={TYPE_OPTIONS}
                   value={filter.type}
                   sx={{ minWidth: 180 }}
@@ -281,7 +287,8 @@ export default function CageManagement() {
                   renderInput={(p) => <TextField {...p} label="Tipe" size="small" />}
                 />
                 <Autocomplete
-                  multiple limitTags={1}
+                  multiple
+                  limitTags={1}
                   options={COND_OPTIONS}
                   value={filter.conditionStatus}
                   sx={{ minWidth: 200 }}
@@ -297,8 +304,12 @@ export default function CageManagement() {
                   onChange={(_, v) => setFilter((f) => ({ ...f, status: v }))}
                   renderInput={(p) => <TextField {...p} label="Status" size="small" />}
                 />
-                <Button variant="outlined" startIcon={<UndoOutlined />} onClick={handleReset}>Reset</Button>
-                <Button variant="outlined" startIcon={<AlignCenterOutlined />} onClick={handleFilter}>Filter</Button>
+                <Button variant="outlined" startIcon={<UndoOutlined />} onClick={handleReset}>
+                  Reset
+                </Button>
+                <Button variant="outlined" startIcon={<AlignCenterOutlined />} onClick={handleFilter}>
+                  Filter
+                </Button>
               </Stack>
             )}
 
@@ -331,7 +342,9 @@ export default function CageManagement() {
 
               {importResult.errors?.length > 0 && (
                 <>
-                  <Typography variant="subtitle2" color="error">Detail Error:</Typography>
+                  <Typography variant="subtitle2" color="error">
+                    Detail Error:
+                  </Typography>
                   <List dense disablePadding sx={{ maxHeight: 280, overflow: 'auto' }}>
                     {importResult.errors.map((e, i) => (
                       <ListItem key={i} disablePadding>
@@ -349,7 +362,9 @@ export default function CageManagement() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" onClick={() => setOpenImportResult(false)}>Tutup</Button>
+          <Button variant="contained" onClick={() => setOpenImportResult(false)}>
+            Tutup
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -378,15 +393,25 @@ export default function CageManagement() {
               <FormControl size="small" fullWidth>
                 <InputLabel>Tipe *</InputLabel>
                 <Select label="Tipe *" value={form.type} onChange={(e) => f('type', e.target.value)}>
-                  {TYPE_OPTIONS.map((t) => <MenuItem key={t} value={t}>{typeLabel[t]}</MenuItem>)}
+                  {TYPE_OPTIONS.map((t) => (
+                    <MenuItem key={t} value={t}>
+                      {typeLabel[t]}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
 
               <FormControl size="small" fullWidth>
                 <InputLabel>Ukuran</InputLabel>
                 <Select label="Ukuran" value={form.size} onChange={(e) => f('size', e.target.value)}>
-                  <MenuItem value=""><em>Tidak dipilih</em></MenuItem>
-                  {SIZE_OPTIONS.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                  <MenuItem value="">
+                    <em>Tidak dipilih</em>
+                  </MenuItem>
+                  {SIZE_OPTIONS.map((s) => (
+                    <MenuItem key={s} value={s}>
+                      {s}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Stack>

@@ -47,7 +47,9 @@ const PapanKerjaVetnurse = (props) => {
 
   const fetchData = async () => {
     await getPapanKerjaVetnurse(data.transactionId)
-      .then((resp) => { if (resp?.data) setRows(resp.data); })
+      .then((resp) => {
+        if (resp?.data) setRows(resp.data);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
   };
 
@@ -104,14 +106,12 @@ const PapanKerjaVetnurse = (props) => {
             size="small"
             exclusive
             value={viewMode}
-            onChange={(_, val) => { if (val) setViewMode(val); }}
+            onChange={(_, val) => {
+              if (val) setViewMode(val);
+            }}
           >
-            <ToggleButton value="today">
-              Hari Ini ({today})
-            </ToggleButton>
-            <ToggleButton value="all">
-              Semua Hari ({allDates.length} hari)
-            </ToggleButton>
+            <ToggleButton value="today">Hari Ini ({today})</ToggleButton>
+            <ToggleButton value="all">Semua Hari ({allDates.length} hari)</ToggleButton>
           </ToggleButtonGroup>
 
           {viewMode === 'today' && !hasTodayData && (
@@ -151,9 +151,7 @@ const PapanKerjaVetnurse = (props) => {
                     <TableRow key={`sep-${date}`} sx={{ bgcolor: 'secondary.lighter' }}>
                       <TableCell colSpan={8} sx={{ py: 0.75, fontWeight: 'bold' }}>
                         📅 {date}
-                        {date === today && (
-                          <Chip label="Hari Ini" size="small" color="secondary" sx={{ ml: 1 }} />
-                        )}
+                        {date === today && <Chip label="Hari Ini" size="small" color="secondary" sx={{ ml: 1 }} />}
                         <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
                           ({dayRows.filter((r) => r.isDone).length}/{dayRows.length} selesai)
                         </Typography>
@@ -163,12 +161,12 @@ const PapanKerjaVetnurse = (props) => {
                     {/* Baris aktivitas */}
                     {dayRows.map((row) => (
                       <TableRow key={row.id} sx={{ verticalAlign: 'top' }}>
-                        <TableCell sx={{ whiteSpace: 'nowrap', color: 'text.secondary' }}>
-                          {row.scheduledDate}
-                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap', color: 'text.secondary' }}>{row.scheduledDate}</TableCell>
                         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.cageNo}</TableCell>
                         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          <Typography variant="body2" fontWeight="bold">{row.petName}</Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            {row.petName}
+                          </Typography>
                           <Typography variant="caption" color="text.secondary">
                             {row.petBreed} ({row.petWeight ?? '-'} Kg)
                           </Typography>
@@ -178,7 +176,9 @@ const PapanKerjaVetnurse = (props) => {
                         <TableCell>
                           <Stack spacing={0.25}>
                             {(row.instructions || []).map((inst, i) => (
-                              <Typography key={i} variant="body2">&bull; {inst}</Typography>
+                              <Typography key={i} variant="body2">
+                                &bull; {inst}
+                              </Typography>
                             ))}
                           </Stack>
                         </TableCell>
@@ -186,11 +186,15 @@ const PapanKerjaVetnurse = (props) => {
                           {Array.isArray(row.assignedStaff) && row.assignedStaff.length > 0 ? (
                             <Stack spacing={0.25}>
                               {row.assignedStaff.map((name) => (
-                                <Typography key={name} variant="caption">{name}</Typography>
+                                <Typography key={name} variant="caption">
+                                  {name}
+                                </Typography>
                               ))}
                             </Stack>
                           ) : (
-                            <Typography variant="caption" color="text.disabled">-</Typography>
+                            <Typography variant="caption" color="text.disabled">
+                              -
+                            </Typography>
                           )}
                         </TableCell>
                         <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
@@ -207,15 +211,13 @@ const PapanKerjaVetnurse = (props) => {
                               </Typography>
                             </Box>
                           ) : canMarkDone ? (
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              onClick={() => setMarkDoneDialog({ open: true, row })}
-                            >
+                            <Button variant="outlined" size="small" onClick={() => setMarkDoneDialog({ open: true, row })}>
                               🔘 Centang Selesai
                             </Button>
                           ) : (
-                            <Typography variant="caption" color="text.disabled">Belum selesai</Typography>
+                            <Typography variant="caption" color="text.disabled">
+                              Belum selesai
+                            </Typography>
                           )}
                         </TableCell>
                       </TableRow>

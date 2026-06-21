@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Box, Chip, Tab, Tabs, Typography } from '@mui/material';
 import { useDispatch } from 'react-redux';
@@ -11,39 +11,41 @@ import TabPanel from 'components/TabPanelC';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 
 import { getCageDetail } from '../service';
-import TabInfo        from './tabs/TabInfo';
-import TabInspeksi    from './tabs/TabInspeksi';
+import TabInfo from './tabs/TabInfo';
+import TabInspeksi from './tabs/TabInspeksi';
 import TabMaintenance from './tabs/TabMaintenance';
 import TabCleaningLog from './tabs/TabCleaningLog';
 
-const JOB_HELPER    = 'Helper';
+const JOB_HELPER = 'Helper';
 const JOB_PARAMEDIS = 'Paramedis';
-const JOB_VETNURSE  = 'Vetnurse';
+const JOB_VETNURSE = 'Vetnurse';
 
 const conditionColor = { baik: 'success', perlu_perhatian: 'warning', tidak_layak: 'error' };
 const conditionLabel = { baik: 'Baik', perlu_perhatian: 'Perlu Perhatian', tidak_layak: 'Tidak Layak' };
 
 export default function CageManagementDetail() {
-  const { id }    = useParams();
-  const dispatch  = useDispatch();
-  const { user }  = useAuth();
-  const [cage, setCage]       = useState(null);
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const { user } = useAuth();
+  const [cage, setCage] = useState(null);
   const [tabSelected, setTab] = useState(0);
 
-  const role    = user?.role?.toLowerCase() ?? '';
+  const role = user?.role?.toLowerCase() ?? '';
   const jobName = user?.jobName ?? '';
 
   const isAdminOrManager = ['administrator', 'manager'].includes(role);
-  const canInspect       = isAdminOrManager || [JOB_HELPER, JOB_PARAMEDIS, JOB_VETNURSE].includes(jobName);
-  const canLog           = isAdminOrManager || [JOB_HELPER, JOB_PARAMEDIS, JOB_VETNURSE].includes(jobName);
+  const canInspect = isAdminOrManager || [JOB_HELPER, JOB_PARAMEDIS, JOB_VETNURSE].includes(jobName);
+  const canLog = isAdminOrManager || [JOB_HELPER, JOB_PARAMEDIS, JOB_VETNURSE].includes(jobName);
 
-  const load = () => {
+  const load = useCallback(() => {
     getCageDetail(id)
       .then((res) => setCage(res?.data ?? null))
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
-  };
+  }, [id, dispatch]);
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => {
+    load();
+  }, [id, load]);
 
   return (
     <>
@@ -54,15 +56,13 @@ export default function CageManagementDetail() {
               <Typography variant="h5">{cage.cageName}</Typography>
               <Chip size="small" label={cage.locationName} variant="outlined" />
               {cage.conditionStatus && (
-                <Chip
-                  size="small"
-                  label={conditionLabel[cage.conditionStatus]}
-                  color={conditionColor[cage.conditionStatus]}
-                />
+                <Chip size="small" label={conditionLabel[cage.conditionStatus]} color={conditionColor[cage.conditionStatus]} />
               )}
               {cage.isOccupied && <Chip size="small" label="Terisi" color="error" />}
             </Box>
-          ) : 'Detail Kandang'
+          ) : (
+            'Detail Kandang'
+          )
         }
         locationBackConfig={{ setLocationBack: true, customUrl: '/location/cage-management' }}
       />
@@ -70,9 +70,9 @@ export default function CageManagementDetail() {
       <MainCard border={false} boxShadow>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabSelected} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
-            <Tab label="Info"         id="cage-tab-0" />
-            <Tab label="Inspeksi"     id="cage-tab-1" />
-            <Tab label="Maintenance"  id="cage-tab-2" />
+            <Tab label="Info" id="cage-tab-0" />
+            <Tab label="Inspeksi" id="cage-tab-1" />
+            <Tab label="Maintenance" id="cage-tab-2" />
             <Tab label="Cleaning Log" id="cage-tab-3" />
           </Tabs>
         </Box>

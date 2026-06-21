@@ -204,9 +204,9 @@ const TransactionPetClinic = () => {
       statusFilter: '',
       startDateFrom: '',
       startDateTo: ''
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tabQueryParam]
   );
 
   const { list, totalPagination, params, goToPage, setParams, orderingChange, keyword, changeKeyword, changeLimit } = useGetList(
@@ -231,7 +231,7 @@ const TransactionPetClinic = () => {
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [selectedRow, setSelectedRow] = useState([]);
   const [dialog, setDialog] = useState(false);
-  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
+  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null, queueId: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null, locationId: null } });
   const [acceptRejectDialog, setAcceptRejectDialog] = useState({ accept: false, reject: false, transactionId: null });
   const [reassignDialog, setReassignDialog] = useState({ isOpen: false, data: { listDoctor: [], transactionId: null } });
@@ -273,6 +273,22 @@ const TransactionPetClinic = () => {
   }, [list, fetchStats]);
 
   // ── Handlers ──
+  // Auto-open form create jika ada ?queueId= di URL (dari Queue Management)
+  useEffect(() => {
+    const queueId = searchParams.get('queueId');
+    if (queueId) {
+      setFormTransactionConfig({ isOpen: true, id: null, queueId: Number(queueId) });
+      setSearchParams(
+        (prev) => {
+          prev.delete('queueId');
+          return prev;
+        },
+        { replace: true }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onClickAdd = () => setFormTransactionConfig((prev) => ({ ...prev, isOpen: true }));
 
   const onConfirmDelete = async (value) => {
@@ -582,7 +598,7 @@ const TransactionPetClinic = () => {
           ]
         : []),
       {
-        Header: 'No. Registrasi',
+        Header: <FormattedMessage id="registration-no" />,
         accessor: 'registrationNo',
         Cell: (data) => (
           <Link
@@ -596,7 +612,7 @@ const TransactionPetClinic = () => {
         )
       },
       {
-        Header: 'Pasien',
+        Header: <FormattedMessage id="patient" />,
         accessor: 'petName',
         Cell: (data) => (
           <Stack spacing={0}>
@@ -612,7 +628,7 @@ const TransactionPetClinic = () => {
       ...(isAdmin
         ? [
             {
-              Header: 'Customer Group',
+              Header: <FormattedMessage id="customer-group" />,
               accessor: 'customerGroup',
               Cell: (data) =>
                 data.value ? (
@@ -626,7 +642,7 @@ const TransactionPetClinic = () => {
           ]
         : []),
       {
-        Header: 'Periode',
+        Header: <FormattedMessage id="period" />,
         accessor: 'startDate',
         Cell: (data) => {
           const start = data.value;
@@ -644,7 +660,7 @@ const TransactionPetClinic = () => {
               </Typography>
               {end && (
                 <Typography variant="caption" color="text.secondary">
-                  s/d {end}
+                  <FormattedMessage id="until" /> {end}
                 </Typography>
               )}
             </Stack>
@@ -652,17 +668,17 @@ const TransactionPetClinic = () => {
         }
       },
       {
-        Header: 'Status',
+        Header: <FormattedMessage id="status" />,
         accessor: 'status',
         Cell: (data) => <StatusChip value={data.value} />
       },
       {
-        Header: 'Dokter',
+        Header: <FormattedMessage id="doctor" />,
         accessor: 'picDoctor',
         Cell: (data) => <Typography variant="caption">{data.value || '—'}</Typography>
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [showActionColumn, user, tabQueryParam, isAdmin]
   );
 
@@ -717,7 +733,7 @@ const TransactionPetClinic = () => {
         <Grid item xs={6} sm={3}>
           <StatCard
             icon={<LocalHospitalIcon />}
-            label="Rawat Jalan Aktif"
+            label={intl.formatMessage({ id: 'outpatient-active' })}
             value={stats?.rawatJalan}
             color="primary"
             onClick={() => switchTab('rawat-jalan')}
@@ -726,19 +742,24 @@ const TransactionPetClinic = () => {
         <Grid item xs={6} sm={3}>
           <StatCard
             icon={<HotelIcon />}
-            label="Rawat Inap Aktif"
+            label={intl.formatMessage({ id: 'inpatient-active' })}
             value={stats?.rawatInap}
             color="info"
             onClick={() => switchTab('rawat-inap')}
           />
         </Grid>
         <Grid item xs={6} sm={3}>
-          <StatCard icon={<CheckCircleIcon />} label="Selesai Hari Ini" value={stats?.finishedToday} color="success" />
+          <StatCard
+            icon={<CheckCircleIcon />}
+            label={intl.formatMessage({ id: 'finished-today' })}
+            value={stats?.finishedToday}
+            color="success"
+          />
         </Grid>
         <Grid item xs={6} sm={3}>
           <StatCard
             icon={<PaymentsIcon />}
-            label="Proses Pembayaran"
+            label={intl.formatMessage({ id: 'process-payment' })}
             value={stats?.prosesPembayaran}
             color="warning"
             onClick={() => {
@@ -768,6 +789,7 @@ const TransactionPetClinic = () => {
             <>
               <Grid item xs={12} sm={4}>
                 <Autocomplete
+                  id="filterLocation"
                   multiple
                   limitTags={1}
                   options={filterLocationList}
@@ -778,11 +800,12 @@ const TransactionPetClinic = () => {
                     setFilterLocation(sel);
                     setParams((p) => ({ ...p, locationId: sel.map((d) => d.value) }));
                   }}
-                  renderInput={(p) => <TextField {...p} label="Filter Lokasi" />}
+                  renderInput={(p) => <TextField {...p} label={<FormattedMessage id="filter-location" />} />}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Autocomplete
+                  id="filter-customer-group"
                   multiple
                   limitTags={1}
                   options={filterCustomerGroupList}
@@ -793,7 +816,7 @@ const TransactionPetClinic = () => {
                     setFilterCustomerGroup(sel);
                     setParams((p) => ({ ...p, customerGroupId: sel.map((d) => d.value) }));
                   }}
-                  renderInput={(p) => <TextField {...p} label="Customer Group" />}
+                  renderInput={(p) => <TextField {...p} label={<FormattedMessage id="customer-group" />} />}
                 />
               </Grid>
             </>
@@ -801,21 +824,29 @@ const TransactionPetClinic = () => {
           {/* Admin: Type of Care (tab finished only) */}
           {isAdmin && tabQueryParam === 'finished' && (
             <Grid item xs={12} sm={4}>
-              <FormControl fullWidth>
-                <InputLabel>Tipe Perawatan</InputLabel>
+              <FormControl fullWidth size="small">
+                <InputLabel>
+                  <FormattedMessage id="care-type" />
+                </InputLabel>
                 <Select
                   value={selectedFilterTypeOfCare}
-                  label="Tipe Perawatan"
+                  label={intl.formatMessage({ id: 'care-type' })}
                   onChange={(e) => {
                     setFilterTypeOfCare(e.target.value);
                     setParams((_p) => ({ ..._p, typeOfCare: e.target.value }));
                   }}
                 >
                   <MenuItem value="">
-                    <em>Semua</em>
+                    <em>
+                      <FormattedMessage id="all" />
+                    </em>
                   </MenuItem>
-                  <MenuItem value={1}>Rawat Jalan</MenuItem>
-                  <MenuItem value={2}>Rawat Inap</MenuItem>
+                  <MenuItem value={1}>
+                    <FormattedMessage id="outpatient" />
+                  </MenuItem>
+                  <MenuItem value={2}>
+                    <FormattedMessage id="inpatient" />
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -830,8 +861,15 @@ const TransactionPetClinic = () => {
                 color={showAdvancedFilter ? 'primary' : 'inherit'}
                 onClick={() => setShowAdvancedFilter((v) => !v)}
               >
-                Filter Lanjutan
-                {hasAdvancedFilter && <Chip label="aktif" size="small" color="primary" sx={{ ml: 0.5, height: 16, fontSize: 10 }} />}
+                <FormattedMessage id="filter-status" />
+                {hasAdvancedFilter && (
+                  <Chip
+                    label={intl.formatMessage({ id: 'active' })}
+                    size="small"
+                    color="primary"
+                    sx={{ ml: 0.5, height: 16, fontSize: 10 }}
+                  />
+                )}
               </Button>
               <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                 <FormattedMessage id="export" />
@@ -850,15 +888,23 @@ const TransactionPetClinic = () => {
               <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="subtitle2" color="text.secondary" mb={1.5}>
                   <FilterListIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
-                  Filter Lanjutan
+                  <FormattedMessage id="filter-status" />
                 </Typography>
                 <Grid container spacing={2} alignItems="flex-end">
                   <Grid item xs={12} sm={4}>
                     <FormControl fullWidth size="small">
-                      <InputLabel>Filter Status</InputLabel>
-                      <Select value={filterStatus} label="Filter Status" onChange={(e) => setFilterStatus(e.target.value)}>
+                      <InputLabel>
+                        <FormattedMessage id="filter-status" />
+                      </InputLabel>
+                      <Select
+                        value={filterStatus}
+                        label={intl.formatMessage({ id: 'filter-status' })}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                      >
                         <MenuItem value="">
-                          <em>Semua Status</em>
+                          <em>
+                            <FormattedMessage id="all" />
+                          </em>
                         </MenuItem>
                         {(STATUS_OPTIONS[tabQueryParam] || []).map((s) => (
                           <MenuItem key={s} value={s}>
@@ -872,7 +918,7 @@ const TransactionPetClinic = () => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="Tgl Mulai (Dari)"
+                      label={intl.formatMessage({ id: 'start-date-from' })}
                       type="date"
                       InputLabelProps={{ shrink: true }}
                       value={filterStartDateFrom}
@@ -883,7 +929,7 @@ const TransactionPetClinic = () => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="Tgl Mulai (Sampai)"
+                      label={intl.formatMessage({ id: 'start-date-until' })}
                       type="date"
                       InputLabelProps={{ shrink: true }}
                       value={filterStartDateTo}
@@ -893,10 +939,10 @@ const TransactionPetClinic = () => {
                   <Grid item xs={12} sm={2}>
                     <Stack direction="row" spacing={1}>
                       <Button variant="contained" size="small" onClick={applyAdvancedFilter} fullWidth>
-                        Terapkan
+                        <FormattedMessage id="apply-filter" />
                       </Button>
                       <Button variant="outlined" size="small" onClick={resetAdvancedFilter} fullWidth>
-                        Reset
+                        <FormattedMessage id="reset-filter" />
                       </Button>
                     </Stack>
                   </Grid>
@@ -909,10 +955,10 @@ const TransactionPetClinic = () => {
         {/* ─── Tabs ─── */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabSelected} onChange={(_, val) => switchTab(tabKeys[val])} variant="scrollable" scrollButtons="auto">
-            {isAdmin && <Tab label={tabLabel('semua', '🏥 Semua Aktif')} id="tab-0" />}
-            <Tab label={tabLabel('rawat-jalan', 'Rawat Jalan')} id={`tab-${isAdmin ? 1 : 0}`} />
-            <Tab label={tabLabel('rawat-inap', 'Rawat Inap')} id={`tab-${isAdmin ? 2 : 1}`} />
-            <Tab label={tabLabel('finished', 'Selesai')} id={`tab-${isAdmin ? 3 : 2}`} />
+            {isAdmin && <Tab label={tabLabel('semua', `🏥 ${intl.formatMessage({ id: 'all-active' })}`)} id="tab-0" />}
+            <Tab label={tabLabel('rawat-jalan', intl.formatMessage({ id: 'outpatient' }))} id={`tab-${isAdmin ? 1 : 0}`} />
+            <Tab label={tabLabel('rawat-inap', intl.formatMessage({ id: 'inpatient' }))} id={`tab-${isAdmin ? 2 : 1}`} />
+            <Tab label={tabLabel('finished', intl.formatMessage({ id: 'finished' }))} id={`tab-${isAdmin ? 3 : 2}`} />
           </Tabs>
         </Box>
 
@@ -930,12 +976,13 @@ const TransactionPetClinic = () => {
         <FormTransaction
           open={formTransactionConfig.isOpen}
           id={formTransactionConfig.id}
+          queueId={formTransactionConfig.queueId}
           type="pet-clinic"
           defaultTypeOfCare={
             !formTransactionConfig.id ? (tabQueryParam === 'rawat-jalan' ? 1 : tabQueryParam === 'rawat-inap' ? 2 : undefined) : undefined
           }
           onClose={(e) => {
-            setFormTransactionConfig({ isOpen: false, id: null });
+            setFormTransactionConfig({ isOpen: false, id: null, queueId: null });
             if (e) setParams((_p) => ({ ..._p }));
           }}
         />

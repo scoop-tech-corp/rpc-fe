@@ -1,4 +1,4 @@
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   Button,
   Grid,
@@ -20,7 +20,9 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Box,
-  Alert
+  Alert,
+  Paper,
+  Chip
 } from '@mui/material';
 import { Fragment, useEffect, useState } from 'react';
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
@@ -50,6 +52,7 @@ import FormPet from './form-pet';
 import ErrorContainer from 'components/@extended/ErrorContainer';
 import { createTransactionPetHotel, getTransactionPetHotelDetail, updateTransactionPetHotel } from './pages/pet-hotel/service';
 import { getBookingDetail, getBookingListTransaction } from 'pages/booking/service';
+import configGlobal from 'config';
 
 const MONTH_NAMES = [
   'Januari',
@@ -66,7 +69,7 @@ const MONTH_NAMES = [
   'Desember'
 ];
 
-const STEPS = ['Asal Kunjungan', 'Pasien & Hewan', 'Detail Kunjungan'];
+// STEPS defined inside component to support i18n
 
 const CONSTANT_PET_FORM = {
   petId: '',
@@ -118,7 +121,13 @@ SectionLabel.propTypes = { children: PropTypes.node };
 
 // ─── Main component ────────────────────────────────────────────────────────
 const FormTransaction = (props) => {
-  const { id, type, defaultTypeOfCare } = props;
+  const { id, type, defaultTypeOfCare, queueId } = props;
+  const intl = useIntl();
+  const STEPS = [
+    intl.formatMessage({ id: 'visit-origin' }),
+    intl.formatMessage({ id: 'patient-and-pet' }),
+    intl.formatMessage({ id: 'visit-detail' })
+  ];
   const customerList = dropdownList((state) => state.customerList);
   const customerPetList = dropdownList((state) => state.customerPetList);
 
@@ -129,6 +138,8 @@ const FormTransaction = (props) => {
   const [visitSource, setVisitSource] = useState('');
   const [bookingList, setBookingList] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookingImageUrl, setBookingImageUrl] = useState(null);
+  const [bookingDetail, setBookingDetail] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
   const [stepError, setStepError] = useState('');
   const dispatch = useDispatch();
@@ -139,15 +150,15 @@ const FormTransaction = (props) => {
   // ─── Validation per step ────────────────────────────────────────────────
   const validateStep = (step) => {
     if (step === 0) {
-      if (!visitSource) return 'Pilih asal kunjungan terlebih dahulu';
-      if (visitSource === 'booking' && !selectedBooking) return 'Pilih nomor booking terlebih dahulu';
+      if (!visitSource) return intl.formatMessage({ id: 'validation-select-visit-origin' });
+      if (visitSource === 'booking' && !selectedBooking) return intl.formatMessage({ id: 'validation-select-booking' });
       return '';
     }
     if (step === 1) {
-      if (!formValue.customer) return 'Pilih tipe customer terlebih dahulu';
-      if (!formValue.location) return 'Pilih lokasi klinik terlebih dahulu';
-      if (formValue.customer === 'old' && !formValue.customerName) return 'Pilih nama customer';
-      if (formValue.customer === 'old' && !formValue.pets) return 'Pilih hewan peliharaan';
+      if (!formValue.customer) return intl.formatMessage({ id: 'validation-select-customer-type' });
+      if (!formValue.location) return intl.formatMessage({ id: 'validation-select-clinic-location' });
+      if (formValue.customer === 'old' && !formValue.customerName) return intl.formatMessage({ id: 'validation-select-customer' });
+      if (formValue.customer === 'old' && !formValue.pets) return intl.formatMessage({ id: 'validation-select-pet' });
       if (formValue.customer === 'new' && !formValue.petName?.trim()) return 'Isi nama hewan peliharaan';
       return '';
     }
@@ -179,6 +190,7 @@ const FormTransaction = (props) => {
     const responseSuccess = (resp) => {
       if (resp && resp.status === 200) {
         dispatch(snackbarSuccess(`Transaction has been ${id ? 'updated' : 'created'} successfully`));
+        resetAllState();
         props.onClose(true);
       }
     };
@@ -198,7 +210,7 @@ const FormTransaction = (props) => {
         let apiCall = createTransaction;
         if (formValue.configTransaction === 'clinic') apiCall = createTransactionPetClinic;
         else if (type === 'pet-hotel') apiCall = createTransactionPetHotel;
-        const response = await apiCall(formValue);
+        const response = await apiCall({ ...formValue, queueId });
         responseSuccess(response);
       } catch (error) {
         responseError(error);
@@ -214,7 +226,24 @@ const FormTransaction = (props) => {
     setStepError('');
   };
 
-  const onCancel = () => props.onClose(false);
+  const resetAllState = () => {
+    setIsEditForm(false);
+    setFormValue({ ...CONSTANT_FORM_VALUE });
+    setFormPetConfig({ isOpen: false });
+    setErrContent({ title: '', detail: '' });
+    setVisitSource('');
+    setBookingList([]);
+    setSelectedBooking(null);
+    setBookingImageUrl(null);
+    setBookingDetail(null);
+    setActiveStep(0);
+    setStepError('');
+  };
+
+  const onCancel = () => {
+    resetAllState();
+    props.onClose(false);
+  };
 
   const onFieldHandler = (event) => {
     if (event.target.name === 'petYear' && +event.target.value > 9999) return;
@@ -301,6 +330,14 @@ const FormTransaction = (props) => {
       }
 
       setSelectedBooking(selected);
+      // Set gambar booking jika ada
+      if (booking.imagePath) {
+        setBookingImageUrl(`${configGlobal.apiUrl}${booking.imagePath}`);
+      } else {
+        setBookingImageUrl(null);
+      }
+      // Simpan detail inputan customer dari booking
+      setBookingDetail(detail ? { ...detail, serviceType: booking.serviceType } : null);
       setFormValue((prev) => ({
         ...prev,
         customer: 'old',
@@ -409,7 +446,7 @@ const FormTransaction = (props) => {
   useEffect(() => {
     if (visitSource === 'booking' && bookingList.length === 0) {
       const userStorage = JSON.parse(localStorage.getItem('user') || '{}');
-      getBookingListTransaction({ locationId: userStorage?.locations, serviceType: TransactionType[type] })
+      getBookingListTransaction({ locationId: userStorage?.locations?.map((l) => l.id), serviceType: TransactionType[type] })
         .then(setBookingList)
         .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
     }
@@ -438,8 +475,8 @@ const FormTransaction = (props) => {
               }));
             }}
           >
-            <FormControlLabel value="birthDate" control={<Radio size="small" />} label="Tanggal Lahir" />
-            <FormControlLabel value="monthAndYear" control={<Radio size="small" />} label="Bulan &amp; Tahun" />
+            <FormControlLabel value="birthDate" control={<Radio size="small" />} label={<FormattedMessage id="birth-date-type" />} />
+            <FormControlLabel value="monthAndYear" control={<Radio size="small" />} label={<FormattedMessage id="month-and-year" />} />
           </RadioGroup>
         </Stack>
 
@@ -462,7 +499,7 @@ const FormTransaction = (props) => {
               <TextField
                 type="number"
                 fullWidth
-                label="Tahun"
+                label={intl.formatMessage({ id: 'year' })}
                 id="petYear"
                 name="petYear"
                 value={formValue.petYear}
@@ -473,10 +510,20 @@ const FormTransaction = (props) => {
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth>
-                <InputLabel>Bulan</InputLabel>
-                <Select id="petMonth" name="petMonth" value={formValue.petMonth} onChange={(event) => onFieldHandler(event)} label="Bulan">
+                <InputLabel>
+                  <FormattedMessage id="month" />
+                </InputLabel>
+                <Select
+                  id="petMonth"
+                  name="petMonth"
+                  value={formValue.petMonth}
+                  onChange={(event) => onFieldHandler(event)}
+                  label={intl.formatMessage({ id: 'month' })}
+                >
                   <MenuItem value="">
-                    <em>Pilih Bulan</em>
+                    <em>
+                      <FormattedMessage id="select-month" />
+                    </em>
                   </MenuItem>
                   {MONTH_NAMES.map((name, idx) => (
                     <MenuItem value={idx + 1} key={idx}>
@@ -497,7 +544,9 @@ const FormTransaction = (props) => {
     isClinic ? (
       <Grid item xs={12} sm={6}>
         <Stack spacing={1}>
-          <InputLabel required>Tipe Perawatan</InputLabel>
+          <InputLabel required>
+            <FormattedMessage id="care-type" />
+          </InputLabel>
           <ToggleButtonGroup
             exclusive
             value={formValue.typeOfCare}
@@ -508,10 +557,10 @@ const FormTransaction = (props) => {
             sx={{ height: 56 }}
           >
             <ToggleButton value={1} sx={{ flex: 1, fontSize: 13 }}>
-              🏥 Rawat Jalan
+              🏥 <FormattedMessage id="outpatient" />
             </ToggleButton>
             <ToggleButton value={2} sx={{ flex: 1, fontSize: 13 }}>
-              🛏️ Rawat Inap
+              🛏️ <FormattedMessage id="inpatient" />
             </ToggleButton>
           </ToggleButtonGroup>
         </Stack>
@@ -522,7 +571,11 @@ const FormTransaction = (props) => {
   const renderDateFields = (showSection = true) =>
     hasDateFields ? (
       <>
-        {showSection && <SectionLabel>Periode Kunjungan</SectionLabel>}
+        {showSection && (
+          <SectionLabel>
+            <FormattedMessage id="section-visit-period" />
+          </SectionLabel>
+        )}
         <Grid item xs={12} sm={6}>
           <Stack spacing={1}>
             <InputLabel>
@@ -563,7 +616,9 @@ const FormTransaction = (props) => {
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Stack spacing={1.5}>
-          <InputLabel required>Asal Kunjungan</InputLabel>
+          <InputLabel required>
+            <FormattedMessage id="visit-origin" />
+          </InputLabel>
           <RadioGroup
             row
             name="visitSource"
@@ -571,11 +626,13 @@ const FormTransaction = (props) => {
             onChange={(e) => {
               setVisitSource(e.target.value);
               setSelectedBooking(null);
+              setBookingImageUrl(null);
+              setBookingDetail(null);
               setFormValue((prev) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prev.configTransaction }));
             }}
           >
-            <FormControlLabel value="booking" control={<Radio />} label="Dari Booking" />
-            <FormControlLabel value="walkIn" control={<Radio />} label="Datang Langsung (Walk-in)" />
+            <FormControlLabel value="booking" control={<Radio />} label={<FormattedMessage id="from-booking" />} />
+            <FormControlLabel value="walkIn" control={<Radio />} label={<FormattedMessage id="walk-in" />} />
           </RadioGroup>
         </Stack>
       </Grid>
@@ -583,19 +640,212 @@ const FormTransaction = (props) => {
       {visitSource === 'booking' && (
         <Grid item xs={12}>
           <Stack spacing={1}>
-            <InputLabel required>Pilih Booking</InputLabel>
+            <InputLabel required>
+              <FormattedMessage id="pick-booking" />
+            </InputLabel>
             <Autocomplete
               options={bookingList}
               value={selectedBooking}
               isOptionEqualToValue={(option, val) => option.value === val.value}
               onChange={(_, selected) => handleBookingSelect(selected)}
-              renderInput={(params) => <TextField {...params} placeholder="Cari nomor atau nama booking..." />}
-              noOptionsText="Tidak ada data booking tersedia"
+              renderInput={(params) => <TextField {...params} placeholder={intl.formatMessage({ id: 'search-booking' })} />}
+              noOptionsText={intl.formatMessage({ id: 'no-data-found' })}
             />
             {selectedBooking && (
               <Alert severity="success" sx={{ mt: 1 }}>
-                Booking terpilih — data pasien &amp; kunjungan akan terisi otomatis. Anda bisa ubah di langkah berikutnya.
+                <FormattedMessage id="booking" /> terpilih — <FormattedMessage id="patient-and-pet" /> akan terisi otomatis.
               </Alert>
+            )}
+            {/* Gambar dari booking */}
+            {bookingImageUrl && (
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                  <FormattedMessage id="booking-photo" />:
+                </Typography>
+                <Box
+                  component="img"
+                  src={bookingImageUrl}
+                  alt={intl.formatMessage({ id: 'booking-photo' })}
+                  onClick={() => window.open(bookingImageUrl, '_blank')}
+                  sx={{
+                    width: 160,
+                    height: 160,
+                    objectFit: 'cover',
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    cursor: 'pointer',
+                    '&:hover': { opacity: 0.85 }
+                  }}
+                />
+              </Box>
+            )}
+            {/* Detail inputan customer dari booking */}
+            {bookingDetail && (
+              <Paper variant="outlined" sx={{ p: 2, mt: 1, borderRadius: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="subtitle2" color="primary" sx={{ mb: 1.5 }}>
+                  <FormattedMessage id="booking-detail-customer" />
+                </Typography>
+                <Grid container spacing={1.5}>
+                  {/* Pet Clinic */}
+                  {bookingDetail.serviceType === 'Pet Clinic' && (
+                    <>
+                      {bookingDetail.consultationType && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="consultation-type" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.consultationType}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.drugAllergy && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="drug-allergy" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.drugAllergy}</Typography>
+                        </Grid>
+                      )}
+                    </>
+                  )}
+                  {/* Pet Hotel */}
+                  {bookingDetail.serviceType === 'Pet Hotel' && (
+                    <>
+                      {bookingDetail.socializationType && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="socialization-type" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.socializationType}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.emergencyContactName && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="emergency-contact-name" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.emergencyContactName}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.emergencyPhoneNumber && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="emergency-phone-number" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.emergencyPhoneNumber}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.inventoryProducts && (
+                        <Grid item xs={12}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="inventory-products" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.inventoryProducts}</Typography>
+                        </Grid>
+                      )}
+                    </>
+                  )}
+                  {/* Pet Salon */}
+                  {bookingDetail.serviceType === 'Pet Salon' && (
+                    <>
+                      {bookingDetail.furCondition && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="fur-condition" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.furCondition}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.skinSensitivity && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="skin-sensitivity" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.skinSensitivity}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.emergencyContactName && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="emergency-contact-name" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.emergencyContactName}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.emergencyPhoneNumber && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="emergency-phone-number" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.emergencyPhoneNumber}</Typography>
+                        </Grid>
+                      )}
+                    </>
+                  )}
+                  {/* Breeding */}
+                  {bookingDetail.serviceType === 'Breeding' && (
+                    <>
+                      {bookingDetail.stambum && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="stambum" />
+                          </Typography>
+                          <Chip
+                            size="small"
+                            label={
+                              bookingDetail.stambum === '1' || bookingDetail.stambum === true
+                                ? intl.formatMessage({ id: 'available' })
+                                : intl.formatMessage({ id: 'not-available' })
+                            }
+                            color={bookingDetail.stambum === '1' || bookingDetail.stambum === true ? 'success' : 'default'}
+                          />
+                        </Grid>
+                      )}
+                      {bookingDetail.healthClearance && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="health-clearance" />
+                          </Typography>
+                          <Chip
+                            size="small"
+                            label={
+                              bookingDetail.healthClearance === '1' || bookingDetail.healthClearance === true
+                                ? intl.formatMessage({ id: 'available' })
+                                : intl.formatMessage({ id: 'not-available' })
+                            }
+                            color={bookingDetail.healthClearance === '1' || bookingDetail.healthClearance === true ? 'success' : 'default'}
+                          />
+                        </Grid>
+                      )}
+                      {bookingDetail.emergencyContactName && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="emergency-contact-name" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.emergencyContactName}</Typography>
+                        </Grid>
+                      )}
+                      {bookingDetail.emergencyPhoneNumber && (
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            <FormattedMessage id="emergency-phone-number" />
+                          </Typography>
+                          <Typography variant="body2">{bookingDetail.emergencyPhoneNumber}</Typography>
+                        </Grid>
+                      )}
+                    </>
+                  )}
+                  {/* Catatan tambahan (semua tipe) */}
+                  {bookingDetail.additionalInfo && (
+                    <Grid item xs={12}>
+                      <Typography variant="caption" color="text.secondary">
+                        <FormattedMessage id="additional-info" />
+                      </Typography>
+                      <Typography variant="body2">{bookingDetail.additionalInfo}</Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </Paper>
             )}
           </Stack>
         </Grid>
@@ -603,7 +853,9 @@ const FormTransaction = (props) => {
 
       {visitSource === 'walkIn' && (
         <Grid item xs={12}>
-          <Alert severity="info">Silakan isi data pasien dan detail kunjungan di langkah berikutnya.</Alert>
+          <Alert severity="info">
+            <FormattedMessage id="visit-detail" /> — <FormattedMessage id="patient-and-pet" />
+          </Alert>
         </Grid>
       )}
     </Grid>
@@ -617,7 +869,9 @@ const FormTransaction = (props) => {
       {/* Tipe Customer */}
       <Grid item xs={12}>
         <Stack spacing={1}>
-          <InputLabel required>Tipe Customer</InputLabel>
+          <InputLabel required>
+            <FormattedMessage id="customer-type" />
+          </InputLabel>
           <RadioGroup
             row
             name="customer"
@@ -633,8 +887,8 @@ const FormTransaction = (props) => {
               dropdownList.setState((prev) => ({ ...prev, customerPetList: [] }));
             }}
           >
-            <FormControlLabel value="old" control={<Radio />} label="Customer Lama (sudah terdaftar)" />
-            <FormControlLabel value="new" control={<Radio />} label="Customer Baru (pertama kali)" />
+            <FormControlLabel value="old" control={<Radio />} label={<FormattedMessage id="existing-customer" />} />
+            <FormControlLabel value="new" control={<Radio />} label={<FormattedMessage id="new-customer-first-time" />} />
           </RadioGroup>
         </Stack>
       </Grid>
@@ -642,7 +896,9 @@ const FormTransaction = (props) => {
       {/* Lokasi — diperlukan untuk load customer list */}
       {formValue.customer && (
         <>
-          <SectionLabel>Lokasi Klinik</SectionLabel>
+          <SectionLabel>
+            <FormattedMessage id="section-clinic-location" />
+          </SectionLabel>
           <Grid item xs={12}>
             <Stack spacing={1}>
               <InputLabel required>
@@ -654,7 +910,7 @@ const FormTransaction = (props) => {
                 value={formValue.location}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, selected) => handleLocationChange(selected)}
-                renderInput={(params) => <TextField {...params} placeholder="Pilih lokasi klinik..." />}
+                renderInput={(params) => <TextField {...params} placeholder={intl.formatMessage({ id: 'search-location' })} />}
               />
             </Stack>
           </Grid>
@@ -664,7 +920,9 @@ const FormTransaction = (props) => {
       {/* ── Customer lama ──────────────────────────────────────────────── */}
       {formValue.customer === 'old' && (
         <>
-          <SectionLabel>Informasi Customer</SectionLabel>
+          <SectionLabel>
+            <FormattedMessage id="section-customer-info" />
+          </SectionLabel>
 
           <Grid item xs={12} sm={6}>
             <Stack spacing={1}>
@@ -684,7 +942,14 @@ const FormTransaction = (props) => {
                   if (customerValue) getCustomerPet(customerValue.value);
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} placeholder={formValue.location ? 'Cari nama customer...' : 'Pilih lokasi dulu'} />
+                  <TextField
+                    {...params}
+                    placeholder={
+                      formValue.location
+                        ? intl.formatMessage({ id: 'search-customer-name' })
+                        : intl.formatMessage({ id: 'select-location-first' })
+                    }
+                  />
                 )}
               />
             </Stack>
@@ -701,12 +966,14 @@ const FormTransaction = (props) => {
                 name="registrantName"
                 value={formValue.registrantName}
                 onChange={(event) => setFormValue((e) => ({ ...e, registrantName: event.target.value }))}
-                placeholder="Nama yang mendaftarkan (opsional)"
+                placeholder={intl.formatMessage({ id: 'registrant-name-optional' })}
               />
             </Stack>
           </Grid>
 
-          <SectionLabel>Hewan Peliharaan</SectionLabel>
+          <SectionLabel>
+            <FormattedMessage id="section-pet" />
+          </SectionLabel>
 
           <Grid item xs={12}>
             <Stack spacing={1}>
@@ -723,7 +990,14 @@ const FormTransaction = (props) => {
                     disabled={!formValue.customerName}
                     onChange={(_, value) => onDropdownHandler(value, 'pets')}
                     renderInput={(params) => (
-                      <TextField {...params} placeholder={formValue.customerName ? 'Pilih hewan peliharaan...' : 'Pilih customer dulu'} />
+                      <TextField
+                        {...params}
+                        placeholder={
+                          formValue.customerName
+                            ? intl.formatMessage({ id: 'select-pet' })
+                            : intl.formatMessage({ id: 'select-customer-first' })
+                        }
+                      />
                     )}
                   />
                 </Box>
@@ -745,7 +1019,9 @@ const FormTransaction = (props) => {
       {/* ── Customer baru ──────────────────────────────────────────────── */}
       {formValue.customer === 'new' && (
         <>
-          <SectionLabel>Informasi Customer Baru</SectionLabel>
+          <SectionLabel>
+            <FormattedMessage id="section-new-customer-info" />
+          </SectionLabel>
 
           <Grid item xs={12}>
             <Stack spacing={1}>
@@ -758,12 +1034,14 @@ const FormTransaction = (props) => {
                 name="customerName"
                 value={formValue.customerName || ''}
                 onChange={(event) => onFieldHandler(event)}
-                placeholder="Nama lengkap customer"
+                placeholder={intl.formatMessage({ id: 'full-name' })}
               />
             </Stack>
           </Grid>
 
-          <SectionLabel>Data Hewan Peliharaan</SectionLabel>
+          <SectionLabel>
+            <FormattedMessage id="section-pet-data" />
+          </SectionLabel>
 
           <Grid item xs={12} sm={6}>
             <Stack spacing={1}>
@@ -777,7 +1055,7 @@ const FormTransaction = (props) => {
                 value={formValue.petName}
                 onChange={(event) => onFieldHandler(event)}
                 inputProps={{ maxLength: 100 }}
-                placeholder="Nama hewan"
+                placeholder={intl.formatMessage({ id: 'pet-name' })}
               />
             </Stack>
           </Grid>
@@ -793,7 +1071,7 @@ const FormTransaction = (props) => {
                 value={formValue.petCategory}
                 isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
                 onChange={(_, value) => onDropdownHandler(value, 'petCategory')}
-                renderInput={(params) => <TextField {...params} placeholder="Misal: Kucing, Anjing..." />}
+                renderInput={(params) => <TextField {...params} placeholder={intl.formatMessage({ id: 'pet-category' })} />}
               />
             </Stack>
           </Grid>
@@ -810,8 +1088,12 @@ const FormTransaction = (props) => {
                       <FormattedMessage id="select-gender" />
                     </em>
                   </MenuItem>
-                  <MenuItem value="J">Jantan</MenuItem>
-                  <MenuItem value="B">Betina</MenuItem>
+                  <MenuItem value="J">
+                    <FormattedMessage id="male" />
+                  </MenuItem>
+                  <MenuItem value="B">
+                    <FormattedMessage id="female" />
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Stack>
@@ -852,7 +1134,7 @@ const FormTransaction = (props) => {
                 value={formValue.petCondition}
                 onChange={(event) => onFieldHandler(event)}
                 inputProps={{ maxLength: 100 }}
-                placeholder="Misal: Sehat, Demam, Luka..."
+                placeholder={intl.formatMessage({ id: 'condition' })}
               />
             </Stack>
           </Grid>
@@ -868,7 +1150,9 @@ const FormTransaction = (props) => {
   // ══════════════════════════════════════════════════════════════════════════
   const renderStep2 = () => (
     <Grid container spacing={3}>
-      <SectionLabel>Tipe &amp; Dokter</SectionLabel>
+      <SectionLabel>
+        <FormattedMessage id="section-type-doctor" />
+      </SectionLabel>
 
       {/* Tipe Perawatan */}
       {renderTypeOfCareToggle()}
@@ -885,7 +1169,7 @@ const FormTransaction = (props) => {
             value={formValue.treatingDoctor}
             isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
             onChange={(_, selected) => setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }))}
-            renderInput={(params) => <TextField {...params} placeholder="Pilih dokter penanggung jawab..." />}
+            renderInput={(params) => <TextField {...params} placeholder={intl.formatMessage({ id: 'treating-doctor' })} />}
           />
         </Stack>
       </Grid>
@@ -894,7 +1178,9 @@ const FormTransaction = (props) => {
       {renderDateFields(true)}
 
       {/* Catatan */}
-      <SectionLabel>Catatan Tambahan</SectionLabel>
+      <SectionLabel>
+        <FormattedMessage id="section-additional-notes" />
+      </SectionLabel>
       <Grid item xs={12}>
         <Stack spacing={1}>
           <InputLabel>
@@ -908,7 +1194,7 @@ const FormTransaction = (props) => {
             name="notes"
             value={formValue.notes}
             onChange={(event) => setFormValue((prev) => ({ ...prev, notes: event.target.value }))}
-            placeholder="Catatan tambahan untuk kunjungan ini (opsional)..."
+            placeholder={intl.formatMessage({ id: 'additional-info' })}
           />
         </Stack>
       </Grid>
@@ -920,7 +1206,9 @@ const FormTransaction = (props) => {
   // ══════════════════════════════════════════════════════════════════════════
   const renderEditForm = () => (
     <Grid container spacing={3}>
-      <SectionLabel>Informasi Pasien</SectionLabel>
+      <SectionLabel>
+        <FormattedMessage id="section-patient-info" />
+      </SectionLabel>
 
       <Grid item xs={12} sm={6}>
         <Stack spacing={1}>
@@ -968,7 +1256,9 @@ const FormTransaction = (props) => {
         </Stack>
       </Grid>
 
-      <SectionLabel>Data Hewan</SectionLabel>
+      <SectionLabel>
+        <FormattedMessage id="section-pet-health-data" />
+      </SectionLabel>
 
       <Grid item xs={12} sm={6}>
         <Stack spacing={1}>
@@ -1071,7 +1361,7 @@ const FormTransaction = (props) => {
             <Stack direction="row" spacing={1}>
               <TextField
                 type="number"
-                label="Tahun"
+                label={intl.formatMessage({ id: 'year' })}
                 id="petYear"
                 name="petYear"
                 value={formValue.petYear}
@@ -1080,10 +1370,20 @@ const FormTransaction = (props) => {
                 sx={{ width: '50%' }}
               />
               <FormControl sx={{ width: '50%' }}>
-                <InputLabel>Bulan</InputLabel>
-                <Select id="petMonth" name="petMonth" value={formValue.petMonth} onChange={(event) => onFieldHandler(event)} label="Bulan">
+                <InputLabel>
+                  <FormattedMessage id="month" />
+                </InputLabel>
+                <Select
+                  id="petMonth"
+                  name="petMonth"
+                  value={formValue.petMonth}
+                  onChange={(event) => onFieldHandler(event)}
+                  label={intl.formatMessage({ id: 'month' })}
+                >
                   <MenuItem value="">
-                    <em>Pilih Bulan</em>
+                    <em>
+                      <FormattedMessage id="select-month" />
+                    </em>
                   </MenuItem>
                   {MONTH_NAMES.map((name, idx) => (
                     <MenuItem value={idx + 1} key={idx}>
@@ -1097,7 +1397,9 @@ const FormTransaction = (props) => {
         </Stack>
       </Grid>
 
-      <SectionLabel>Detail Kunjungan</SectionLabel>
+      <SectionLabel>
+        <FormattedMessage id="visit-detail" />
+      </SectionLabel>
 
       <Grid item xs={12} sm={6}>
         <Stack spacing={1}>
@@ -1195,7 +1497,7 @@ const FormTransaction = (props) => {
 
             <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
               <Button size="small" variant="text" color="inherit" onClick={clearForm} sx={{ color: 'text.secondary' }}>
-                Reset Form
+                <FormattedMessage id="reset-form" />
               </Button>
             </Stack>
           </>
@@ -1231,18 +1533,18 @@ const FormTransaction = (props) => {
             <Box>
               {activeStep > 0 && (
                 <Button variant="outlined" onClick={handleBack}>
-                  ← Kembali
+                  ← <FormattedMessage id="back" />
                 </Button>
               )}
             </Box>
             <Box>
               {!isLastStep ? (
                 <Button variant="contained" onClick={handleNext}>
-                  Lanjut →
+                  <FormattedMessage id="next" /> →
                 </Button>
               ) : (
                 <Button variant="contained" color="primary" onClick={onSubmit}>
-                  💾 Simpan Transaksi
+                  💾 <FormattedMessage id="save-transaction" />
                 </Button>
               )}
             </Box>
@@ -1288,7 +1590,8 @@ FormTransaction.propTypes = {
   open: PropTypes.bool,
   type: PropTypes.string,
   onClose: PropTypes.func,
-  defaultTypeOfCare: PropTypes.number
+  defaultTypeOfCare: PropTypes.number,
+  queueId: PropTypes.number
 };
 
 export default FormTransaction;

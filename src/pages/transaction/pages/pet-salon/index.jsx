@@ -39,7 +39,8 @@ import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import TabPanel from 'components/TabPanelC';
 import { IndeterminateCheckbox, ReactTable } from 'components/third-party/ReactTable';
-import { CONSTANT_ADMINISTRATOR, CONSTANT_STAFF } from 'constant/role';
+import FormReject from 'components/FormReject';
+import { CONSTANT_ADMINISTRATOR, JOB_DOKTER, JOB_KASIR, isAdminOrManager } from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import useGetList from 'hooks/useGetList';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -145,7 +146,7 @@ const TransactionPetSalon = () => {
 
   // ── State ──
   const [stats, setStats] = useState(null);
-  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null });
+  const [formTransactionConfig, setFormTransactionConfig] = useState({ isOpen: false, id: null, queueId: null });
   const [detailTransactionConfig, setDetailTransactionConfig] = useState({ isOpen: false, data: { id: null } });
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedFilterLocation, setFilterLocation] = useState([]);
@@ -176,24 +177,42 @@ const TransactionPetSalon = () => {
     }
   }, []);
 
+  // Auto-open form create jika ada ?queueId= di URL (dari Queue Management)
+  useEffect(() => {
+    const queueId = searchParams.get('queueId');
+    if (queueId) {
+      setFormTransactionConfig({ isOpen: true, id: null, queueId: Number(queueId) });
+      setSearchParams(
+        (prev) => {
+          prev.delete('queueId');
+          return prev;
+        },
+        { replace: true }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onClickAdd = () => {
     setFormTransactionConfig((prevState) => ({ ...prevState, isOpen: true }));
   };
 
-  const onAcceptReject = async (type) => {
-    await acceptTransactionPetSalon({
-      transactionId: acceptRejectDialog.transactionId,
-      status: type === 'accept' ? 1 : 0,
-      reason: ''
-    })
-      .then((resp) => {
-        if (resp && resp.status === 200) {
-          setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
-          dispatch(snackbarSuccess(type === 'accept' ? 'Transaksi diterima' : 'Transaksi ditolak'));
-          setParams((_params) => ({ ..._params }));
-        }
-      })
-      .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
+  const onAcceptReject = async (value, reason) => {
+    const { transactionId } = acceptRejectDialog;
+    const isAccepting = acceptRejectDialog.accept;
+    setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
+    if (!value) return;
+    try {
+      await acceptTransactionPetSalon({
+        transactionId,
+        status: isAccepting ? 1 : 0,
+        reason: isAccepting ? '' : reason || ''
+      });
+      dispatch(snackbarSuccess(isAccepting ? 'Pasien diterima' : 'Pasien ditolak'));
+      setParams((_params) => ({ ..._params }));
+    } catch (err) {
+      dispatch(snackbarError(createMessageBackend(err)));
+    }
   };
 
   const onConfirm = async (value) => {
@@ -321,7 +340,9 @@ const TransactionPetSalon = () => {
           const isPetCheckRow = +data.row.original.isPetCheck;
           const transactionIdRow = +data.row.original.id;
           const locationIdRow = +data.row.original.locationId;
-          const isAdminOrStaff = [CONSTANT_ADMINISTRATOR, CONSTANT_STAFF].includes(user?.role);
+          const isAdminMgr = isAdminOrManager(user?.role);
+          const isKasir = user?.jobName === JOB_KASIR;
+          const isDokter = user?.jobName === JOB_DOKTER;
 
           const doReassign = async () => {
             const getLocations = await getDoctorStaffByLocationList(locationIdRow);
@@ -331,7 +352,7 @@ const TransactionPetSalon = () => {
           return (
             <Stack spacing={0.1} direction="row" justifyContent="center">
               {/* ── Menunggu Dokter: Accept + Reject ── */}
-              {isAdminOrStaff && statusRow === 'menunggu dokter' && (
+              {(isAdminMgr || isDokter) && statusRow === 'menunggu dokter' && (
                 <>
                   <Tooltip title={<FormattedMessage id="accept-patient" />} arrow>
                     <IconButton
@@ -355,7 +376,7 @@ const TransactionPetSalon = () => {
               )}
 
               {/* ── Ditolak Dokter: Reassign ── */}
-              {isAdminOrStaff && statusRow === 'ditolak dokter' && (
+              {(isAdminMgr || isKasir) && statusRow === 'ditolak dokter' && (
                 <Tooltip title={<FormattedMessage id="reassign" />} arrow>
                   <IconButton size="large" color="warning" onClick={doReassign}>
                     <RefreshIcon />
@@ -377,7 +398,7 @@ const TransactionPetSalon = () => {
               )}
 
               {/* ── Pet diterima: Input Treatment ── */}
-              {statusRow === 'pet diterima masuk pet hotel' && (
+              {(isAdminMgr || isDokter) && statusRow === 'pet diterima masuk pet hotel' && (
                 <Tooltip title={<FormattedMessage id="treatment" />} arrow>
                   <IconButton
                     size="large"
@@ -392,7 +413,7 @@ const TransactionPetSalon = () => {
               )}
 
               {/* ── Menunggu Persetujuan Policy ── */}
-              {isAdminOrStaff && statusRow === 'menunggu persetujuan policy' && (
+              {(isAdminMgr || isKasir) && statusRow === 'menunggu persetujuan policy' && (
                 <Tooltip title={<FormattedMessage id="policy-agreement" />} arrow>
                   <IconButton
                     size="large"
@@ -405,7 +426,7 @@ const TransactionPetSalon = () => {
               )}
 
               {/* ── Proses Salon: Tandai Selesai ── */}
-              {statusRow === 'proses salon' && (
+              {(isAdminMgr || isDokter) && statusRow === 'proses salon' && (
                 <Tooltip title={<FormattedMessage id="mark-salon-done" />} arrow>
                   <IconButton
                     size="large"
@@ -420,7 +441,7 @@ const TransactionPetSalon = () => {
               )}
 
               {/* ── Menunggu Penjemputan: Initiate Checkout ── */}
-              {isAdminOrStaff && statusRow === 'menunggu penjemputan' && (
+              {(isAdminMgr || isKasir) && statusRow === 'menunggu penjemputan' && (
                 <Tooltip title={<FormattedMessage id="initiate-checkout" />} arrow>
                   <IconButton
                     size="large"
@@ -440,7 +461,7 @@ const TransactionPetSalon = () => {
               )}
 
               {/* ── Proses Pembayaran: Payment ── */}
-              {isAdminOrStaff && statusRow === 'proses pembayaran' && (
+              {(isAdminMgr || isKasir) && statusRow === 'proses pembayaran' && (
                 <Tooltip title={<FormattedMessage id="payment" />} arrow>
                   <IconButton
                     size="large"
@@ -628,7 +649,7 @@ const TransactionPetSalon = () => {
               <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
                 <FormattedMessage id="export" />
               </Button>
-              {(user?.role === CONSTANT_ADMINISTRATOR || user?.role === CONSTANT_STAFF) && tabQueryParam === 'ongoing' && (
+              {(isAdminOrManager(user?.role) || user?.jobName === JOB_KASIR) && tabQueryParam === 'ongoing' && (
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
                   <FormattedMessage id="transaction" />
                 </Button>
@@ -742,8 +763,9 @@ const TransactionPetSalon = () => {
         <FormTransaction
           open={formTransactionConfig.isOpen}
           id={Number(formTransactionConfig.id)}
+          queueId={formTransactionConfig.queueId}
           onClose={(e) => {
-            setFormTransactionConfig({ isOpen: false, id: null });
+            setFormTransactionConfig({ isOpen: false, id: null, queueId: null });
             if (e) setParams((_params) => ({ ..._params }));
           }}
         />
@@ -810,27 +832,21 @@ const TransactionPetSalon = () => {
       <ConfirmationC
         open={acceptRejectDialog.accept}
         title={<FormattedMessage id="accept-patient" />}
-        content={<FormattedMessage id="confirm-accept-booking" />}
-        onClose={(confirmed) => {
-          if (confirmed) onAcceptReject('accept');
-          else setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
-        }}
-        btnTrueText={<FormattedMessage id="accept" />}
-        btnFalseText={<FormattedMessage id="cancel" />}
+        content="Apakah Anda yakin ingin menerima pasien ini untuk proses salon?"
+        onClose={(confirmed) => onAcceptReject(confirmed)}
+        btnTrueText="Ya, Terima"
+        btnFalseText="Batal"
       />
 
-      {/* ── Reject Confirmation ── */}
-      <ConfirmationC
-        open={acceptRejectDialog.reject}
-        title={<FormattedMessage id="cancel-patient" />}
-        content={<FormattedMessage id="confirm-and-please-fill-in-the-reasons-for-cancel-this-patient" />}
-        onClose={(confirmed) => {
-          if (confirmed) onAcceptReject('reject');
-          else setAcceptRejectDialog({ accept: false, reject: false, transactionId: null });
-        }}
-        btnTrueText={<FormattedMessage id="cancel-patient" />}
-        btnFalseText={<FormattedMessage id="cancel" />}
-      />
+      {/* ── Reject with reason ── */}
+      {acceptRejectDialog.reject && (
+        <FormReject
+          open={acceptRejectDialog.reject}
+          title="Alasan Penolakan Pasien"
+          onClose={() => onAcceptReject(false)}
+          onSubmit={(reason) => onAcceptReject(true, reason)}
+        />
+      )}
 
       {/* ── Treatment Input ── */}
       {treatmentDialog.isOpen && (

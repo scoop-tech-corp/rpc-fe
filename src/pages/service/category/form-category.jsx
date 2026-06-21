@@ -74,6 +74,7 @@ const FormServiceCategory = (props) => {
     if (!firstRender.current) {
       checkValidation();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryName]);
 
   return (

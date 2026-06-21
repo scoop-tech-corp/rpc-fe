@@ -30,7 +30,7 @@ import PropTypes from 'prop-types';
 
 let paramSallarySliptList = {};
 
-const TabSalarySlipt = (props) => {
+const TabSalarySlipt = () => {
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('md'));
   const intl = useIntl();

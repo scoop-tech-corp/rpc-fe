@@ -91,19 +91,12 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose }) => {
           </FormControl>
 
           <FormControl>
-            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-              2. Temuan di Kotak Pasir (Wajib Centang)
-            </FormLabel>
+            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary' }}>2. Temuan di Kotak Pasir (Wajib Centang)</FormLabel>
             <FormGroup>
               {TEMUAN_OPTIONS.map((opt) => (
                 <FormControlLabel
                   key={opt.value}
-                  control={
-                    <Checkbox
-                      checked={formValue.temuan.includes(opt.value)}
-                      onChange={() => onChangeTemuan(opt.value)}
-                    />
-                  }
+                  control={<Checkbox checked={formValue.temuan.includes(opt.value)} onChange={() => onChangeTemuan(opt.value)} />}
                   label={opt.label}
                 />
               ))}
@@ -111,9 +104,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose }) => {
           </FormControl>
 
           <FormControl fullWidth>
-            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-              3. Kondisi Feses Kucing
-            </FormLabel>
+            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>3. Kondisi Feses Kucing</FormLabel>
             <Select
               value={formValue.kondisiFeses}
               onChange={(e) => setFormValue((prev) => ({ ...prev, kondisiFeses: e.target.value }))}
@@ -128,9 +119,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose }) => {
           </FormControl>
 
           <FormControl fullWidth>
-            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-              4. Catatan Perilaku / Nafsu Makan
-            </FormLabel>
+            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>4. Catatan Perilaku / Nafsu Makan</FormLabel>
             <TextField
               multiline
               rows={3}
@@ -141,9 +130,7 @@ const MarkDoneDialog = ({ open, row, onSubmit, onClose }) => {
           </FormControl>
 
           <FormControl>
-            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
-              5. Ambil Foto Bukti (Opsional)
-            </FormLabel>
+            <FormLabel sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>5. Ambil Foto Bukti (Opsional)</FormLabel>
             <Button variant="outlined" component="label" size="small" sx={{ width: 'fit-content' }}>
               {formValue.foto ? formValue.foto.name : 'Ambil Kamera / Upload Foto'}
               <input hidden accept="image/*" type="file" onChange={onChangeFoto} />

@@ -1,6 +1,7 @@
 import { Link } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
+
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 
@@ -27,28 +28,6 @@ export default function SalesByService({ data, filter, setFilter }) {
         Header: <FormattedMessage id="total-rp" />,
         accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
-      }
-    ],
-    []
-  );
-
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        serviceName: 'Rawat Inap',
-        quantity: 10,
-        totalAmount: 13500000
-      },
-      {
-        serviceName: 'Rawat Inap',
-        quantity: 10,
-        totalAmount: 13500000
-      },
-      {
-        serviceName: 'Rawat Inap',
-        quantity: 10,
-        totalAmount: 13500000
       }
     ],
     []

@@ -28,8 +28,7 @@ const PRODUCT_TYPES = [
 
 const emptyDetail = { productType: 'product', productId: '', qty: 1, unitPrice: '', weight: '', note: '' };
 
-const set = (field) => (value) =>
-  useOrderFormStore.setState((prev) => ({ ...prev, [field]: value, isFormTouch: true }));
+const set = (field) => (value) => useOrderFormStore.setState((prev) => ({ ...prev, [field]: value, isFormTouch: true }));
 
 const OrderFormBody = () => {
   const intl = useIntl();
@@ -42,7 +41,6 @@ const OrderFormBody = () => {
     customerList,
     productOptions,
     customerId,
-    customerName,
     customerPhone,
     deliveryAddress,
     deliveryDate,
@@ -106,17 +104,13 @@ const OrderFormBody = () => {
 
   const onProductChange = (index, selected) => {
     const next = getAllState().details.map((d, i) =>
-      i === index
-        ? { ...d, productId: selected?.value ?? '', unitPrice: selected?.price ?? d.unitPrice }
-        : d
+      i === index ? { ...d, productId: selected?.value ?? '', unitPrice: selected?.price ?? d.unitPrice } : d
     );
     useOrderFormStore.setState({ details: next, isFormTouch: true });
   };
 
   const onProductTypeChange = (index, newType) => {
-    const next = getAllState().details.map((d, i) =>
-      i === index ? { ...d, productType: newType, productId: '', unitPrice: '' } : d
-    );
+    const next = getAllState().details.map((d, i) => (i === index ? { ...d, productType: newType, productId: '', unitPrice: '' } : d));
     useOrderFormStore.setState({ details: next, isFormTouch: true });
   };
 
@@ -150,11 +144,7 @@ const OrderFormBody = () => {
               isOptionEqualToValue={(opt, val) => opt.value === val.value}
               onChange={(_, val) => onLocationChange(val)}
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  required
-                  label={<FormattedMessage id="location" defaultMessage="Location" />}
-                />
+                <TextField {...params} required label={<FormattedMessage id="location" defaultMessage="Location" />} />
               )}
             />
           </Grid>
@@ -260,14 +250,18 @@ const OrderFormBody = () => {
               <Grid key={index} container spacing={2} alignItems="center">
                 <Grid item xs={12} sm={2}>
                   <FormControl fullWidth size="small">
-                    <InputLabel><FormattedMessage id="type" defaultMessage="Type" /></InputLabel>
+                    <InputLabel>
+                      <FormattedMessage id="type" defaultMessage="Type" />
+                    </InputLabel>
                     <Select
                       value={detail.productType}
                       label={<FormattedMessage id="type" defaultMessage="Type" />}
                       onChange={(e) => onProductTypeChange(index, e.target.value)}
                     >
                       {PRODUCT_TYPES.map((t) => (
-                        <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>
+                        <MenuItem key={t.value} value={t.value}>
+                          {t.label}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>

@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  Autocomplete,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField
-} from '@mui/material';
+import { Autocomplete, Checkbox, FormControlLabel, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 import { createMessageBackend, getProductSellClinicByLocation, getServiceListByLocation } from 'service/service-global';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -194,8 +184,7 @@ const ServiceAndRecipe = (props) => {
     });
   };
 
-  const onFieldHandler = (event) =>
-    setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
+  const onFieldHandler = (event) => setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
 
   const onDisabledService = () => !formValue.service || !formValue.quantity;
 
@@ -279,7 +268,6 @@ const ServiceAndRecipe = (props) => {
       maxWidth="md"
     >
       <Grid container spacing={3}>
-
         {/* ── SERVICE SECTION ── */}
         <Grid item xs={12} md={6}>
           <Stack spacing={1.25}>
@@ -387,9 +375,7 @@ const ServiceAndRecipe = (props) => {
                 <InputLabel htmlFor="unit">
                   <FormattedMessage id="unit" />
                   {formValue.productClinic?.unit && (
-                    <span style={{ marginLeft: 6, fontSize: 11, color: '#888', fontWeight: 400 }}>
-                      (otomatis dari produk)
-                    </span>
+                    <span style={{ marginLeft: 6, fontSize: 11, color: '#888', fontWeight: 400 }}>(otomatis dari produk)</span>
                   )}
                 </InputLabel>
                 {formValue.productClinic?.unit ? (
@@ -472,15 +458,7 @@ const ServiceAndRecipe = (props) => {
                 <InputLabel htmlFor="notes">
                   <FormattedMessage id="notes" />
                 </InputLabel>
-                <TextField
-                  multiline
-                  fullWidth
-                  rows={3}
-                  id="notes"
-                  name="notes"
-                  value={formValue.notes}
-                  onChange={onFieldHandler}
-                />
+                <TextField multiline fullWidth rows={3} id="notes" name="notes" value={formValue.notes} onChange={onFieldHandler} />
               </Stack>
             </Grid>
           </>
@@ -514,7 +492,6 @@ const ServiceAndRecipe = (props) => {
             </Stack>
           </Grid>
         )}
-
       </Grid>
     </ModalC>
   );

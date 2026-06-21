@@ -55,37 +55,35 @@ const DEFAULT_FORM = {
 
 const FormQuotation = ({ open, data, onClose }) => {
   const isEdit = Boolean(data?.id);
-  const intl   = useIntl();
+  const intl = useIntl();
   const dispatch = useDispatch();
 
-  const [form, setForm]               = useState(DEFAULT_FORM);
+  const [form, setForm] = useState(DEFAULT_FORM);
   const [customerList, setCustomerList] = useState([]);
-  const [petList, setPetList]         = useState([]);
+  const [petList, setPetList] = useState([]);
   const [serviceList, setServiceList] = useState([]);
   const [productList, setProductList] = useState([]);
   const [locationList, setLocationList] = useState([]);
 
   // Discount promo state
-  const [discountOptions, setDiscountOptions]     = useState([]);
+  const [discountOptions, setDiscountOptions] = useState([]);
   const [selectedDiscountPromo, setSelectedDiscountPromo] = useState(null); // null = no discount
-  const [discountLoading, setDiscountLoading]     = useState(false);
+  const [discountLoading, setDiscountLoading] = useState(false);
 
   // Row input states
-  const [newItemType, setNewItemType]     = useState('service');
-  const [newItemObj, setNewItemObj]       = useState(null);
-  const [newQty, setNewQty]               = useState(1);
-  const [newUnitPrice, setNewUnitPrice]   = useState('');
+  const [newItemType, setNewItemType] = useState('service');
+  const [newItemObj, setNewItemObj] = useState(null);
+  const [newQty, setNewQty] = useState(1);
+  const [newUnitPrice, setNewUnitPrice] = useState('');
   const [newUnitPriceErr, setNewUnitPriceErr] = useState('');
-  const [newNotes, setNewNotes]           = useState('');
+  const [newNotes, setNewNotes] = useState('');
 
   const errorMsgUnitPrice = intl.formatMessage({ id: 'unit-price-mus-not-exceed-base-price' });
 
   // Base price item yang sedang dipilih
   const getBasePrice = () => {
     if (!newItemObj) return 0;
-    return newItemType === 'service'
-      ? +(newItemObj.price ?? 0)
-      : +(newItemObj.data?.price ?? 0);
+    return newItemType === 'service' ? +(newItemObj.price ?? 0) : +(newItemObj.data?.price ?? 0);
   };
 
   // ── Init ────────────────────────────────────────────────────────────────
@@ -95,24 +93,24 @@ const FormQuotation = ({ open, data, onClose }) => {
 
     if (isEdit && data) {
       setForm({
-        customerId:     data.quotation?.customerId,
-        customerObj:    { id: data.quotation?.customerId, label: data.quotation?.customerName },
-        petId:          data.quotation?.petId,
-        petObj:         data.quotation?.petName ? { id: data.quotation?.petId, label: data.quotation?.petName } : null,
-        locationId:     data.quotation?.locationId ?? '',
-        typeOfService:  data.quotation?.typeOfService ?? 'clinic',
-        validUntil:     dayjs(data.quotation?.validUntil),
-        notes:          data.quotation?.notes ?? '',
+        customerId: data.quotation?.customerId,
+        customerObj: { id: data.quotation?.customerId, label: data.quotation?.customerName },
+        petId: data.quotation?.petId,
+        petObj: data.quotation?.petName ? { id: data.quotation?.petId, label: data.quotation?.petName } : null,
+        locationId: data.quotation?.locationId ?? '',
+        typeOfService: data.quotation?.typeOfService ?? 'clinic',
+        validUntil: dayjs(data.quotation?.validUntil),
+        notes: data.quotation?.notes ?? '',
         discountAmount: data.quotation?.discountAmount ?? 0,
-        items:          (data.items || []).map((i) => ({
-          itemType:  i.itemType,
+        items: (data.items || []).map((i) => ({
+          itemType: i.itemType,
           serviceId: i.serviceId,
           productId: i.productId,
-          itemName:  i.itemName,
-          quantity:  i.quantity,
+          itemName: i.itemName,
+          quantity: i.quantity,
           unitPrice: i.unitPrice,
-          totalPrice:i.totalPrice,
-          notes:     i.notes ?? ''
+          totalPrice: i.totalPrice,
+          notes: i.notes ?? ''
         }))
       });
       if (data.quotation?.customerId) {
@@ -209,14 +207,14 @@ const FormQuotation = ({ open, data, onClose }) => {
   const onAddItem = () => {
     const isService = newItemType === 'service';
     const item = {
-      itemType:  newItemType,
+      itemType: newItemType,
       serviceId: isService ? newItemObj.value : null,
       productId: !isService ? newItemObj.value : null,
-      itemName:  newItemObj.name || newItemObj.label?.split(' —')[0] || '',
-      quantity:  Number(newQty),
+      itemName: newItemObj.name || newItemObj.label?.split(' —')[0] || '',
+      quantity: Number(newQty),
       unitPrice: Number(newUnitPrice),
-      totalPrice:Number(newQty) * Number(newUnitPrice),
-      notes:     newNotes
+      totalPrice: Number(newQty) * Number(newUnitPrice),
+      notes: newNotes
     };
     setForm((prev) => ({ ...prev, items: [...prev.items, item] }));
     setNewItemObj(null);
@@ -226,8 +224,7 @@ const FormQuotation = ({ open, data, onClose }) => {
     setNewNotes('');
   };
 
-  const onRemoveItem = (idx) =>
-    setForm((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
+  const onRemoveItem = (idx) => setForm((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
 
   // ── Totals ────────────────────────────────────────────────────────────────
   const subtotal = form.items.reduce((s, i) => s + i.totalPrice, 0);
@@ -235,21 +232,21 @@ const FormQuotation = ({ open, data, onClose }) => {
 
   // ── Submit ────────────────────────────────────────────────────────────────
   const onSubmit = async () => {
-    if (!form.customerId)    return dispatch(snackbarError(intl.formatMessage({ id: 'please-select-customer' })));
-    if (!form.locationId)    return dispatch(snackbarError(intl.formatMessage({ id: 'please-select-location' })));
-    if (!form.validUntil)    return dispatch(snackbarError(intl.formatMessage({ id: 'please-fill-valid-date' })));
+    if (!form.customerId) return dispatch(snackbarError(intl.formatMessage({ id: 'please-select-customer' })));
+    if (!form.locationId) return dispatch(snackbarError(intl.formatMessage({ id: 'please-select-location' })));
+    if (!form.validUntil) return dispatch(snackbarError(intl.formatMessage({ id: 'please-fill-valid-date' })));
     if (form.items.length === 0) return dispatch(snackbarError(intl.formatMessage({ id: 'please-add-min-item' })));
 
     const payload = {
-      id:             data?.quotation?.id,
-      customerId:     form.customerId,
-      petId:          form.petId ?? undefined,
-      locationId:     form.locationId,
-      typeOfService:  form.typeOfService,
-      validUntil:     form.validUntil ? dayjs(form.validUntil).format('YYYY-MM-DD') : '',
-      notes:          form.notes,
+      id: data?.quotation?.id,
+      customerId: form.customerId,
+      petId: form.petId ?? undefined,
+      locationId: form.locationId,
+      typeOfService: form.typeOfService,
+      validUntil: form.validUntil ? dayjs(form.validUntil).format('YYYY-MM-DD') : '',
+      notes: form.notes,
       discountAmount: Number(form.discountAmount || 0),
-      items:          form.items
+      items: form.items
     };
 
     try {
@@ -279,20 +276,27 @@ const FormQuotation = ({ open, data, onClose }) => {
       maxWidth="md"
     >
       <Grid container spacing={2}>
-
         {/* ── 1. Lokasi — PERTAMA, memicu filter customer ── */}
         <Grid item xs={12} sm={6}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="location" /> *</Typography>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="location" /> *
+            </Typography>
             <Select
               size="small"
               value={form.locationId}
               onChange={(e) => setForm((prev) => ({ ...prev, locationId: e.target.value }))}
               fullWidth
             >
-              <MenuItem value=""><em><FormattedMessage id="select-branch-first" /></em></MenuItem>
+              <MenuItem value="">
+                <em>
+                  <FormattedMessage id="select-branch-first" />
+                </em>
+              </MenuItem>
               {locationList.map((l) => (
-                <MenuItem key={l.id || l.value} value={l.id || l.value}>{l.locationName || l.label}</MenuItem>
+                <MenuItem key={l.id || l.value} value={l.id || l.value}>
+                  {l.locationName || l.label}
+                </MenuItem>
               ))}
             </Select>
           </Stack>
@@ -301,7 +305,9 @@ const FormQuotation = ({ open, data, onClose }) => {
         {/* ── 2. Jenis Layanan ── */}
         <Grid item xs={12} sm={6}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="service-type" /> *</Typography>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="service-type" /> *
+            </Typography>
             <Select
               size="small"
               value={form.typeOfService}
@@ -309,7 +315,9 @@ const FormQuotation = ({ open, data, onClose }) => {
               fullWidth
             >
               {SERVICE_TYPE_OPTIONS.map((o) => (
-                <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>
+                <MenuItem key={o.value} value={o.value}>
+                  {o.label}
+                </MenuItem>
               ))}
             </Select>
           </Stack>
@@ -336,15 +344,15 @@ const FormQuotation = ({ open, data, onClose }) => {
               filterOptions={(opts, { inputValue }) => {
                 const kw = inputValue.toLowerCase();
                 return opts.filter(
-                  (o) =>
-                    (o.customerName ?? o.label ?? '').toLowerCase().includes(kw) ||
-                    (o.memberNo ?? '').toLowerCase().includes(kw)
+                  (o) => (o.customerName ?? o.label ?? '').toLowerCase().includes(kw) || (o.memberNo ?? '').toLowerCase().includes(kw)
                 );
               }}
               renderOption={(props, option) => (
                 <Box component="li" {...props} key={option.id}>
                   <Box>
-                    <Typography variant="body2" fontWeight={500}>{option.customerName}</Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {option.customerName}
+                    </Typography>
                     {option.memberNo && (
                       <Typography variant="caption" color="text.secondary">
                         {option.memberNo}
@@ -353,10 +361,15 @@ const FormQuotation = ({ open, data, onClose }) => {
                   </Box>
                 </Box>
               )}
-              noOptionsText={form.locationId ? intl.formatMessage({ id: 'no-customer-in-branch' }) : intl.formatMessage({ id: 'select-branch-first' })}
+              noOptionsText={
+                form.locationId ? intl.formatMessage({ id: 'no-customer-in-branch' }) : intl.formatMessage({ id: 'select-branch-first' })
+              }
               onChange={onCustomerChange}
               renderInput={(params) => (
-                <TextField {...params} placeholder={form.locationId ? intl.formatMessage({ id: 'search' }) : intl.formatMessage({ id: 'select-branch-first' })} />
+                <TextField
+                  {...params}
+                  placeholder={form.locationId ? intl.formatMessage({ id: 'search' }) : intl.formatMessage({ id: 'select-branch-first' })}
+                />
               )}
             />
           </Stack>
@@ -365,7 +378,9 @@ const FormQuotation = ({ open, data, onClose }) => {
         {/* ── 4. Hewan — difilter by customer ── */}
         <Grid item xs={12} sm={6}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="pet" /></Typography>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="pet" />
+            </Typography>
             <Autocomplete
               size="small"
               options={petList}
@@ -376,7 +391,10 @@ const FormQuotation = ({ open, data, onClose }) => {
               noOptionsText={intl.formatMessage({ id: 'no-pet-registered' })}
               onChange={(_, sel) => setForm((prev) => ({ ...prev, petId: sel?.id ?? null, petObj: sel }))}
               renderInput={(params) => (
-                <TextField {...params} placeholder={form.customerId ? intl.formatMessage({ id: 'pet' }) : intl.formatMessage({ id: 'select-customer-first' })} />
+                <TextField
+                  {...params}
+                  placeholder={form.customerId ? intl.formatMessage({ id: 'pet' }) : intl.formatMessage({ id: 'select-customer-first' })}
+                />
               )}
             />
           </Stack>
@@ -385,7 +403,9 @@ const FormQuotation = ({ open, data, onClose }) => {
         {/* ── 5. Valid Until ── */}
         <Grid item xs={12} sm={6}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="valid-until-date" /> *</Typography>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="valid-until-date" /> *
+            </Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DesktopDatePicker
                 disablePast
@@ -401,9 +421,14 @@ const FormQuotation = ({ open, data, onClose }) => {
         {/* ── 6. Notes ── */}
         <Grid item xs={12} sm={6}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="notes" /></Typography>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="notes" />
+            </Typography>
             <TextField
-              size="small" multiline rows={2} fullWidth
+              size="small"
+              multiline
+              rows={2}
+              fullWidth
               value={form.notes}
               onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder={intl.formatMessage({ id: 'notes-for-customer' })}
@@ -413,27 +438,34 @@ const FormQuotation = ({ open, data, onClose }) => {
 
         {/* ══ Add Item Section ══ */}
         <Grid item xs={12}>
-          <Divider><Typography variant="caption" fontWeight={700} color="text.secondary"><FormattedMessage id="add-item-section" /></Typography></Divider>
+          <Divider>
+            <Typography variant="caption" fontWeight={700} color="text.secondary">
+              <FormattedMessage id="add-item-section" />
+            </Typography>
+          </Divider>
         </Grid>
 
         <Grid item xs={12} sm={2}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="type" /></Typography>
-            <Select
-              size="small"
-              value={newItemType}
-              onChange={(e) => onItemTypeChange(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="service"><FormattedMessage id="service" /></MenuItem>
-              <MenuItem value="product"><FormattedMessage id="product" /></MenuItem>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="type" />
+            </Typography>
+            <Select size="small" value={newItemType} onChange={(e) => onItemTypeChange(e.target.value)} fullWidth>
+              <MenuItem value="service">
+                <FormattedMessage id="service" />
+              </MenuItem>
+              <MenuItem value="product">
+                <FormattedMessage id="product" />
+              </MenuItem>
             </Select>
           </Stack>
         </Grid>
 
         <Grid item xs={12} sm={4}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}>{newItemType === 'service' ? <FormattedMessage id="service" /> : <FormattedMessage id="product" />}</Typography>
+            <Typography variant="caption" fontWeight={600}>
+              {newItemType === 'service' ? <FormattedMessage id="service" /> : <FormattedMessage id="product" />}
+            </Typography>
             <Autocomplete
               size="small"
               options={dropdownOptions}
@@ -441,17 +473,27 @@ const FormQuotation = ({ open, data, onClose }) => {
               disabled={!form.locationId}
               isOptionEqualToValue={(o, v) => o?.value === v?.value}
               onChange={onItemObjChange}
-              renderInput={(params) => <TextField {...params} placeholder={form.locationId ? intl.formatMessage({ id: 'select' }) : intl.formatMessage({ id: 'select-location-first' })} />}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder={form.locationId ? intl.formatMessage({ id: 'select' }) : intl.formatMessage({ id: 'select-location-first' })}
+                />
+              )}
             />
           </Stack>
         </Grid>
 
         <Grid item xs={6} sm={1.5}>
           <Stack spacing={0.5}>
-            <Typography variant="caption" fontWeight={600}><FormattedMessage id="qty" /></Typography>
+            <Typography variant="caption" fontWeight={600}>
+              <FormattedMessage id="qty" />
+            </Typography>
             <TextField
-              size="small" type="number" fullWidth
-              value={newQty} inputProps={{ min: 1 }}
+              size="small"
+              type="number"
+              fullWidth
+              value={newQty}
+              inputProps={{ min: 1 }}
               onChange={(e) => setNewQty(e.target.value)}
             />
           </Stack>
@@ -468,7 +510,9 @@ const FormQuotation = ({ open, data, onClose }) => {
               )}
             </Typography>
             <TextField
-              size="small" type="number" fullWidth
+              size="small"
+              type="number"
+              fullWidth
               value={newUnitPrice}
               inputProps={{ min: 0, max: getBasePrice() || undefined }}
               onChange={onUnitPriceChange}
@@ -479,12 +523,7 @@ const FormQuotation = ({ open, data, onClose }) => {
         </Grid>
 
         <Grid item xs={10} sm={1.5} display="flex" alignItems="flex-end">
-          <Button
-            fullWidth variant="contained" size="small"
-            startIcon={<PlusOutlined />}
-            disabled={!canAddItem}
-            onClick={onAddItem}
-          >
+          <Button fullWidth variant="contained" size="small" startIcon={<PlusOutlined />} disabled={!canAddItem} onClick={onAddItem}>
             <FormattedMessage id="add" />
           </Button>
         </Grid>
@@ -494,15 +533,20 @@ const FormQuotation = ({ open, data, onClose }) => {
           <Grid item xs={12}>
             <Paper variant="outlined" sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
               <Box sx={{ px: 2, py: 1, bgcolor: 'grey.50' }}>
-                <Typography variant="caption" fontWeight={700}><FormattedMessage id="item-list" /> ({form.items.length})</Typography>
+                <Typography variant="caption" fontWeight={700}>
+                  <FormattedMessage id="item-list" /> ({form.items.length})
+                </Typography>
               </Box>
               <Divider />
               {form.items.map((item, idx) => (
                 <Box
                   key={idx}
                   sx={{
-                    display: 'flex', alignItems: 'center', gap: 1.5,
-                    px: 2, py: 1.25,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    px: 2,
+                    py: 1.25,
                     borderBottom: idx < form.items.length - 1 ? '1px solid' : 'none',
                     borderColor: 'divider'
                   }}
@@ -515,7 +559,9 @@ const FormQuotation = ({ open, data, onClose }) => {
                     sx={{ flexShrink: 0, fontSize: 10 }}
                   />
                   <Box flex={1} minWidth={0}>
-                    <Typography variant="body2" fontWeight={600} noWrap>{item.itemName}</Typography>
+                    <Typography variant="body2" fontWeight={600} noWrap>
+                      {item.itemName}
+                    </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {item.quantity} × Rp {Number(item.unitPrice).toLocaleString('id-ID')}
                     </Typography>
@@ -534,13 +580,19 @@ const FormQuotation = ({ open, data, onClose }) => {
 
         {form.items.length === 0 && (
           <Grid item xs={12}>
-            <Alert severity="info" sx={{ borderRadius: 1 }}><FormattedMessage id="no-item-added" /></Alert>
+            <Alert severity="info" sx={{ borderRadius: 1 }}>
+              <FormattedMessage id="no-item-added" />
+            </Alert>
           </Grid>
         )}
 
         {/* ══ Pilihan Diskon ══ */}
         <Grid item xs={12}>
-          <Divider><Typography variant="caption" fontWeight={700} color="text.secondary"><FormattedMessage id="discount" /></Typography></Divider>
+          <Divider>
+            <Typography variant="caption" fontWeight={700} color="text.secondary">
+              <FormattedMessage id="discount" />
+            </Typography>
+          </Divider>
         </Grid>
 
         <Grid item xs={12}>
@@ -548,7 +600,10 @@ const FormQuotation = ({ open, data, onClose }) => {
             <Typography variant="caption" fontWeight={600}>
               <FormattedMessage id="discount-promo" />
               {!form.locationId && (
-                <Typography component="span" variant="caption" color="text.disabled"> — {intl.formatMessage({ id: 'select-location-first' })}</Typography>
+                <Typography component="span" variant="caption" color="text.disabled">
+                  {' '}
+                  — {intl.formatMessage({ id: 'select-location-first' })}
+                </Typography>
               )}
             </Typography>
 
@@ -556,8 +611,13 @@ const FormQuotation = ({ open, data, onClose }) => {
             <Box
               onClick={() => setSelectedDiscountPromo(null)}
               sx={{
-                display: 'flex', alignItems: 'center', gap: 1.5,
-                p: 1.25, borderRadius: 1.5, border: '2px solid', cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                p: 1.25,
+                borderRadius: 1.5,
+                border: '2px solid',
+                cursor: 'pointer',
                 borderColor: !selectedDiscountPromo ? 'primary.main' : 'divider',
                 bgcolor: !selectedDiscountPromo ? 'primary.50' : 'background.paper',
                 transition: 'all 0.15s'
@@ -565,8 +625,12 @@ const FormQuotation = ({ open, data, onClose }) => {
             >
               <BlockIcon fontSize="small" color={!selectedDiscountPromo ? 'primary' : 'disabled'} />
               <Box flex={1}>
-                <Typography variant="body2" fontWeight={600}><FormattedMessage id="no-discount" /></Typography>
-                <Typography variant="caption" color="text.secondary"><FormattedMessage id="full-price-no-deduction" /></Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  <FormattedMessage id="no-discount" />
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  <FormattedMessage id="full-price-no-deduction" />
+                </Typography>
               </Box>
               {!selectedDiscountPromo && (
                 <Chip label={intl.formatMessage({ id: 'selected' })} size="small" color="primary" variant="filled" sx={{ fontSize: 10 }} />
@@ -587,8 +651,13 @@ const FormQuotation = ({ open, data, onClose }) => {
                   key={promo.id}
                   onClick={() => setSelectedDiscountPromo(isSelected ? null : promo)}
                   sx={{
-                    display: 'flex', alignItems: 'flex-start', gap: 1.5,
-                    p: 1.25, borderRadius: 1.5, border: '2px solid', cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 1.5,
+                    p: 1.25,
+                    borderRadius: 1.5,
+                    border: '2px solid',
+                    cursor: 'pointer',
                     borderColor: isSelected ? 'error.main' : 'divider',
                     bgcolor: isSelected ? 'error.50' : 'background.paper',
                     transition: 'all 0.15s'
@@ -597,8 +666,16 @@ const FormQuotation = ({ open, data, onClose }) => {
                   <LocalOfferIcon fontSize="small" color={isSelected ? 'error' : 'disabled'} sx={{ mt: 0.25 }} />
                   <Box flex={1} minWidth={0}>
                     <Stack direction="row" spacing={1} alignItems="center">
-                      <Typography variant="body2" fontWeight={600}>{promo.name}</Typography>
-                      <Chip label={intl.formatMessage({ id: 'discount' })} size="small" color="error" variant="outlined" sx={{ fontSize: 10 }} />
+                      <Typography variant="body2" fontWeight={600}>
+                        {promo.name}
+                      </Typography>
+                      <Chip
+                        label={intl.formatMessage({ id: 'discount' })}
+                        size="small"
+                        color="error"
+                        variant="outlined"
+                        sx={{ fontSize: 10 }}
+                      />
                     </Stack>
                     {promo.note && (
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
@@ -610,7 +687,13 @@ const FormQuotation = ({ open, data, onClose }) => {
                     </Typography>
                   </Box>
                   {isSelected && (
-                    <Chip label={intl.formatMessage({ id: 'selected' })} size="small" color="error" variant="filled" sx={{ fontSize: 10, flexShrink: 0 }} />
+                    <Chip
+                      label={intl.formatMessage({ id: 'selected' })}
+                      size="small"
+                      color="error"
+                      variant="filled"
+                      sx={{ fontSize: 10, flexShrink: 0 }}
+                    />
                   )}
                 </Box>
               );
@@ -624,8 +707,12 @@ const FormQuotation = ({ open, data, onClose }) => {
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 1.5, maxWidth: 340, ml: 'auto', bgcolor: 'grey.50' }}>
               <Stack spacing={1}>
                 <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary"><FormattedMessage id="subtotal" /></Typography>
-                  <Typography variant="body2" fontWeight={600}>Rp {subtotal.toLocaleString('id-ID')}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    <FormattedMessage id="subtotal" />
+                  </Typography>
+                  <Typography variant="body2" fontWeight={600}>
+                    Rp {subtotal.toLocaleString('id-ID')}
+                  </Typography>
                 </Stack>
 
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -648,7 +735,9 @@ const FormQuotation = ({ open, data, onClose }) => {
                 <Divider />
 
                 <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="subtitle2" fontWeight={700}><FormattedMessage id="total" /></Typography>
+                  <Typography variant="subtitle2" fontWeight={700}>
+                    <FormattedMessage id="total" />
+                  </Typography>
                   <Typography variant="subtitle2" fontWeight={700} color="primary.main">
                     Rp {finalAmt.toLocaleString('id-ID')}
                   </Typography>
@@ -663,8 +752,8 @@ const FormQuotation = ({ open, data, onClose }) => {
 };
 
 FormQuotation.propTypes = {
-  open:    PropTypes.bool,
-  data:    PropTypes.object,
+  open: PropTypes.bool,
+  data: PropTypes.object,
   onClose: PropTypes.func
 };
 

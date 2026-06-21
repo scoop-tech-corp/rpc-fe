@@ -1,6 +1,5 @@
 import { PlusOutlined, ReloadOutlined, DesktopOutlined } from '@ant-design/icons';
 import {
-  Box,
   Button,
   Chip,
   Grid,
@@ -14,8 +13,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Divider
+  DialogActions
 } from '@mui/material';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
@@ -23,37 +21,45 @@ import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import TabPanel from 'components/TabPanelC';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { CONSTANT_ADMINISTRATOR, isAdminOrManager, JOB_DOKTER, JOB_KASIR } from 'constant/role';
+import { isAdminOrManager, JOB_DOKTER, JOB_KASIR } from 'constant/role';
 import useAuth from 'hooks/useAuth';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { getLocationList } from 'service/service-global';
-import { getQueueList, updateQueueStatus, deleteQueue, resetQueue } from './service';
+import { getQueueList, updateQueueStatus, resetQueue } from './service';
 import AddQueueForm from './components/AddQueueForm';
-import config from 'config';
 
 const STATUS_TABS = [
-  { value: 'waiting',    labelId: 'queue-status-waiting',    color: 'warning' },
-  { value: 'called',     labelId: 'queue-status-called',     color: 'info'    },
+  { value: 'waiting', labelId: 'queue-status-waiting', color: 'warning' },
+  { value: 'called', labelId: 'queue-status-called', color: 'info' },
   { value: 'in_service', labelId: 'queue-status-in-service', color: 'primary' },
-  { value: 'done',       labelId: 'queue-status-done',       color: 'success' },
-  { value: 'no_show',    labelId: 'queue-status-no-show',    color: 'error'   }
+  { value: 'done', labelId: 'queue-status-done', color: 'success' },
+  { value: 'no_show', labelId: 'queue-status-no-show', color: 'error' }
 ];
 
 const SERVICE_COLOR = {
   'Pet Clinic': 'primary',
-  'Pet Hotel':  'error',
-  'Pet Salon':  'warning',
-  'Breeding':   'success'
+  'Pet Hotel': 'error',
+  'Pet Salon': 'warning',
+  Breeding: 'success'
+};
+
+const SERVICE_TYPE_TO_PATH = {
+  'Pet Clinic': '/transaction/pet-clinic',
+  'Pet Hotel': '/transaction/pet-hotel',
+  'Pet Salon': '/transaction/pet-salon',
+  Breeding: '/transaction/breeding'
 };
 
 const DISPLAY_TOKEN = '3740adcdb33d29e3c36a31810b70deb86e212f5bbfb08b131c7c86f0db663575';
 
 const QueueManagement = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const intl = useIntl();
   const { user } = useAuth();
 
@@ -95,10 +101,10 @@ const QueueManagement = () => {
 
   const handleStatusAction = (row, newStatus) => {
     const labelMap = {
-      called:     intl.formatMessage({ id: 'queue-action-call' }),
+      called: intl.formatMessage({ id: 'queue-action-call' }),
       in_service: intl.formatMessage({ id: 'queue-action-start-service' }),
-      done:       intl.formatMessage({ id: 'queue-action-done' }),
-      no_show:    intl.formatMessage({ id: 'queue-action-no-show' })
+      done: intl.formatMessage({ id: 'queue-action-done' }),
+      no_show: intl.formatMessage({ id: 'queue-action-no-show' })
     };
     setConfirmAction({ id: row.id, status: newStatus, label: labelMap[newStatus], queueNumber: row.queueNumber });
   };
@@ -182,40 +188,50 @@ const QueueManagement = () => {
             <Stack direction="row" spacing={1}>
               {status === 'waiting' && canCallOrNoShow && (
                 <Tooltip title={<FormattedMessage id="queue-action-call" />} arrow>
-                  <Button size="small" variant="contained" color="info"
-                    onClick={() => handleStatusAction(row.original, 'called')}>
+                  <Button size="small" variant="contained" color="info" onClick={() => handleStatusAction(row.original, 'called')}>
                     <FormattedMessage id="queue-action-call" />
                   </Button>
                 </Tooltip>
               )}
               {status === 'waiting' && canCallOrNoShow && (
                 <Tooltip title={<FormattedMessage id="queue-action-no-show" />} arrow>
-                  <Button size="small" variant="outlined" color="error"
-                    onClick={() => handleStatusAction(row.original, 'no_show')}>
+                  <Button size="small" variant="outlined" color="error" onClick={() => handleStatusAction(row.original, 'no_show')}>
                     <FormattedMessage id="queue-action-no-show" />
                   </Button>
                 </Tooltip>
               )}
               {status === 'called' && canService && (
                 <Tooltip title={<FormattedMessage id="queue-action-start-service" />} arrow>
-                  <Button size="small" variant="contained" color="primary"
-                    onClick={() => handleStatusAction(row.original, 'in_service')}>
+                  <Button size="small" variant="contained" color="primary" onClick={() => handleStatusAction(row.original, 'in_service')}>
                     <FormattedMessage id="queue-action-start-service" />
                   </Button>
                 </Tooltip>
               )}
               {status === 'called' && canCallOrNoShow && (
                 <Tooltip title={<FormattedMessage id="queue-action-no-show" />} arrow>
-                  <Button size="small" variant="outlined" color="error"
-                    onClick={() => handleStatusAction(row.original, 'no_show')}>
+                  <Button size="small" variant="outlined" color="error" onClick={() => handleStatusAction(row.original, 'no_show')}>
                     <FormattedMessage id="queue-action-no-show" />
                   </Button>
                 </Tooltip>
               )}
               {status === 'in_service' && canService && (
+                <Tooltip title={<FormattedMessage id="create-transaction" />} arrow>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => {
+                      const path = SERVICE_TYPE_TO_PATH[row.original.serviceType];
+                      if (path) navigate(`${path}?queueId=${row.original.id}`);
+                    }}
+                  >
+                    <FormattedMessage id="create-transaction" />
+                  </Button>
+                </Tooltip>
+              )}
+              {status === 'in_service' && canService && (
                 <Tooltip title={<FormattedMessage id="queue-action-done" />} arrow>
-                  <Button size="small" variant="contained" color="success"
-                    onClick={() => handleStatusAction(row.original, 'done')}>
+                  <Button size="small" variant="contained" color="success" onClick={() => handleStatusAction(row.original, 'done')}>
                     <FormattedMessage id="queue-action-done" />
                   </Button>
                 </Tooltip>
@@ -253,13 +269,7 @@ const QueueManagement = () => {
 
             {/* Reset antrian (admin/manager only) */}
             {isAdminOrManager(user?.role) && (
-              <Button
-                variant="outlined"
-                color="error"
-                size="small"
-                disabled={!selectedLocation}
-                onClick={() => setConfirmReset(true)}
-              >
+              <Button variant="outlined" color="error" size="small" disabled={!selectedLocation} onClick={() => setConfirmReset(true)}>
                 <FormattedMessage id="queue-reset" />
               </Button>
             )}
@@ -269,7 +279,10 @@ const QueueManagement = () => {
               variant="outlined"
               size="small"
               startIcon={<PlusOutlined />}
-              onClick={() => { setAddModalMode('booking'); setAddModalOpen(true); }}
+              onClick={() => {
+                setAddModalMode('booking');
+                setAddModalOpen(true);
+              }}
             >
               <FormattedMessage id="queue-from-booking" />
             </Button>
@@ -279,7 +292,10 @@ const QueueManagement = () => {
               variant="contained"
               size="small"
               startIcon={<PlusOutlined />}
-              onClick={() => { setAddModalMode('walkin'); setAddModalOpen(true); }}
+              onClick={() => {
+                setAddModalMode('walkin');
+                setAddModalOpen(true);
+              }}
             >
               <FormattedMessage id="queue-add-walkin" />
             </Button>
@@ -296,9 +312,7 @@ const QueueManagement = () => {
               value={selectedLocation}
               onChange={(_, v) => setSelectedLocation(v)}
               isOptionEqualToValue={(o, v) => o.value === v.value}
-              renderInput={(params) => (
-                <TextField {...params} label={<FormattedMessage id="select-location" />} size="small" />
-              )}
+              renderInput={(params) => <TextField {...params} label={<FormattedMessage id="select-location" />} size="small" />}
             />
           </Grid>
         </Grid>
@@ -311,7 +325,7 @@ const QueueManagement = () => {
           scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
         >
-          {STATUS_TABS.map((tab, idx) => (
+          {STATUS_TABS.map((tab) => (
             <Tab key={tab.value} label={<FormattedMessage id={tab.labelId} />} />
           ))}
         </Tabs>
@@ -319,11 +333,7 @@ const QueueManagement = () => {
         {STATUS_TABS.map((tab, idx) => (
           <TabPanel key={tab.value} value={activeTab} index={idx}>
             <ScrollX>
-              <ReactTable
-                columns={columns}
-                data={queueData}
-                isLoading={isLoading}
-              />
+              <ReactTable columns={columns} data={queueData} isLoading={isLoading} />
             </ScrollX>
           </TabPanel>
         ))}
@@ -333,13 +343,17 @@ const QueueManagement = () => {
       <AddQueueForm
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
-        onSuccess={() => { fetchQueue(); }}
+        onSuccess={() => {
+          fetchQueue();
+        }}
         mode={addModalMode}
       />
 
       {/* Konfirmasi ubah status */}
       <Dialog open={Boolean(confirmAction)} onClose={() => setConfirmAction(null)} maxWidth="xs" fullWidth>
-        <DialogTitle><FormattedMessage id="confirmation" /></DialogTitle>
+        <DialogTitle>
+          <FormattedMessage id="confirmation" />
+        </DialogTitle>
         <DialogContent>
           <Typography>
             <FormattedMessage
@@ -360,9 +374,13 @@ const QueueManagement = () => {
 
       {/* Konfirmasi reset */}
       <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} maxWidth="xs" fullWidth>
-        <DialogTitle><FormattedMessage id="queue-reset" /></DialogTitle>
+        <DialogTitle>
+          <FormattedMessage id="queue-reset" />
+        </DialogTitle>
         <DialogContent>
-          <Typography><FormattedMessage id="queue-confirm-reset" /></Typography>
+          <Typography>
+            <FormattedMessage id="queue-confirm-reset" />
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" color="error" onClick={() => setConfirmReset(false)}>

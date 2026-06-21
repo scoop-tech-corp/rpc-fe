@@ -1,12 +1,11 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useServiceFormStore } from '../service-form-store';
 import useGetList from 'hooks/useGetList';
 import { getFacilityList } from '../../service';
 
 const TabFacility = () => {
-  const categoriesStore = useServiceFormStore((state) => state.categories);
   const location = useServiceFormStore((state) => state.location);
   const facility = useServiceFormStore((state) => state.facility);
   const isDetail = useServiceFormStore((state) => state.isDetail);
@@ -16,7 +15,7 @@ const TabFacility = () => {
     disabled: location.length === 0
   });
 
-  const [categories, setCategories] = useState([]);
+  const [, setCategories] = useState([]);
 
   const onSelectedFacility = (_, val) => {
     setCategories(val);

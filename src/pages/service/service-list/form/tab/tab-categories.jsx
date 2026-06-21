@@ -1,5 +1,5 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getAllState, useServiceFormStore } from '../service-form-store';
 
@@ -9,7 +9,7 @@ const TabCategory = () => {
   const isDetail = useServiceFormStore((state) => state.isDetail);
   const intl = useIntl();
 
-  const [categories, setCategories] = useState([]);
+  const [, setCategories] = useState([]);
   const [error, setError] = useState('');
 
   const onSelectedCategory = (_, val) => {

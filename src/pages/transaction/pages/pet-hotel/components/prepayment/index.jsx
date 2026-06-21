@@ -60,7 +60,9 @@ const Prepayment = (props) => {
   useEffect(() => {
     fetchRows();
     getPaymentMethodList()
-      .then((list) => { if (list?.length) setPaymentMethods(list); })
+      .then((list) => {
+        if (list?.length) setPaymentMethods(list);
+      })
       .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -126,8 +128,19 @@ const Prepayment = (props) => {
     >
       <Stack spacing={2.5}>
         {/* Ringkasan total */}
-        <Box sx={{ p: 1.5, bgcolor: 'primary.lighter', borderRadius: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body2" color="text.secondary">Total sudah dibayar (DP)</Typography>
+        <Box
+          sx={{
+            p: 1.5,
+            bgcolor: 'primary.lighter',
+            borderRadius: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            Total sudah dibayar (DP)
+          </Typography>
           <Typography variant="h6" fontWeight="bold" color="primary.main">
             {formatCurrency(totalPrepaid)}
           </Typography>
@@ -151,7 +164,9 @@ const Prepayment = (props) => {
                 sx={{ minWidth: 180 }}
               >
                 {paymentMethods.map((pm) => (
-                  <MenuItem key={pm.value} value={pm.value}>{pm.label}</MenuItem>
+                  <MenuItem key={pm.value} value={pm.value}>
+                    {pm.label}
+                  </MenuItem>
                 ))}
               </TextField>
 
@@ -182,13 +197,7 @@ const Prepayment = (props) => {
 
             {/* Upload bukti + Simpan — satu baris */}
             <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*,application/pdf"
-                style={{ display: 'none' }}
-                onChange={onFileChange}
-              />
+              <input ref={fileRef} type="file" accept="image/*,application/pdf" style={{ display: 'none' }} onChange={onFileChange} />
               <Button
                 variant="outlined"
                 size="small"
@@ -200,7 +209,10 @@ const Prepayment = (props) => {
               </Button>
 
               {form.proofName ? (
-                <Stack direction="row" alignItems="center" spacing={0.5}
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.5}
                   sx={{ px: 1.5, py: 0.5, bgcolor: 'grey.100', borderRadius: 1, maxWidth: 220 }}
                 >
                   <Typography variant="caption" noWrap sx={{ flex: 1, color: 'text.secondary' }}>
@@ -235,7 +247,9 @@ const Prepayment = (props) => {
 
         {/* Riwayat */}
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" fontWeight="bold">Riwayat Pembayaran Awal</Typography>
+          <Typography variant="subtitle2" fontWeight="bold">
+            Riwayat Pembayaran Awal
+          </Typography>
           <Typography variant="caption" color="text.secondary">
             {rows.length} transaksi
           </Typography>
@@ -275,19 +289,16 @@ const Prepayment = (props) => {
                         {row.proofOriginalName || 'Lihat'}
                       </Link>
                     ) : (
-                      <Typography variant="caption" color="text.disabled">-</Typography>
+                      <Typography variant="caption" color="text.disabled">
+                        -
+                      </Typography>
                     )}
                   </TableCell>
                   <TableCell>{row.recordedBy}</TableCell>
                   <TableCell align="center">
                     <Tooltip title="Cetak Tanda Terima DP">
                       <span>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => printReceipt(row)}
-                          disabled={printingId === row.id}
-                        >
+                        <IconButton size="small" color="primary" onClick={() => printReceipt(row)} disabled={printingId === row.id}>
                           <Print fontSize="small" />
                         </IconButton>
                       </span>

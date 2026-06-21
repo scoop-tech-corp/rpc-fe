@@ -5,7 +5,8 @@ import {
   checkPromoTransactionPetSalon,
   createPaymentPetSalonOutpatient,
   getBeforePayment,
-  printInvoicePetSalonOutpatient
+  printInvoicePetSalonOutpatient,
+  uploadPaymentProofPetSalon
 } from '../../service';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -63,6 +64,7 @@ const Payment = (props) => {
   });
   const [disabledOke, setDisabledOk] = useState(false);
   const [promoOfferDialog, setPromoOfferDialog] = useState({ isOpen: false, data: {} });
+  const [paymentProof, setPaymentProof] = useState(null);
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
@@ -440,10 +442,19 @@ const Payment = (props) => {
 
   const onSubmit = async () => {
     try {
-      await createPaymentPetSalonOutpatient(data.transactionId, formValue);
+      const paymentResp = await createPaymentPetSalonOutpatient(data.transactionId, formValue);
+      const paymentId = paymentResp?.data?.data?.id;
+      if (paymentId && paymentProof) {
+        try {
+          await uploadPaymentProofPetSalon({ id: paymentId, file: paymentProof });
+        } catch (_) {
+          // upload proof gagal tidak batalkan transaksi
+        }
+      }
       const resp = await printInvoicePetSalonOutpatient(data.transactionId, formValue);
-      console.log('resp PRINT', resp);
-      const message = `Transaction Payment Pet Salon has been successfully`;
+      const message = paymentProof
+        ? 'Pembayaran berhasil. Bukti diunggah, menunggu verifikasi Finance/Manager.'
+        : 'Pembayaran berhasil dicatat. Silakan upload bukti transfer untuk verifikasi.';
       if (resp && resp.status === 200) {
         processDownloadPDF(resp);
         dispatch(snackbarSuccess(message));
@@ -952,6 +963,37 @@ const Payment = (props) => {
               </Grid>
             </>
           )}
+
+          {/* ── Upload Bukti Pembayaran (opsional) ── */}
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel style={{ fontWeight: 'bold' }}>
+                Upload Bukti Pembayaran{' '}
+                <span style={{ fontWeight: 400, color: '#888', fontSize: 12 }}>(Opsional — dapat diupload sekarang atau nanti)</span>
+              </InputLabel>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Button variant="outlined" size="small" component="label">
+                  Pilih File
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/jpg,image/jpeg,image/png,application/pdf"
+                    onChange={(e) => setPaymentProof(e.target.files?.[0] ?? null)}
+                  />
+                </Button>
+                {paymentProof ? (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <span style={{ fontSize: 13 }}>{paymentProof.name}</span>
+                    <Button size="small" color="error" onClick={() => setPaymentProof(null)}>
+                      Hapus
+                    </Button>
+                  </Stack>
+                ) : (
+                  <span style={{ fontSize: 12, color: '#888' }}>Belum ada file dipilih</span>
+                )}
+              </Stack>
+            </Stack>
+          </Grid>
         </Grid>
       </ModalC>
 

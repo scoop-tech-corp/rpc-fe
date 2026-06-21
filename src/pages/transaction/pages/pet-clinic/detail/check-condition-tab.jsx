@@ -4,16 +4,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import HealingIcon from '@mui/icons-material/Healing';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import {
-  Box,
-  Chip,
-  CircularProgress,
-  Divider,
-  Grid,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material';
+import { Box, Chip, CircularProgress, Divider, Grid, Paper, Stack, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -36,7 +27,9 @@ const SectionCard = ({ icon, title, children }) => (
   <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
     <Box sx={{ px: 2, py: 1.25, bgcolor: 'grey.50', display: 'flex', alignItems: 'center', gap: 1 }}>
       {icon}
-      <Typography variant="subtitle2" fontWeight="bold">{title}</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">
+        {title}
+      </Typography>
     </Box>
     <Divider />
     <Box sx={{ px: 2, py: 1.5 }}>{children}</Box>
@@ -47,15 +40,24 @@ SectionCard.propTypes = { icon: PropTypes.node, title: PropTypes.string, childre
 const InfoRow = ({ label, value, fullWidth = false }) => (
   <Grid item xs={12} sm={fullWidth ? 12 : 6}>
     <Stack spacing={0.25}>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
-      <Typography variant="body2" fontWeight={500}>{value || '-'}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body2" fontWeight={500}>
+        {value || '-'}
+      </Typography>
     </Stack>
   </Grid>
 );
 InfoRow.propTypes = { label: PropTypes.string, value: PropTypes.any, fullWidth: PropTypes.bool };
 
 const BoolChip = ({ val }) => {
-  if (val === null || val === undefined || val === '') return <Typography variant="body2" fontWeight={500}>-</Typography>;
+  if (val === null || val === undefined || val === '')
+    return (
+      <Typography variant="body2" fontWeight={500}>
+        -
+      </Typography>
+    );
   const isYes = +val === 1;
   return <Chip label={isYes ? 'Ya' : 'Tidak'} size="small" color={isYes ? 'success' : 'default'} variant="outlined" />;
 };
@@ -64,7 +66,9 @@ BoolChip.propTypes = { val: PropTypes.any };
 const BoolWithNote = ({ label, flagVal, noteVal }) => (
   <Grid item xs={12} sm={6}>
     <Stack spacing={0.25}>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
       <Stack direction="row" spacing={1} alignItems="center">
         <BoolChip val={flagVal} />
         {noteVal && <Typography variant="body2">{noteVal}</Typography>}
@@ -118,14 +122,15 @@ const CheckConditionTab = ({ transactionId }) => {
 
   return (
     <Stack spacing={2}>
-
       {/* ── 1. Anamnesa ── */}
       {a && (
         <SectionCard icon={<AssignmentIcon fontSize="small" color="primary" />} title="Anamnesa">
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <Stack spacing={0.25}>
-                <Typography variant="caption" color="text.secondary">Anthelmintic</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Anthelmintic
+                </Typography>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <BoolChip val={a.isAnthelmintic} />
                   {a.anthelminticDate && <Typography variant="body2">{a.anthelminticDate}</Typography>}
@@ -135,7 +140,9 @@ const CheckConditionTab = ({ transactionId }) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Stack spacing={0.25}>
-                <Typography variant="caption" color="text.secondary">Vaksinasi</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Vaksinasi
+                </Typography>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <BoolChip val={a.isVaccination} />
                   {a.vaccinationDate && <Typography variant="body2">{a.vaccinationDate}</Typography>}
@@ -145,7 +152,9 @@ const CheckConditionTab = ({ transactionId }) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Stack spacing={0.25}>
-                <Typography variant="caption" color="text.secondary">Obat Kutu</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Obat Kutu
+                </Typography>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <BoolChip val={a.isFleaMedicine} />
                   {a.fleaMedicineDate && <Typography variant="body2">{a.fleaMedicineDate}</Typography>}
@@ -163,7 +172,6 @@ const CheckConditionTab = ({ transactionId }) => {
       {c && (
         <SectionCard icon={<MonitorHeartIcon fontSize="small" color="primary" />} title="Hasil Pemeriksaan Fisik">
           <Stack spacing={2}>
-
             {/* Berat & Suhu */}
             <Box>
               <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1, display: 'block' }}>
@@ -191,7 +199,16 @@ const CheckConditionTab = ({ transactionId }) => {
                 <BoolWithNote label="Pinjal (Flea)" flagVal={c.isFlea} noteVal={c.noteFlea} />
                 <BoolWithNote label="Caplak" flagVal={c.isCaplak} noteVal={c.noteCaplak} />
                 <BoolWithNote label="Tungau" flagVal={c.isTungau} noteVal={c.noteTungau} />
-                <InfoRow label="Kategori Ektoparasit" value={c.ectoParasitCategory === '1' || c.ectoParasitCategory === 1 ? 'Badan Hewan' : c.ectoParasitCategory === '2' || c.ectoParasitCategory === 2 ? 'Lingkungan' : dash(c.ectoParasitCategory)} />
+                <InfoRow
+                  label="Kategori Ektoparasit"
+                  value={
+                    c.ectoParasitCategory === '1' || c.ectoParasitCategory === 1
+                      ? 'Badan Hewan'
+                      : c.ectoParasitCategory === '2' || c.ectoParasitCategory === 2
+                      ? 'Lingkungan'
+                      : dash(c.ectoParasitCategory)
+                  }
+                />
                 <InfoRow label="Ditemukan Jamur" value={yesNo(c.isFungiFound)} />
               </Grid>
             </Box>
@@ -250,7 +267,7 @@ const CheckConditionTab = ({ transactionId }) => {
               </Typography>
               <Grid container spacing={2}>
                 <InfoRow label="Ingus" value={yesNo(c.isSnot)} />
-                {(+c.isSnot === 1) && <InfoRow label="Catatan Ingus" value={dash(c.noteSnot)} />}
+                {+c.isSnot === 1 && <InfoRow label="Catatan Ingus" value={dash(c.noteSnot)} />}
                 <InfoRow label="Tipe Nafas" value={dash(c.breathType)} />
                 <InfoRow label="Suara Nafas" value={dash(c.breathSoundType)} />
                 {c.breathSoundNote && <InfoRow label="Catatan Suara Nafas" value={dash(c.breathSoundNote)} />}
@@ -266,7 +283,10 @@ const CheckConditionTab = ({ transactionId }) => {
                 Sistem Kardiovaskular
               </Typography>
               <Grid container spacing={2}>
-                <InfoRow label="Pulsus" value={c.pulsus === '1' || c.pulsus === 1 ? 'Teraba' : c.pulsus === '2' || c.pulsus === 2 ? 'Tidak' : dash(c.pulsus)} />
+                <InfoRow
+                  label="Pulsus"
+                  value={c.pulsus === '1' || c.pulsus === 1 ? 'Teraba' : c.pulsus === '2' || c.pulsus === 2 ? 'Tidak' : dash(c.pulsus)}
+                />
                 <InfoRow label="Suara Jantung" value={dash(c.heartSound)} />
                 <InfoRow label="Temuan Lain (Jantung)" value={dash(c.othersFoundHeart)} />
               </Grid>
@@ -293,21 +313,34 @@ const CheckConditionTab = ({ transactionId }) => {
                 Sistem Urogenital
               </Typography>
               <Grid container spacing={2}>
-                <InfoRow label="Kondisi Testis" value={
-                  c.maleTesticles === '1' || c.maleTesticles === 1 ? 'Steril' :
-                    c.maleTesticles === '2' || c.maleTesticles === 2 ? 'Normal' :
-                      c.maleTesticles === '3' || c.maleTesticles === 3 ? 'Cryptorchid' :
-                        c.maleTesticles === '4' || c.maleTesticles === 4 ? `Lainnya: ${dash(c.othersMaleTesticles)}` :
-                          dash(c.maleTesticles)
-                } />
+                <InfoRow
+                  label="Kondisi Testis"
+                  value={
+                    c.maleTesticles === '1' || c.maleTesticles === 1
+                      ? 'Steril'
+                      : c.maleTesticles === '2' || c.maleTesticles === 2
+                      ? 'Normal'
+                      : c.maleTesticles === '3' || c.maleTesticles === 3
+                      ? 'Cryptorchid'
+                      : c.maleTesticles === '4' || c.maleTesticles === 4
+                      ? `Lainnya: ${dash(c.othersMaleTesticles)}`
+                      : dash(c.maleTesticles)
+                  }
+                />
                 <InfoRow label="Kondisi Penis" value={dash(c.penisCondition)} />
                 <InfoRow label="Tipe Vaginal Discharge" value={dash(c.vaginalDischargeType)} />
-                <InfoRow label="Urinasi" value={
-                  c.urinationType === '1' || c.urinationType === 1 ? 'Normal' :
-                    c.urinationType === '2' || c.urinationType === 2 ? 'Anuria' :
-                      c.urinationType === '3' || c.urinationType === 3 ? `Disuria: ${dash(c.othersUrination)}` :
-                        dash(c.urinationType)
-                } />
+                <InfoRow
+                  label="Urinasi"
+                  value={
+                    c.urinationType === '1' || c.urinationType === 1
+                      ? 'Normal'
+                      : c.urinationType === '2' || c.urinationType === 2
+                      ? 'Anuria'
+                      : c.urinationType === '3' || c.urinationType === 3
+                      ? `Disuria: ${dash(c.othersUrination)}`
+                      : dash(c.urinationType)
+                  }
+                />
                 <InfoRow label="Temuan Lain (Urogenital)" value={dash(c.othersFoundUrogenital)} />
               </Grid>
             </Box>
@@ -355,11 +388,19 @@ const CheckConditionTab = ({ transactionId }) => {
               </Typography>
               <Grid container spacing={2}>
                 <InfoRow label="Daun Telinga" value={dash(c.earlobe)} />
-                <InfoRow label="Serumen" value={c.earwax === '1' || c.earwax === 1 ? 'Normal' : c.earwax === '2' || c.earwax === 2 ? `Tidak Normal: ${dash(c.earwaxCharacter)}` : dash(c.earwax)} />
+                <InfoRow
+                  label="Serumen"
+                  value={
+                    c.earwax === '1' || c.earwax === 1
+                      ? 'Normal'
+                      : c.earwax === '2' || c.earwax === 2
+                      ? `Tidak Normal: ${dash(c.earwaxCharacter)}`
+                      : dash(c.earwax)
+                  }
+                />
                 <InfoRow label="Temuan Lain (Telinga)" value={dash(c.othersFoundEar)} />
               </Grid>
             </Box>
-
           </Stack>
         </SectionCard>
       )}
@@ -426,17 +467,20 @@ const CheckConditionTab = ({ transactionId }) => {
             <InfoRow label="Catatan Lain" value={dash(v.othersNoteAdvice)} />
             <Grid item xs={12} sm={6}>
               <Stack spacing={0.25}>
-                <Typography variant="caption" color="text.secondary">Jadwal Kontrol Berikutnya</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Jadwal Kontrol Berikutnya
+                </Typography>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <FavoriteIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                  <Typography variant="body2" fontWeight={500}>{dash(v.nextControlCheckup)}</Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {dash(v.nextControlCheckup)}
+                  </Typography>
                 </Stack>
               </Stack>
             </Grid>
           </Grid>
         </SectionCard>
       )}
-
     </Stack>
   );
 };

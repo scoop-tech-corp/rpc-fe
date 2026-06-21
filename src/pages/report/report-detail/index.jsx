@@ -1,10 +1,10 @@
 import { ExportOutlined } from '@ant-design/icons';
 import { Button, Stack } from '@mui/material';
-import { getTypeIdList } from 'pages/customer/service';
+import { getTypeIdList, getPetCategoryList } from 'pages/customer/service';
 import { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import {
   createMessageBackend,
   getCustomerGroupList,
@@ -32,6 +32,8 @@ import {
   exportReportProductsLowStock,
   exportReportProductsNoStock,
   exportReportProductsReminders,
+  exportReportProductsBatches,
+  exportReportProductsExpiry,
   exportReportProductsStockCount,
   exportReportSalesByProduct,
   exportReportSalesByService,
@@ -46,7 +48,12 @@ import {
   exportReportStaffLeave,
   exportReportStaffLogin,
   exportReportStaffPerformance,
+  getReportBookingByCancellationReason,
   getReportBookingByDiagnosisSpeciesGender,
+  getReportBookingDiagnoseOptions,
+  getReportBookingByStatus,
+  getReportBookingDiagnosisList,
+  getReportBookingList,
   getReportCustomerGrowth,
   getReportCustomerGrowthGroup,
   getReportCustomerLeaving,
@@ -58,10 +65,18 @@ import {
   getReportDepositSummary,
   getReportExpensesList,
   getReportExpensesSummary,
+  getExpensesOptionPayment,
+  getExpensesOptionStatus,
+  getExpensesOptionSubmiter,
+  getExpensesOptionRecipient,
+  getExpensesOptionCategory,
+  getExpensesOptionSupplier,
   getReportProductsCost,
   getReportProductsLowStock,
   getReportProductsNoStock,
   getReportProductsReminders,
+  getReportProductsBatches,
+  getReportProductsExpiry,
   getReportProductsStockCount,
   getReportSalesByProduct,
   getReportSalesByService,
@@ -121,6 +136,8 @@ import ProductsCost from './section/products/cost';
 import ProductsLowStock from './section/products/low-stock';
 import ProductsNoStock from './section/products/no-stock ';
 import ProductsReminders from './section/products/reminders';
+import ProductsBatches from './section/products/batches';
+import ProductExpiry from './section/products/expiry';
 import ProductsStockCount from './section/products/stock-count';
 import StaffLate from './section/staff/late';
 import StaffLeave from './section/staff/leave';
@@ -138,9 +155,15 @@ export default function Index() {
   let detail = searchParams.get('detail');
   const { user } = useAuth();
   const dispatch = useDispatch();
-  const firstRender = useRef(true);
+  const location = useLocation();
+
+  // Jika ada prefilter dari navigasi (misal dari Summary → List),
+  // skip firstRender guard agar fetchData langsung berjalan saat mount
+  const hasPrefilter = !!location.state?.prefilterCategory;
+  const firstRender = useRef(!hasPrefilter);
 
   const [mainData, setMainData] = useState();
+  const [isFetching, setIsFetching] = useState(false);
 
   const [extData, setExtData] = useState({
     location: []
@@ -161,13 +184,17 @@ export default function Index() {
         facility: [],
         gender: [],
         diagnose: [],
-        species: []
+        species: [],
+        search: '',
+        status: ''
       };
     }
     if (type === 'customer') {
       return {
         orderValue: '',
         orderColumn: '',
+        goToPage: 1,
+        rowPerPage: 5,
         location: [],
         customerGroup: [],
         date: '',
@@ -267,7 +294,7 @@ export default function Index() {
         submiter: [],
         supplier: [],
         recipient: [],
-        category: []
+        category: location.state?.prefilterCategory || []
       };
     }
   });
@@ -307,6 +334,7 @@ export default function Index() {
 
   const fetchData = async () => {
     let respFetch;
+    setIsFetching(true);
 
     if (type === 'customer') {
       let payload = {
@@ -320,16 +348,31 @@ export default function Index() {
       else if (detail === 'growth-by-group') respFetch = await getReportCustomerGrowthGroup(payload);
       else if (detail === 'total') respFetch = await getReportCustomerTotal(payload);
       else if (detail === 'leaving') {
-        payload = { ...payload, status: filter.status };
+        payload = { ...payload, status: filter.status, goToPage: filter.goToPage, rowPerPage: filter.rowPerPage };
         respFetch = await getReportCustomerLeaving(payload);
       } else if (detail === 'list') {
-        payload = { ...payload, status: filter.status, search: filter.search, gender: filter.gender, typeId: filter.typeId };
+        payload = {
+          ...payload,
+          status: filter.status,
+          search: filter.search,
+          gender: filter.gender,
+          typeId: filter.typeId,
+          goToPage: filter.goToPage,
+          rowPerPage: filter.rowPerPage
+        };
         respFetch = await getReportCustomerList(payload);
       } else if (detail === 'referral-spend') {
-        payload = { ...payload, search: filter.search };
+        payload = { ...payload, search: filter.search, goToPage: filter.goToPage, rowPerPage: filter.rowPerPage };
         respFetch = await getReportCustomerReferralSpend(payload);
       } else if (detail === 'sub-account-list') {
-        payload = { ...payload, search: filter.search, gender: filter.gender, sterile: filter.sterile };
+        payload = {
+          ...payload,
+          search: filter.search,
+          gender: filter.gender,
+          sterile: filter.sterile,
+          goToPage: filter.goToPage,
+          rowPerPage: filter.rowPerPage
+        };
         respFetch = await getReportCustomerSubAccount(payload);
       }
     } else if (type === 'staff') {
@@ -343,6 +386,8 @@ export default function Index() {
       if (detail === 'cost') respFetch = await getReportProductsCost(filter);
       if (detail === 'no-stock') respFetch = await getReportProductsNoStock(filter);
       if (detail === 'reminders') respFetch = await getReportProductsReminders(filter);
+      if (detail === 'batches') respFetch = await getReportProductsBatches(filter);
+      if (detail === 'expiry') respFetch = await getReportProductsExpiry(filter);
     } else if (type === 'deposit') {
       if (detail === 'list') respFetch = await getReportDepositList(filter);
       if (detail === 'summary') respFetch = await getReportDepositSummary(filter);
@@ -360,13 +405,19 @@ export default function Index() {
       if (detail === 'details') respFetch = await getReportSalesDetails(filter);
       if (detail === 'staff-service-sales') respFetch = await getReportSalesStaffServiceSales(filter);
     } else if (type === 'booking') {
+      if (detail === 'by-cancellation-reason') respFetch = await getReportBookingByCancellationReason(filter);
       if (detail === 'by-diagnosis-species-gender') respFetch = await getReportBookingByDiagnosisSpeciesGender(filter);
+      if (detail === 'by-status') respFetch = await getReportBookingByStatus(filter);
+      if (detail === 'diagnosis-list') respFetch = await getReportBookingDiagnosisList(filter);
+      if (detail === 'list') respFetch = await getReportBookingList(filter);
+      // by-location fetches its own data internally (year selector inside component)
     } else if (type === 'expenses') {
       if (detail === 'list') respFetch = await getReportExpensesList(filter);
       if (detail === 'summary') respFetch = await getReportExpensesSummary(filter);
     }
 
     setMainData(respFetch?.data || []);
+    setIsFetching(false);
   };
 
   const onExport = () => {
@@ -418,6 +469,8 @@ export default function Index() {
       else if (type === 'products' && detail === 'cost') return await exportReportProductsCost(filter);
       else if (type === 'products' && detail === 'no-stock') return await exportReportProductsNoStock(filter);
       else if (type === 'products' && detail === 'reminders') return await exportReportProductsReminders(filter);
+      else if (type === 'products' && detail === 'batches') return await exportReportProductsBatches(filter);
+      else if (type === 'products' && detail === 'expiry') return await exportReportProductsExpiry(filter);
       else if (type === 'deposit' && detail === 'list') return await exportReportDepositList(filter);
       else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
       else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
@@ -451,9 +504,19 @@ export default function Index() {
     const getLoc = await getLocationList();
     const getStaff = await getStaffList();
     const getService = await getServiceList();
-    const getGender = []; // need API
-    const getDiagnose = []; // need API
-    const getSpecies = []; // need API
+
+    // Static gender options
+    const getGender = [
+      { value: 'J', label: 'Jantan' },
+      { value: 'B', label: 'Betina' }
+    ];
+
+    // Species (petCategory) and diagnose options — only needed for by-diagnosis-species-gender
+    let getDiagnose = [];
+    let getSpecies = [];
+    if (detail === 'by-diagnosis-species-gender') {
+      [getDiagnose, getSpecies] = await Promise.all([getReportBookingDiagnoseOptions(), getPetCategoryList()]);
+    }
 
     setExtData((prevState) => ({
       ...prevState,
@@ -550,26 +613,33 @@ export default function Index() {
   };
 
   const getPrepareDataForExpenses = async () => {
-    const getLoc = await getLocationList();
-    const getPayment = []; // need API
-    const getStatus = []; // need API
-    const getStaff = []; // need API
-    const getSubmiter = []; // need API
-    const getSupplier = []; // need API
-    const getRecipient = []; // need API
-    const getCategory = []; // need API
+    const [getLoc, getPayment, getStatus, getSubmiter, getRecipient, getCategory, getSupplier] = await Promise.all([
+      getLocationList(),
+      getExpensesOptionPayment(),
+      getExpensesOptionStatus(),
+      getExpensesOptionSubmiter(),
+      getExpensesOptionRecipient(),
+      getExpensesOptionCategory(),
+      getExpensesOptionSupplier()
+    ]);
 
     setExtData((prevState) => ({
       ...prevState,
       location: getLoc,
       payment: getPayment,
       status: getStatus,
-      staff: getStaff,
+      staff: [],
       submiter: getSubmiter,
       supplier: getSupplier,
       recipient: getRecipient,
       category: getCategory
     }));
+
+    // Re-apply prefilter setelah extData selesai load agar MultiSelectAll
+    // dapat menerima value dari luar (saat navigasi dari Summary → List)
+    if (location.state?.prefilterCategory) {
+      setFilter((prev) => ({ ...prev, category: location.state.prefilterCategory }));
+    }
   };
 
   const getTitle = () => {
@@ -598,6 +668,8 @@ export default function Index() {
     if (type === 'products' && detail === 'cost') return 'product-cost';
     if (type === 'products' && detail === 'no-stock') return 'product-no-stock';
     if (type === 'products' && detail === 'reminders') return 'product-reminders';
+    if (type === 'products' && detail === 'batches') return 'product-batches';
+    if (type === 'products' && detail === 'expiry') return 'product-expiry';
 
     if (type === 'deposit' && detail === 'list') return 'deposit-list';
     if (type === 'deposit' && detail === 'summary') return 'deposit-summary';
@@ -633,21 +705,25 @@ export default function Index() {
     return '';
   };
   const getSections = () => {
-    if (type === 'booking' && detail === 'by-location') return <BookingByLocation data={[]} />;
-    if (type === 'booking' && detail === 'by-status') return <BookingByStatus data={[]} />;
-    if (type === 'booking' && detail === 'by-cancellation-reason') return <BookingByCancelationReason data={[]} />;
-    if (type === 'booking' && detail === 'list') return <BookingByList data={[]} />;
-    if (type === 'booking' && detail === 'diagnosis-list') return <BookingByDiagnosisList data={[]} />;
+    if (type === 'booking' && detail === 'by-location') return <BookingByLocation />;
+    if (type === 'booking' && detail === 'by-status') return <BookingByStatus data={mainData} loading={isFetching} />;
+    if (type === 'booking' && detail === 'by-cancellation-reason')
+      return <BookingByCancelationReason data={mainData} loading={isFetching} />;
+    if (type === 'booking' && detail === 'list') return <BookingByList data={mainData} loading={isFetching} setFilter={setFilter} />;
+    if (type === 'booking' && detail === 'diagnosis-list')
+      return <BookingByDiagnosisList data={mainData} loading={isFetching} setFilter={setFilter} />;
     if (type === 'booking' && detail === 'by-diagnosis-species-gender')
-      return <BookingByDiagnosisSpeciesGender data={mainData} setFilter={setFilter} filter={filter} />;
+      return <BookingByDiagnosisSpeciesGender data={mainData} loading={isFetching} setFilter={setFilter} filter={filter} />;
 
     if (type === 'customer' && detail === 'growth') return <CustomerGrowth data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'growth-by-group') return <CustomerGrowthByGroup data={mainData} setFilter={setFilter} />;
     if (type === 'customer' && detail === 'total') return <CustomerTotal data={mainData} setFilter={setFilter} />;
-    if (type === 'customer' && detail === 'leaving') return <CustomerLeaving data={mainData} setFilter={setFilter} />;
-    if (type === 'customer' && detail === 'list') return <CustomerList data={mainData} setFilter={setFilter} />;
-    if (type === 'customer' && detail === 'referral-spend') return <CustomerReferralSpend data={mainData} setFilter={setFilter} />;
-    if (type === 'customer' && detail === 'sub-account-list') return <CustomerSubAccountList data={mainData} setFilter={setFilter} />;
+    if (type === 'customer' && detail === 'leaving') return <CustomerLeaving data={mainData} filter={filter} setFilter={setFilter} />;
+    if (type === 'customer' && detail === 'list') return <CustomerList data={mainData} filter={filter} setFilter={setFilter} />;
+    if (type === 'customer' && detail === 'referral-spend')
+      return <CustomerReferralSpend data={mainData} filter={filter} setFilter={setFilter} />;
+    if (type === 'customer' && detail === 'sub-account-list')
+      return <CustomerSubAccountList data={mainData} filter={filter} setFilter={setFilter} />;
 
     if (type === 'staff' && detail === 'login') return <StaffLogin data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'staff' && detail === 'late') return <StaffLate data={mainData} setFilter={setFilter} />;
@@ -663,6 +739,8 @@ export default function Index() {
       return <ProductsNoStock data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
     if (type === 'products' && detail === 'reminders')
       return <ProductsReminders data={mainData} setFilter={setFilter} filter={filter} extData={extData} />;
+    if (type === 'products' && detail === 'batches') return <ProductsBatches data={mainData} filter={filter} setFilter={setFilter} />;
+    if (type === 'products' && detail === 'expiry') return <ProductExpiry data={mainData} filter={filter} setFilter={setFilter} />;
 
     if (type === 'deposit' && detail === 'list') return <DepositList data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'deposit' && detail === 'summary') return <DepositSummary data={mainData} setFilter={setFilter} filter={filter} />;

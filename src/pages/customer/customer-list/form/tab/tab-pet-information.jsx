@@ -1,7 +1,6 @@
 import { DeleteFilled, MoreOutlined, PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
 import {
   Autocomplete,
-  Box,
   Button,
   FormControl,
   FormControlLabel,

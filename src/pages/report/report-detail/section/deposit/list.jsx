@@ -58,46 +58,6 @@ export default function DepositList({ data, filter, setFilter }) {
     ],
     [locale]
   );
-  const dataDummy = [
-    {
-      referenceNo: '#00357357',
-      customerName: 'Customer 1',
-      date: '12 May 2024',
-      locationName: 'Location 1',
-      paymentMethod: 'Debit Card',
-      receivedAmount: 4000,
-      usedAmount: 0,
-      returnedAmount: 4000,
-      remainingAmount: 4000,
-      invoiceNo: 'INV-1515153'
-    },
-    {
-      referenceNo: '#00357357',
-      customerName: 'Customer 1',
-      date: '12 May 2024',
-      locationName: 'Location 1',
-      paymentMethod: 'Debit Card',
-      receivedAmount: 4000,
-      usedAmount: 0,
-      returnedAmount: 4000,
-      remainingAmount: 4000,
-      invoiceNo: 'INV-1515153'
-    },
-    {
-      referenceNo: '#00357357',
-      customerName: 'Customer 1',
-      date: '12 May 2024',
-      locationName: 'Location 1',
-      paymentMethod: 'Debit Card',
-      receivedAmount: 4000,
-      usedAmount: 0,
-      returnedAmount: 4000,
-      remainingAmount: 4000,
-      invoiceNo: 'INV-1515153'
-    }
-    // Add more data as needed
-  ];
-
   return (
     <div>
       <ReactTable
