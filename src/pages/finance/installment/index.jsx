@@ -27,7 +27,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { DollarOutlined, EyeOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
@@ -67,15 +67,6 @@ const SCHEDULE_STATUS_COLOR = {
   overdue: 'error'
 };
 
-const SCHEDULE_STATUS_LABEL = {
-  unpaid: 'Belum Bayar',
-  partial: 'Sebagian',
-  paid: 'Lunas',
-  overdue: 'Terlambat'
-};
-
-const INTERVAL_LABEL = { daily: 'Hari', weekly: 'Minggu', monthly: 'Bulan' };
-
 const fmtRp = (v) => 'Rp ' + Number(v || 0).toLocaleString('id-ID');
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('id-ID') : '-');
 
@@ -111,6 +102,26 @@ const InstallmentPage = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
   const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const scheduleStatusLabel = {
+    unpaid: intl.formatMessage({ id: 'schedule-status-unpaid' }),
+    partial: intl.formatMessage({ id: 'schedule-status-partial' }),
+    paid: intl.formatMessage({ id: 'schedule-status-paid' }),
+    overdue: intl.formatMessage({ id: 'schedule-status-overdue' })
+  };
+
+  const intervalLabel = {
+    daily: intl.formatMessage({ id: 'installment-interval-daily' }),
+    weekly: intl.formatMessage({ id: 'installment-interval-weekly' }),
+    monthly: intl.formatMessage({ id: 'installment-interval-monthly' })
+  };
+
+  const statusLabel = {
+    active: intl.formatMessage({ id: 'installment-active' }),
+    completed: intl.formatMessage({ id: 'installment-completed' }),
+    cancelled: intl.formatMessage({ id: 'installment-cancelled' })
+  };
 
   const [listData, setListData] = useState({ data: [], totalPagination: 0 });
   const [summary, setSummary] = useState(null);
@@ -267,9 +278,8 @@ const InstallmentPage = () => {
     setPayLoading(true);
     try {
       await recordInstallmentPayment(payForm);
-      dispatch(snackbarSuccess('Pembayaran angsuran berhasil dicatat'));
+      dispatch(snackbarSuccess(intl.formatMessage({ id: 'installment-payment-success' })));
       setPayDialog(false);
-      // Refresh detail
       if (detailData?.data?.id) onOpenDetail({ id: detailData.data.id });
       fetchList();
       fetchSummary();
@@ -286,7 +296,7 @@ const InstallmentPage = () => {
     setPlanLoading(true);
     try {
       await createInstallmentPlan(planForm);
-      dispatch(snackbarSuccess('Plan cicilan berhasil dibuat'));
+      dispatch(snackbarSuccess(intl.formatMessage({ id: 'installment-plan-created-msg' })));
       setAddDialog(false);
       setPlanForm(defaultPlan);
       initList();
@@ -305,7 +315,7 @@ const InstallmentPage = () => {
     }
     try {
       await cancelInstallmentPlan(cancelTarget);
-      dispatch(snackbarSuccess('Plan cicilan dibatalkan'));
+      dispatch(snackbarSuccess(intl.formatMessage({ id: 'installment-plan-cancelled-msg' })));
       setCancelDialog(false);
       initList();
     } catch (e) {
@@ -317,35 +327,35 @@ const InstallmentPage = () => {
   const columns = useMemo(
     () => [
       { Header: 'Customer', accessor: 'customerName' },
-      { Header: 'Jenis Transaksi', accessor: 'transactionType' },
-      { Header: 'Total Tagihan', accessor: 'totalAmount', Cell: ({ value }) => fmtRp(value) },
-      { Header: 'Sisa Hutang', accessor: 'outstandingAmount', Cell: ({ value }) => fmtRp(value) },
-      { Header: 'Tenor', accessor: 'tenor', Cell: ({ row }) => `${row.original.tenor}x ${INTERVAL_LABEL[row.original.intervalType]}` },
-      { Header: 'Mulai', accessor: 'startDate', Cell: ({ value }) => fmtDate(value) },
+      { Header: intl.formatMessage({ id: 'installment-type' }), accessor: 'transactionType' },
+      { Header: intl.formatMessage({ id: 'installment-total-bill-col' }), accessor: 'totalAmount', Cell: ({ value }) => fmtRp(value) },
+      { Header: intl.formatMessage({ id: 'installment-outstanding-amount' }), accessor: 'outstandingAmount', Cell: ({ value }) => fmtRp(value) },
+      {
+        Header: intl.formatMessage({ id: 'installment-tenor-col' }),
+        accessor: 'tenor',
+        Cell: ({ row }) => `${row.original.tenor}x ${intervalLabel[row.original.intervalType]}`
+      },
+      { Header: intl.formatMessage({ id: 'installment-start' }), accessor: 'startDate', Cell: ({ value }) => fmtDate(value) },
       {
         Header: 'Status',
         accessor: 'status',
         Cell: ({ value }) => (
-          <Chip
-            label={value === 'active' ? 'Aktif' : value === 'completed' ? 'Lunas' : 'Batal'}
-            color={STATUS_COLOR[value] || 'default'}
-            size="small"
-          />
+          <Chip label={statusLabel[value] || value} color={STATUS_COLOR[value] || 'default'} size="small" />
         )
       },
       {
-        Header: 'Aksi',
+        Header: intl.formatMessage({ id: 'action' }),
         accessor: 'action',
         disableSortBy: true,
         Cell: ({ row }) => (
           <Stack direction="row" spacing={0.5}>
-            <Tooltip title="Lihat Detail">
+            <Tooltip title={intl.formatMessage({ id: 'installment-detail' })}>
               <IconButton size="small" color="info" onClick={() => onOpenDetail(row.original)}>
                 <EyeOutlined />
               </IconButton>
             </Tooltip>
             {row.original.status === 'active' && (
-              <Tooltip title="Batalkan">
+              <Tooltip title={intl.formatMessage({ id: 'installment-cancel' })}>
                 <IconButton
                   size="small"
                   color="error"
@@ -362,22 +372,38 @@ const InstallmentPage = () => {
         )
       }
     ],
-    [onOpenDetail]
-  ); // eslint-disable-line
+    [onOpenDetail, intl] // eslint-disable-line
+  );
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <HeaderPageCustom title="Cicilan" />
+      <HeaderPageCustom title={<FormattedMessage id="installment" />} />
 
       {/* Summary cards */}
       {summary && (
         <Grid container spacing={2} sx={{ mb: 2 }}>
           {[
-            { label: 'Total Piutang Aktif', value: `Rp ${summary.totalOutstanding}`, color: 'info.main' },
-            { label: 'Piutang Terlambat', value: `Rp ${summary.totalOverdue}`, color: 'error.main' },
-            { label: 'Plan Aktif', value: summary.countActive, color: 'primary.main' },
-            { label: 'Plan Selesai', value: summary.countCompleted, color: 'success.main' }
+            {
+              label: intl.formatMessage({ id: 'installment-total-outstanding' }),
+              value: `Rp ${summary.totalOutstanding}`,
+              color: 'info.main'
+            },
+            {
+              label: intl.formatMessage({ id: 'installment-overdue-receivables' }),
+              value: `Rp ${summary.totalOverdue}`,
+              color: 'error.main'
+            },
+            {
+              label: intl.formatMessage({ id: 'installment-active-plans' }),
+              value: summary.countActive,
+              color: 'primary.main'
+            },
+            {
+              label: intl.formatMessage({ id: 'installment-completed-plans' }),
+              value: summary.countCompleted,
+              color: 'success.main'
+            }
           ].map((s) => (
             <Grid item xs={6} sm={3} key={s.label}>
               <MainCard sx={{ textAlign: 'center' }}>
@@ -401,8 +427,10 @@ const InstallmentPage = () => {
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 <GlobalFilter globalFilter={keyword} setGlobalFilter={onSearch} size="small" />
                 <FormControl size="small" sx={{ minWidth: 140 }}>
-                  <InputLabel>Lokasi</InputLabel>
-                  <Select value={filterLoc} label="Lokasi" onChange={(e) => onFilterLoc(e.target.value)}>
+                  <InputLabel>
+                    <FormattedMessage id="location" />
+                  </InputLabel>
+                  <Select value={filterLoc} label={intl.formatMessage({ id: 'location' })} onChange={(e) => onFilterLoc(e.target.value)}>
                     <MenuItem value="">
                       <FormattedMessage id="all" />
                     </MenuItem>
@@ -414,8 +442,14 @@ const InstallmentPage = () => {
                   </Select>
                 </FormControl>
                 <FormControl size="small" sx={{ minWidth: 130 }}>
-                  <InputLabel>Jenis</InputLabel>
-                  <Select value={filterType} label="Jenis" onChange={(e) => onFilterType(e.target.value)}>
+                  <InputLabel>
+                    <FormattedMessage id="installment-type" />
+                  </InputLabel>
+                  <Select
+                    value={filterType}
+                    label={intl.formatMessage({ id: 'installment-type' })}
+                    onChange={(e) => onFilterType(e.target.value)}
+                  >
                     <MenuItem value="">
                       <FormattedMessage id="all" />
                     </MenuItem>
@@ -432,14 +466,20 @@ const InstallmentPage = () => {
                     <MenuItem value="">
                       <FormattedMessage id="all" />
                     </MenuItem>
-                    <MenuItem value="active">Aktif</MenuItem>
-                    <MenuItem value="completed">Selesai</MenuItem>
-                    <MenuItem value="cancelled">Batal</MenuItem>
+                    <MenuItem value="active">
+                      <FormattedMessage id="installment-active" />
+                    </MenuItem>
+                    <MenuItem value="completed">
+                      <FormattedMessage id="installment-completed" />
+                    </MenuItem>
+                    <MenuItem value="cancelled">
+                      <FormattedMessage id="installment-cancelled" />
+                    </MenuItem>
                   </Select>
                 </FormControl>
               </Stack>
               <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => setAddDialog(true)} size="small">
-                Buat Plan Cicilan
+                <FormattedMessage id="installment-create-plan" />
               </Button>
             </Stack>
 
@@ -460,23 +500,27 @@ const InstallmentPage = () => {
       {/* ── Cancel Confirmation ──────────────────────────────────────────────── */}
       <ConfirmationC
         open={cancelDialog}
-        title="Batalkan Cicilan"
-        content="Yakin ingin membatalkan plan cicilan ini? Tindakan ini tidak dapat diurungkan."
+        title={intl.formatMessage({ id: 'installment-cancel' })}
+        content={intl.formatMessage({ id: 'installment-cancel-confirm' })}
         onClose={onConfirmCancel}
-        btnTrueText="Ya, Batalkan"
-        btnFalseText="Tidak"
+        btnTrueText={intl.formatMessage({ id: 'yes' })}
+        btnFalseText={intl.formatMessage({ id: 'no' })}
       />
 
       {/* ── Add Plan Dialog ──────────────────────────────────────────────────── */}
       <Dialog open={addDialog} onClose={() => setAddDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Buat Plan Cicilan</DialogTitle>
+        <DialogTitle>
+          <FormattedMessage id="installment-create-plan" />
+        </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl size="small" fullWidth required>
-              <InputLabel>Jenis Transaksi</InputLabel>
+              <InputLabel>
+                <FormattedMessage id="installment-type" />
+              </InputLabel>
               <Select
                 value={planForm.transactionType}
-                label="Jenis Transaksi"
+                label={intl.formatMessage({ id: 'installment-type' })}
                 onChange={(e) => setPlanForm((p) => ({ ...p, transactionType: e.target.value }))}
               >
                 {TRANSACTION_TYPES.map((t) => (
@@ -488,17 +532,17 @@ const InstallmentPage = () => {
             </FormControl>
 
             <TextField
-              label="ID Transaksi"
+              label={intl.formatMessage({ id: 'installment-transaction-id' })}
               value={planForm.transactionId}
               size="small"
               required
               onChange={(e) => setPlanForm((p) => ({ ...p, transactionId: e.target.value }))}
-              helperText="Masukkan ID dari transaksi yang akan dicicil"
+              helperText={intl.formatMessage({ id: 'installment-transaction-id-helper' })}
             />
 
             <Stack direction="row" spacing={1}>
               <TextField
-                label="Total Tagihan (Rp)"
+                label={intl.formatMessage({ id: 'installment-total-bill' })}
                 value={planForm.totalAmount}
                 size="small"
                 required
@@ -508,7 +552,7 @@ const InstallmentPage = () => {
                 InputProps={{ startAdornment: <InputAdornment position="start">Rp</InputAdornment> }}
               />
               <TextField
-                label="Down Payment (Rp)"
+                label={intl.formatMessage({ id: 'installment-down-payment-rp' })}
                 value={planForm.downPayment}
                 size="small"
                 fullWidth
@@ -519,12 +563,14 @@ const InstallmentPage = () => {
             </Stack>
 
             <Divider>
-              <Typography variant="caption">Jadwal Cicilan</Typography>
+              <Typography variant="caption">
+                <FormattedMessage id="installment-plan-schedule" />
+              </Typography>
             </Divider>
 
             <Stack direction="row" spacing={1}>
               <TextField
-                label="Tenor (jumlah cicilan)"
+                label={intl.formatMessage({ id: 'installment-tenor-count' })}
                 value={planForm.tenor}
                 size="small"
                 required
@@ -533,7 +579,7 @@ const InstallmentPage = () => {
                 onChange={(e) => setPlanForm((p) => ({ ...p, tenor: e.target.value }))}
               />
               <TextField
-                label="Setiap"
+                label={intl.formatMessage({ id: 'installment-every' })}
                 value={planForm.intervalValue}
                 size="small"
                 fullWidth
@@ -542,21 +588,29 @@ const InstallmentPage = () => {
                 inputProps={{ min: 1 }}
               />
               <FormControl size="small" fullWidth>
-                <InputLabel>Interval</InputLabel>
+                <InputLabel>
+                  <FormattedMessage id="installment-interval" />
+                </InputLabel>
                 <Select
                   value={planForm.intervalType}
-                  label="Interval"
+                  label={intl.formatMessage({ id: 'installment-interval' })}
                   onChange={(e) => setPlanForm((p) => ({ ...p, intervalType: e.target.value }))}
                 >
-                  <MenuItem value="daily">Hari</MenuItem>
-                  <MenuItem value="weekly">Minggu</MenuItem>
-                  <MenuItem value="monthly">Bulan</MenuItem>
+                  <MenuItem value="daily">
+                    <FormattedMessage id="installment-interval-daily" />
+                  </MenuItem>
+                  <MenuItem value="weekly">
+                    <FormattedMessage id="installment-interval-weekly" />
+                  </MenuItem>
+                  <MenuItem value="monthly">
+                    <FormattedMessage id="installment-interval-monthly" />
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Stack>
 
             <TextField
-              label="Tanggal Cicilan Pertama"
+              label={intl.formatMessage({ id: 'installment-first-date' })}
               value={planForm.startDate}
               size="small"
               required
@@ -569,35 +623,49 @@ const InstallmentPage = () => {
             {planForm.totalAmount && planForm.downPayment !== undefined && planForm.tenor > 0 && (
               <Box sx={{ p: 1.5, bgcolor: 'info.lighter', borderRadius: 1 }}>
                 <Typography variant="body2">
-                  💰 Nominal per cicilan:{' '}
+                  💰 {intl.formatMessage({ id: 'installment-per-amount' })}:{' '}
                   <strong>
                     {fmtRp(Math.floor(((+planForm.totalAmount - +(planForm.downPayment || 0)) / +planForm.tenor) * 100) / 100)}
                   </strong>{' '}
-                  (angsuran terakhir menyesuaikan pembulatan)
+                  ({intl.formatMessage({ id: 'installment-rounding-note' })})
                 </Typography>
               </Box>
             )}
 
             <Divider>
-              <Typography variant="caption">Kebijakan Denda</Typography>
+              <Typography variant="caption">
+                <FormattedMessage id="installment-late-fee-policy" />
+              </Typography>
             </Divider>
 
             <Stack direction="row" spacing={1}>
               <FormControl size="small" fullWidth>
-                <InputLabel>Tipe Denda</InputLabel>
+                <InputLabel>
+                  <FormattedMessage id="installment-late-fee-type" />
+                </InputLabel>
                 <Select
                   value={planForm.lateFeeType}
-                  label="Tipe Denda"
+                  label={intl.formatMessage({ id: 'installment-late-fee-type' })}
                   onChange={(e) => setPlanForm((p) => ({ ...p, lateFeeType: e.target.value }))}
                 >
-                  <MenuItem value="">Tidak Ada Denda</MenuItem>
-                  <MenuItem value="fixed">Nominal Tetap (Rp/hari)</MenuItem>
-                  <MenuItem value="percent">Persentase (%/hari dari sisa)</MenuItem>
+                  <MenuItem value="">
+                    <FormattedMessage id="installment-late-fee-no" />
+                  </MenuItem>
+                  <MenuItem value="fixed">
+                    <FormattedMessage id="installment-late-fee-fixed" />
+                  </MenuItem>
+                  <MenuItem value="percent">
+                    <FormattedMessage id="installment-late-fee-percent" />
+                  </MenuItem>
                 </Select>
               </FormControl>
               {planForm.lateFeeType && (
                 <TextField
-                  label={planForm.lateFeeType === 'fixed' ? 'Rp / hari' : '% / hari'}
+                  label={
+                    planForm.lateFeeType === 'fixed'
+                      ? intl.formatMessage({ id: 'installment-late-fee-rp-day' })
+                      : intl.formatMessage({ id: 'installment-late-fee-pct-day' })
+                  }
                   value={planForm.lateFeeValue}
                   size="small"
                   fullWidth
@@ -609,18 +677,18 @@ const InstallmentPage = () => {
 
             {planForm.lateFeeType && (
               <TextField
-                label="Grace Period (hari toleransi)"
+                label={intl.formatMessage({ id: 'installment-grace-period' })}
                 value={planForm.lateFeeGracePeriod}
                 size="small"
                 type="number"
                 fullWidth
                 onChange={(e) => setPlanForm((p) => ({ ...p, lateFeeGracePeriod: e.target.value }))}
-                helperText="Denda mulai dihitung setelah grace period terlewati"
+                helperText={intl.formatMessage({ id: 'installment-grace-period-helper' })}
               />
             )}
 
             <TextField
-              label="Catatan"
+              label={intl.formatMessage({ id: 'notes' })}
               value={planForm.notes}
               size="small"
               multiline
@@ -632,7 +700,7 @@ const InstallmentPage = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setAddDialog(false)} color="inherit">
-            Batal
+            <FormattedMessage id="cancel" />
           </Button>
           <Button
             variant="contained"
@@ -646,7 +714,7 @@ const InstallmentPage = () => {
               !planForm.startDate
             }
           >
-            {planLoading ? <CircularProgress size={18} /> : 'Buat Plan'}
+            {planLoading ? <CircularProgress size={18} /> : <FormattedMessage id="installment-create-btn" />}
           </Button>
         </DialogActions>
       </Dialog>
@@ -655,13 +723,11 @@ const InstallmentPage = () => {
       <Dialog open={detailDialog} onClose={() => setDetailDialog(false)} fullWidth maxWidth="md">
         <DialogTitle>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <span>Detail Cicilan</span>
+            <span>
+              <FormattedMessage id="installment-detail" />
+            </span>
             {detailData?.data?.status && (
-              <Chip
-                label={detailData.data.status === 'active' ? 'Aktif' : detailData.data.status === 'completed' ? 'Lunas' : 'Batal'}
-                color={STATUS_COLOR[detailData.data.status]}
-                size="small"
-              />
+              <Chip label={statusLabel[detailData.data.status] || detailData.data.status} color={STATUS_COLOR[detailData.data.status]} size="small" />
             )}
           </Stack>
         </DialogTitle>
@@ -677,21 +743,24 @@ const InstallmentPage = () => {
                 <Grid container spacing={1.5} sx={{ mb: 2 }}>
                   {[
                     ['Customer', detailData.data.customerName],
-                    ['Jenis', detailData.data.transactionType],
-                    ['Total Tagihan', fmtRp(detailData.data.totalAmount)],
+                    [intl.formatMessage({ id: 'installment-type' }), detailData.data.transactionType],
+                    [intl.formatMessage({ id: 'installment-total-bill-col' }), fmtRp(detailData.data.totalAmount)],
                     ['Down Payment', fmtRp(detailData.data.downPayment)],
-                    ['Sisa Hutang', fmtRp(detailData.data.outstandingAmount)],
-                    ['Tenor', `${detailData.data.tenor}x ${INTERVAL_LABEL[detailData.data.intervalType]}`],
-                    ['Mulai', fmtDate(detailData.data.startDate)],
+                    [intl.formatMessage({ id: 'installment-outstanding-amount' }), fmtRp(detailData.data.outstandingAmount)],
                     [
-                      'Denda',
+                      intl.formatMessage({ id: 'installment-tenor-col' }),
+                      `${detailData.data.tenor}x ${intervalLabel[detailData.data.intervalType]}`
+                    ],
+                    [intl.formatMessage({ id: 'installment-start' }), fmtDate(detailData.data.startDate)],
+                    [
+                      intl.formatMessage({ id: 'installment-penalty' }),
                       detailData.data.lateFeeType
                         ? `${
                             detailData.data.lateFeeType === 'fixed'
                               ? `Rp ${Number(detailData.data.lateFeeValue).toLocaleString('id-ID')}`
                               : `${detailData.data.lateFeeValue}%`
                           }/hari (grace ${detailData.data.lateFeeGracePeriod} hari)`
-                        : 'Tidak ada'
+                        : intl.formatMessage({ id: 'installment-penalty-none-val' })
                     ]
                   ].map(([label, val]) => (
                     <Grid item xs={6} sm={3} key={label}>
@@ -709,7 +778,9 @@ const InstallmentPage = () => {
                 {detailData.data.totalAmount > 0 && (
                   <Box sx={{ mb: 2 }}>
                     <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                      <Typography variant="caption">Progress Pembayaran</Typography>
+                      <Typography variant="caption">
+                        <FormattedMessage id="installment-payment-progress" />
+                      </Typography>
                       <Typography variant="caption">
                         {Math.round(
                           ((+detailData.data.totalAmount - +detailData.data.outstandingAmount) / +detailData.data.totalAmount) * 100
@@ -730,7 +801,7 @@ const InstallmentPage = () => {
 
                 <Divider sx={{ my: 1.5 }} />
                 <Typography variant="subtitle2" mb={1}>
-                  Jadwal Angsuran
+                  <FormattedMessage id="installment-schedule" />
                 </Typography>
 
                 {/* Schedules */}
@@ -741,8 +812,14 @@ const InstallmentPage = () => {
                         StepIconProps={{ sx: { color: `${SCHEDULE_STATUS_COLOR[s.status]}.main` } }}
                         optional={
                           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                            <Typography variant="caption">Jatuh tempo: {fmtDate(s.dueDate)}</Typography>
-                            <Chip label={SCHEDULE_STATUS_LABEL[s.status]} color={SCHEDULE_STATUS_COLOR[s.status]} size="small" />
+                            <Typography variant="caption">
+                              {intl.formatMessage({ id: 'installment-due-date' })}: {fmtDate(s.dueDate)}
+                            </Typography>
+                            <Chip
+                              label={scheduleStatusLabel[s.status] || s.status}
+                              color={SCHEDULE_STATUS_COLOR[s.status]}
+                              size="small"
+                            />
                             {detailData.data.status === 'active' && s.status !== 'paid' && (
                               <Button
                                 size="small"
@@ -751,7 +828,7 @@ const InstallmentPage = () => {
                                 onClick={() => onOpenPay(s)}
                                 sx={{ ml: 1 }}
                               >
-                                Bayar
+                                <FormattedMessage id="installment-pay" />
                               </Button>
                             )}
                           </Stack>
@@ -759,17 +836,21 @@ const InstallmentPage = () => {
                       >
                         <Stack direction="row" spacing={2} alignItems="baseline">
                           <Typography variant="body2" fontWeight={600}>
-                            Angsuran #{s.installmentNo}
+                            {intl.formatMessage({ id: 'installment-no' })}
+                            {s.installmentNo}
                           </Typography>
                           <Typography variant="caption">
                             {fmtRp(s.paidAmount)} / {fmtRp(s.scheduledAmount)}
                             {s.paidAmount < s.scheduledAmount && (
-                              <span style={{ color: '#f44336' }}> (sisa {fmtRp(s.scheduledAmount - s.paidAmount)})</span>
+                              <span style={{ color: '#f44336' }}>
+                                {' '}
+                                ({intl.formatMessage({ id: 'installment-remaining' })} {fmtRp(s.scheduledAmount - s.paidAmount)})
+                              </span>
                             )}
                           </Typography>
                           {s.lateFeeCharged > 0 && (
                             <Typography variant="caption" color="error.main">
-                              + Denda {fmtRp(s.lateFeeCharged)}
+                              + {intl.formatMessage({ id: 'installment-late-fee-label' })} {fmtRp(s.lateFeeCharged)}
                             </Typography>
                           )}
                         </Stack>
@@ -779,9 +860,11 @@ const InstallmentPage = () => {
                           <Box key={pay.id} sx={{ pl: 1, mb: 0.5, borderLeft: '2px solid', borderColor: 'success.light' }}>
                             <Typography variant="caption">
                               {fmtDate(pay.paymentDate)} — {fmtRp(pay.amount)}
-                              {pay.lateFee > 0 && ` + Denda ${fmtRp(pay.lateFee)}`}
+                              {pay.lateFee > 0 &&
+                                ` + ${intl.formatMessage({ id: 'installment-late-fee-label' })} ${fmtRp(pay.lateFee)}`}
                               {pay.paymentMethodName && ` — ${pay.paymentMethodName}`}
-                              {pay.confirmedByName?.trim() && ` (Dikonfirmasi: ${pay.confirmedByName})`}
+                              {pay.confirmedByName?.trim() &&
+                                ` (${intl.formatMessage({ id: 'installment-confirmed-by' })}: ${pay.confirmedByName})`}
                               {pay.notes && ` — "${pay.notes}"`}
                             </Typography>
                           </Box>
@@ -796,18 +879,20 @@ const InstallmentPage = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setDetailDialog(false)} color="inherit">
-            Tutup
+            <FormattedMessage id="close" />
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* ── Pay Dialog ───────────────────────────────────────────────────────── */}
       <Dialog open={payDialog} onClose={() => setPayDialog(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Catat Pembayaran Angsuran</DialogTitle>
+        <DialogTitle>
+          <FormattedMessage id="installment-record-payment" />
+        </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label="Tanggal Bayar"
+              label={intl.formatMessage({ id: 'installment-payment-date' })}
               type="date"
               value={payForm.paymentDate}
               size="small"
@@ -818,13 +903,16 @@ const InstallmentPage = () => {
             {lateFeePreview && lateFeePreview.daysLate > 0 && (
               <Box sx={{ p: 1.5, bgcolor: 'error.lighter', borderRadius: 1 }}>
                 <Typography variant="body2" color="error.dark">
-                  ⚠️ Terlambat {lateFeePreview.daysLate} hari — Denda: <strong>{lateFeePreview.lateFeeFormatted}</strong>
+                  {intl.formatMessage(
+                    { id: 'installment-late-warning' },
+                    { days: lateFeePreview.daysLate, fee: lateFeePreview.lateFeeFormatted }
+                  )}
                 </Typography>
               </Box>
             )}
 
             <TextField
-              label="Jumlah Bayar (Rp)"
+              label={intl.formatMessage({ id: 'installment-payment-amount' })}
               value={payForm.amount}
               size="small"
               type="number"
@@ -834,7 +922,7 @@ const InstallmentPage = () => {
             />
 
             <TextField
-              label="Denda dibayar (Rp)"
+              label={intl.formatMessage({ id: 'installment-late-fee-paid' })}
               value={payForm.lateFee}
               size="small"
               type="number"
@@ -843,13 +931,15 @@ const InstallmentPage = () => {
             />
 
             <FormControl size="small" fullWidth>
-              <InputLabel>Metode Pembayaran</InputLabel>
+              <InputLabel>
+                <FormattedMessage id="payment-method" />
+              </InputLabel>
               <Select
                 value={payForm.paymentMethodId}
-                label="Metode Pembayaran"
+                label={intl.formatMessage({ id: 'payment-method' })}
                 onChange={(e) => setPayForm((p) => ({ ...p, paymentMethodId: e.target.value }))}
               >
-                <MenuItem value="">— Pilih —</MenuItem>
+                <MenuItem value="">—</MenuItem>
                 {paymentMethods
                   .filter((pm) => !pm.isDeleted)
                   .map((pm) => (
@@ -861,7 +951,7 @@ const InstallmentPage = () => {
             </FormControl>
 
             <TextField
-              label="Catatan"
+              label={intl.formatMessage({ id: 'notes' })}
               value={payForm.notes}
               size="small"
               multiline
@@ -872,7 +962,7 @@ const InstallmentPage = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setPayDialog(false)} color="inherit">
-            Batal
+            <FormattedMessage id="cancel" />
           </Button>
           <Button
             variant="contained"
@@ -880,7 +970,7 @@ const InstallmentPage = () => {
             disabled={payLoading || !payForm.amount || !payForm.paymentDate}
             startIcon={payLoading ? <CircularProgress size={16} color="inherit" /> : <DollarOutlined />}
           >
-            Simpan Pembayaran
+            <FormattedMessage id="installment-save-payment" />
           </Button>
         </DialogActions>
       </Dialog>
