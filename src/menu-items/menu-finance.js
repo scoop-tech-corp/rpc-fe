@@ -72,7 +72,7 @@ const finance = {
         },
         {
           id: 'finance-installment',
-          title: 'Cicilan',
+          title: <FormattedMessage id="installment" />,
           type: 'item',
           url: '/finance/installment'
         }

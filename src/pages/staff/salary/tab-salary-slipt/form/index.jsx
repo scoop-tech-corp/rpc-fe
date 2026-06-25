@@ -93,32 +93,27 @@ export default function SallarySliptForm({ isDetailForm = false }) {
           },
           income: {
             ...data.income,
-            annualIncrementIncentive: data.income.annualIncrementIncentive,
-            xrayIncentive: {
-              amount: data.income.labXrayIncentive.amount,
-              unitNominal: data.income.labXrayIncentive.unitNominal,
-              total: data.income.labXrayIncentive.total
-            },
-            replacementWagesForDays: {
-              amount: data.income.replacementDays.amount,
-              unitNominal: data.income.replacementDays.unitNominal,
-              total: data.income.replacementDays.total
+            labXrayIncentive: {
+              amount: data.income.labXrayIncentive?.amount ?? 0,
+              unitNominal: data.income.labXrayIncentive?.unitNominal ?? 0,
+              total: data.income.labXrayIncentive?.total ?? 0
             }
           },
           expense: {
             ...data.expense,
             currentMonthCashAdvance: Number(data.expense.currentMonthCashAdvance),
-            notComingToWork: {
-              amount: data.expense.absent.amount,
-              unitNominal: data.expense.absent.unitNominal,
-              total: data.expense.absent.total
+            absent: {
+              amount: data.expense.absent?.amount ?? 0,
+              unitNominal: data.expense.absent?.unitNominal ?? 0,
+              total: data.expense.absent?.total ?? 0
             },
-            notWearingWorkAttributes: {
-              amount: data.expense.notWearingAttribute.amount,
-              unitNominal: data.expense.notWearingAttribute.unitNominal,
-              total: data.expense.notWearingAttribute.total
+            notWearingAttribute: {
+              amount: data.expense.notWearingAttribute?.amount ?? 0,
+              unitNominal: data.expense.notWearingAttribute?.unitNominal ?? 0,
+              total: data.expense.notWearingAttribute?.total ?? 0
             }
-          }
+          },
+          bonus: data.bonus || {}
         };
 
         setFormValues(mappedDataToFormValues);
@@ -168,43 +163,58 @@ export default function SallarySliptForm({ isDetailForm = false }) {
         ...prev,
         income: {
           basicIncome: salaryData.basicIncome,
-          annualIncrementIncentive: salaryData.annualIncreaseIncentive,
           attendanceAllowance: salaryData.attendanceAllowance,
           mealAllowance: salaryData.mealAllowance,
+          housingAllowance: salaryData.housingAllowance ?? 0,
+          clinicTurnoverBonus: salaryData.clinicRevenueBonus ?? 0,
+          bpjsHealthAllowance: salaryData.bpjsHealthAllowance ?? 0,
           patientIncentive: {
-            amount: salaryData.quantityPatientIncentive,
-            unitNominal: salaryData.eachPatientIncentive,
-            total: salaryData.patientIncentive
+            amount: salaryData.quantityPatientIncentive ?? 0,
+            unitNominal: salaryData.eachPatientIncentive ?? 10000,
+            total: salaryData.patientIncentive ?? 0
           },
-          xrayIncentive: {
-            amount: salaryData.quantityXray,
-            unitNominal: salaryData.eachXray,
-            total: salaryData.labXrayIncentive
+          labXrayIncentive: {
+            amount: salaryData.quantityXray ?? 0,
+            unitNominal: salaryData.eachXray ?? 5000,
+            total: salaryData.labXrayIncentive ?? 0
           },
-          clinicTurnoverBonus: salaryData.clinicRevenueBonus,
           longShiftReplacement: {
-            amount: salaryData.quantityLongShiftSubstituteWage,
-            unitNominal: salaryData.eachLongShiftSubstituteWage,
-            total: salaryData.totalLongShiftSubstituteWage
+            amount: salaryData.quantityLongShiftSubstituteWage ?? 0,
+            unitNominal: salaryData.eachLongShiftSubstituteWage ?? 0,
+            total: salaryData.totalLongShiftSubstituteWage ?? 0
           },
           fullShiftReplacement: {
-            amount: salaryData.quantityFullShiftSubstituteWage,
-            unitNominal: salaryData.eachFullShiftSubstituteWage,
-            total: salaryData.totalFullShiftSubstituteWage
-          },
-          bpjsHealthAllowance: salaryData.bpjsHealthAllowance
+            amount: salaryData.quantityFullShiftSubstituteWage ?? 0,
+            unitNominal: salaryData.eachFullShiftSubstituteWage ?? 0,
+            total: salaryData.totalFullShiftSubstituteWage ?? 0
+          }
         },
         expense: {
-          notComingToWork: {
-            amount: salaryData.notComingToWork,
-            unitNominal: salaryData.eachNotComingToWork,
-            total: salaryData.notComingToWorkTotal
+          absent: {
+            amount: salaryData.notComingToWork ?? 0,
+            unitNominal: salaryData.eachNotComingToWork ?? 50000,
+            total: salaryData.notComingToWorkTotal ?? 0
           },
           late: {
-            amount: salaryData?.quantityLate || '',
-            unitNominal: salaryData?.eachLate || '',
-            total: salaryData.late
-          }
+            amount: salaryData.quantityLate ?? 0,
+            unitNominal: salaryData.eachLate ?? 0,
+            total: salaryData.late ?? 0
+          },
+          notWearingAttribute: { amount: 0, unitNominal: 0, total: 0 },
+          currentMonthCashAdvance: 0,
+          remainingDebtLastMonth: 0,
+          stockOpnameInventory: 0,
+          stockOpnameLost: 0,
+          stockOpnameExpired: 0
+        },
+        bonus: {
+          isProbationPassed: false,
+          totalOmset: 0,
+          totalPatients: 0,
+          calendarDays: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate(),
+          totalLeaveDays: 0,
+          docComplete: false,
+          spCutPercentage: 0
         }
       }));
     }
@@ -243,7 +253,15 @@ export default function SallarySliptForm({ isDetailForm = false }) {
     } else if (jobNameLowercase.includes('groomer')) {
       return <NurseGroomerForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
     } else if (jobNameLowercase.includes('dokter hewan')) {
-      return <DoctorForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
+      return (
+        <DoctorForm
+          ref={formRef}
+          formValues={formValues}
+          setFormValues={setFormValues}
+          isDetailForm={isDetailForm}
+          joinDate={userInformation?.joinDate}
+        />
+      );
     } else if (jobNameLowercase.includes('quality control & trainer')) {
       return <QualityControlForm ref={formRef} formValues={formValues} setFormValues={setFormValues} isDetailForm={isDetailForm} />;
     } else if (jobNameLowercase.includes('manager')) {
@@ -274,7 +292,8 @@ export default function SallarySliptForm({ isDetailForm = false }) {
           startDate: formValues.startDate.format('YYYY-MM-DD'),
           endDate: formValues.endDate.format('YYYY-MM-DD'),
           income: formValues.income,
-          expense: formValues.expense
+          expense: formValues.expense,
+          bonus: formValues.bonus
         };
 
         const jobNameLowercase = jobName.toLowerCase();
