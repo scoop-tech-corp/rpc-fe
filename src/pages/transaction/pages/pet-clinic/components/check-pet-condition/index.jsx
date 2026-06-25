@@ -1,38 +1,43 @@
-import { useEffect, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useTheme } from '@mui/material/styles';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import BiotechIcon from '@mui/icons-material/Biotech';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import HealingIcon from '@mui/icons-material/Healing';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import PetsIcon from '@mui/icons-material/Pets';
 import {
   Box,
+  Button,
   Checkbox,
+  Chip,
   Divider,
   FormControlLabel,
   Grid,
-  InputLabel,
   MenuItem,
+  Paper,
   Radio,
   RadioGroup,
   Select,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
+import SaveIcon from '@mui/icons-material/Save';
+import { useTheme } from '@mui/material/styles';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
-import { useDispatch } from 'react-redux';
-import { createMessageBackend } from 'service/service-global';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
-// import { checkHplStatus, checkPetConditionTransaction } from '../../../../service';
-import {
-  checkPetConditionTransactionPetClinic,
-  CONSTANT_CHECK_PET_CONDITION_PET_CLINIC_FORM_VALUE,
-  getLoadPetCheckTransactionPetClinic,
-  getOrderNumberTransactionPetClinic
-} from '../../service';
-
 import ModalC from 'components/ModalC';
 import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useDispatch } from 'react-redux';
+import { createMessageBackend } from 'service/service-global';
+import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import {
   getTransactionListDataBreath,
   getTransactionListDataHeart,
@@ -41,12 +46,78 @@ import {
   getTransactionListDataVaginal,
   getTransactionListDataWeight
 } from 'pages/transaction/service';
-// import MainCard from 'components/MainCard';
+import {
+  checkPetConditionTransactionPetClinic,
+  CONSTANT_CHECK_PET_CONDITION_PET_CLINIC_FORM_VALUE,
+  getLoadPetCheckTransactionPetClinic,
+  getOrderNumberTransactionPetClinic
+} from '../../service';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const SectionCard = ({ icon, title, children }) => (
+  <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+    <Box sx={{ px: 2, py: 1.25, bgcolor: 'grey.50', display: 'flex', alignItems: 'center', gap: 1 }}>
+      {icon}
+      <Typography variant="subtitle2" fontWeight="bold">
+        {title}
+      </Typography>
+    </Box>
+    <Divider />
+    <Box sx={{ px: 2, py: 2 }}>{children}</Box>
+  </Paper>
+);
+SectionCard.propTypes = { icon: PropTypes.node, title: PropTypes.string, children: PropTypes.node };
+
+// Checkbox + inline note field
+const CheckNoteRow = ({ checked, onCheck, label, noteValue, onNote, placeholder = 'Catatan...' }) => (
+  <Stack
+    direction="row"
+    alignItems="center"
+    spacing={1.5}
+    sx={{
+      p: 1.25,
+      borderRadius: 1.5,
+      border: '1px solid',
+      borderColor: checked ? 'primary.light' : 'divider',
+      bgcolor: checked ? 'primary.50' : 'transparent',
+      transition: 'all 0.2s'
+    }}
+  >
+    <FormControlLabel
+      control={<Checkbox checked={checked} onChange={onCheck} size="small" />}
+      label={
+        <Typography variant="body2" fontWeight={checked ? 600 : 400} noWrap>
+          {label}
+        </Typography>
+      }
+      sx={{ minWidth: 130, m: 0, flexShrink: 0 }}
+    />
+    <TextField size="small" fullWidth placeholder={placeholder} value={noteValue} onChange={onNote} disabled={!checked} />
+  </Stack>
+);
+CheckNoteRow.propTypes = {
+  checked: PropTypes.bool,
+  onCheck: PropTypes.func,
+  label: PropTypes.string,
+  noteValue: PropTypes.string,
+  onNote: PropTypes.func,
+  placeholder: PropTypes.string
+};
+
+// Tab panel
+const TabPanel = ({ children, value, index }) => (
+  <Box role="tabpanel" hidden={value !== index} sx={{ pt: 2 }}>
+    {value === index && children}
+  </Box>
+);
+TabPanel.propTypes = { children: PropTypes.node, value: PropTypes.number, index: PropTypes.number };
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 const CheckPetConditionPetClinic = (props) => {
   const { data } = props;
   const [formValue, setFormValue] = useState({ ...CONSTANT_CHECK_PET_CONDITION_PET_CLINIC_FORM_VALUE });
-
   const [formDropdown, setFormDropdown] = useState({
     weightList: [],
     temperatureList: [],
@@ -56,15 +127,14 @@ const CheckPetConditionPetClinic = (props) => {
     vaginalList: []
   });
   const [disabledOke, setDisabledOk] = useState(false);
+  const [tabActive, setTabActive] = useState(0);
+
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-
   const dispatch = useDispatch();
-  const intl = useIntl();
 
   const onSubmit = async () => {
-    console.log('form value', formValue);
-
+    setDisabledOk(true);
     await checkPetConditionTransactionPetClinic(formValue)
       .then((resp) => {
         if (resp && resp.status === 200) {
@@ -72,12 +142,9 @@ const CheckPetConditionPetClinic = (props) => {
           props.onClose(true);
         }
       })
-      .catch((err) => {
-        dispatch(snackbarError(createMessageBackend(err)));
-      });
+      .catch((err) => dispatch(snackbarError(createMessageBackend(err))))
+      .finally(() => setDisabledOk(false));
   };
-
-  const onCancel = () => props.onClose(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,12 +161,7 @@ const CheckPetConditionPetClinic = (props) => {
         getTransactionListDataHeart(),
         getTransactionListDataVaginal()
       ])
-        .finally(() => {
-          loaderGlobalConfig.setLoader(false);
-          loaderService.setManualLoader(false);
-        })
         .then(([respOrderNumber, respLoadPetCheck, respWeight, respTemperature, respBreath, respSound, respHeart, respVaginal]) => {
-          console.log('respLoadPetCheck', respLoadPetCheck);
           setFormValue((prevState) => ({
             ...prevState,
             transactionPetClinicId: data.transactionId,
@@ -108,381 +170,339 @@ const CheckPetConditionPetClinic = (props) => {
             noTelp: respLoadPetCheck.data.phoneNumber,
             petType: respLoadPetCheck.data.type
           }));
-
-          setFormDropdown((prevState) => ({
-            ...prevState,
+          setFormDropdown({
             weightList: respWeight,
             temperatureList: respTemperature,
             breathList: respBreath,
             breathSoundList: respSound,
             heartList: respHeart,
             vaginalList: respVaginal
-          }));
+          });
+        })
+        .catch((err) => dispatch(snackbarError(createMessageBackend(err))))
+        .finally(() => {
+          loaderGlobalConfig.setLoader(false);
+          loaderService.setManualLoader(false);
         });
     };
-
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onFieldHandler = (event) => setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
+  const set = (key, val) => setFormValue((prev) => ({ ...prev, [key]: val }));
+  const onFieldHandler = (e) => set(e.target.name, e.target.value);
+
+  const TABS = ['Identitas & Anamnesa', 'Pemeriksaan Fisik', 'Diagnosa & Lanjutan', 'Tindakan & Saran'];
 
   return (
-    <>
-      <ModalC
-        title={<FormattedMessage id="check-pet-condition" />}
-        open={props.open}
-        onOk={() => onSubmit()}
-        disabledOk={disabledOke}
-        onCancel={onCancel}
-        fullWidth
-        maxWidth="xxl"
-      >
-        <Box marginBottom={'25px'}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Stack spacing={1.25} flexDirection={'row'} alignItems={'center'}>
-                    <InputLabel htmlFor="NO" style={{ fontWeight: 'bold' }} sx={{ width: { xs: '100%', sm: '20%' } }}>
-                      NO
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="petCheckRegistrationNo"
-                      name="petCheckRegistrationNo"
-                      value={formValue.petCheckRegistrationNo}
-                      sx={{ width: { xs: '100%', sm: '80%' } }}
-                      inputProps={{ readOnly: true }}
-                    />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack spacing={1.25} flexDirection={'row'} alignItems={'center'}>
-                    <InputLabel htmlFor="owners-name" style={{ fontWeight: 'bold' }} sx={{ width: { xs: '100%', sm: '20%' } }}>
-                      <FormattedMessage id="owners-name" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="ownerName"
-                      name="ownerName"
-                      value={formValue.ownerName}
-                      sx={{ width: { xs: '100%', sm: '80%' } }}
-                      inputProps={{ readOnly: true }}
-                    />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack spacing={1.25} flexDirection={'row'} alignItems={'center'}>
-                    <InputLabel htmlFor="no-telp" style={{ fontWeight: 'bold' }} sx={{ width: { xs: '100%', sm: '20%' } }}>
-                      No. Telp
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="noTelp"
-                      name="noTelp"
-                      value={formValue.noTelp}
-                      sx={{ width: { xs: '100%', sm: '80%' } }}
-                      inputProps={{ readOnly: true }}
-                    />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack spacing={1.25} flexDirection={'row'} alignItems={'center'}>
-                    <InputLabel
-                      htmlFor="pet-name-type"
-                      style={{ fontWeight: 'bold', whiteSpace: 'normal' }}
-                      sx={{ width: { xs: '100%', sm: '20%' } }}
-                    >
-                      <FormattedMessage id="pet-name-type" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="petType"
-                      name="petType"
-                      value={formValue.petType}
-                      sx={{ width: { xs: '100%', sm: '80%' } }}
-                      inputProps={{ readOnly: true }}
-                    />
-                  </Stack>
-                </Grid>
+    <ModalC
+      title={<FormattedMessage id="check-pet-condition" />}
+      open={props.open}
+      onOk={onSubmit}
+      disabledOk={tabActive !== 3 || disabledOke}
+      okText={tabActive !== 3 ? `Lanjut ke tab ${tabActive + 2} dahulu` : 'Submit'}
+      onCancel={() => props.onClose(false)}
+      fullWidth
+      maxWidth="lg"
+    >
+      {/* ── Tab Navigation ── */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 0 }}>
+        <Tabs
+          value={tabActive}
+          onChange={(_, v) => setTabActive(v)}
+          variant={matchDownSM ? 'scrollable' : 'fullWidth'}
+          scrollButtons="auto"
+        >
+          {TABS.map((label, i) => (
+            <Tab
+              key={i}
+              label={
+                <Stack direction="row" spacing={0.75} alignItems="center">
+                  <Chip
+                    label={i + 1}
+                    size="small"
+                    color={tabActive === i ? 'primary' : 'default'}
+                    sx={{ minWidth: 22, height: 20, fontSize: 11 }}
+                  />
+                  <Typography variant="caption" fontWeight={tabActive === i ? 700 : 400}>
+                    {label}
+                  </Typography>
+                </Stack>
+              }
+            />
+          ))}
+        </Tabs>
+      </Box>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* TAB 0 — Identitas & Anamnesa                                   */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <TabPanel value={tabActive} index={0}>
+        {/* Identitas */}
+        <SectionCard icon={<AccountCircleIcon fontSize="small" color="primary" />} title="Identitas Pasien">
+          <Grid container spacing={2}>
+            {[
+              { label: 'No. Registrasi', name: 'petCheckRegistrationNo' },
+              { label: 'Nama Pemilik', name: 'ownerName' },
+              { label: 'No. Telepon', name: 'noTelp' },
+              { label: 'Nama / Jenis Hewan', name: 'petType' }
+            ].map(({ label, name }) => (
+              <Grid item xs={12} sm={6} key={name}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    {label}
+                  </Typography>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={formValue[name]}
+                    inputProps={{ readOnly: true }}
+                    sx={{ '& .MuiInputBase-input': { bgcolor: 'action.hover', cursor: 'default' } }}
+                  />
+                </Stack>
               </Grid>
-            </Grid>
+            ))}
           </Grid>
-        </Box>
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">Anamnesa</Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
-          <Grid container spacing={3}>
+        </SectionCard>
+
+        {/* Anamnesa */}
+        <SectionCard icon={<AssignmentIcon fontSize="small" color="primary" />} title="Anamnesa">
+          <Grid container spacing={2}>
+            {/* Anthelmintic */}
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="anthelmintic" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'anthelmintic'} />
-                </InputLabel>
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={2}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="anthelmintic" />
+                </Typography>
+                <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1}>
                   <Select
+                    size="small"
                     value={formValue.isAnthelmintic}
                     name="isAnthelmintic"
-                    onChange={(event) => onFieldHandler(event)}
-                    fullWidth
-                    sx={{ width: { xs: '100%', sm: '33%' } }}
+                    onChange={onFieldHandler}
+                    sx={{ minWidth: 90 }}
                   >
                     <MenuItem value="1">
-                      <FormattedMessage id={'yes'} />
+                      <FormattedMessage id="yes" />
                     </MenuItem>
                     <MenuItem value="0">
-                      <FormattedMessage id={'no'} />
+                      <FormattedMessage id="no" />
                     </MenuItem>
                   </Select>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDatePicker
                       inputFormat="DD/MM/YYYY"
                       value={formValue.anthelminticDate}
-                      onChange={(value) => {
-                        setFormValue((prevState) => ({
-                          ...prevState,
-                          anthelminticDate: value
-                        }));
-                      }}
-                      renderInput={(params) => <TextField {...params} sx={{ width: { xs: '100%', sm: '33%' } }} />}
+                      onChange={(v) => set('anthelminticDate', v)}
+                      renderInput={(params) => <TextField {...params} size="small" sx={{ flex: 1 }} />}
                     />
                   </LocalizationProvider>
                   <TextField
-                    fullWidth
-                    id="anthelmintic-brand"
+                    size="small"
+                    placeholder="Merk"
                     value={formValue.anthelminticBrand}
                     name="anthelminticBrand"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder="Merk"
-                    sx={{ width: { xs: '100%', sm: '33%' } }}
+                    onChange={onFieldHandler}
+                    sx={{ flex: 1 }}
                   />
                 </Stack>
               </Stack>
             </Grid>
 
+            {/* Vaksinasi */}
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="vaksinasi" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'vaccination'} />
-                </InputLabel>
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={2}>
-                  <Select
-                    value={formValue.isVaccination}
-                    name="isVaccination"
-                    onChange={(event) => onFieldHandler(event)}
-                    fullWidth
-                    sx={{ width: { xs: '100%', sm: '33%' } }}
-                  >
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="vaccination" />
+                </Typography>
+                <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1}>
+                  <Select size="small" value={formValue.isVaccination} name="isVaccination" onChange={onFieldHandler} sx={{ minWidth: 90 }}>
                     <MenuItem value="1">
-                      <FormattedMessage id={'yes'} />
+                      <FormattedMessage id="yes" />
                     </MenuItem>
                     <MenuItem value="0">
-                      <FormattedMessage id={'no'} />
+                      <FormattedMessage id="no" />
                     </MenuItem>
                   </Select>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDatePicker
                       inputFormat="DD/MM/YYYY"
                       value={formValue.vaccinationDate}
-                      onChange={(value) => {
-                        setFormValue((prevState) => ({
-                          ...prevState,
-                          vaccinationDate: value
-                        }));
-                      }}
-                      renderInput={(params) => <TextField {...params} sx={{ width: { xs: '100%', sm: '33%' } }} />}
+                      onChange={(v) => set('vaccinationDate', v)}
+                      renderInput={(params) => <TextField {...params} size="small" sx={{ flex: 1 }} />}
                     />
                   </LocalizationProvider>
                   <TextField
-                    fullWidth
-                    id="vaccination-brand"
+                    size="small"
+                    placeholder="Merk"
                     value={formValue.vaccinationBrand}
                     name="vaccinationBrand"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder="Merk"
-                    sx={{ width: { xs: '100%', sm: '33%' } }}
+                    onChange={onFieldHandler}
+                    sx={{ flex: 1 }}
                   />
                 </Stack>
               </Stack>
             </Grid>
 
+            {/* Obat Kutu */}
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="flea-medicine" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'flea-medicine'} />
-                </InputLabel>
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent="space-between" alignItems="center" spacing={2}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="flea-medicine" />
+                </Typography>
+                <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1}>
                   <Select
+                    size="small"
                     value={formValue.isFleaMedicine}
                     name="isFleaMedicine"
-                    onChange={(event) => onFieldHandler(event)}
-                    fullWidth
-                    sx={{ width: { xs: '100%', sm: '33%' } }}
+                    onChange={onFieldHandler}
+                    sx={{ minWidth: 90 }}
                   >
                     <MenuItem value="1">
-                      <FormattedMessage id={'yes'} />
+                      <FormattedMessage id="yes" />
                     </MenuItem>
                     <MenuItem value="0">
-                      <FormattedMessage id={'no'} />
+                      <FormattedMessage id="no" />
                     </MenuItem>
                   </Select>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DesktopDatePicker
                       inputFormat="DD/MM/YYYY"
                       value={formValue.fleaMedicineDate}
-                      onChange={(value) => {
-                        setFormValue((prevState) => ({
-                          ...prevState,
-                          fleaMedicineDate: value
-                        }));
-                      }}
-                      renderInput={(params) => <TextField {...params} sx={{ width: { xs: '100%', sm: '33%' } }} />}
+                      onChange={(v) => set('fleaMedicineDate', v)}
+                      renderInput={(params) => <TextField {...params} size="small" sx={{ flex: 1 }} />}
                     />
                   </LocalizationProvider>
                   <TextField
-                    fullWidth
-                    id="flea-brand"
+                    size="small"
+                    placeholder="Merk"
                     value={formValue.fleaMedicineBrand}
                     name="fleaMedicineBrand"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder="Merk"
-                    sx={{ width: { xs: '100%', sm: '33%' } }}
+                    onChange={onFieldHandler}
+                    sx={{ flex: 1 }}
                   />
                 </Stack>
               </Stack>
             </Grid>
-            <Grid item xs={12} sm={6}></Grid>
 
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="the-treatment-already-given-previously" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'the-treatment-already-given-previously'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="previous-action"
-                  value={formValue.previousAction}
-                  name="previousAction"
-                  onChange={(event) => onFieldHandler(event)}
-                  placeholder=""
-                />
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="the-treatment-already-given-previously" />
+                </Typography>
+                <TextField size="small" fullWidth value={formValue.previousAction} name="previousAction" onChange={onFieldHandler} />
               </Stack>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="other-complaints" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'other-complaints'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="others-complaints"
-                  value={formValue.othersCompalints}
-                  name="othersCompalints"
-                  onChange={(event) => onFieldHandler(event)}
-                  placeholder=""
-                />
+            <Grid item xs={12}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="other-complaints" />
+                </Typography>
+                <TextField size="small" fullWidth value={formValue.othersCompalints} name="othersCompalints" onChange={onFieldHandler} />
               </Stack>
             </Grid>
           </Grid>
-        </Box>
+        </SectionCard>
+      </TabPanel>
 
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">
-            <FormattedMessage id="check-up-result" />
-          </Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="weight" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id="weight" />
-                </InputLabel>
-                <Stack flexDirection={'row'} alignItems={'center'} gap={1}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    id="weight"
-                    name="weight"
-                    value={formValue.weight}
-                    inputProps={{ min: 0 }}
-                    onChange={(event) => onFieldHandler(event)}
-                  />
-                  <span>KG</span>
-                </Stack>
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* TAB 1 — Pemeriksaan Fisik                                      */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <TabPanel value={tabActive} index={1}>
+        {/* Berat & Suhu */}
+        <SectionCard icon={<MonitorHeartIcon fontSize="small" color="primary" />} title="Berat Badan & Suhu">
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="weight" /> (KG)
+                </Typography>
+                <TextField
+                  size="small"
+                  fullWidth
+                  type="number"
+                  name="weight"
+                  value={formValue.weight}
+                  inputProps={{ min: 0 }}
+                  onChange={onFieldHandler}
+                />
               </Stack>
             </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="weight-category" style={{ fontWeight: 'bold' }}>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
                   <FormattedMessage id="weight-category" />
-                </InputLabel>
-                <Select fullWidth name="weightCategory" value={formValue.weightCategory} onChange={(event) => onFieldHandler(event)}>
-                  {formDropdown.weightList.map((dt, idx) => (
-                    <MenuItem value={dt.value} key={idx}>
+                </Typography>
+                <Select size="small" fullWidth name="weightCategory" value={formValue.weightCategory} onChange={onFieldHandler}>
+                  {formDropdown.weightList.map((dt, i) => (
+                    <MenuItem key={i} value={dt.value}>
                       {dt.label}
                     </MenuItem>
                   ))}
                 </Select>
               </Stack>
             </Grid>
-
             <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="temperature" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'temperature'} />
-                </InputLabel>
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} justifyContent="space-between" alignItems="center">
-                  <Stack flexDirection={'row'} alignItems={'center'} gap={1} sx={{ width: { xs: '100%', sm: '25%' } }}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="temperature" />
+                </Typography>
+                <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} alignItems="center">
+                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 1 }}>
                     <TextField
+                      size="small"
                       fullWidth
                       type="number"
-                      id="temperature"
                       name="temperature"
                       value={formValue.temperature}
                       inputProps={{ min: 0 }}
-                      onChange={(event) => onFieldHandler(event)}
+                      onChange={onFieldHandler}
                     />
-                    <span>°C</span>
+                    <Typography variant="caption" noWrap>
+                      °C
+                    </Typography>
                   </Stack>
-
-                  <Stack flexDirection={'row'} alignItems={'center'} gap={1} sx={{ width: { xs: '100%', sm: '25%' } }}>
+                  <Typography variant="body2" color="text.secondary">
+                    s.d
+                  </Typography>
+                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 1 }}>
                     <TextField
+                      size="small"
                       fullWidth
                       type="number"
-                      id="temperatureBottom"
                       name="temperatureBottom"
                       value={formValue.temperatureBottom}
                       inputProps={{ min: 0 }}
-                      onChange={(event) => onFieldHandler(event)}
+                      onChange={onFieldHandler}
                     />
-                    <span>S.D</span>
+                    <Typography variant="caption" noWrap>
+                      S.D
+                    </Typography>
                   </Stack>
-
-                  <Stack flexDirection={'row'} alignItems={'center'} gap={1} sx={{ width: { xs: '100%', sm: '25%' } }}>
+                  <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flex: 1 }}>
                     <TextField
+                      size="small"
                       fullWidth
                       type="number"
-                      id="temperatureTop"
                       name="temperatureTop"
                       value={formValue.temperatureTop}
                       inputProps={{ min: 0 }}
-                      onChange={(event) => onFieldHandler(event)}
+                      onChange={onFieldHandler}
                     />
-                    <span>°C</span>
+                    <Typography variant="caption" noWrap>
+                      °C
+                    </Typography>
                   </Stack>
-
                   <Select
-                    fullWidth
+                    size="small"
                     name="temperatureCategory"
                     value={formValue.temperatureCategory}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '25%' } }}
+                    onChange={onFieldHandler}
+                    sx={{ flex: 1, minWidth: 120 }}
                   >
-                    {formDropdown.temperatureList.map((dt, idx) => (
-                      <MenuItem value={dt.value} key={idx}>
+                    {formDropdown.temperatureList.map((dt, i) => (
+                      <MenuItem key={i} value={dt.value}>
                         {dt.label}
                       </MenuItem>
                     ))}
@@ -490,125 +510,99 @@ const CheckPetConditionPetClinic = (props) => {
                 </Stack>
               </Stack>
             </Grid>
+          </Grid>
+        </SectionCard>
 
+        {/* Ektoparasit */}
+        <SectionCard icon={<PetsIcon fontSize="small" color="primary" />} title="Temuan Ektoparasit & Endoparasit">
+          <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="ectoparasite-findings" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'ectoparasite-findings'} />
-                </InputLabel>
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isLice}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isLice: event.target.checked }))}
-                        name="isLice"
-                      />
-                    }
-                    label={<FormattedMessage id="lice-free" />}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteLice"
-                    name="noteLice"
-                    value={formValue.noteLice}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isFlea}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isFlea: event.target.checked }))}
-                        name="isFlea"
-                      />
-                    }
-                    label={<FormattedMessage id="flea" />}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteFlea"
-                    name="noteFlea"
-                    value={formValue.noteFlea}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
-
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isCaplak}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isCaplak: event.target.checked }))}
-                        name="isCaplak"
-                      />
-                    }
-                    label={'Caplak'}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteCaplak"
-                    name="noteCaplak"
-                    value={formValue.noteCaplak}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
-
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isTungau}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isTungau: event.target.checked }))}
-                        name="isTungau"
-                      />
-                    }
-                    label={'Tungau'}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteTungau"
-                    name="noteTungau"
-                    value={formValue.noteTungau}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
+              <Stack spacing={1}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary">
+                  <FormattedMessage id="ectoparasite-findings" />
+                </Typography>
+                <CheckNoteRow
+                  checked={formValue.isLice}
+                  onCheck={(e) => set('isLice', e.target.checked)}
+                  label={<FormattedMessage id="lice-free" />}
+                  noteValue={formValue.noteLice}
+                  onNote={(e) => set('noteLice', e.target.value)}
+                />
+                <CheckNoteRow
+                  checked={formValue.isFlea}
+                  onCheck={(e) => set('isFlea', e.target.checked)}
+                  label={<FormattedMessage id="flea" />}
+                  noteValue={formValue.noteFlea}
+                  onNote={(e) => set('noteFlea', e.target.value)}
+                />
+                <CheckNoteRow
+                  checked={formValue.isCaplak}
+                  onCheck={(e) => set('isCaplak', e.target.checked)}
+                  label="Caplak"
+                  noteValue={formValue.noteCaplak}
+                  onNote={(e) => set('noteCaplak', e.target.value)}
+                />
+                <CheckNoteRow
+                  checked={formValue.isTungau}
+                  onCheck={(e) => set('isTungau', e.target.checked)}
+                  label="Tungau"
+                  noteValue={formValue.noteTungau}
+                  onNote={(e) => set('noteTungau', e.target.value)}
+                />
               </Stack>
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <Grid container spacing={1.5}>
-                <Grid item xs={12}>
-                  <Stack spacing={1.25}>
-                    <InputLabel htmlFor="life-cycle-ectoparasite" style={{ fontWeight: 'bold' }}>
-                      <FormattedMessage id={'life-cycle-ectoparasite'} />
-                    </InputLabel>
+              <Stack spacing={1}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary">
+                  <FormattedMessage id="endoparasit-findings" />
+                </Typography>
+                <CheckNoteRow
+                  checked={formValue.isNematoda}
+                  onCheck={(e) => set('isNematoda', e.target.checked)}
+                  label="Nematoda"
+                  noteValue={formValue.noteNematoda}
+                  onNote={(e) => set('noteNematoda', e.target.value)}
+                />
+                <CheckNoteRow
+                  checked={formValue.isTermatoda}
+                  onCheck={(e) => set('isTermatoda', e.target.checked)}
+                  label="Trematoda"
+                  noteValue={formValue.noteTermatoda}
+                  onNote={(e) => set('noteTermatoda', e.target.value)}
+                />
+                <CheckNoteRow
+                  checked={formValue.isCestode}
+                  onCheck={(e) => set('isCestode', e.target.checked)}
+                  label="Cestode"
+                  noteValue={formValue.noteCestode}
+                  onNote={(e) => set('noteCestode', e.target.value)}
+                />
+              </Stack>
+              <Stack spacing={1} mt={2}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary">
+                  Kategori & Jamur
+                </Typography>
+                <Stack direction="row" spacing={1}>
+                  <Stack spacing={0.5} flex={1}>
+                    <Typography variant="caption">
+                      <FormattedMessage id="life-cycle-ectoparasite" />
+                    </Typography>
                     <Select
+                      size="small"
                       fullWidth
                       name="ectoParasitCategory"
                       value={formValue.ectoParasitCategory}
-                      onChange={(event) => onFieldHandler(event)}
+                      onChange={onFieldHandler}
                     >
                       <MenuItem value="1">Badan Hewan</MenuItem>
                       <MenuItem value="2">Lingkungan</MenuItem>
                     </Select>
                   </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                  <Stack spacing={1.25}>
-                    <InputLabel htmlFor="fungi-findings" style={{ fontWeight: 'bold' }}>
-                      <FormattedMessage id={'fungi-findings'} />
-                    </InputLabel>
-                    <Select fullWidth name="isFungiFound" value={formValue.isFungiFound} onChange={(event) => onFieldHandler(event)}>
+                  <Stack spacing={0.5} flex={1}>
+                    <Typography variant="caption">
+                      <FormattedMessage id="fungi-findings" />
+                    </Typography>
+                    <Select size="small" fullWidth name="isFungiFound" value={formValue.isFungiFound} onChange={onFieldHandler}>
                       <MenuItem value="1">
                         <FormattedMessage id="yes" />
                       </MenuItem>
@@ -617,1258 +611,701 @@ const CheckPetConditionPetClinic = (props) => {
                       </MenuItem>
                     </Select>
                   </Stack>
-                </Grid>
+                </Stack>
+              </Stack>
+            </Grid>
+          </Grid>
+        </SectionCard>
+
+        {/* Mukosa */}
+        <SectionCard icon={<FavoriteIcon fontSize="small" color="primary" />} title="Mukosa">
+          <Grid container spacing={1.5}>
+            {[
+              { label: 'Konjung', name: 'konjung' },
+              { label: 'Ginggiva', name: 'ginggiva' },
+              { label: 'Telinga', name: 'ear' },
+              { label: 'Lidah', name: 'tongue' },
+              { label: 'Hidung', name: 'nose' },
+              { label: 'CRT', name: 'CRT' },
+              { label: 'Genitalia', name: 'genitals' }
+            ].map(({ label, name }) => (
+              <Grid item xs={6} sm={4} md={3} key={name}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    {label}
+                  </Typography>
+                  <TextField size="small" fullWidth name={name} value={formValue[name]} onChange={onFieldHandler} />
+                </Stack>
               </Grid>
-            </Grid>
+            ))}
+          </Grid>
+        </SectionCard>
 
+        {/* Saraf & Lokomosi */}
+        <SectionCard icon={<BiotechIcon fontSize="small" color="primary" />} title="Sistem Saraf & Lokomosi">
+          <Grid container spacing={1.5}>
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="endoparasit-findings" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'endoparasit-findings'} />
-                </InputLabel>
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isNematoda}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isNematoda: event.target.checked }))}
-                        name="isNematoda"
-                      />
-                    }
-                    label={'Nematoda'}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteNematoda"
-                    name="noteNematoda"
-                    value={formValue.noteNematoda}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
-
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isTermatoda}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isTermatoda: event.target.checked }))}
-                        name="isTermatoda"
-                      />
-                    }
-                    label={'Trematoda'}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteTermatoda"
-                    name="noteTermatoda"
-                    value={formValue.noteTermatoda}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
-
-                <Stack flexDirection={'row'}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formValue.isCestode}
-                        onChange={(event) => setFormValue((e) => ({ ...e, isCestode: event.target.checked }))}
-                        name="isCestode"
-                      />
-                    }
-                    label={'Cestode'}
-                    sx={{ width: { xs: '100%', sm: '20%' } }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="noteCestode"
-                    name="noteCestode"
-                    value={formValue.noteCestode}
-                    onChange={(event) => onFieldHandler(event)}
-                    sx={{ width: { xs: '100%', sm: '80%' } }}
-                  />
-                </Stack>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="neurological-findings" />
+                </Typography>
+                <TextField
+                  size="small"
+                  fullWidth
+                  name="neurologicalFindings"
+                  value={formValue.neurologicalFindings}
+                  onChange={onFieldHandler}
+                />
               </Stack>
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="Mukosa" style={{ fontWeight: 'bold' }}>
-                  Mukosa
-                </InputLabel>
-
-                <Grid container spacing={1}>
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="konjung" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        Konjung
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="konjung"
-                        value={formValue.konjung}
-                        name="konjung"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="Ginggiva" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        Ginggiva
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="ginggiva"
-                        value={formValue.ginggiva}
-                        name="ginggiva"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="Telinga" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        Telinga
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="ear"
-                        value={formValue.ear}
-                        name="ear"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="tongue" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        <FormattedMessage id="tongue" />
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="tongue"
-                        value={formValue.tongue}
-                        name="tongue"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="nose" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        <FormattedMessage id="nose" />
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="nose"
-                        value={formValue.nose}
-                        name="nose"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="crt" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        CRT
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="CRT"
-                        value={formValue.CRT}
-                        name="CRT"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Stack flexDirection={'row'} alignItems={'center'}>
-                      <InputLabel htmlFor="genitals" sx={{ width: { xs: '100%', sm: '20%' } }}>
-                        <FormattedMessage id="genitals" />
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="genitals"
-                        value={formValue.genitals}
-                        name="genitals"
-                        onChange={(event) => onFieldHandler(event)}
-                        placeholder=""
-                        sx={{ width: { xs: '100%', sm: '80%' } }}
-                      />
-                    </Stack>
-                  </Grid>
-                </Grid>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="lokomosi-findings" />
+                </Typography>
+                <TextField size="small" fullWidth name="lokomosiFindings" value={formValue.lokomosiFindings} onChange={onFieldHandler} />
               </Stack>
             </Grid>
+          </Grid>
+        </SectionCard>
 
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="nervous-system-and-locomotion" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id="nervous-system-and-locomotion" />
-                </InputLabel>
-
-                <Stack flexDirection={'row'} alignItems={'center'}>
-                  <InputLabel htmlFor="neurological-findings" sx={{ width: { xs: '100%', sm: '15%' } }}>
-                    <FormattedMessage id="neurological-findings" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="neurologicalFindings"
-                    value={formValue.neurologicalFindings}
-                    name="neurologicalFindings"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder=""
-                    sx={{ width: { xs: '100%', sm: '85%' } }}
-                  />
-                </Stack>
-                <Stack flexDirection={'row'} alignItems={'center'}>
-                  <InputLabel htmlFor="lokomosi-findings" sx={{ width: { xs: '100%', sm: '15%' } }}>
-                    <FormattedMessage id="lokomosi-findings" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="lokomosiFindings"
-                    value={formValue.lokomosiFindings}
-                    name="lokomosiFindings"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder=""
-                    sx={{ width: { xs: '100%', sm: '85%' } }}
-                  />
-                </Stack>
+        {/* Respirasi */}
+        <SectionCard icon={<MonitorHeartIcon fontSize="small" color="primary" />} title="Sistem Respirasi">
+          <Grid container spacing={1.5}>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="snot" />
+                </Typography>
+                <Select size="small" fullWidth name="isSnot" value={formValue.isSnot} onChange={onFieldHandler}>
+                  <MenuItem value="1">
+                    <FormattedMessage id="yes" />
+                  </MenuItem>
+                  <MenuItem value="0">
+                    <FormattedMessage id="no" />
+                  </MenuItem>
+                </Select>
               </Stack>
             </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="respiratory-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'respiratory-system'} />
-                </InputLabel>
-                <InputLabel htmlFor="snot">
-                  <FormattedMessage id={'snot'} />
-                </InputLabel>
-                <Stack direction={matchDownSM ? 'column' : 'row'} alignItems="center" spacing={2}>
-                  <Select value={formValue.isSnot} name="isSnot" onChange={(event) => onFieldHandler(event)} fullWidth>
-                    <MenuItem value="1">
-                      <FormattedMessage id={'yes'} />
-                    </MenuItem>
-                    <MenuItem value="0">
-                      <FormattedMessage id={'no'} />
-                    </MenuItem>
-                  </Select>
-                  {formValue.isSnot === '0' && (
-                    <TextField
-                      fullWidth
-                      id="noteSnot"
-                      value={formValue.noteSnot}
-                      name="noteSnot"
-                      onChange={(event) => onFieldHandler(event)}
-                      placeholder="note"
-                      sx={{ width: { xs: '100%', sm: '50%' } }}
-                    />
-                  )}
+            {formValue.isSnot === '1' && (
+              <Grid item xs={12} sm={8}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    Catatan Ingus
+                  </Typography>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    name="noteSnot"
+                    value={formValue.noteSnot}
+                    onChange={onFieldHandler}
+                    placeholder="Keterangan..."
+                  />
                 </Stack>
-
-                <InputLabel htmlFor="breath-type">
-                  <FormattedMessage id={'breath-type'} />
-                </InputLabel>
-                <Select value={formValue.breathType} name="breathType" onChange={(event) => onFieldHandler(event)} fullWidth>
-                  {formDropdown.breathList.map((dt, idx) => (
-                    <MenuItem value={dt.value} key={idx}>
+              </Grid>
+            )}
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="breath-type" />
+                </Typography>
+                <Select size="small" fullWidth name="breathType" value={formValue.breathType} onChange={onFieldHandler}>
+                  {formDropdown.breathList.map((dt, i) => (
+                    <MenuItem key={i} value={dt.value}>
                       {dt.label}
                     </MenuItem>
                   ))}
                 </Select>
-
-                <InputLabel htmlFor="breath-sound-type">
-                  <FormattedMessage id={'breath-sound-type'} />
-                </InputLabel>
-                <Stack direction={matchDownSM ? 'column' : 'row'} alignItems="center" spacing={2}>
-                  <Select value={formValue.breathSoundType} name="breathSoundType" onChange={(event) => onFieldHandler(event)} fullWidth>
-                    {formDropdown.breathSoundList.map((dt, idx) => (
-                      <MenuItem value={dt.value} key={idx}>
-                        {dt.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {formValue.breathSoundType === '4' && (
-                    <TextField
-                      fullWidth
-                      id="breathSoundNote"
-                      value={formValue.breathSoundNote}
-                      name="breathSoundNote"
-                      onChange={(event) => onFieldHandler(event)}
-                      sx={{ width: { xs: '100%', sm: '50%' } }}
-                    />
-                  )}
-                </Stack>
-                <InputLabel htmlFor="other-findings">
-                  <FormattedMessage id={'other-findings'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="othersFoundBreath"
-                  value={formValue.othersFoundBreath}
-                  name="othersFoundBreath"
-                  onChange={(event) => onFieldHandler(event)}
-                />
               </Stack>
             </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="cardiovascular-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'cardiovascular-system'} />
-                </InputLabel>
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-                  <Stack sx={{ width: { xs: '100%', sm: '15%' } }}>
-                    <InputLabel htmlFor="pulsus">Pulsus</InputLabel>
-                    <RadioGroup row name="pulsus" value={formValue.pulsus} onChange={(event) => onFieldHandler(event)}>
-                      <FormControlLabel value="1" control={<Radio />} label={'Teraba'} />
-                      <FormControlLabel value="2" control={<Radio />} label={<FormattedMessage id="no" />} />
-                    </RadioGroup>
-                  </Stack>
-
-                  <Stack sx={{ width: { xs: '100%', sm: '42.5%' } }}>
-                    <InputLabel htmlFor="heart-sound">
-                      <FormattedMessage id={'heart-sound'} />
-                    </InputLabel>
-                    <Select value={formValue.heartSound} name="heartSound" onChange={(event) => onFieldHandler(event)} fullWidth>
-                      {formDropdown.heartList.map((dt, idx) => (
-                        <MenuItem value={dt.value} key={idx}>
-                          {dt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Stack>
-
-                  <Stack sx={{ width: { xs: '100%', sm: '42.5%' } }}>
-                    <InputLabel htmlFor="other-findings">
-                      <FormattedMessage id={'other-findings'} />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="othersFoundHeart"
-                      value={formValue.othersFoundHeart}
-                      name="othersFoundHeart"
-                      onChange={(event) => onFieldHandler(event)}
-                    />
-                  </Stack>
-                </Stack>
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="skin-and-integumentary-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'skin-and-integumentary-system'} />
-                </InputLabel>
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-                  <Stack sx={{ width: { xs: '100%', sm: '50%' } }}>
-                    <InputLabel htmlFor="skin-findings">
-                      <FormattedMessage id={'skin-findings'} />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="othersFoundSkin"
-                      value={formValue.othersFoundSkin}
-                      name="othersFoundSkin"
-                      onChange={(event) => onFieldHandler(event)}
-                    />
-                  </Stack>
-                  <Stack sx={{ width: { xs: '100%', sm: '50%' } }}>
-                    <InputLabel htmlFor="hair-findings">
-                      <FormattedMessage id={'hair-findings'} />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="othersFoundHair"
-                      value={formValue.othersFoundHair}
-                      name="othersFoundHair"
-                      onChange={(event) => onFieldHandler(event)}
-                    />
-                  </Stack>
-                </Stack>
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="urogenital-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id={'urogenital-system'} />
-                </InputLabel>
-
-                <InputLabel htmlFor="male-testicles">
-                  <FormattedMessage id={'male-testicles'} />
-                </InputLabel>
-                <Stack direction={matchDownSM ? 'column' : 'row'} alignItems="center" spacing={2}>
-                  <Select value={formValue.maleTesticles} name="maleTesticles" onChange={(event) => onFieldHandler(event)} fullWidth>
-                    <MenuItem value={'1'}>Steril</MenuItem>
-                    <MenuItem value={'2'}>normal</MenuItem>
-                    <MenuItem value={'3'}>chriptorchid</MenuItem>
-                    <MenuItem value={'4'}>lainnya</MenuItem>
-                  </Select>
-                  {formValue.maleTesticles === '4' && (
-                    <TextField
-                      fullWidth
-                      id="othersMaleTesticles"
-                      value={formValue.othersMaleTesticles}
-                      name="othersMaleTesticles"
-                      onChange={(event) => onFieldHandler(event)}
-                      sx={{ width: { xs: '100%', sm: '50%' } }}
-                    />
-                  )}
-                </Stack>
-
-                <InputLabel htmlFor="penis-condition">
-                  <FormattedMessage id={'penis-condition'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="penisCondition"
-                  value={formValue.penisCondition}
-                  name="penisCondition"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-
-                <InputLabel htmlFor="vaginal-discharge">
-                  <FormattedMessage id={'vaginal-discharge'} />
-                </InputLabel>
-                <Select
-                  value={formValue.vaginalDischargeType}
-                  name="vaginalDischargeType"
-                  onChange={(event) => onFieldHandler(event)}
-                  fullWidth
-                >
-                  {formDropdown.vaginalList.map((dt, idx) => (
-                    <MenuItem value={dt.value} key={idx}>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="breath-sound-type" />
+                </Typography>
+                <Select size="small" fullWidth name="breathSoundType" value={formValue.breathSoundType} onChange={onFieldHandler}>
+                  {formDropdown.breathSoundList.map((dt, i) => (
+                    <MenuItem key={i} value={dt.value}>
                       {dt.label}
                     </MenuItem>
                   ))}
                 </Select>
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-                  <Stack sx={{ width: { xs: '100%', sm: '20%' } }}>
-                    <InputLabel htmlFor="urinasi">Urinasi</InputLabel>
-                    <RadioGroup row name="urinationType" value={formValue.urinationType} onChange={(event) => onFieldHandler(event)}>
-                      <FormControlLabel value="1" control={<Radio />} label={'Normal'} />
-                      <FormControlLabel value="2" control={<Radio />} label={'Anuria'} />
-                      <FormControlLabel value="3" control={<Radio />} label={'Disuria'} />
-                    </RadioGroup>
-                  </Stack>
-                  {formValue.urinationType === '3' && (
-                    <Stack sx={{ width: { xs: '100%', sm: '80%' } }}>
-                      <InputLabel htmlFor="with-character">
-                        <FormattedMessage id={'with-character'} />
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="othersUrination"
-                        value={formValue.othersUrination}
-                        name="othersUrination"
-                        onChange={(event) => onFieldHandler(event)}
-                      />
-                    </Stack>
-                  )}
+              </Stack>
+            </Grid>
+            {formValue.breathSoundType === '4' && (
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    Catatan Suara Nafas
+                  </Typography>
+                  <TextField size="small" fullWidth name="breathSoundNote" value={formValue.breathSoundNote} onChange={onFieldHandler} />
                 </Stack>
+              </Grid>
+            )}
+            <Grid item xs={12}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="other-findings" />
+                </Typography>
+                <TextField size="small" fullWidth name="othersFoundBreath" value={formValue.othersFoundBreath} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+          </Grid>
+        </SectionCard>
 
-                <InputLabel htmlFor="other-findings">
-                  <FormattedMessage id={'other-findings'} />
-                </InputLabel>
+        {/* Kardiovaskular */}
+        <SectionCard icon={<FavoriteIcon fontSize="small" color="error" />} title="Sistem Kardiovaskular">
+          <Grid container spacing={1.5} alignItems="center">
+            <Grid item xs={12} sm={3}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  Pulsus
+                </Typography>
+                <RadioGroup row name="pulsus" value={formValue.pulsus} onChange={onFieldHandler}>
+                  <FormControlLabel value="1" control={<Radio size="small" />} label={<Typography variant="caption">Teraba</Typography>} />
+                  <FormControlLabel
+                    value="2"
+                    control={<Radio size="small" />}
+                    label={
+                      <Typography variant="caption">
+                        <FormattedMessage id="no" />
+                      </Typography>
+                    }
+                  />
+                </RadioGroup>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="heart-sound" />
+                </Typography>
+                <Select size="small" fullWidth name="heartSound" value={formValue.heartSound} onChange={onFieldHandler}>
+                  {formDropdown.heartList.map((dt, i) => (
+                    <MenuItem key={i} value={dt.value}>
+                      {dt.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={5}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="other-findings" />
+                </Typography>
+                <TextField size="small" fullWidth name="othersFoundHeart" value={formValue.othersFoundHeart} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+          </Grid>
+        </SectionCard>
+
+        {/* Kulit */}
+        <SectionCard icon={<PetsIcon fontSize="small" color="primary" />} title="Sistem Kulit & Integumen">
+          <Grid container spacing={1.5}>
+            <Grid item xs={12} sm={6}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="skin-findings" />
+                </Typography>
+                <TextField size="small" fullWidth name="othersFoundSkin" value={formValue.othersFoundSkin} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="hair-findings" />
+                </Typography>
+                <TextField size="small" fullWidth name="othersFoundHair" value={formValue.othersFoundHair} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+          </Grid>
+        </SectionCard>
+
+        {/* Urogenital */}
+        <SectionCard icon={<BiotechIcon fontSize="small" color="primary" />} title="Sistem Urogenital">
+          <Grid container spacing={1.5}>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="male-testicles" />
+                </Typography>
+                <Select size="small" fullWidth name="maleTesticles" value={formValue.maleTesticles} onChange={onFieldHandler}>
+                  <MenuItem value="1">Steril</MenuItem>
+                  <MenuItem value="2">Normal</MenuItem>
+                  <MenuItem value="3">Cryptorchid</MenuItem>
+                  <MenuItem value="4">Lainnya</MenuItem>
+                </Select>
+              </Stack>
+            </Grid>
+            {formValue.maleTesticles === '4' && (
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    Keterangan Testis
+                  </Typography>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    name="othersMaleTesticles"
+                    value={formValue.othersMaleTesticles}
+                    onChange={onFieldHandler}
+                  />
+                </Stack>
+              </Grid>
+            )}
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="penis-condition" />
+                </Typography>
+                <TextField size="small" fullWidth name="penisCondition" value={formValue.penisCondition} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="vaginal-discharge" />
+                </Typography>
+                <Select size="small" fullWidth name="vaginalDischargeType" value={formValue.vaginalDischargeType} onChange={onFieldHandler}>
+                  {formDropdown.vaginalList.map((dt, i) => (
+                    <MenuItem key={i} value={dt.value}>
+                      {dt.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={5}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  Urinasi
+                </Typography>
+                <RadioGroup row name="urinationType" value={formValue.urinationType} onChange={onFieldHandler}>
+                  <FormControlLabel value="1" control={<Radio size="small" />} label={<Typography variant="caption">Normal</Typography>} />
+                  <FormControlLabel value="2" control={<Radio size="small" />} label={<Typography variant="caption">Anuria</Typography>} />
+                  <FormControlLabel value="3" control={<Radio size="small" />} label={<Typography variant="caption">Disuria</Typography>} />
+                </RadioGroup>
+              </Stack>
+            </Grid>
+            {formValue.urinationType === '3' && (
+              <Grid item xs={12} sm={5}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="with-character" />
+                  </Typography>
+                  <TextField size="small" fullWidth name="othersUrination" value={formValue.othersUrination} onChange={onFieldHandler} />
+                </Stack>
+              </Grid>
+            )}
+            <Grid item xs={12}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="other-findings" />
+                </Typography>
                 <TextField
+                  size="small"
                   fullWidth
-                  id="othersFoundUrogenital"
-                  value={formValue.othersFoundUrogenital}
                   name="othersFoundUrogenital"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="digestive-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id="digestive-system" />
-                </InputLabel>
-
-                <Stack flexDirection={'row'} alignItems={'center'}>
-                  <InputLabel htmlFor="abnormalitas-cavum-oris" sx={{ width: { xs: '100%', sm: '15%' } }}>
-                    <FormattedMessage id="abnormalitas-cavum-oris" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="abnormalitasCavumOris"
-                    value={formValue.abnormalitasCavumOris}
-                    name="abnormalitasCavumOris"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder=""
-                    sx={{ width: { xs: '100%', sm: '85%' } }}
-                  />
-                </Stack>
-
-                <Stack flexDirection={'row'} alignItems={'center'}>
-                  <InputLabel htmlFor="intestinal-peristalsis" sx={{ width: { xs: '100%', sm: '15%' } }}>
-                    <FormattedMessage id="intestinal-peristalsis" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="intestinalPeristalsis"
-                    value={formValue.intestinalPeristalsis}
-                    name="intestinalPeristalsis"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder=""
-                    sx={{ width: { xs: '100%', sm: '85%' } }}
-                  />
-                </Stack>
-
-                <Stack flexDirection={'row'} alignItems={'center'}>
-                  <InputLabel htmlFor="abdominal-percussion" sx={{ width: { xs: '100%', sm: '15%' } }}>
-                    <FormattedMessage id="abdominal-percussion" />
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="perkusiAbdomen"
-                    value={formValue.perkusiAbdomen}
-                    name="perkusiAbdomen"
-                    onChange={(event) => onFieldHandler(event)}
-                    placeholder=""
-                    sx={{ width: { xs: '100%', sm: '85%' } }}
-                  />
-                </Stack>
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} gap={'10px'}>
-                  <Box flexBasis={'50%'} display={'flex'} alignItems={'center'}>
-                    <InputLabel htmlFor="condition-rektum-kloaka" style={{ flexBasis: matchDownSM ? '50%' : '30%' }}>
-                      <FormattedMessage id="condition" /> (*rektum/kloaka)
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="rektumKloaka"
-                      value={formValue.rektumKloaka}
-                      name="rektumKloaka"
-                      onChange={(event) => onFieldHandler(event)}
-                      placeholder=""
-                      style={{ flexBasis: matchDownSM ? '50%' : '70%' }}
-                    />
-                  </Box>
-
-                  <Box flexBasis={'50%'} display={'flex'} alignItems={'center'}>
-                    <InputLabel htmlFor="other-characters-rektum-kloaka" style={{ flexBasis: matchDownSM ? '50%' : '20%' }}>
-                      <FormattedMessage id="other-characters" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="othersCharacterRektumKloaka"
-                      value={formValue.othersCharacterothersCharacterRektumKloaka}
-                      name="othersCharacterRektumKloaka"
-                      onChange={(event) => onFieldHandler(event)}
-                      placeholder=""
-                      style={{ flexBasis: matchDownSM ? '50%' : '80%' }}
-                    />
-                  </Box>
-                </Stack>
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} gap={'10px'}>
-                  <Box width={'100%'}>
-                    <InputLabel htmlFor="feces-form">
-                      <FormattedMessage id="feces-form" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="fecesForm"
-                      value={formValue.fecesForm}
-                      name="fecesForm"
-                      onChange={(event) => onFieldHandler(event)}
-                      placeholder=""
-                    />
-                  </Box>
-
-                  <Box width={'100%'}>
-                    <InputLabel htmlFor="feces-color">
-                      <FormattedMessage id="feces-color" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="fecesColor"
-                      value={formValue.fecesColor}
-                      name="fecesColor"
-                      onChange={(event) => onFieldHandler(event)}
-                      placeholder=""
-                    />
-                  </Box>
-
-                  <Box width={'100%'}>
-                    <InputLabel htmlFor="feces-with-character">
-                      <FormattedMessage id="feces-with-character" />
-                    </InputLabel>
-                    <TextField
-                      fullWidth
-                      id="fecesWithCharacter"
-                      value={formValue.fecesWithCharacter}
-                      name="fecesWithCharacter"
-                      onChange={(event) => onFieldHandler(event)}
-                      placeholder=""
-                    />
-                  </Box>
-                </Stack>
-
-                <InputLabel htmlFor="other-findings">
-                  <FormattedMessage id={'other-findings'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="othersFoundDigesti"
-                  value={formValue.othersFoundDigesti}
-                  name="othersFoundDigesti"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="visual-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id="visual-system" />
-                </InputLabel>
-
-                <InputLabel htmlFor="pupillary-reflex">
-                  <FormattedMessage id={'pupillary-reflex'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="reflectPupil"
-                  value={formValue.reflectPupil}
-                  name="reflectPupil"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-
-                <InputLabel htmlFor="eye-ball-condition">
-                  <FormattedMessage id={'eye-ball-condition'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="eyeBallCondition"
-                  value={formValue.eyeBallCondition}
-                  name="eyeBallCondition"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-
-                <InputLabel htmlFor="other-findings">
-                  <FormattedMessage id={'other-findings'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="othersFoundVision"
-                  value={formValue.othersFoundVision}
-                  name="othersFoundVision"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Stack spacing={1.25}>
-                <InputLabel htmlFor="hearing-system" style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id="hearing-system" />
-                </InputLabel>
-
-                <InputLabel htmlFor="earlobe">
-                  <FormattedMessage id={'earlobe'} />
-                </InputLabel>
-                <TextField fullWidth id="earlobe" value={formValue.earlobe} name="earlobe" onChange={(event) => onFieldHandler(event)} />
-
-                <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-                  <Stack sx={{ width: { xs: '100%', sm: '20%' } }}>
-                    <InputLabel htmlFor="earwax">
-                      <FormattedMessage id="earwax" />
-                    </InputLabel>
-                    <RadioGroup row name="earwax" value={formValue.earwax} onChange={(event) => onFieldHandler(event)}>
-                      <FormControlLabel value="1" control={<Radio />} label={'Normal'} />
-                      <FormControlLabel value="2" control={<Radio />} label={'Tidak'} />
-                    </RadioGroup>
-                  </Stack>
-                  {formValue.earwax === '2' && (
-                    <Stack sx={{ width: { xs: '100%', sm: '80%' } }}>
-                      <InputLabel htmlFor="with-character">
-                        <FormattedMessage id={'with-character'} />
-                      </InputLabel>
-                      <TextField
-                        fullWidth
-                        id="earwaxCharacter"
-                        value={formValue.earwaxCharacter}
-                        name="earwaxCharacter"
-                        onChange={(event) => onFieldHandler(event)}
-                      />
-                    </Stack>
-                  )}
-                </Stack>
-
-                <InputLabel htmlFor="other-findings">
-                  <FormattedMessage id={'other-findings'} />
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  id="othersFoundEar"
-                  value={formValue.othersFoundEar}
-                  name="othersFoundEar"
-                  onChange={(event) => onFieldHandler(event)}
+                  value={formValue.othersFoundUrogenital}
+                  onChange={onFieldHandler}
                 />
               </Stack>
             </Grid>
           </Grid>
-        </Box>
+        </SectionCard>
 
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">
-            <FormattedMessage id="disease-diagnosis" />
-          </Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
+        {/* Pencernaan */}
+        <SectionCard icon={<HealingIcon fontSize="small" color="primary" />} title="Sistem Pencernaan">
+          <Grid container spacing={1.5}>
+            {[
+              { label: 'Abnormalitas Cavum Oris', name: 'abnormalitasCavumOris' },
+              { label: 'Peristaltik Usus', name: 'intestinalPeristalsis' },
+              { label: 'Perkusi Abdomen', name: 'perkusiAbdomen' },
+              { label: 'Rektum/Kloaka', name: 'rektumKloaka' },
+              { label: 'Karakter Rektum/Kloaka', name: 'othersCharacterRektumKloaka' },
+              { label: 'Bentuk Feses', name: 'fecesForm' },
+              { label: 'Warna Feses', name: 'fecesColor' },
+              { label: 'Karakter Feses', name: 'fecesWithCharacter' },
+              { label: 'Temuan Lain', name: 'othersFoundDigesti' }
+            ].map(({ label, name }) => (
+              <Grid item xs={12} sm={4} key={name}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    {label}
+                  </Typography>
+                  <TextField size="small" fullWidth name={name} value={formValue[name]} onChange={onFieldHandler} />
+                </Stack>
+              </Grid>
+            ))}
+          </Grid>
+        </SectionCard>
+
+        {/* Visual */}
+        <SectionCard icon={<BiotechIcon fontSize="small" color="primary" />} title="Sistem Visual">
+          <Grid container spacing={1.5}>
+            {[
+              { label: 'Refleks Pupil', name: 'reflectPupil' },
+              { label: 'Kondisi Bola Mata', name: 'eyeBallCondition' },
+              { label: 'Temuan Lain', name: 'othersFoundVision' }
+            ].map(({ label, name }) => (
+              <Grid item xs={12} sm={4} key={name}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    {label}
+                  </Typography>
+                  <TextField size="small" fullWidth name={name} value={formValue[name]} onChange={onFieldHandler} />
+                </Stack>
+              </Grid>
+            ))}
+          </Grid>
+        </SectionCard>
+
+        {/* Pendengaran */}
+        <SectionCard icon={<BiotechIcon fontSize="small" color="primary" />} title="Sistem Pendengaran">
+          <Grid container spacing={1.5} alignItems="center">
+            <Grid item xs={12} sm={4}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="earlobe" />
+                </Typography>
+                <TextField size="small" fullWidth name="earlobe" value={formValue.earlobe} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="earwax" />
+                </Typography>
+                <RadioGroup row name="earwax" value={formValue.earwax} onChange={onFieldHandler}>
+                  <FormControlLabel value="1" control={<Radio size="small" />} label={<Typography variant="caption">Normal</Typography>} />
+                  <FormControlLabel value="2" control={<Radio size="small" />} label={<Typography variant="caption">Tidak</Typography>} />
+                </RadioGroup>
+              </Stack>
+            </Grid>
+            {formValue.earwax === '2' && (
+              <Grid item xs={12} sm={5}>
+                <Stack spacing={0.5}>
+                  <Typography variant="caption" fontWeight={600}>
+                    <FormattedMessage id="with-character" />
+                  </Typography>
+                  <TextField size="small" fullWidth name="earwaxCharacter" value={formValue.earwaxCharacter} onChange={onFieldHandler} />
+                </Stack>
+              </Grid>
+            )}
+            <Grid item xs={12}>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" fontWeight={600}>
+                  <FormattedMessage id="other-findings" />
+                </Typography>
+                <TextField size="small" fullWidth name="othersFoundEar" value={formValue.othersFoundEar} onChange={onFieldHandler} />
+              </Stack>
+            </Grid>
+          </Grid>
+        </SectionCard>
+      </TabPanel>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* TAB 2 — Diagnosa & Pemeriksaan Lanjutan                       */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <TabPanel value={tabActive} index={2}>
+        {/* Diagnosa */}
+        <SectionCard icon={<AssignmentIcon fontSize="small" color="primary" />} title="Diagnosa Penyakit">
           <TextField
             multiline
             fullWidth
-            rows={5}
-            id="diagnoseDisease"
+            rows={4}
+            size="small"
             name="diagnoseDisease"
             value={formValue.diagnoseDisease}
-            onChange={(event) => onFieldHandler(event)}
+            onChange={onFieldHandler}
+            placeholder="Tuliskan diagnosa penyakit..."
           />
-        </Box>
+        </SectionCard>
 
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">
-            <FormattedMessage id="disease-prognosis" />
-          </Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
-          <TextField
-            multiline
-            fullWidth
-            rows={5}
-            id="prognoseDisease"
-            name="prognoseDisease"
-            value={formValue.prognoseDisease}
-            onChange={(event) => onFieldHandler(event)}
-          />
-
-          <Stack spacing={1.25} marginTop={2}>
-            <InputLabel htmlFor="overview-of-the-disease-process">
-              <FormattedMessage id={'overview-of-the-disease-process'} />
-            </InputLabel>
+        {/* Prognosa */}
+        <SectionCard icon={<MonitorHeartIcon fontSize="small" color="primary" />} title="Prognosa Penyakit">
+          <Stack spacing={1.5}>
             <TextField
               multiline
               fullWidth
-              rows={5}
-              id="diseaseProgressOverview"
-              name="diseaseProgressOverview"
-              value={formValue.diseaseProgressOverview}
-              onChange={(event) => onFieldHandler(event)}
+              rows={4}
+              size="small"
+              name="prognoseDisease"
+              value={formValue.prognoseDisease}
+              onChange={onFieldHandler}
+              placeholder="Tuliskan prognosa penyakit..."
             />
-          </Stack>
-        </Box>
-
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">
-            <FormattedMessage id="further-examination" />
-          </Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
-
-          <Stack spacing={1.25}>
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isMicroscope}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isMicroscope: event.target.checked }))}
-                    name="isMicroscope"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="microscope" style={{ fontWeight: 'bold' }}>
-                    <FormattedMessage id={'microscope'} />
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteMicroscope"
-                name="noteMicroscope"
-                value={formValue.noteMicroscope}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Sample"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isEye}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isEye: event.target.checked }))}
-                    name="isEye"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="eye" style={{ fontWeight: 'bold' }}>
-                    <FormattedMessage id={'eye'} />
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteEye"
-                name="noteEye"
-                value={formValue.noteEye}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Jenis Tes"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isTeskit}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isTeskit: event.target.checked }))}
-                    name="isTeskit"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="teskit" style={{ fontWeight: 'bold' }}>
-                    Teskit
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteTeskit"
-                name="noteTeskit"
-                value={formValue.noteTeskit}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Jenis Tes"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isUltrasonografi}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isUltrasonografi: event.target.checked }))}
-                    name="isUltrasonografi"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="Ultrasonografi" style={{ fontWeight: 'bold' }}>
-                    Ultrasonografi (USG)
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteUltrasonografi"
-                name="noteUltrasonografi"
-                value={formValue.noteUltrasonografi}
-                onChange={(event) => onFieldHandler(event)}
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isRontgen}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isRontgen: event.target.checked }))}
-                    name="isRontgen"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="Ultrasonografi" style={{ fontWeight: 'bold' }}>
-                    Rontgen (X-ray)
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteRontgen"
-                name="noteRontgen"
-                value={formValue.noteRontgen}
-                onChange={(event) => onFieldHandler(event)}
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isBloodReview}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isBloodReview: event.target.checked }))}
-                    name="isBloodReview"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="blood-review" style={{ fontWeight: 'bold' }}>
-                    <FormattedMessage id="blood-review" />
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteBloodReview"
-                name="noteBloodReview"
-                value={formValue.noteBloodReview}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Note"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isSitologi}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isSitologi: event.target.checked }))}
-                    name="isSitologi"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="cytology" style={{ fontWeight: 'bold' }}>
-                    <FormattedMessage id="cytology" />
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteSitologi"
-                name="noteSitologi"
-                value={formValue.noteSitologi}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Note"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isVaginalSmear}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isVaginalSmear: event.target.checked }))}
-                    name="isVaginalSmear"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="Vaginal Smear" style={{ fontWeight: 'bold' }}>
-                    Vaginal Smear
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteVaginalSmear"
-                name="noteVaginalSmear"
-                value={formValue.noteVaginalSmear}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Note"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-
-            <Stack flexDirection={'row'}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValue.isBloodLab}
-                    onChange={(event) => setFormValue((e) => ({ ...e, isBloodLab: event.target.checked }))}
-                    name="isBloodLab"
-                  />
-                }
-                label={
-                  <InputLabel htmlFor="blood-lab" style={{ fontWeight: 'bold' }}>
-                    <FormattedMessage id="blood-lab" />
-                  </InputLabel>
-                }
-                sx={{ width: { xs: '100%', sm: '15%' } }}
-              />
-              <TextField
-                fullWidth
-                id="noteBloodLab"
-                name="noteBloodLab"
-                value={formValue.noteBloodLab}
-                onChange={(event) => onFieldHandler(event)}
-                placeholder="Jenis Tes"
-                sx={{ width: { xs: '100%', sm: '85%' } }}
-              />
-            </Stack>
-          </Stack>
-        </Box>
-
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">Treatment (Tindakan)</Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
-
-          <Stack flexDirection={'row'}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formValue.isSurgery}
-                  onChange={(event) => setFormValue((e) => ({ ...e, isSurgery: event.target.checked }))}
-                  name="isSurgery"
-                />
-              }
-              label={<InputLabel htmlFor="operasi">Operasi</InputLabel>}
-              sx={{ width: { xs: '100%', sm: '10%' } }}
-            />
-            <TextField
-              fullWidth
-              id="noteSurgery"
-              name="noteSurgery"
-              value={formValue.noteSurgery}
-              onChange={(event) => onFieldHandler(event)}
-              sx={{ width: { xs: '100%', sm: '90%' } }}
-            />
-          </Stack>
-
-          <Stack spacing={1.25} marginTop={2}>
-            <InputLabel htmlFor="infusion">
-              <FormattedMessage id="infusion" />
-            </InputLabel>
-            <TextField fullWidth id="infusion" name="infusion" value={formValue.infusion} onChange={(event) => onFieldHandler(event)} />
-
-            <InputLabel htmlFor="physiotherapy">
-              <FormattedMessage id="physiotherapy" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="fisioteraphy"
-              name="fisioteraphy"
-              value={formValue.fisioteraphy}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="injection-medicine">
-              <FormattedMessage id="injection-medicine" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="injectionMedicine"
-              name="injectionMedicine"
-              value={formValue.injectionMedicine}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="oral-medication">
-              <FormattedMessage id="oral-medication" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="oralMedicine"
-              name="oralMedicine"
-              value={formValue.oralMedicine}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="topical-medicine">
-              <FormattedMessage id="topical-medicine" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="tropicalMedicine"
-              name="tropicalMedicine"
-              value={formValue.tropicalMedicine}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="vaccination">
-              <FormattedMessage id="vaccination" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="vaccination"
-              name="vaccination"
-              value={formValue.vaccination}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="other">
-              <FormattedMessage id="other" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="othersTreatment"
-              name="othersTreatment"
-              value={formValue.othersTreatment}
-              onChange={(event) => onFieldHandler(event)}
-            />
-          </Stack>
-        </Box>
-
-        <Box marginBottom={'25px'}>
-          <Typography variant="h5">
-            <FormattedMessage id="advice" />
-          </Typography>
-          <Divider style={{ marginTop: 5, marginBottom: 20 }} />
-
-          <Stack spacing={1.25} marginTop={2}>
-            <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-              <Stack sx={{ width: { xs: '100%', sm: '10%' } }}>
-                <InputLabel htmlFor="inpatient-care">
-                  <FormattedMessage id="inpatient-care" />
-                </InputLabel>
-                <RadioGroup row name="isInpatient" value={formValue.isInpatient} onChange={(event) => onFieldHandler(event)}>
-                  <FormControlLabel value="1" control={<Radio />} label={<FormattedMessage id="yes" />} />
-                  <FormControlLabel value="2" control={<Radio />} label={<FormattedMessage id="no" />} />
-                </RadioGroup>
-              </Stack>
-              <Stack sx={{ width: { xs: '100%', sm: '90%' } }}>
-                <TextField
-                  fullWidth
-                  id="noteInpatient"
-                  value={formValue.noteInpatient}
-                  name="noteInpatient"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-              </Stack>
-            </Stack>
-
-            <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-              <Stack sx={{ width: { xs: '100%', sm: '10%' } }}>
-                <InputLabel htmlFor="therapeutic-feed">
-                  <FormattedMessage id="therapeutic-feed" />
-                </InputLabel>
-                <RadioGroup row name="isTherapeuticFeed" value={formValue.isTherapeuticFeed} onChange={(event) => onFieldHandler(event)}>
-                  <FormControlLabel value="1" control={<Radio />} label={<FormattedMessage id="yes" />} />
-                  <FormControlLabel value="2" control={<Radio />} label={<FormattedMessage id="no" />} />
-                </RadioGroup>
-              </Stack>
-              <Stack sx={{ width: { xs: '100%', sm: '90%' } }}>
-                <TextField
-                  fullWidth
-                  id="noteTherapeuticFeed"
-                  value={formValue.noteTherapeuticFeed}
-                  name="noteTherapeuticFeed"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-              </Stack>
-            </Stack>
-
-            <InputLabel htmlFor="imun-booster/multivitamin">Imun booster/multivitamin</InputLabel>
-            <TextField
-              fullWidth
-              id="imuneBooster"
-              name="imuneBooster"
-              value={formValue.imuneBooster}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="other-supplements">
-              <FormattedMessage id="other-supplements" />
-            </InputLabel>
-            <TextField fullWidth id="suplement" name="suplement" value={formValue.suplement} onChange={(event) => onFieldHandler(event)} />
-
-            <InputLabel htmlFor="environmental-disinfection">
-              <FormattedMessage id="environmental-disinfection" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="desinfeksi"
-              name="desinfeksi"
-              value={formValue.desinfeksi}
-              onChange={(event) => onFieldHandler(event)}
-            />
-
-            <InputLabel htmlFor="maintenance-cage-indoor-outdoor-during">
-              <FormattedMessage id="maintenance-cage-indoor-outdoor-during" />
-            </InputLabel>
-            <TextField fullWidth id="care" name="care" value={formValue.care} onChange={(event) => onFieldHandler(event)} />
-
-            <Stack direction={matchDownSM ? 'column' : 'row'} justifyContent={'space-between'} alignItems="center" spacing={2}>
-              <Stack sx={{ width: { xs: '100%', sm: '10%' } }}>
-                <InputLabel htmlFor="grooming/mandi">Grooming / Mandi</InputLabel>
-                <RadioGroup row name="isGrooming" value={formValue.isGrooming} onChange={(event) => onFieldHandler(event)}>
-                  <FormControlLabel value="1" control={<Radio />} label={<FormattedMessage id="yes" />} />
-                  <FormControlLabel value="2" control={<Radio />} label={<FormattedMessage id="no" />} />
-                </RadioGroup>
-              </Stack>
-              <Stack sx={{ width: { xs: '100%', sm: '90%' } }}>
-                <TextField
-                  fullWidth
-                  id="noteGrooming"
-                  value={formValue.noteGrooming}
-                  name="noteGrooming"
-                  onChange={(event) => onFieldHandler(event)}
-                />
-              </Stack>
-            </Stack>
-
-            <InputLabel htmlFor="other">
-              <FormattedMessage id="other" />
-            </InputLabel>
-            <TextField
-              fullWidth
-              id="othersNoteAdvice"
-              name="othersNoteAdvice"
-              value={formValue.othersNoteAdvice}
-              onChange={(event) => onFieldHandler(event)}
-            />
-          </Stack>
-        </Box>
-
-        <Box>
-          <Grid container spacing={1.5}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h5">
-                <FormattedMessage id="check-up-schedule" />
+            <Stack spacing={0.5}>
+              <Typography variant="caption" fontWeight={600}>
+                <FormattedMessage id="overview-of-the-disease-process" />
               </Typography>
-              <Divider style={{ marginTop: 5, marginBottom: 20 }} />
+              <TextField
+                multiline
+                fullWidth
+                rows={3}
+                size="small"
+                name="diseaseProgressOverview"
+                value={formValue.diseaseProgressOverview}
+                onChange={onFieldHandler}
+                placeholder="Gambaran perkembangan penyakit..."
+              />
+            </Stack>
+          </Stack>
+        </SectionCard>
+
+        {/* Pemeriksaan Lanjutan */}
+        <SectionCard icon={<BiotechIcon fontSize="small" color="primary" />} title="Pemeriksaan Lanjutan">
+          <Grid container spacing={1.5}>
+            {[
+              { flag: 'isMicroscope', note: 'noteMicroscope', label: 'Mikroskop', placeholder: 'Sample...' },
+              { flag: 'isEye', note: 'noteEye', label: 'Mata (Eye)', placeholder: 'Jenis tes...' },
+              { flag: 'isTeskit', note: 'noteTeskit', label: 'Teskit', placeholder: 'Jenis tes...' },
+              { flag: 'isUltrasonografi', note: 'noteUltrasonografi', label: 'USG (Ultrasonografi)', placeholder: 'Keterangan...' },
+              { flag: 'isRontgen', note: 'noteRontgen', label: 'Rontgen (X-ray)', placeholder: 'Keterangan...' },
+              { flag: 'isBloodReview', note: 'noteBloodReview', label: 'Pemeriksaan Darah', placeholder: 'Note...' },
+              { flag: 'isSitologi', note: 'noteSitologi', label: 'Sitologi', placeholder: 'Note...' },
+              { flag: 'isVaginalSmear', note: 'noteVaginalSmear', label: 'Vaginal Smear', placeholder: 'Note...' },
+              { flag: 'isBloodLab', note: 'noteBloodLab', label: 'Lab Darah', placeholder: 'Jenis tes...' }
+            ].map(({ flag, note, label, placeholder }) => (
+              <Grid item xs={12} sm={6} key={flag}>
+                <CheckNoteRow
+                  checked={formValue[flag]}
+                  onCheck={(e) => set(flag, e.target.checked)}
+                  label={label}
+                  noteValue={formValue[note]}
+                  onNote={(e) => set(note, e.target.value)}
+                  placeholder={placeholder}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </SectionCard>
+      </TabPanel>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* TAB 3 — Tindakan & Saran                                       */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <TabPanel value={tabActive} index={3}>
+        {/* Tindakan */}
+        <SectionCard icon={<HealingIcon fontSize="small" color="primary" />} title="Treatment (Tindakan)">
+          <Stack spacing={1.5}>
+            <CheckNoteRow
+              checked={formValue.isSurgery}
+              onCheck={(e) => set('isSurgery', e.target.checked)}
+              label="Operasi"
+              noteValue={formValue.noteSurgery}
+              onNote={(e) => set('noteSurgery', e.target.value)}
+              placeholder="Keterangan operasi..."
+            />
+            <Grid container spacing={1.5}>
+              {[
+                { label: 'Infus', name: 'infusion' },
+                { label: 'Fisioterapi', name: 'fisioteraphy' },
+                { label: 'Obat Injeksi', name: 'injectionMedicine' },
+                { label: 'Obat Oral', name: 'oralMedicine' },
+                { label: 'Obat Topikal', name: 'tropicalMedicine' },
+                { label: 'Vaksinasi', name: 'vaccination' },
+                { label: 'Lainnya', name: 'othersTreatment' }
+              ].map(({ label, name }) => (
+                <Grid item xs={12} sm={6} key={name}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="caption" fontWeight={600}>
+                      {label}
+                    </Typography>
+                    <TextField size="small" fullWidth name={name} value={formValue[name]} onChange={onFieldHandler} />
+                  </Stack>
+                </Grid>
+              ))}
+            </Grid>
+          </Stack>
+        </SectionCard>
+
+        {/* Saran */}
+        <SectionCard icon={<LightbulbIcon fontSize="small" color="primary" />} title="Saran (Advice)">
+          <Stack spacing={1.5}>
+            {/* Rawat Inap */}
+            <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5 }}>
+              <Grid container spacing={1} alignItems="center">
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="caption" fontWeight={600}>
+                      <FormattedMessage id="inpatient-care" />
+                    </Typography>
+                    <RadioGroup row name="isInpatient" value={formValue.isInpatient} onChange={onFieldHandler}>
+                      <FormControlLabel
+                        value="1"
+                        control={<Radio size="small" />}
+                        label={
+                          <Typography variant="caption">
+                            <FormattedMessage id="yes" />
+                          </Typography>
+                        }
+                      />
+                      <FormControlLabel
+                        value="2"
+                        control={<Radio size="small" />}
+                        label={
+                          <Typography variant="caption">
+                            <FormattedMessage id="no" />
+                          </Typography>
+                        }
+                      />
+                    </RadioGroup>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} sm={9}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    name="noteInpatient"
+                    value={formValue.noteInpatient}
+                    onChange={onFieldHandler}
+                    placeholder="Catatan rawat inap..."
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Pakan Terapeutik */}
+            <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5 }}>
+              <Grid container spacing={1} alignItems="center">
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="caption" fontWeight={600}>
+                      <FormattedMessage id="therapeutic-feed" />
+                    </Typography>
+                    <RadioGroup row name="isTherapeuticFeed" value={formValue.isTherapeuticFeed} onChange={onFieldHandler}>
+                      <FormControlLabel
+                        value="1"
+                        control={<Radio size="small" />}
+                        label={
+                          <Typography variant="caption">
+                            <FormattedMessage id="yes" />
+                          </Typography>
+                        }
+                      />
+                      <FormControlLabel
+                        value="2"
+                        control={<Radio size="small" />}
+                        label={
+                          <Typography variant="caption">
+                            <FormattedMessage id="no" />
+                          </Typography>
+                        }
+                      />
+                    </RadioGroup>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} sm={9}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    name="noteTherapeuticFeed"
+                    value={formValue.noteTherapeuticFeed}
+                    onChange={onFieldHandler}
+                    placeholder="Catatan pakan terapeutik..."
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Grooming */}
+            <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5 }}>
+              <Grid container spacing={1} alignItems="center">
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="caption" fontWeight={600}>
+                      Grooming / Mandi
+                    </Typography>
+                    <RadioGroup row name="isGrooming" value={formValue.isGrooming} onChange={onFieldHandler}>
+                      <FormControlLabel
+                        value="1"
+                        control={<Radio size="small" />}
+                        label={
+                          <Typography variant="caption">
+                            <FormattedMessage id="yes" />
+                          </Typography>
+                        }
+                      />
+                      <FormControlLabel
+                        value="2"
+                        control={<Radio size="small" />}
+                        label={
+                          <Typography variant="caption">
+                            <FormattedMessage id="no" />
+                          </Typography>
+                        }
+                      />
+                    </RadioGroup>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} sm={9}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    name="noteGrooming"
+                    value={formValue.noteGrooming}
+                    onChange={onFieldHandler}
+                    placeholder="Catatan grooming..."
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            <Grid container spacing={1.5}>
+              {[
+                { label: 'Imun Booster / Multivitamin', name: 'imuneBooster' },
+                { label: 'Suplemen Lain', name: 'suplement' },
+                { label: 'Desinfeksi Lingkungan', name: 'desinfeksi' },
+                { label: 'Perawatan (Kandang/Indoor/Outdoor)', name: 'care' },
+                { label: 'Catatan Lain', name: 'othersNoteAdvice' }
+              ].map(({ label, name }) => (
+                <Grid item xs={12} sm={6} key={name}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="caption" fontWeight={600}>
+                      {label}
+                    </Typography>
+                    <TextField size="small" fullWidth name={name} value={formValue[name]} onChange={onFieldHandler} />
+                  </Stack>
+                </Grid>
+              ))}
+            </Grid>
+          </Stack>
+        </SectionCard>
+
+        {/* Jadwal Kontrol */}
+        <SectionCard icon={<FavoriteIcon fontSize="small" color="primary" />} title="Jadwal Kontrol Berikutnya">
+          <Grid container>
+            <Grid item xs={12} sm={5}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   inputFormat="DD/MM/YYYY"
                   value={formValue.nextControlCheckup}
-                  onChange={(value) => {
-                    setFormValue((prevState) => ({
-                      ...prevState,
-                      nextControlCheckup: value
-                    }));
-                  }}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  onChange={(v) => set('nextControlCheckup', v)}
+                  renderInput={(params) => <TextField {...params} size="small" fullWidth />}
                 />
               </LocalizationProvider>
             </Grid>
           </Grid>
+        </SectionCard>
+
+        {/* ── Submit Button ── */}
+        <Box display="flex" justifyContent="flex-end" mt={1} mb={2}>
+          <Button
+            variant="contained"
+            size="large"
+            color="primary"
+            startIcon={<SaveIcon />}
+            disabled={disabledOke}
+            onClick={onSubmit}
+            sx={{ minWidth: 200, fontWeight: 700 }}
+          >
+            Simpan Data Pemeriksaan
+          </Button>
         </Box>
-      </ModalC>
-    </>
+      </TabPanel>
+    </ModalC>
   );
 };
 

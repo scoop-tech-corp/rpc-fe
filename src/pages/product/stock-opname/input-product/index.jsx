@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Autocomplete, Button, Divider, Grid, InputLabel, Stack, Tab, Tabs, TextField, Box, Typography } from '@mui/material';
+import { Autocomplete, Button, Divider, Grid, InputLabel, Stack, TextField, Typography } from '@mui/material';
 import { LocalizationProvider, DesktopDateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useDispatch } from 'react-redux';
@@ -137,19 +137,25 @@ const StockOpnameInputProduct = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
             <Stack spacing={1}>
-              <InputLabel><FormattedMessage id="stock-opname-number" /></InputLabel>
+              <InputLabel>
+                <FormattedMessage id="stock-opname-number" />
+              </InputLabel>
               <TextField fullWidth value={detail?.stockOpnameNumber ?? ''} disabled />
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Stack spacing={1}>
-              <InputLabel><FormattedMessage id="title" /></InputLabel>
+              <InputLabel>
+                <FormattedMessage id="title" />
+              </InputLabel>
               <TextField fullWidth value={detail?.title ?? ''} disabled />
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Stack spacing={1}>
-              <InputLabel><FormattedMessage id="start-time" /></InputLabel>
+              <InputLabel>
+                <FormattedMessage id="start-time" />
+              </InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDateTimePicker
                   value={detail?.startTime ? dayjs(detail.startTime) : null}
@@ -161,7 +167,9 @@ const StockOpnameInputProduct = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <Stack spacing={1}>
-              <InputLabel><FormattedMessage id="location" /></InputLabel>
+              <InputLabel>
+                <FormattedMessage id="location" />
+              </InputLabel>
               <Autocomplete
                 options={locationValue ? [locationValue] : []}
                 value={locationValue}
@@ -173,7 +181,9 @@ const StockOpnameInputProduct = () => {
           </Grid>
           <Grid item xs={12}>
             <Stack spacing={1}>
-              <InputLabel><FormattedMessage id="users" /></InputLabel>
+              <InputLabel>
+                <FormattedMessage id="users" />
+              </InputLabel>
               <Autocomplete
                 multiple
                 limitTags={3}

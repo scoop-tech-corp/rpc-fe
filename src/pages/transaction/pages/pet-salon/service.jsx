@@ -1,6 +1,12 @@
 import axios from 'utils/axios';
 import { formateDateYYYMMDD } from 'utils/func';
 
+const url = 'transaction/petsalon';
+
+export const getTransactionPetSalonStats = async () => {
+  return await axios.get('/transaction/petsalon/stats');
+};
+
 export const getTransactionPetSalonIndex = async (payload) => {
   return await axios.get('/transaction/petsalon', {
     params: {
@@ -11,7 +17,10 @@ export const getTransactionPetSalonIndex = async (payload) => {
       search: payload.search,
       locationId: payload.locationId,
       customerGroupId: payload.customerGroupId,
-      status: payload.status // ongoing or finished
+      status: payload.status, // ongoing or finished
+      statusFilter: payload.statusFilter || '',
+      startDateFrom: payload.startDateFrom || '',
+      startDateTo: payload.startDateTo || ''
     }
   });
 };
@@ -40,6 +49,7 @@ export const createTransactionPetSalon = async (payload) => {
   formData.append('endDate', endDate);
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
+  if (payload.queueId) formData.append('queueId', payload.queueId);
 
   return await axios.post('transaction/petsalon', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -253,6 +263,51 @@ const constructPayloadCreatePrintPetSalonOutpatient = (transactionId, formValue)
   return { detail_total, payment_method };
 };
 
+// ─── Treatment (input services + produk) ─────────────────────────────────────
+export const submitTreatmentPetSalon = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('services', JSON.stringify(payload.services ?? []));
+  formData.append('productSells', JSON.stringify(payload.productSells ?? []));
+  formData.append('productClinics', JSON.stringify([]));
+  formData.append('treatmentPlans', JSON.stringify(payload.treatmentPlans ?? []));
+
+  return await axios.post('transaction/petsalon/treatment', formData);
+};
+
+// ─── Policy Agreement ─────────────────────────────────────────────────────────
+export const getPoliciesForAgreementPetSalon = async () => {
+  return await axios.get('transaction/petsalon/policies');
+};
+
+export const savePolicyAgreementPetSalon = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('signerName', payload.signerName);
+  formData.append('signatureData', payload.signatureData);
+  formData.append('policies', JSON.stringify(payload.policies));
+
+  return await axios.post('transaction/petsalon/policy-agreement', formData);
+};
+
+// ─── Groomer tandai selesai + kandang ────────────────────────────────────────
+export const markSalonDonePetSalon = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('cageId', payload.cageId);
+  if (payload.note) formData.append('note', payload.note);
+
+  return await axios.post('transaction/petsalon/salon-done', formData);
+};
+
+// ─── Inisiasi pembayaran (customer datang) ───────────────────────────────────
+export const initiateCheckoutPetSalon = async (transactionId) => {
+  const formData = new FormData();
+  formData.append('transactionId', transactionId);
+
+  return await axios.post('transaction/petsalon/checkout', formData);
+};
+
 export const createPaymentPetSalonOutpatient = async (transactionId, formValue) => {
   const { detail_total, payment_method } = constructPayloadCreatePrintPetSalonOutpatient(transactionId, formValue);
 
@@ -264,4 +319,28 @@ export const createPaymentPetSalonOutpatient = async (transactionId, formValue) 
   formData.append('payment_method', JSON.stringify(payment_method));
 
   return await axios.post(url + '/payment', formData);
+};
+
+// ── Secure Payment Verification ──────────────────────────────────────────────
+
+// Step 1: Staff upload bukti → status = 'pending'
+export const uploadPaymentProofPetSalon = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('proof', payload.file);
+
+  return await axios.post(url + '/upload-payment-proof', formData);
+};
+
+// Step 2: Finance/Manager konfirmasi (harus orang berbeda dari uploader)
+export const confirmPaymentPetSalon = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+
+  return await axios.post(url + '/confirm-payment', formData);
+};
+
+// Tolak bukti pembayaran
+export const rejectPaymentPetSalon = async (payload) => {
+  return await axios.post(url + '/reject-payment', { id: payload.id, note: payload.note });
 };

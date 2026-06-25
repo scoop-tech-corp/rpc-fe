@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField
+} from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Draggable, Map, Overlay, ZoomControl } from 'pigeon-maps';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
@@ -17,7 +30,14 @@ const AccuracyCircle = ({ anchor, accuracy, latLngToPixel, pixelToLatLng, setCen
   const metersPerPx = (156543.03392 * Math.cos((anchor[0] * Math.PI) / 180)) / Math.pow(2, mapState.zoom);
   const radiusPx = Math.max(accuracy / metersPerPx, 0);
   return (
-    <Overlay anchor={anchor} offset={[radiusPx, radiusPx]} latLngToPixel={latLngToPixel} pixelToLatLng={pixelToLatLng} setCenterZoom={setCenterZoom} mapState={mapState}>
+    <Overlay
+      anchor={anchor}
+      offset={[radiusPx, radiusPx]}
+      latLngToPixel={latLngToPixel}
+      pixelToLatLng={pixelToLatLng}
+      setCenterZoom={setCenterZoom}
+      mapState={mapState}
+    >
       <div
         style={{
           width: radiusPx * 2,
@@ -156,9 +176,7 @@ const FormAbsent = (props) => {
   const onMarkerDragEnd = async ([lat, lon]) => {
     setFormValue((prevState) => ({ ...prevState, location: [lat, lon] }));
     try {
-      const resp = await fetch(
-        `https://nominatim.openstreetmap.org/reverse.php?zoom=10&format=jsonv2&lat=${lat}&lon=${lon}`
-      );
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse.php?zoom=10&format=jsonv2&lat=${lat}&lon=${lon}`);
       const data = await resp.json();
       const addr = data.address;
       setFormValue((prevState) => ({

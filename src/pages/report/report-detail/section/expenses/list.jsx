@@ -3,10 +3,12 @@ import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
+import { useNavigate } from 'react-router-dom';
 
 export default function ExpensesList({ data, filter, setFilter }) {
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
+  const navigate = useNavigate();
 
   const columns = useMemo(
     () => [
@@ -14,9 +16,12 @@ export default function ExpensesList({ data, filter, setFilter }) {
         Header: <FormattedMessage id="expense" />,
         accessor: 'expenseId',
         Cell: (data) => {
-          const onClickDetail = () => {};
-
-          return <Link onClick={() => onClickDetail()}>{data.value}</Link>;
+          const id = data.row.original.id;
+          return (
+            <Link onClick={() => navigate(`/finance/expenses?expenseId=${id}`)} sx={{ cursor: 'pointer' }}>
+              {data.value}
+            </Link>
+          );
         }
       },
       {
@@ -46,29 +51,15 @@ export default function ExpensesList({ data, filter, setFilter }) {
       {
         Header: <FormattedMessage id="total-rp" />,
         accessor: 'totalAmount',
-        Cell: (data) => formatThousandSeparator(data.value)
+        Cell: (data) => formatThousandSeparator(data.value ?? 0)
       },
       {
         Header: <FormattedMessage id="status" />,
         accessor: 'status'
       }
     ],
-    []
+    [navigate]
   );
-
-  const dataDummy = [
-    {
-      expenseId: '#001672',
-      location: 'RPC Karawaci',
-      receiptDate: '12 May 2022',
-      submitter: 'Dwi Indri Ani',
-      recipient: 'Dwi',
-      supplier: '',
-      reference: 'Untuk Petshop/Klinik',
-      totalAmount: 1002000,
-      status: 'Pending'
-    }
-  ];
 
   return (
     <div>

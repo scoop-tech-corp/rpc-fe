@@ -9,7 +9,7 @@ import AuthLogin from 'sections/auth/auth-forms/AuthLogin';
 // ================================|| LOGIN ||================================ //
 
 const Login = () => {
-  const { isLoggedIn, logout } = useAuth();
+  const { logout } = useAuth();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {

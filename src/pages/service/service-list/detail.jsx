@@ -1,5 +1,5 @@
 import { FormattedMessage } from 'react-intl';
-import { Grid, InputLabel, Box, Tab, Tabs } from '@mui/material';
+import { Box, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
 import configGlobal from '../../../config';
 
@@ -26,7 +26,6 @@ import { useServiceFormStore, defaultServiceListForm } from './form/service-form
 const ProductCategoryDetail = (props) => {
   const [tabSelected, setTabSelected] = useState(0);
   const detail = useGetDetail(getServiceListById, 'id', props.data?.id);
-  const [filterLocationList, setFilterLocationList] = useState([]);
 
   useEffect(() => {
     useServiceFormStore.setState({
@@ -111,6 +110,7 @@ const ProductCategoryDetail = (props) => {
 
   useEffect(() => {
     getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onCancel = () => {

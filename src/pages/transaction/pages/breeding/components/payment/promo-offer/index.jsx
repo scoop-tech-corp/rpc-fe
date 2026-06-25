@@ -18,7 +18,7 @@ const INITIAL_STATE_PROMO = {
 
 const PromoOfferTransactionBreeding = (props) => {
   const [promoData] = useState(props.data);
-  const [disabledOke, setDisabledOk] = useState(false);
+  const [disabledOke] = useState(false);
   const [formValue, setFormValue] = useState(INITIAL_STATE_PROMO);
   const dispatch = useDispatch();
 

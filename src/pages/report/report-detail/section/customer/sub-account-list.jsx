@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 
 import ScrollX from 'components/ScrollX';
 
-export default function CustomerSubAccountList({ data, setFilter }) {
+export default function CustomerSubAccountList({ data, filter, setFilter }) {
   const tablesData = data?.data;
   const totalPagination = data?.totalPagination;
 
@@ -33,9 +33,11 @@ export default function CustomerSubAccountList({ data, setFilter }) {
           columns={tableColumns}
           data={tablesData || []}
           totalPagination={totalPagination || 0}
-          onOrder={(event) => {
-            setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
-          }}
+          setPageNumber={filter?.goToPage}
+          setPageRow={filter?.rowPerPage}
+          onOrder={(event) => setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }))}
+          onGotoPage={(page) => setFilter((e) => ({ ...e, goToPage: page }))}
+          onPageSize={(size) => setFilter((e) => ({ ...e, rowPerPage: size, goToPage: 1 }))}
           colSpanPagination={9}
         />
       </ScrollX>

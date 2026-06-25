@@ -3,6 +3,10 @@ import { formateDateYYYMMDD } from 'utils/func';
 
 const url = 'transaction/pethotel';
 
+export const getTransactionPetHotelStats = async () => {
+  return await axios.get(`${url}/stats`);
+};
+
 export const getTransactionPetHotelIndex = async (payload) => {
   return await axios.get(url, {
     params: {
@@ -13,7 +17,10 @@ export const getTransactionPetHotelIndex = async (payload) => {
       search: payload.search,
       locationId: payload.locationId,
       customerGroupId: payload.customerGroupId,
-      status: payload.status // ongoing or finished
+      status: payload.status, // ongoing or finished
+      statusFilter: payload.statusFilter || '',
+      startDateFrom: payload.startDateFrom || '',
+      startDateTo: payload.startDateTo || ''
     }
   });
 };
@@ -43,6 +50,7 @@ export const createTransactionPetHotel = async (payload) => {
   formData.append('doctorId', payload.treatingDoctor?.value); // sementara hardcode dlu, ga dpt datanya
   formData.append('note', payload.notes);
   if (payload.image) formData.append('image', payload.image);
+  if (payload.queueId) formData.append('queueId', payload.queueId);
 
   return await axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
@@ -66,6 +74,7 @@ export const transactionPetHotelTreatment = async (payload) => {
   formData.append('productSells', JSON.stringify(payload.productSells));
   formData.append('productClinics', JSON.stringify(payload.productClinics));
   formData.append('cageId', payload.cage?.value);
+  if (payload.stayServiceId) formData.append('stayServiceId', payload.stayServiceId);
 
   return await axios.post(url + '/treatment', formData);
 };
@@ -204,7 +213,7 @@ export const submitTransactionPetHotelDiscount = async (payload) => {
 };
 
 export const printInvoicePetHotelOutpatient = async (transactionId, formValue) => {
-  const { detail_total, payment_method } = constructPayloadCreatePrintPetHotelOutpatient(transactionId, formValue);
+  const { detail_total, payment_method } = constructPayloadCreatePrintPetHotelOutpatient(formValue);
 
   return await axios.get(url + '/invoice', {
     responseType: 'blob',
@@ -233,7 +242,46 @@ export const getBeforePayment = async (id) => {
   });
 };
 
-const constructPayloadCreatePrintPetHotelOutpatient = (transactionId, formValue) => {
+export const calculatePetHotelOutpatient = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('services', JSON.stringify(payload.services ?? []));
+  formData.append('products', JSON.stringify(payload.products ?? []));
+  formData.append(
+    'selectedPromos',
+    JSON.stringify(
+      payload.selectedPromos ?? {
+        freeItems: [],
+        discounts: [],
+        bundles: [],
+        basedSaleId: null
+      }
+    )
+  );
+
+  return await axios.post(url + '/calculate', formData);
+};
+
+export const getPaymentMethodsPetHotel = async () => {
+  return await axios.get(url + '/payment-methods');
+};
+
+export const getPaymentHistoryPetHotel = async (transactionId) => {
+  return await axios.get(url + '/payment/history', {
+    params: { transactionId }
+  });
+};
+
+export const printInvoicePetHotelOutpatientNew = async (transactionId) => {
+  const formData = new FormData();
+  formData.append('transactionId', transactionId);
+
+  return await axios.post(url + '/invoice/outpatient', formData, {
+    responseType: 'blob'
+  });
+};
+
+const constructPayloadCreatePrintPetHotelOutpatient = (formValue) => {
   const detail_total = {
     subtotal: formValue.summarySubtotal,
     total_discount: formValue.summaryTotalDiscount,
@@ -243,7 +291,7 @@ const constructPayloadCreatePrintPetHotelOutpatient = (transactionId, formValue)
   };
 
   const payment_method = {
-    paymentId: transactionId,
+    paymentMethodId: formValue.paymentMethodId,
     amount: undefined,
     amountPaid: undefined,
     duration: undefined,
@@ -270,7 +318,7 @@ const constructPayloadCreatePrintPetHotelOutpatient = (transactionId, formValue)
   return { detail_total, payment_method };
 };
 export const createPaymentPetHotelOutpatient = async (transactionId, formValue) => {
-  const { detail_total, payment_method } = constructPayloadCreatePrintPetHotelOutpatient(transactionId, formValue);
+  const { detail_total, payment_method } = constructPayloadCreatePrintPetHotelOutpatient(formValue);
 
   const formData = new FormData();
   formData.append('transactionId', transactionId);
@@ -282,12 +330,24 @@ export const createPaymentPetHotelOutpatient = async (transactionId, formValue) 
   return await axios.post(url + '/payment', formData);
 };
 
+// Step 1: Staff upload bukti → status = 'pending'
+export const uploadPaymentProofPetHotel = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  formData.append('proof', payload.file);
+  return await axios.post(url + '/upload-payment-proof', formData);
+};
+
+// Step 2: Finance/Manager konfirmasi → 4-eyes check → status = 'verified'
 export const confirmPaymentPetHotel = async (payload) => {
   const formData = new FormData();
   formData.append('id', payload.id);
-  if (payload.file) formData.append('proof', payload.file);
-
   return await axios.post(url + '/confirm-payment', formData);
+};
+
+// Tolak bukti (Finance/Manager, orang berbeda dari yang upload)
+export const rejectPaymentPetHotel = async (payload) => {
+  return await axios.post(url + '/reject-payment', { id: payload.id, note: payload.note });
 };
 
 export const getPapanKerjaHarian = async (transactionId) => {
@@ -298,7 +358,7 @@ export const markPapanKerjaHarianDone = async (payload) => {
   const formData = new FormData();
   formData.append('id', payload.id);
   formData.append('statusAktivitas', payload.statusAktivitas);
-  formData.append('temuan', JSON.stringify(payload.temuan || []));
+  (payload.temuan || []).forEach((t) => formData.append('temuan[]', t));
   formData.append('kondisiFeses', payload.kondisiFeses || '');
   formData.append('catatan', payload.catatan || '');
   if (payload.foto) formData.append('foto', payload.foto);
@@ -313,9 +373,109 @@ export const markPapanKerjaVetnurseDone = async (payload) => {
   const formData = new FormData();
   formData.append('id', payload.id);
   formData.append('statusAktivitas', payload.statusAktivitas);
-  formData.append('temuan', JSON.stringify(payload.temuan || []));
+  (payload.temuan || []).forEach((t) => formData.append('temuan[]', t));
   formData.append('kondisiFeses', payload.kondisiFeses || '');
   formData.append('catatan', payload.catatan || '');
   if (payload.foto) formData.append('foto', payload.foto);
   return await axios.post(url + '/papan-kerja-vetnurse/done', formData);
+};
+
+export const getAvailableItems = async (transactionId, type, search = '') => {
+  return await axios.get(url + '/available-items', { params: { transactionId, type, search } });
+};
+
+export const getAdditionalTreatments = async (transactionId) => {
+  return await axios.get(url + '/additional-treatment', { params: { transactionId } });
+};
+
+export const addAdditionalTreatment = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('type', payload.type);
+  formData.append('itemId', payload.itemId);
+  formData.append('quantity', payload.quantity);
+  formData.append('catatan', payload.catatan || '');
+  return await axios.post(url + '/additional-treatment', formData);
+};
+
+export const deleteAdditionalTreatment = async (id) => {
+  return await axios.delete(url + `/additional-treatment/${id}`);
+};
+
+export const extendStayPetHotel = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('newEndDate', payload.newEndDate);
+  return await axios.post(url + '/extend-stay', formData);
+};
+
+export const initiateCheckOut = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  if (payload.checkoutDate) formData.append('checkoutDate', payload.checkoutDate);
+  return await axios.post(url + '/checkout/initiate', formData);
+};
+
+export const getCheckoutSummary = async (transactionId) => {
+  return await axios.get(url + '/checkout/summary', { params: { transactionId } });
+};
+
+export const updateCheckoutDiscount = async (payload) => {
+  return await axios.put(url + '/checkout/discount', {
+    transactionId: payload.transactionId,
+    discountAmount: payload.discountAmount,
+    discountNote: payload.discountNote || ''
+  });
+};
+
+export const getCheckoutInvoice = async (transactionId) => {
+  return await axios.get(url + '/checkout/invoice', {
+    params: { transactionId },
+    responseType: 'blob'
+  });
+};
+
+export const checkoutPayment = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('paymentMethodId', payload.paymentMethodId);
+  formData.append('amountPaid', payload.amountPaid);
+  if (payload.note) formData.append('note', payload.note);
+  if (payload.proof) formData.append('proof', payload.proof);
+  return await axios.post(url + '/checkout/payment', formData);
+};
+
+export const getCheckCondition = async (transactionId) => {
+  return await axios.get(url + '/check-condition', { params: { transactionId } });
+};
+
+export const getPoliciesForAgreement = async () => {
+  return await axios.get(url + '/policies');
+};
+
+export const savePolicyAgreement = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('signerName', payload.signerName);
+  formData.append('signatureData', payload.signatureData);
+  formData.append('policies', JSON.stringify(payload.policies));
+  return await axios.post(url + '/policy-agreement', formData);
+};
+
+export const getPrepayments = async (transactionId) => {
+  return await axios.get(url + '/prepayment', { params: { transactionId } });
+};
+
+export const getPrepaymentReceipt = async (prepaymentId) => {
+  return await axios.get(url + `/prepayment/${prepaymentId}/receipt`, { responseType: 'blob' });
+};
+
+export const addPrepayment = async (payload) => {
+  const formData = new FormData();
+  formData.append('transactionId', payload.transactionId);
+  formData.append('paymentMethodId', payload.paymentMethodId);
+  formData.append('amount', payload.amount);
+  formData.append('catatan', payload.catatan || '');
+  if (payload.proof) formData.append('proof', payload.proof);
+  return await axios.post(url + '/prepayment', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

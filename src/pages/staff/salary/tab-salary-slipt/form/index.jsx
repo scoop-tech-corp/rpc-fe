@@ -214,6 +214,7 @@ export default function SallarySliptForm({ isDetailForm = false }) {
     if (!formValues?.name) return;
 
     getSalaryCheck(formValues.name.value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues.name]);
 
   useEffect(() => {
@@ -310,6 +311,7 @@ export default function SallarySliptForm({ isDetailForm = false }) {
 
           const cleaned = Object.entries(obj)
             .map(([key, value]) => [key, removeEmptyObjects(value)]) // rekursif ke dalam
+            // eslint-disable-next-line no-unused-vars
             .filter(([_, value]) => {
               if (typeof value === 'object' && value !== null) {
                 return Object.keys(value).length > 0; // hanya simpan jika bukan objek kosong

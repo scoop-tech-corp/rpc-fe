@@ -1,15 +1,4 @@
-import {
-  Autocomplete,
-  Button,
-  FormControl,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField
-} from '@mui/material';
+import { Autocomplete, Button, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
@@ -234,10 +223,7 @@ const ProductLoanForm = () => {
 
   return (
     <>
-      <HeaderPageCustom
-        title={isEdit ? <FormattedMessage id="edit-loan" /> : <FormattedMessage id="new-loan" />}
-        isBreadcrumb={true}
-      />
+      <HeaderPageCustom title={isEdit ? <FormattedMessage id="edit-loan" /> : <FormattedMessage id="new-loan" />} isBreadcrumb={true} />
 
       <Grid container spacing={3}>
         <Grid item xs={12}>
@@ -249,9 +235,7 @@ const ProductLoanForm = () => {
                   value={selectedLocation}
                   isOptionEqualToValue={(o, v) => o.value === v.value}
                   onChange={(_, val) => onChangeLocation(val)}
-                  renderInput={(params) => (
-                    <TextField {...params} label={<FormattedMessage id="location" />} required />
-                  )}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="location" />} required />}
                 />
               </Grid>
 
@@ -271,9 +255,7 @@ const ProductLoanForm = () => {
                   value={selectedStaff}
                   isOptionEqualToValue={(o, v) => o.value === v.value}
                   onChange={(_, val) => setSelectedStaff(val)}
-                  renderInput={(params) => (
-                    <TextField {...params} label={<FormattedMessage id="staff" />} required />
-                  )}
+                  renderInput={(params) => <TextField {...params} label={<FormattedMessage id="staff" />} required />}
                 />
               </Grid>
 
@@ -336,13 +318,7 @@ const ProductLoanForm = () => {
           <MainCard
             title={<FormattedMessage id="product-details" />}
             secondary={
-              <Button
-                variant="contained"
-                startIcon={<PlusOutlined />}
-                onClick={addRow}
-                size="small"
-                disabled={!selectedLocation}
-              >
+              <Button variant="contained" startIcon={<PlusOutlined />} onClick={addRow} size="small" disabled={!selectedLocation}>
                 <FormattedMessage id="add" />
               </Button>
             }
@@ -375,9 +351,7 @@ const ProductLoanForm = () => {
                       value={row.productId}
                       isOptionEqualToValue={(o, v) => o.value === v.value}
                       onChange={(_, val) => onChangeProductId(index, val)}
-                      renderInput={(params) => (
-                        <TextField {...params} label={<FormattedMessage id="product" />} />
-                      )}
+                      renderInput={(params) => <TextField {...params} label={<FormattedMessage id="product" />} />}
                     />
                   </Grid>
 
@@ -404,9 +378,7 @@ const ProductLoanForm = () => {
                       value={row.suggestedPrice}
                       inputProps={{ min: 0 }}
                       onChange={(e) =>
-                        setDetails((prev) =>
-                          prev.map((r, i) => (i === index ? { ...r, suggestedPrice: Number(e.target.value) } : r))
-                        )
+                        setDetails((prev) => prev.map((r, i) => (i === index ? { ...r, suggestedPrice: Number(e.target.value) } : r)))
                       }
                     />
                   </Grid>

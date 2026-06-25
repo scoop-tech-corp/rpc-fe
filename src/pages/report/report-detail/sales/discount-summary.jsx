@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 
-export default function SalesDiscountSummary({ data, filter, setFilter }) {
+export default function SalesDiscountSummary({ data }) {
   const pieChart = useMemo(() => {
     return {
       series: data?.chartsDiscountValueByStaff.series || [],

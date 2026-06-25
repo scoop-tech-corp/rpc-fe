@@ -31,28 +31,6 @@ export default function DepositSummary({ data, filter, setFilter }) {
     ],
     []
   );
-  const dataDummy = [
-    {
-      locationName: 'Location 1',
-      returnedAmount: 4000,
-      usedAmount: 0,
-      remainingAmount: 4000
-    },
-    {
-      locationName: 'Location 2',
-      returnedAmount: 4000,
-      usedAmount: 0,
-      remainingAmount: 4000
-    },
-    {
-      locationName: 'Location 3',
-      returnedAmount: 4000,
-      usedAmount: 0,
-      remainingAmount: 4000
-    }
-    // Add more data as needed
-  ];
-
   return (
     <div>
       <ReactTable

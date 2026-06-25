@@ -23,13 +23,7 @@ import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend, getLocationList } from 'service/service-global';
 import { GlobalFilter } from 'utils/react-table';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
-import {
-  getDeliveryAgents,
-  changeDeliveryAgentStatus,
-  deleteDeliveryAgent,
-  getDeliveryOrders,
-  deleteDeliveryOrder
-} from './service';
+import { getDeliveryAgents, changeDeliveryAgentStatus, deleteDeliveryAgent, getDeliveryOrders, deleteDeliveryOrder } from './service';
 import { DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import BlockIcon from '@mui/icons-material/Block';
@@ -180,7 +174,11 @@ const DeliveryAgentPage = () => {
             size="small"
             variant="light"
             color={value ? 'success' : 'error'}
-            label={value ? intl.formatMessage({ id: 'active', defaultMessage: 'Active' }) : intl.formatMessage({ id: 'inactive', defaultMessage: 'Inactive' })}
+            label={
+              value
+                ? intl.formatMessage({ id: 'active', defaultMessage: 'Active' })
+                : intl.formatMessage({ id: 'inactive', defaultMessage: 'Inactive' })
+            }
           />
         )
       },
@@ -204,12 +202,16 @@ const DeliveryAgentPage = () => {
                   <EditFilled />
                 </IconButton>
               </Tooltip>
-              <Tooltip title={agent.isActive ? <FormattedMessage id="deactivate" defaultMessage="Deactivate" /> : <FormattedMessage id="activate" defaultMessage="Activate" />}>
-                <IconButton
-                  size="small"
-                  color={agent.isActive ? 'warning' : 'success'}
-                  onClick={() => onToggleAgentStatus(agent)}
-                >
+              <Tooltip
+                title={
+                  agent.isActive ? (
+                    <FormattedMessage id="deactivate" defaultMessage="Deactivate" />
+                  ) : (
+                    <FormattedMessage id="activate" defaultMessage="Activate" />
+                  )
+                }
+              >
+                <IconButton size="small" color={agent.isActive ? 'warning' : 'success'} onClick={() => onToggleAgentStatus(agent)}>
                   {agent.isActive ? <BlockIcon fontSize="small" /> : <CheckCircleOutlineIcon fontSize="small" />}
                 </IconButton>
               </Tooltip>
@@ -333,20 +335,64 @@ const DeliveryAgentPage = () => {
   };
 
   // ── Pagination/sort handlers – Agents ──
-  const onAgentOrder = (e) => { paramAgents.orderValue = e.order; paramAgents.orderColumn = e.column; fetchAgents(); };
-  const onAgentGotoPage = (e) => { paramAgents.goToPage = e; fetchAgents(); };
-  const onAgentPageSize = (e) => { paramAgents.rowPerPage = e; fetchAgents(); };
-  const onAgentSearch = (v) => { paramAgents.keyword = v; setAgentKeyword(v); fetchAgents(); };
-  const onAgentFilterLocation = (v) => { paramAgents.locationId = v.map((l) => l.value); setAgentFilterLocation(v); fetchAgents(); };
-  const onAgentFilterActive = (v) => { paramAgents.isActive = v; setAgentFilterActive(v); fetchAgents(); };
+  const onAgentOrder = (e) => {
+    paramAgents.orderValue = e.order;
+    paramAgents.orderColumn = e.column;
+    fetchAgents();
+  };
+  const onAgentGotoPage = (e) => {
+    paramAgents.goToPage = e;
+    fetchAgents();
+  };
+  const onAgentPageSize = (e) => {
+    paramAgents.rowPerPage = e;
+    fetchAgents();
+  };
+  const onAgentSearch = (v) => {
+    paramAgents.keyword = v;
+    setAgentKeyword(v);
+    fetchAgents();
+  };
+  const onAgentFilterLocation = (v) => {
+    paramAgents.locationId = v.map((l) => l.value);
+    setAgentFilterLocation(v);
+    fetchAgents();
+  };
+  const onAgentFilterActive = (v) => {
+    paramAgents.isActive = v;
+    setAgentFilterActive(v);
+    fetchAgents();
+  };
 
   // ── Pagination/sort handlers – Orders ──
-  const onOrderOrder = (e) => { paramOrders.orderValue = e.order; paramOrders.orderColumn = e.column; fetchOrders(); };
-  const onOrderGotoPage = (e) => { paramOrders.goToPage = e; fetchOrders(); };
-  const onOrderPageSize = (e) => { paramOrders.rowPerPage = e; fetchOrders(); };
-  const onOrderSearch = (v) => { paramOrders.keyword = v; setOrderKeyword(v); fetchOrders(); };
-  const onOrderFilterLocation = (v) => { paramOrders.locationId = v?.value ?? ''; setOrderFilterLocation(v); fetchOrders(); };
-  const onOrderFilterStatus = (v) => { paramOrders.status = v; setOrderFilterStatus(v); fetchOrders(); };
+  const onOrderOrder = (e) => {
+    paramOrders.orderValue = e.order;
+    paramOrders.orderColumn = e.column;
+    fetchOrders();
+  };
+  const onOrderGotoPage = (e) => {
+    paramOrders.goToPage = e;
+    fetchOrders();
+  };
+  const onOrderPageSize = (e) => {
+    paramOrders.rowPerPage = e;
+    fetchOrders();
+  };
+  const onOrderSearch = (v) => {
+    paramOrders.keyword = v;
+    setOrderKeyword(v);
+    fetchOrders();
+  };
+  const onOrderFilterLocation = (v) => {
+    paramOrders.locationId = v?.value ?? '';
+    setOrderFilterLocation(v);
+    fetchOrders();
+  };
+  const onOrderFilterStatus = (v) => {
+    paramOrders.status = v;
+    setOrderFilterStatus(v);
+    fetchOrders();
+  };
 
   return (
     <>
@@ -399,15 +445,25 @@ const DeliveryAgentPage = () => {
                     )}
                   />
                   <FormControl sx={{ minWidth: 140 }}>
-                    <InputLabel><FormattedMessage id="status" defaultMessage="Status" /></InputLabel>
+                    <InputLabel>
+                      <FormattedMessage id="status" defaultMessage="Status" />
+                    </InputLabel>
                     <Select
                       value={agentFilterActive}
                       label={<FormattedMessage id="status" defaultMessage="Status" />}
                       onChange={(e) => onAgentFilterActive(e.target.value)}
                     >
-                      <MenuItem value=""><em><FormattedMessage id="all" defaultMessage="All" /></em></MenuItem>
-                      <MenuItem value="true"><FormattedMessage id="active" defaultMessage="Active" /></MenuItem>
-                      <MenuItem value="false"><FormattedMessage id="inactive" defaultMessage="Inactive" /></MenuItem>
+                      <MenuItem value="">
+                        <em>
+                          <FormattedMessage id="all" defaultMessage="All" />
+                        </em>
+                      </MenuItem>
+                      <MenuItem value="true">
+                        <FormattedMessage id="active" defaultMessage="Active" />
+                      </MenuItem>
+                      <MenuItem value="false">
+                        <FormattedMessage id="inactive" defaultMessage="Inactive" />
+                      </MenuItem>
                     </Select>
                   </FormControl>
                   {selectedAgentRows.length > 0 && (
@@ -477,13 +533,19 @@ const DeliveryAgentPage = () => {
                     )}
                   />
                   <FormControl sx={{ minWidth: 150 }}>
-                    <InputLabel><FormattedMessage id="status" defaultMessage="Status" /></InputLabel>
+                    <InputLabel>
+                      <FormattedMessage id="status" defaultMessage="Status" />
+                    </InputLabel>
                     <Select
                       value={orderFilterStatus}
                       label={<FormattedMessage id="status" defaultMessage="Status" />}
                       onChange={(e) => onOrderFilterStatus(e.target.value)}
                     >
-                      <MenuItem value=""><em><FormattedMessage id="all" defaultMessage="All" /></em></MenuItem>
+                      <MenuItem value="">
+                        <em>
+                          <FormattedMessage id="all" defaultMessage="All" />
+                        </em>
+                      </MenuItem>
                       {ORDER_STATUSES.map((s) => (
                         <MenuItem key={s} value={s}>
                           {STATUS_MAP[s]?.label ?? s}
@@ -501,11 +563,7 @@ const DeliveryAgentPage = () => {
                   <IconButton size="medium" variant="contained" color="primary" onClick={fetchOrders}>
                     <RefreshIcon />
                   </IconButton>
-                  <Button
-                    variant="contained"
-                    startIcon={<PlusOutlined />}
-                    onClick={() => navigate('/product/delivery-agent/order/form')}
-                  >
+                  <Button variant="contained" startIcon={<PlusOutlined />} onClick={() => navigate('/product/delivery-agent/order/form')}>
                     <FormattedMessage id="new" defaultMessage="New" />
                   </Button>
                 </Stack>
@@ -560,7 +618,9 @@ const DeliveryAgentPage = () => {
         <ConfirmationC
           open={deleteAgentDialog}
           title={<FormattedMessage id="delete" defaultMessage="Delete" />}
-          content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" defaultMessage="Are you sure you want to delete this data?" />}
+          content={
+            <FormattedMessage id="are-you-sure-you-want-to-delete-this-data" defaultMessage="Are you sure you want to delete this data?" />
+          }
           onClose={onConfirmDeleteAgents}
           btnTrueText="Ok"
           btnFalseText="Cancel"
@@ -572,7 +632,9 @@ const DeliveryAgentPage = () => {
         <ConfirmationC
           open={deleteOrderDialog}
           title={<FormattedMessage id="delete" defaultMessage="Delete" />}
-          content={<FormattedMessage id="are-you-sure-you-want-to-delete-this-data" defaultMessage="Are you sure you want to delete this data?" />}
+          content={
+            <FormattedMessage id="are-you-sure-you-want-to-delete-this-data" defaultMessage="Are you sure you want to delete this data?" />
+          }
           onClose={onConfirmDeleteOrders}
           btnTrueText="Ok"
           btnFalseText="Cancel"

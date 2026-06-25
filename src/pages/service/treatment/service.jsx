@@ -73,7 +73,7 @@ export const getTreatmentById = async (params) => {
   return getResp;
 };
 
-export const findTreatment = async (property) => {
+export const findTreatment = async () => {
   // const getResp = await axios.get(serviceListUrl + '/category', {
   //   params: {
   //     id: property.id,

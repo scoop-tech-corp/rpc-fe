@@ -16,7 +16,7 @@ import { createMessageBackend } from 'service/service-global';
 import { useEffect } from 'react';
 
 const TreatmentFormHeader = (props) => {
-  const { showEdit, setShowEdit } = props;
+  const { showEdit } = props;
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const totalColumn = useTreatmentStore((state) => state.formStep2.totalColumn);

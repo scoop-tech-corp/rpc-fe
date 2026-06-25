@@ -258,14 +258,30 @@ export const exportPetShopTransaction = async (payload) => {
   });
 };
 
+// Step 1: Staff upload bukti → status = 'pending'
+export const uploadPaymentProofPetShop = async (payload) => {
+  const formData = new FormData();
+  formData.append('id', payload.transactionId);
+  formData.append('proof', payload.file);
+
+  return await axios.post('transaction/petshop/upload-payment-proof', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
+
+// Step 2: Finance/Manager konfirmasi (harus orang berbeda dari uploader)
 export const confirmPaymentPetShopTransaction = async (payload) => {
   const formData = new FormData();
   formData.append('id', payload.transactionId);
-  formData.append('proof', payload.proof);
 
   return await axios.post('transaction/petshop/confirmPayment', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
+};
+
+// Tolak bukti pembayaran
+export const rejectPaymentPetShop = async (payload) => {
+  return await axios.post('transaction/petshop/reject-payment', { id: payload.transactionId, note: payload.note });
 };
 
 export const generateInvoicePetShopTransaction = async (id) => {

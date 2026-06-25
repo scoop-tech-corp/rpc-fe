@@ -157,7 +157,10 @@ const ProductLoanDetail = () => {
   };
 
   const handleSubmit = async (value) => {
-    if (!value) { setConfirmSubmit(false); return; }
+    if (!value) {
+      setConfirmSubmit(false);
+      return;
+    }
     await submitLoanProduct(Number(id))
       .then((resp) => {
         if (resp.status === 200) {
@@ -167,12 +170,18 @@ const ProductLoanDetail = () => {
         }
       })
       .catch((err) => {
-        if (err) { setConfirmSubmit(false); dispatch(snackbarError(createMessageBackend(err, true, true))); }
+        if (err) {
+          setConfirmSubmit(false);
+          dispatch(snackbarError(createMessageBackend(err, true, true)));
+        }
       });
   };
 
   const handleDelete = async (value) => {
-    if (!value) { setConfirmDelete(false); return; }
+    if (!value) {
+      setConfirmDelete(false);
+      return;
+    }
     await deleteLoanProduct(Number(id))
       .then((resp) => {
         if (resp.status === 200) {
@@ -182,12 +191,18 @@ const ProductLoanDetail = () => {
         }
       })
       .catch((err) => {
-        if (err) { setConfirmDelete(false); dispatch(snackbarError(createMessageBackend(err, true, true))); }
+        if (err) {
+          setConfirmDelete(false);
+          dispatch(snackbarError(createMessageBackend(err, true, true)));
+        }
       });
   };
 
   const handleApprove = async (value) => {
-    if (!value) { setConfirmApprove(false); return; }
+    if (!value) {
+      setConfirmApprove(false);
+      return;
+    }
     await approvalLoanProduct({ id: Number(id), isApproved: true })
       .then((resp) => {
         if (resp.status === 200) {
@@ -197,7 +212,10 @@ const ProductLoanDetail = () => {
         }
       })
       .catch((err) => {
-        if (err) { setConfirmApprove(false); dispatch(snackbarError(createMessageBackend(err, true, true))); }
+        if (err) {
+          setConfirmApprove(false);
+          dispatch(snackbarError(createMessageBackend(err, true, true)));
+        }
       });
   };
 
@@ -213,7 +231,10 @@ const ProductLoanDetail = () => {
         }
       })
       .catch((err) => {
-        if (err) { setOpenReject(false); dispatch(snackbarError(createMessageBackend(err, true, true))); }
+        if (err) {
+          setOpenReject(false);
+          dispatch(snackbarError(createMessageBackend(err, true, true)));
+        }
       });
   };
 
@@ -227,7 +248,10 @@ const ProductLoanDetail = () => {
         }
       })
       .catch((err) => {
-        if (err) { setOpenLoanOut(false); dispatch(snackbarError(createMessageBackend(err, true, true))); }
+        if (err) {
+          setOpenLoanOut(false);
+          dispatch(snackbarError(createMessageBackend(err, true, true)));
+        }
       });
   };
 
@@ -251,7 +275,10 @@ const ProductLoanDetail = () => {
         }
       })
       .catch((err) => {
-        if (err) { setOpenReturn(false); dispatch(snackbarError(createMessageBackend(err, true, true))); }
+        if (err) {
+          setOpenReturn(false);
+          dispatch(snackbarError(createMessageBackend(err, true, true)));
+        }
       });
   };
 
@@ -267,11 +294,7 @@ const ProductLoanDetail = () => {
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 {isDraft && (
                   <>
-                    <Button
-                      variant="outlined"
-                      startIcon={<EditOutlined />}
-                      onClick={() => navigate(`/product/loan/form/${id}`)}
-                    >
+                    <Button variant="outlined" startIcon={<EditOutlined />} onClick={() => navigate(`/product/loan/form/${id}`)}>
                       <FormattedMessage id="edit" />
                     </Button>
                     <Button variant="contained" color="primary" onClick={() => setConfirmSubmit(true)}>
@@ -331,9 +354,7 @@ const ProductLoanDetail = () => {
               <DetailItem label={<FormattedMessage id="approver" />} value={data?.approver?.firstName} />
               <DetailItem label={<FormattedMessage id="approved-at" />} value={data?.approvedAt} />
               <DetailItem label={<FormattedMessage id="note" />} value={data?.note} />
-              {data?.rejectedReason && (
-                <DetailItem label="Rejected Reason" value={data?.rejectedReason} />
-              )}
+              {data?.rejectedReason && <DetailItem label="Rejected Reason" value={data?.rejectedReason} />}
               <Grid item xs={12} sm={6} md={4}>
                 <Typography variant="h6" fontWeight="bold">
                   Status
@@ -427,7 +448,10 @@ const ProductLoanDetail = () => {
           open={openReject}
           title={<FormattedMessage id="reject" />}
           onOk={handleReject}
-          onCancel={() => { setOpenReject(false); setRejectReason(''); }}
+          onCancel={() => {
+            setOpenReject(false);
+            setRejectReason('');
+          }}
           disabledOk={!rejectReason.trim()}
           maxWidth="xs"
           fullWidth
@@ -444,14 +468,7 @@ const ProductLoanDetail = () => {
       )}
 
       {openLoanOut && (
-        <ModalC
-          open={openLoanOut}
-          title="Loan Out"
-          onOk={handleLoanOut}
-          onCancel={() => setOpenLoanOut(false)}
-          maxWidth="xs"
-          fullWidth
-        >
+        <ModalC open={openLoanOut} title="Loan Out" onOk={handleLoanOut} onCancel={() => setOpenLoanOut(false)} maxWidth="xs" fullWidth>
           <Box sx={{ pt: 1 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DesktopDatePicker
@@ -526,9 +543,7 @@ const ProductLoanDetail = () => {
                       inputProps={{ min: 0, max: det.loanedQty }}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) =>
-                        setReturnDetails((prev) =>
-                          prev.map((d, i) => (i === idx ? { ...d, soldQty: Number(e.target.value) } : d))
-                        )
+                        setReturnDetails((prev) => prev.map((d, i) => (i === idx ? { ...d, soldQty: Number(e.target.value) } : d)))
                       }
                     />
                   </Grid>
@@ -551,11 +566,7 @@ const ProductLoanDetail = () => {
                       fullWidth
                       label="Item Note"
                       value={det.itemNote}
-                      onChange={(e) =>
-                        setReturnDetails((prev) =>
-                          prev.map((d, i) => (i === idx ? { ...d, itemNote: e.target.value } : d))
-                        )
-                      }
+                      onChange={(e) => setReturnDetails((prev) => prev.map((d, i) => (i === idx ? { ...d, itemNote: e.target.value } : d)))}
                     />
                   </Grid>
                 </Grid>

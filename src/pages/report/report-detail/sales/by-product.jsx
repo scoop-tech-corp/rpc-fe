@@ -1,6 +1,7 @@
 import { Link } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useMemo } from 'react';
+
 import { FormattedMessage } from 'react-intl';
 import { formatThousandSeparator } from 'utils/func';
 
@@ -27,28 +28,6 @@ export default function SalesByProduct({ data, filter, setFilter }) {
         Header: <FormattedMessage id="total-rp" />,
         accessor: 'totalAmount',
         Cell: (data) => formatThousandSeparator(data.value)
-      }
-    ],
-    []
-  );
-
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        productName: 'Biodin Inj (1 ml)',
-        quantity: 10,
-        totalAmount: 13500000
-      },
-      {
-        productName: 'Biodin Inj (1 ml)',
-        quantity: 10,
-        totalAmount: 13500000
-      },
-      {
-        productName: 'Biodin Inj (1 ml)',
-        quantity: 10,
-        totalAmount: 13500000
       }
     ],
     []

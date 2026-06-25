@@ -1,144 +1,135 @@
 import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Box, Chip, CircularProgress, Typography } from '@mui/material';
+import ScrollX from 'components/ScrollX';
 
-export default function BookingByDiagnosisList({ data }) {
+const STATUS_COLOR = {
+  Selesai: 'success',
+  'Dalam Perawatan': 'primary',
+  'Menunggu Dokter': 'warning',
+  'Cek Kondisi Pet': 'info',
+  'Proses Pembayaran': 'secondary',
+  Batal: 'error'
+};
+
+// Render teks multi-item (comma-separated) sebagai bullet list
+const BulletList = ({ value }) => {
+  if (!value) return <span>-</span>;
+  const items = value.split(', ').filter(Boolean);
+  if (items.length === 1) return <span>{items[0]}</span>;
+  return (
+    <ul style={{ margin: 0, paddingLeft: 16 }}>
+      {items.map((item, i) => (
+        <li key={i}>{item}</li>
+      ))}
+    </ul>
+  );
+};
+
+export default function BookingByDiagnosisList({ data, loading, setFilter }) {
+  const rows = Array.isArray(data?.data) ? data.data : [];
+  const totalPagination = data?.totalPagination || 0;
+
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="start-date" />,
-        accessor: 'start-date'
-      },
-      {
-        Header: <FormattedMessage id="start-time" />,
-        accessor: 'start-time'
-      },
-      {
-        Header: <FormattedMessage id="end-date" />,
-        accessor: 'end-date'
-      },
-      {
-        Header: <FormattedMessage id="end-time" />,
-        accessor: 'end-time'
+        Header: <FormattedMessage id="booking-date" defaultMessage="Booking Date" />,
+        accessor: 'bookingDate'
       },
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'location'
+        accessor: 'locationName'
       },
       {
-        Header: <FormattedMessage id="customer" />,
-        accessor: 'customer'
+        Header: <FormattedMessage id="queue-chief-complaint" />,
+        accessor: 'reasonForVisit',
+        Cell: ({ value }) => value || '-'
       },
       {
         Header: <FormattedMessage id="service" />,
-        accessor: 'service'
+        accessor: 'services',
+        Cell: ({ value }) => <BulletList value={value} />
+      },
+      {
+        Header: <FormattedMessage id="customer" />,
+        accessor: 'customerName'
+      },
+      {
+        Header: 'Record No.',
+        accessor: 'recordNo',
+        Cell: ({ value }) => value || '-'
+      },
+      {
+        Header: <FormattedMessage id="pet" defaultMessage="Patient" />,
+        accessor: 'petName'
+      },
+      {
+        Header: 'Patient Id',
+        accessor: 'patientId'
+      },
+      {
+        Header: <FormattedMessage id="weight" defaultMessage="Weight" />,
+        accessor: 'weight',
+        Cell: ({ value }) => (value ? `${value} Kg` : '-')
+      },
+      {
+        Header: <FormattedMessage id="species" defaultMessage="Species" />,
+        accessor: 'species'
+      },
+      {
+        Header: <FormattedMessage id="gender" />,
+        accessor: 'gender'
+      },
+      {
+        Header: <FormattedMessage id="diagnose" />,
+        accessor: 'diagnosis',
+        Cell: ({ value }) => <BulletList value={value} />
       },
       {
         Header: <FormattedMessage id="status" />,
-        accessor: 'status'
-      },
-      {
-        Header: <FormattedMessage id="value-rp" />,
-        accessor: 'value-rp'
+        accessor: 'status',
+        Cell: ({ value }) => <Chip label={value || '-'} color={STATUS_COLOR[value] || 'default'} size="small" />
       }
     ],
     []
   );
 
-  const dataDummy = [
-    {
-      'start-date': '11 Jan 2024',
-      'start-time': '10:00',
-      'end-date': '11 Jan 2024',
-      'end-time': '12:00',
-      location: 'RPC ACEH',
-      customer: 'John Doe',
-      service: 'UGD',
-      status: 'Confirmed',
-      'value-rp': 'Rp 500.000'
-    },
-    {
-      'start-date': '12 Jan 2024',
-      'start-time': '02:00',
-      'end-date': '12 Jan 2024',
-      'end-time': '04:00',
-      location: 'RPC SUMATERA UTARA',
-      customer: 'Jane Smith',
-      service: 'UGD',
-      status: 'Started',
-      'value-rp': 'Rp 1.000.000'
-    },
-    {
-      'start-date': '13 Jan 2024',
-      'start-time': '09:00',
-      'end-date': '13 Jan 2024',
-      'end-time': '11:00',
-      location: 'RCP BANDUNG',
-      customer: 'Bob Johnson',
-      service: 'IGD',
-      status: 'Pencilled-in',
-      'value-rp': 'Rp 250.000'
-    },
-    {
-      'start-date': '14 Jan 2024',
-      'start-time': '15:30',
-      'end-date': '14 Jan 2024',
-      'end-time': '17:00',
-      location: 'RPC JAKARTA',
-      customer: 'Alice Brown',
-      service: 'Emergency',
-      status: 'Confirmed',
-      'value-rp': 'Rp 750.000'
-    },
-    {
-      'start-date': '15 Jan 2024',
-      'start-time': '08:00',
-      'end-date': '15 Jan 2024',
-      'end-time': '10:30',
-      location: 'RPC SURABAYA',
-      customer: 'Charlie Davis',
-      service: 'Surgery',
-      status: 'Started',
-      'value-rp': 'Rp 1.500.000'
-    },
-    // Data tambahan
-    {
-      'start-date': '16 Jan 2024',
-      'start-time': '11:30',
-      'end-date': '16 Jan 2024',
-      'end-time': '13:00',
-      location: 'RPC MAKASSAR',
-      customer: 'Eva White',
-      service: 'Consultation',
-      status: 'Confirmed',
-      'value-rp': 'Rp 300.000'
-    },
-    {
-      'start-date': '17 Jan 2024',
-      'start-time': '14:00',
-      'end-date': '17 Jan 2024',
-      'end-time': '16:30',
-      location: 'RPC BALI',
-      customer: 'David Lee',
-      service: 'X-ray',
-      status: 'Started',
-      'value-rp': 'Rp 800.000'
-    }
-    // Tambahkan lebih banyak data jika diperlukan
-  ];
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={6}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!rows.length) {
+    return (
+      <Box display="flex" justifyContent="center" py={6}>
+        <Typography color="text.secondary">
+          <FormattedMessage id="no-data" defaultMessage="Tidak ada data diagnosis" />
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <div>
+    <ScrollX>
       <ReactTable
         columns={columns}
-        data={dataDummy}
-        // totalPagination={totalPagination}
-        // setPageNumber={params.goToPage}
-        // setPageRow={params.rowPerPage}
-        // onGotoPage={goToPage}
-        // onOrder={orderingChange}
-        // onPageSize={changeLimit}
+        data={rows}
+        totalPagination={totalPagination}
+        colSpanPagination={13}
+        onOrder={(event) => {
+          setFilter((f) => ({ ...f, orderValue: event.order, orderColumn: event.column }));
+        }}
+        onGotoPage={(page) => {
+          setFilter((f) => ({ ...f, goToPage: page }));
+        }}
+        onPageSize={(size) => {
+          setFilter((f) => ({ ...f, rowPerPage: size, goToPage: 1 }));
+        }}
       />
-    </div>
+    </ScrollX>
   );
 }

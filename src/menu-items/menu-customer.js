@@ -47,16 +47,28 @@ const customer = {
           url: '/customer/merge'
         },
         {
+          id: 'customer-import',
+          title: <FormattedMessage id="import" />,
+          type: 'item',
+          url: '/customer/import'
+        },
+        {
           id: 'customer-material-data',
           title: <FormattedMessage id="material-data" />,
           type: 'item',
           url: '/customer/material-data'
         },
         {
-          id: 'customer-import',
-          title: <FormattedMessage id="import" />,
+          id: 'customer-feedback',
+          title: <FormattedMessage id="feedback" />,
           type: 'item',
-          url: '/customer/import'
+          url: '/customer/feedback'
+        },
+        {
+          id: 'customer-support-request',
+          title: <FormattedMessage id="support-requested" />,
+          type: 'item',
+          url: '/customer/support-request'
         }
       ]
     }

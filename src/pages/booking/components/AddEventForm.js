@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 // material-ui
 import {
@@ -34,7 +34,7 @@ import { getCustomerPetList } from 'pages/customer/service';
 import config from 'config';
 
 // service
-import { createBooking, getBookingDetail, updateBooking, deleteBooking, acceptBooking, rejectBooking } from '../service';
+import { createBooking, getBookingDetail, updateBooking, deleteBooking, acceptBooking, rejectBooking, cancelBooking } from '../service';
 
 // constant
 const SERVICE_OPTIONS = [
@@ -47,6 +47,20 @@ const SERVICE_OPTIONS = [
 const VISITING_CATEGORY_OPTIONS = ['Konsultasi Baru', 'Kontrol/Follow-up', 'Vaksinasi Rutin', 'Tindakan Bedah'];
 const SOCIALIZATION_LEVEL_OPTIONS = ['Bisa gabung dengan pet lain', 'Tidak bisa (Aggressive)', 'Takut (Shy)'];
 const COAT_CONDITION_OPTIONS = ['Normal', 'Gimbal/Matting', 'Banyak Kutu', 'Jamuran'];
+
+const CANCEL_REASON_OPTIONS = [
+  { value: 'changed-mind', labelId: 'cancel-reason-changed-mind' },
+  { value: 'pet-recovered', labelId: 'cancel-reason-pet-recovered' },
+  { value: 'schedule-conflict', labelId: 'cancel-reason-schedule-conflict' },
+  { value: 'other-clinic', labelId: 'cancel-reason-other-clinic' },
+  { value: 'financial', labelId: 'cancel-reason-financial' },
+  { value: 'doctor-unavailable', labelId: 'cancel-reason-doctor-unavailable' },
+  { value: 'facility-unavailable', labelId: 'cancel-reason-facility-unavailable' },
+  { value: 'clinic-closed', labelId: 'cancel-reason-clinic-closed' },
+  { value: 'overbooking', labelId: 'cancel-reason-overbooking' },
+  { value: 'pet-deceased', labelId: 'cancel-reason-pet-deceased' },
+  { value: 'other', labelId: 'cancel-reason-other' }
+];
 
 const CONSTANT_FORM = {
   location: null,
@@ -89,19 +103,32 @@ const getInitialValues = () => ({ ...CONSTANT_FORM });
 
 // ==============================|| CALENDAR EVENT ADD / EDIT / DELETE ||============================== //
 
-const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, bookingStatus = null }) => {
+const AddEventFrom = ({
+  onCancel,
+  onCreated,
+  mode = 'add',
+  eventId = null,
+  bookingStatus = null,
+  isCancelled = false,
+  initialColor = null
+}) => {
   const dispatch = useDispatch();
+  const intl = useIntl();
   const isEdit = mode === 'edit';
   const [formValue, setFormValue] = useState(getInitialValues());
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [confirmAcceptOpen, setConfirmAcceptOpen] = useState(false);
   const [confirmRejectOpen, setConfirmRejectOpen] = useState(false);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [cancellationReasonOther, setCancellationReasonOther] = useState('');
   const [lightboxSrc, setLightboxSrc] = useState(null);
-  const isReadOnly = Number(bookingStatus) === 1 || Number(bookingStatus) === 2;
+  const isReadOnly = Number(bookingStatus) === 1 || Number(bookingStatus) === 2 || isCancelled;
   const [dropdownData, setDropdownData] = useState({
     locationList: [],
     doctorList: [],
@@ -380,13 +407,38 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
     }
   };
 
+  const handleCancel = () => {
+    setCancellationReason('');
+    setCancellationReasonOther('');
+    setConfirmCancelOpen(true);
+  };
+
+  const confirmCancel = async () => {
+    setConfirmCancelOpen(false);
+    setIsCancelling(true);
+    try {
+      const finalReason =
+        cancellationReason === 'other'
+          ? cancellationReasonOther.trim()
+          : intl.formatMessage({ id: CANCEL_REASON_OPTIONS.find((r) => r.value === cancellationReason)?.labelId || 'cancel-reason-other' });
+      await cancelBooking(eventId, finalReason);
+      dispatch(snackbarSuccess('Booking cancelled successfully.'));
+      onCancel();
+      onCreated?.();
+    } catch (error) {
+      dispatch(snackbarError(error?.message || 'Failed to cancel booking'));
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   const selectedService = formValue.service?.value;
-  const serviceColor = getServiceColor();
+  const serviceColor = getServiceColor() || initialColor || undefined;
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DialogTitle sx={{ backgroundColor: serviceColor || undefined, color: serviceColor ? '#000' : undefined }}>
-        {isReadOnly ? 'Detail Booking' : isEdit ? 'Edit Booking' : 'Add Booking'}
+        {isCancelled ? 'Cancelled Booking' : isReadOnly ? 'Detail Booking' : isEdit ? 'Edit Booking' : 'Add Booking'}
       </DialogTitle>
       <Divider />
       <DialogContent sx={{ p: 2.5 }}>
@@ -513,7 +565,13 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                     <FormattedMessage id="visiting-category" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="consultationType" value={formValue.consultationType} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
+                    <Select
+                      name="consultationType"
+                      value={formValue.consultationType}
+                      onChange={onFieldHandler}
+                      displayEmpty
+                      disabled={isReadOnly}
+                    >
                       <MenuItem value="" disabled>
                         Pilih Jenis Kunjungan
                       </MenuItem>
@@ -533,7 +591,14 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                   <InputLabel>
                     <FormattedMessage id="drug-allergy-history" />
                   </InputLabel>
-                  <TextField fullWidth name="drugAllergy" value={formValue.drugAllergy} onChange={onFieldHandler} placeholder="Text" disabled={isReadOnly} />
+                  <TextField
+                    fullWidth
+                    name="drugAllergy"
+                    value={formValue.drugAllergy}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    disabled={isReadOnly}
+                  />
                 </Stack>
               </Grid>
 
@@ -644,7 +709,13 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                     <FormattedMessage id="socialization-level" />
                   </InputLabel>
                   <FormControl fullWidth>
-                    <Select name="socializationType" value={formValue.socializationType} onChange={onFieldHandler} displayEmpty disabled={isReadOnly}>
+                    <Select
+                      name="socializationType"
+                      value={formValue.socializationType}
+                      onChange={onFieldHandler}
+                      displayEmpty
+                      disabled={isReadOnly}
+                    >
                       <MenuItem value="" disabled>
                         Pilih Tingkat Sosialisasi
                       </MenuItem>
@@ -883,7 +954,14 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                   <InputLabel>
                     <FormattedMessage id="stambum-stamboom" />
                   </InputLabel>
-                  <TextField fullWidth name="stambum" value={formValue.stambum} onChange={onFieldHandler} placeholder="Text" disabled={isReadOnly} />
+                  <TextField
+                    fullWidth
+                    name="stambum"
+                    value={formValue.stambum}
+                    onChange={onFieldHandler}
+                    placeholder="Text"
+                    disabled={isReadOnly}
+                  />
                 </Stack>
               </Grid>
 
@@ -1011,7 +1089,9 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
                   fullWidth
                   disabled
                   value={
-                    Number(bookingStatus) === 1
+                    isCancelled
+                      ? 'Cancelled'
+                      : Number(bookingStatus) === 1
                       ? 'Accepted'
                       : Number(bookingStatus) === 2
                       ? 'Rejected'
@@ -1029,6 +1109,11 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
           {isEdit && !isReadOnly && (
             <Button color="error" variant="outlined" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          )}
+          {isEdit && !isCancelled && (
+            <Button color="warning" variant="outlined" onClick={handleCancel} disabled={isCancelling}>
+              {isCancelling ? 'Cancelling...' : <FormattedMessage id="cancel-booking" />}
             </Button>
           )}
           <Stack direction="row" spacing={2} alignItems="center" sx={{ ml: 'auto' }}>
@@ -1096,6 +1181,62 @@ const AddEventFrom = ({ onCancel, onCreated, mode = 'add', eventId = null, booki
         </DialogActions>
       </Dialog>
 
+      {/* Konfirmasi Cancel Booking */}
+      <Dialog open={confirmCancelOpen} onClose={() => setConfirmCancelOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          <FormattedMessage id="cancel-booking" />
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            <FormattedMessage id="confirm-cancel-booking" />
+          </DialogContentText>
+          <FormControl fullWidth required>
+            <InputLabel>
+              <FormattedMessage id="reason" />
+            </InputLabel>
+            <Select
+              value={cancellationReason}
+              label={<FormattedMessage id="reason" />}
+              onChange={(e) => {
+                setCancellationReason(e.target.value);
+                setCancellationReasonOther('');
+              }}
+            >
+              {CANCEL_REASON_OPTIONS.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  <FormattedMessage id={opt.labelId} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {cancellationReason === 'other' && (
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label={<FormattedMessage id="other-reason-detail" />}
+              value={cancellationReasonOther}
+              onChange={(e) => setCancellationReasonOther(e.target.value)}
+              required
+              sx={{ mt: 2 }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" color="error" onClick={() => setConfirmCancelOpen(false)}>
+            <FormattedMessage id="cancel" />
+          </Button>
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={confirmCancel}
+            disabled={isCancelling || !cancellationReason || (cancellationReason === 'other' && !cancellationReasonOther.trim())}
+          >
+            <FormattedMessage id="cancel-booking" />
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Konfirmasi Accept Booking */}
       <Dialog open={confirmAcceptOpen} onClose={() => setConfirmAcceptOpen(false)}>
         <DialogTitle>
@@ -1134,7 +1275,9 @@ AddEventFrom.propTypes = {
   onCreated: PropTypes.func,
   mode: PropTypes.oneOf(['add', 'edit']),
   eventId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  bookingStatus: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  bookingStatus: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  isCancelled: PropTypes.bool,
+  initialColor: PropTypes.string
 };
 
 export default AddEventFrom;

@@ -1,6 +1,8 @@
 import { Link } from '@mui/material';
 import { ReactTable } from 'components/third-party/ReactTable';
-import { useMemo } from 'react';
+import PaymentDialog from 'pages/finance/sales/components/PaymentDialog';
+
+import { useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatDateString, formatThousandSeparator } from 'utils/func';
 import iconWhatsapp from '../../../../../src/assets/images/ico-whatsapp.png';
@@ -10,15 +12,28 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
   const tablesData = data?.data || [];
   const totalPagination = data?.totalPagination;
 
+  const [detailDialog, setDetailDialog] = useState({ open: false, row: null });
+
   const columns = useMemo(
     () => [
       {
         Header: <FormattedMessage id="sale-id" />,
         accessor: 'saleId',
         Cell: (data) => {
-          const onClickDetail = () => {};
-
-          return <Link onClick={() => onClickDetail()}>{data.value}</Link>; // href={`/product/product-list/sell/${getId}`}
+          const original = data.row.original;
+          return (
+            <Link
+              onClick={() =>
+                setDetailDialog({
+                  open: true,
+                  row: { invoiceNumber: original.saleId, serviceType: original.serviceType }
+                })
+              }
+              sx={{ cursor: 'pointer' }}
+            >
+              {data.value}
+            </Link>
+          );
         }
       },
       {
@@ -73,61 +88,6 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
     [locale]
   );
 
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        saleId: 'INV-1234',
-        location: 'RPC Duren',
-        dueDate: '2022-01-01',
-        overDue: 'Active',
-        customerName: 'Customer 1',
-        phoneNo: '08123456789',
-        totalAmount: 80000,
-        paidAmount: 80000,
-        outstandingAmount: 80000,
-        refNum: 'test refNum'
-      },
-      {
-        saleId: 'INV-1234',
-        location: 'RPC Duren',
-        dueDate: '2022-01-01',
-        overDue: 'Active',
-        customerName: 'Customer 1',
-        phoneNo: '08123456789',
-        totalAmount: 80000,
-        paidAmount: 80000,
-        outstandingAmount: 80000,
-        refNum: 'test refNum'
-      },
-      {
-        saleId: 'INV-1234',
-        location: 'RPC Duren',
-        dueDate: '2022-01-01',
-        overDue: 'Active',
-        customerName: 'Customer 1',
-        phoneNo: '08123456789',
-        totalAmount: 80000,
-        paidAmount: 80000,
-        outstandingAmount: 80000,
-        refNum: 'test refNum'
-      },
-      {
-        saleId: 'INV-1234',
-        location: 'RPC Duren',
-        dueDate: '2022-01-01',
-        overDue: 'Active',
-        customerName: 'Customer 1',
-        phoneNo: '08123456789',
-        totalAmount: 80000,
-        paidAmount: 80000,
-        outstandingAmount: 80000,
-        refNum: 'test refNum'
-      }
-    ],
-    []
-  );
-
   return (
     <div>
       <ReactTable
@@ -143,6 +103,8 @@ export default function SalesUnpaid({ data, filter, setFilter }) {
           setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
         }}
       />
+
+      <PaymentDialog open={detailDialog.open} row={detailDialog.row} onClose={() => setDetailDialog({ open: false, row: null })} />
     </div>
   );
 }

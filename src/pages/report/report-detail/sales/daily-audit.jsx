@@ -77,28 +77,6 @@ export default function SalesDailyAudit({ data, filter, setFilter }) {
     [formatMessage]
   );
 
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        day: 1,
-        date: '1/5/2022',
-        salesSummary: {
-          salesValue: 4343239.5,
-          discounts: 189260.5
-        },
-        paymentSummary: {
-          cash: 4343239.5,
-          creditCard: 189260.5,
-          bankTransfer: 189260.5,
-          debitCard: 189260.5,
-          totalAmount: 189260.5
-        }
-      }
-    ],
-    []
-  );
-
   return (
     <div>
       <ReactTable

@@ -253,7 +253,11 @@ const CheckPetCondition = (props) => {
                 {formValue.hplStatus && (
                   <p>
                     Status:{' '}
-                    <span style={{ color: formValue.hplStatus.toLowerCase() === 'hpl sudah dekat' ? 'red' : 'green' }}>
+                    <span
+                      style={{
+                        color: ['hpl sudah dekat', 'hpl sudah lewat'].includes(formValue.hplStatus.toLowerCase()) ? 'red' : 'green'
+                      }}
+                    >
                       {formValue.hplStatus}
                     </span>
                   </p>
@@ -262,7 +266,7 @@ const CheckPetCondition = (props) => {
             </Grid>
           )}
 
-          {formValue.hplStatus.toLowerCase() === 'hpl sudah dekat' && (
+          {['hpl sudah dekat', 'hpl sudah lewat'].includes(formValue.hplStatus.toLowerCase()) && (
             <>
               <Grid item xs={12}>
                 <FormGroup>

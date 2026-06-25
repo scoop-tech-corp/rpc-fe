@@ -34,7 +34,8 @@ const Prices = () => {
       if (listPrice) setMergeList([formCreated, ...listPrice]);
       else setMergeList([formCreated]);
     }
-  }, [listPrice, form, locations, custGroups, render, listPrice]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listPrice, form, locations, custGroups, render]);
 
   const onFieldHandler = (event, name) => {
     if (name == 'customerGroup' || name == 'location') {
@@ -191,7 +192,7 @@ const Prices = () => {
         }
       }
     ],
-    []
+    [isDetail] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (

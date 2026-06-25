@@ -131,7 +131,7 @@ const TabDescription = () => {
         }
       }
     ],
-    [surcharges]
+    [surcharges, isDetail]
   );
   const onFieldHandler = (event) => {
     useServiceFormStore.setState({ listStaff: [...listStaff, { id: Date.now(), ...event.target.value }] });

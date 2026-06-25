@@ -18,7 +18,7 @@ const LocationDetailHeader = (props) => {
   const locationDetailError = useLocationDetailStore((state) => state.locationDetailError);
   const isTouchForm = useLocationDetailStore((state) => state.locataionTouch);
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });

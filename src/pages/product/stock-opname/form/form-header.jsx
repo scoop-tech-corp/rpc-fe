@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useStockOpnameFormStore, getAllState } from './form-store';
 import { createMessageBackend } from 'service/service-global';
 import { createStockOpname, updateStockOpname } from '../service';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 import { useState } from 'react';
 
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
@@ -59,12 +59,7 @@ const StockOpnameFormHeader = () => {
         title={<FormattedMessage id={id ? 'edit-stock-opname' : 'add-stock-opname'} />}
         locationBackConfig={{ setLocationBack: true, customUrl: '/product/stockopname' }}
         action={
-          <Button
-            variant="contained"
-            startIcon={<PlusOutlined />}
-            onClick={onSubmit}
-            disabled={!isFormTouch || isFormError}
-          >
+          <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={!isFormTouch || isFormError}>
             <FormattedMessage id="save" />
           </Button>
         }

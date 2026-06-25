@@ -42,40 +42,6 @@ export default function SalesPaymentList({ data, filter, setFilter }) {
     []
   );
 
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        saleId: 'INV-12324',
-        location: 'RPC Duren',
-        paymentMethod: 'Transfer',
-        paidAt: '2025-01-03 11:55',
-        createdBy: 'Agus',
-        createdAt: '2025-01-03 11:50',
-        totalAmount: 100000
-      },
-      {
-        saleId: 'INV-12324',
-        location: 'RPC Duren',
-        paymentMethod: 'Transfer',
-        paidAt: '2025-01-03 11:55',
-        createdBy: 'Agus',
-        createdAt: '2025-01-03 11:50',
-        totalAmount: 100000
-      },
-      {
-        saleId: 'INV-12324',
-        location: 'RPC Duren',
-        paymentMethod: 'Transfer',
-        paidAt: '2025-01-03 11:55',
-        createdBy: 'Agus',
-        createdAt: '2025-01-03 11:50',
-        totalAmount: 100000
-      }
-    ],
-    []
-  );
-
   return (
     <div>
       <ReactTable

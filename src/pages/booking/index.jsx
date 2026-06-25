@@ -29,7 +29,7 @@ const Booking = () => {
   const dispatch = useDispatch();
   const calendar = useSelector((state) => state.calendar);
   const { calendarView, events, isModalOpen, selectedEventId } = calendar;
-  const selectedEvent = selectedEventId ? events.find((e) => e.id === selectedEventId) : null;
+  const selectedEvent = selectedEventId ? events.find((e) => String(e.id) === String(selectedEventId)) : null;
 
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
@@ -159,7 +159,10 @@ const Booking = () => {
 
       // Format new bookingTime from the dropped date
       const newDate = event.start;
-      const bookingTime = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')} ${String(newDate.getHours()).padStart(2, '0')}:${String(newDate.getMinutes()).padStart(2, '0')}`;
+      const bookingTime = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(
+        2,
+        '0'
+      )} ${String(newDate.getHours()).padStart(2, '0')}:${String(newDate.getMinutes()).padStart(2, '0')}`;
 
       await updateBooking({
         id: event.id,
@@ -219,7 +222,7 @@ const Booking = () => {
           weekends
           editable
           droppable
-          events={events}
+          events={events.filter((e) => !e.isCancelled)}
           ref={calendarRef}
           rerenderDelay={10}
           initialDate={date}
@@ -241,7 +244,15 @@ const Booking = () => {
       {/* Dialog renders its body even if not open */}
       <Dialog maxWidth="sm" fullWidth onClose={handleModal} open={isModalOpen} sx={{ '& .MuiDialog-paper': { p: 0 } }}>
         {isModalOpen && selectedEvent && (
-          <AddEventForm mode="edit" eventId={selectedEventId} bookingStatus={selectedEvent.status} onCancel={handleModal} onCreated={fetchEvents} />
+          <AddEventForm
+            mode="edit"
+            eventId={selectedEventId}
+            bookingStatus={selectedEvent.status}
+            isCancelled={Boolean(selectedEvent.isCancelled)}
+            initialColor={selectedEvent.color}
+            onCancel={handleModal}
+            onCreated={fetchEvents}
+          />
         )}
         {isModalOpen && !selectedEvent && <AddEventForm onCancel={handleModal} onCreated={fetchEvents} />}
       </Dialog>

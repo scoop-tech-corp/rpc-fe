@@ -35,6 +35,24 @@ const finance = {
           url: '/finance/finance-sales'
         },
         {
+          id: 'finance-payment-record',
+          title: <FormattedMessage id="payment-record" defaultMessage="Payment Record" />,
+          type: 'item',
+          url: '/finance/payment-record'
+        },
+        {
+          id: 'finance-piutang',
+          title: <FormattedMessage id="piutang" defaultMessage="Piutang / Aging" />,
+          type: 'item',
+          url: '/finance/piutang'
+        },
+        {
+          id: 'finance-refund',
+          title: <FormattedMessage id="refund" defaultMessage="Return / Refund" />,
+          type: 'item',
+          url: '/finance/refund'
+        },
+        {
           id: 'finance-quotation',
           title: <FormattedMessage id="quotation" />,
           type: 'item',
@@ -51,6 +69,12 @@ const finance = {
           title: <FormattedMessage id="material-data" />,
           type: 'item',
           url: '/finance/material-data'
+        },
+        {
+          id: 'finance-installment',
+          title: 'Cicilan',
+          type: 'item',
+          url: '/finance/installment'
         }
       ]
     }

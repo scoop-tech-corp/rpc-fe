@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  Autocomplete,
-  Button,
-  Chip,
-  Grid,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Autocomplete, Button, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -46,7 +38,9 @@ const STATUS_MAP = {
 
 const DetailItem = ({ label, value }) => (
   <Grid item xs={12} sm={6} md={4}>
-    <Typography variant="h6" fontWeight="bold">{label}</Typography>
+    <Typography variant="h6" fontWeight="bold">
+      {label}
+    </Typography>
     <Typography variant="body1">{value ?? '-'}</Typography>
   </Grid>
 );
@@ -178,9 +172,7 @@ const OrderDetail = ({ open, id, onClose, onSuccess }) => {
     <>
       <ModalC
         open={open}
-        title={
-          <FormattedMessage id="detail-delivery-order" defaultMessage="Delivery Order Detail" />
-        }
+        title={<FormattedMessage id="detail-delivery-order" defaultMessage="Delivery Order Detail" />}
         onCancel={onClose}
         isModalAction={false}
         fullWidth
@@ -244,37 +236,24 @@ const OrderDetail = ({ open, id, onClose, onSuccess }) => {
             <MainCard title={<FormattedMessage id="information" defaultMessage="Information" />}>
               <Grid container spacing={2}>
                 <DetailItem label="DO Number" value={data?.deliveryNumber} />
-                <DetailItem
-                  label={<FormattedMessage id="location" defaultMessage="Location" />}
-                  value={data?.location?.locationName}
-                />
-                <DetailItem
-                  label={<FormattedMessage id="customer" defaultMessage="Customer" />}
-                  value={data?.customerName}
-                />
-                <DetailItem
-                  label={<FormattedMessage id="phone" defaultMessage="Phone" />}
-                  value={data?.customerPhone}
-                />
+                <DetailItem label={<FormattedMessage id="location" defaultMessage="Location" />} value={data?.location?.locationName} />
+                <DetailItem label={<FormattedMessage id="customer" defaultMessage="Customer" />} value={data?.customerName} />
+                <DetailItem label={<FormattedMessage id="phone" defaultMessage="Phone" />} value={data?.customerPhone} />
                 <DetailItem
                   label={<FormattedMessage id="delivery-address" defaultMessage="Delivery Address" />}
                   value={data?.deliveryAddress}
                 />
-                <DetailItem
-                  label={<FormattedMessage id="delivery-date" defaultMessage="Delivery Date" />}
-                  value={data?.deliveryDate}
-                />
+                <DetailItem label={<FormattedMessage id="delivery-date" defaultMessage="Delivery Date" />} value={data?.deliveryDate} />
                 <DetailItem
                   label={<FormattedMessage id="agent" defaultMessage="Agent" />}
                   value={data?.agent ? `${data.agent.name} (${data.agent.vehiclePlate ?? '-'})` : '-'}
                 />
-                <DetailItem
-                  label={<FormattedMessage id="created-by" defaultMessage="Created By" />}
-                  value={data?.creator?.name}
-                />
+                <DetailItem label={<FormattedMessage id="created-by" defaultMessage="Created By" />} value={data?.creator?.name} />
                 <DetailItem label={<FormattedMessage id="note" defaultMessage="Note" />} value={data?.note} />
                 <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="h6" fontWeight="bold">Status</Typography>
+                  <Typography variant="h6" fontWeight="bold">
+                    Status
+                  </Typography>
                   <Chip color={status.color} label={status.label} size="small" variant="light" />
                 </Grid>
               </Grid>
@@ -320,8 +299,13 @@ const OrderDetail = ({ open, id, onClose, onSuccess }) => {
         <ConfirmationC
           open={confirmAssign}
           title={<FormattedMessage id="assign-agent" defaultMessage="Assign Agent" />}
-          content={<FormattedMessage id="are-you-sure-you-want-to-assign-this-agent" defaultMessage="Are you sure you want to assign this agent?" />}
-          onClose={(ok) => ok ? handleAction('assign') : setConfirmAssign(false)}
+          content={
+            <FormattedMessage
+              id="are-you-sure-you-want-to-assign-this-agent"
+              defaultMessage="Are you sure you want to assign this agent?"
+            />
+          }
+          onClose={(ok) => (ok ? handleAction('assign') : setConfirmAssign(false))}
           btnTrueText="Ok"
           btnFalseText="Cancel"
         />
@@ -331,8 +315,13 @@ const OrderDetail = ({ open, id, onClose, onSuccess }) => {
         <ConfirmationC
           open={confirmPickup}
           title={<FormattedMessage id="pickup" defaultMessage="Pickup" />}
-          content={<FormattedMessage id="are-you-sure-agent-has-picked-up-the-goods" defaultMessage="Are you sure the agent has picked up the goods?" />}
-          onClose={(ok) => ok ? handleAction('pickup') : setConfirmPickup(false)}
+          content={
+            <FormattedMessage
+              id="are-you-sure-agent-has-picked-up-the-goods"
+              defaultMessage="Are you sure the agent has picked up the goods?"
+            />
+          }
+          onClose={(ok) => (ok ? handleAction('pickup') : setConfirmPickup(false))}
           btnTrueText="Ok"
           btnFalseText="Cancel"
         />
@@ -342,8 +331,10 @@ const OrderDetail = ({ open, id, onClose, onSuccess }) => {
         <ConfirmationC
           open={confirmStart}
           title={<FormattedMessage id="start-delivery" defaultMessage="Start Delivery" />}
-          content={<FormattedMessage id="are-you-sure-you-want-to-start-delivery" defaultMessage="Are you sure you want to start this delivery?" />}
-          onClose={(ok) => ok ? handleAction('start') : setConfirmStart(false)}
+          content={
+            <FormattedMessage id="are-you-sure-you-want-to-start-delivery" defaultMessage="Are you sure you want to start this delivery?" />
+          }
+          onClose={(ok) => (ok ? handleAction('start') : setConfirmStart(false))}
           btnTrueText="Ok"
           btnFalseText="Cancel"
         />
@@ -353,8 +344,13 @@ const OrderDetail = ({ open, id, onClose, onSuccess }) => {
         <ConfirmationC
           open={confirmComplete}
           title={<FormattedMessage id="complete-delivery" defaultMessage="Complete Delivery" />}
-          content={<FormattedMessage id="are-you-sure-delivery-has-been-completed" defaultMessage="Are you sure this delivery has been completed?" />}
-          onClose={(ok) => ok ? handleAction('complete') : setConfirmComplete(false)}
+          content={
+            <FormattedMessage
+              id="are-you-sure-delivery-has-been-completed"
+              defaultMessage="Are you sure this delivery has been completed?"
+            />
+          }
+          onClose={(ok) => (ok ? handleAction('complete') : setConfirmComplete(false))}
           btnTrueText="Ok"
           btnFalseText="Cancel"
         />

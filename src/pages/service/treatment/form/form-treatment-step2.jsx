@@ -44,7 +44,8 @@ export default function App() {
           dataSupport: {
             ...useTreatmentStore.getState().dataSupport,
             serviceList: await getServiceListByLocation({ location_id: getTreatmentDetail.data?.location_id }),
-            treatmentDetail: await getTreatmentDetail.data,
+            // BUG 10 FIX: .data is already resolved data, not a Promise — remove await
+            treatmentDetail: getTreatmentDetail.data,
             frequencyList: await getFrequencyList(),
             taskList: await getTaskList()
           }
@@ -56,6 +57,7 @@ export default function App() {
     }
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setTotalColumn = (e) => {
@@ -115,6 +117,7 @@ export default function App() {
   };
   const [column, setColumn] = useState([{ ...defaultColumn }]);
 
+  // BUG 4 FIX: add totalData to dependency so header "N item" updates when items are added
   useEffect(() => {
     let newColumn = [{ ...defaultColumn }];
 
@@ -136,7 +139,8 @@ export default function App() {
       });
     }
     setColumn(newColumn);
-  }, [totalColumn]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalColumn, totalData]);
 
   return (
     <>

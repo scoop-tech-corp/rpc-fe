@@ -282,7 +282,10 @@ const StockOpname = () => {
           open={openDetail.isOpen}
           id={openDetail.id}
           onClose={() => setOpenDetail({ isOpen: false, id: null })}
-          onSuccess={() => { setOpenDetail({ isOpen: false, id: null }); fetchData(); }}
+          onSuccess={() => {
+            setOpenDetail({ isOpen: false, id: null });
+            fetchData();
+          }}
         />
       )}
     </>

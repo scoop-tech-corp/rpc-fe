@@ -1,98 +1,103 @@
 import { ReactTable } from 'components/third-party/ReactTable';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Box, Chip, CircularProgress, Typography } from '@mui/material';
+import ScrollX from 'components/ScrollX';
 
-export default function BookingByList({ data }) {
+const STATUS_CHIP = {
+  Menunggu: { color: 'warning' },
+  Diterima: { color: 'success' },
+  Ditolak: { color: 'error' },
+  Dibatalkan: { color: 'default' }
+};
+
+const SERVICE_CHIP = {
+  'Pet Clinic': { color: 'primary' },
+  'Pet Hotel': { color: 'error' },
+  'Pet Salon': { color: 'warning' },
+  Breeding: { color: 'success' }
+};
+
+export default function BookingByList({ data, loading, setFilter }) {
+  const rows = Array.isArray(data?.data) ? data.data : [];
+  const totalPagination = data?.totalPagination || 0;
+
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="start-date" />,
-        accessor: 'start-date'
+        Header: <FormattedMessage id="date" defaultMessage="Tanggal" />,
+        accessor: 'bookingDate'
       },
       {
         Header: <FormattedMessage id="start-time" />,
-        accessor: 'start-time'
-      },
-      {
-        Header: <FormattedMessage id="end-date" />,
-        accessor: 'end-date'
-      },
-      {
-        Header: <FormattedMessage id="end-time" />,
-        accessor: 'end-time'
+        accessor: 'bookingTime'
       },
       {
         Header: <FormattedMessage id="location" />,
-        accessor: 'location'
+        accessor: 'locationName'
       },
       {
         Header: <FormattedMessage id="customer" />,
-        accessor: 'customer'
+        accessor: 'customerName'
+      },
+      {
+        Header: <FormattedMessage id="pet" defaultMessage="Hewan" />,
+        accessor: 'petName'
       },
       {
         Header: <FormattedMessage id="service" />,
-        accessor: 'service'
+        accessor: 'serviceType',
+        Cell: ({ value }) => <Chip label={value} color={SERVICE_CHIP[value]?.color || 'default'} size="small" variant="outlined" />
+      },
+      {
+        Header: <FormattedMessage id="doctor" />,
+        accessor: 'doctorName',
+        Cell: ({ value }) => value?.trim() || '-'
       },
       {
         Header: <FormattedMessage id="status" />,
-        accessor: 'status'
-      },
-      {
-        Header: <FormattedMessage id="value-rp" />,
-        accessor: 'value-rp'
+        accessor: 'status',
+        Cell: ({ value }) => <Chip label={value} color={STATUS_CHIP[value]?.color || 'default'} size="small" />
       }
     ],
     []
   );
-  const dataDummy = [
-    {
-      'start-date': '11 Jan 2024',
-      'start-time': '10:00 ',
-      'end-date': '11 Jan 2024',
-      'end-time': '12:00',
-      location: 'RPC ACEH',
-      customer: 'John Doe',
-      service: 'UGD',
-      status: 'Confirmed',
-      'value-rp': 'Rp 500.000'
-    },
-    {
-      'start-date': '12 Jan 2024',
-      'start-time': '02:00',
-      'end-date': '12 Jan 2024',
-      'end-time': '04:00',
-      location: 'RPC SUMATERA UTARA',
-      customer: 'Jane Smith',
-      service: 'UGD',
-      status: 'Started',
-      'value-rp': 'Rp 1.000.000'
-    },
-    {
-      'start-date': '13 Jan 2024',
-      'start-time': '09:00 ',
-      'end-date': '13 Jan 2024',
-      'end-time': '11:00 ',
-      location: 'RCP BANDUNG',
-      customer: 'Bob Johnson',
-      service: 'IGD',
-      status: 'Pencilled-in',
-      'value-rp': 'Rp 250.000'
-    }
-    // Add more data as needed
-  ];
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={6}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!rows.length) {
+    return (
+      <Box display="flex" justifyContent="center" py={6}>
+        <Typography color="text.secondary">
+          <FormattedMessage id="no-data" defaultMessage="Tidak ada data booking" />
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <div>
+    <ScrollX>
       <ReactTable
         columns={columns}
-        data={dataDummy}
-        // totalPagination={totalPagination}
-        // setPageNumber={pars.goToPage}
-        // setPageRow={pars.rowPerPage}
-        // onGotoPage={goToPage}
-        // onOrder={orderingChange}
-        // onPageSize={changeLimit}
+        data={rows}
+        totalPagination={totalPagination}
+        colSpanPagination={8}
+        onOrder={(event) => {
+          setFilter((f) => ({ ...f, orderValue: event.order, orderColumn: event.column }));
+        }}
+        onGotoPage={(page) => {
+          setFilter((f) => ({ ...f, goToPage: page }));
+        }}
+        onPageSize={(size) => {
+          setFilter((f) => ({ ...f, rowPerPage: size, goToPage: 1 }));
+        }}
       />
-    </div>
+    </ScrollX>
   );
 }

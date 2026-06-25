@@ -1,15 +1,15 @@
 import { Autocomplete, Grid, InputLabel, Stack, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { getAllState, useServiceFormStore } from '../../service-form-store';
+import { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useServiceFormStore } from '../../service-form-store';
 
 const TabFollowup = () => {
   const followupList = useServiceFormStore((state) => state.dataSupport.serviceList);
   const followupStore = useServiceFormStore((state) => state.followup);
   const isDetail = useServiceFormStore((state) => state.isDetail);
 
-  const [followup, setFollowup] = useState([]);
-  const [error, setError] = useState('');
+  const [, setFollowup] = useState([]);
+  const [error] = useState('');
 
   const onSelectFollowup = (_, val) => {
     setFollowup(val);

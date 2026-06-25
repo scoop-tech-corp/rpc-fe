@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 
 // project import
@@ -9,7 +9,6 @@ import TransactionPetHotel from 'pages/transaction/pages/pet-hotel';
 import TransactionPetSalon from 'pages/transaction/pages/pet-salon';
 import TransactionBreeding from 'pages/transaction/pages/breeding';
 import TransactionPetShop from 'pages/transaction/pages/pet-shop';
-import FormTransactionPetShop from 'pages/transaction/pages/pet-shop/form-transaction';
 import TransactionDataStatic from 'pages/transaction/pages/material-data';
 // import { Outlet } from 'react-router-dom';
 
@@ -17,6 +16,9 @@ import TransactionDataStatic from 'pages/transaction/pages/material-data';
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const Dashboard = Loadable(lazy(() => import('pages/dashboard')));
 const Booking = Loadable(lazy(() => import('pages/booking')));
+const QueueManagement = Loadable(lazy(() => import('pages/queue')));
+const QueueDisplay = lazy(() => import('pages/queue/display'));
+const TransactionDashboard = Loadable(lazy(() => import('pages/transaction/dashboard')));
 const TransactionPetClinic = Loadable(lazy(() => import('pages/transaction/pages/pet-clinic')));
 const Message = Loadable(lazy(() => import('pages/message')));
 
@@ -25,12 +27,15 @@ const CustomerDashboard = Loadable(lazy(() => import('pages/customer/dashboard')
 const CustomerList = Loadable(lazy(() => import('pages/customer/customer-list')));
 const CustomerForm = Loadable(lazy(() => import('pages/customer/customer-list/form')));
 const CustomerTemplate = Loadable(lazy(() => import('pages/customer/template')));
-const CustomerMerge = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const CustomerMerge = Loadable(lazy(() => import('pages/customer/merge')));
 const CustomerStaticData = Loadable(lazy(() => import('pages/customer/static-data')));
 const CustomerImport = Loadable(lazy(() => import('pages/customer/import')));
+const CustomerFeedback = Loadable(lazy(() => import('pages/customer/feedback')));
+const CustomerSupportRequest = Loadable(lazy(() => import('pages/customer/support-request')));
+const CustomerSupportPortal = Loadable(lazy(() => import('pages/customer/support-request/portal')));
 
 // Staff
-const StaffDashboard = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const StaffDashboard = Loadable(lazy(() => import('pages/staff/dashboard')));
 const StaffList = Loadable(lazy(() => import('pages/staff/staff-list')));
 const StaffForm = Loadable(lazy(() => import('pages/staff/staff-list/form')));
 const StaffLeaveApproval = Loadable(lazy(() => import('pages/staff/leave')));
@@ -100,14 +105,20 @@ const LocationList = Loadable(lazy(() => import('pages/location/location-list'))
 const LocationDetail = Loadable(lazy(() => import('pages/location/location-list/detail')));
 const LocationFacilities = Loadable(lazy(() => import('pages/location/facility/facility-list')));
 const LocationFacilitiesDetail = Loadable(lazy(() => import('pages/location/facility/detail')));
+const CageManagement = Loadable(lazy(() => import('pages/location/cage-management')));
+const CageManagementDetail = Loadable(lazy(() => import('pages/location/cage-management/detail')));
 const LocationStaticData = Loadable(lazy(() => import('pages/location/static-data/static-data-list')));
 
 // Finance
 const FinanceDashboard = Loadable(lazy(() => import('pages/finance/dashboard')));
 const FinanceSales = Loadable(lazy(() => import('pages/finance/sales')));
-const FinanceQuotation = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+const FinancePaymentRecord = Loadable(lazy(() => import('pages/finance/payment-record')));
+const FinancePiutang = Loadable(lazy(() => import('pages/finance/piutang')));
+const FinanceRefund = Loadable(lazy(() => import('pages/finance/refund')));
+const FinanceQuotation = Loadable(lazy(() => import('pages/finance/quotation')));
 const FinanceExpenses = Loadable(lazy(() => import('pages/finance/expenses')));
 const FinanceStaticData = Loadable(lazy(() => import('pages/finance/static-data')));
+const FinanceInstallment = Loadable(lazy(() => import('pages/finance/installment')));
 
 // Report
 const Report = Loadable(lazy(() => import('pages/report')));
@@ -140,19 +151,20 @@ const MainRoutes = {
       children: [
         { path: 'dashboard', element: <Dashboard /> },
         { path: 'booking', element: <Booking /> },
+        { path: 'queue', element: <QueueManagement /> },
         { path: 'message', element: <Message /> },
         { path: 'report', element: <Report /> },
         { path: 'report-detail', element: <ReportDetail /> },
         {
           path: 'transaction',
           children: [
+            { path: '', element: <Navigate to="/transaction/dashboard" /> },
+            { path: 'dashboard', element: <TransactionDashboard /> },
             { path: 'pet-clinic', element: <TransactionPetClinic /> },
             { path: 'pet-hotel', element: <TransactionPetHotel /> },
             { path: 'pet-salon', element: <TransactionPetSalon /> },
             { path: 'breeding', element: <TransactionBreeding /> },
             { path: 'pet-shop', element: <TransactionPetShop /> },
-            { path: 'pet-shop/create', element: <FormTransactionPetShop /> },
-            { path: 'pet-shop/edit/:id', element: <FormTransactionPetShop /> },
             { path: 'material-data', element: <TransactionDataStatic /> }
           ]
         },
@@ -167,7 +179,10 @@ const MainRoutes = {
             { path: 'template', element: <CustomerTemplate /> },
             { path: 'merge', element: <CustomerMerge /> },
             { path: 'material-data', element: <CustomerStaticData /> },
-            { path: 'import', element: <CustomerImport /> }
+            { path: 'import', element: <CustomerImport /> },
+            { path: 'feedback', element: <CustomerFeedback /> },
+            { path: 'support-request', element: <CustomerSupportRequest /> },
+            { path: 'support-request/portal', element: <CustomerSupportPortal /> }
           ]
         },
         {
@@ -276,6 +291,8 @@ const MainRoutes = {
             { path: 'facilities', element: <LocationFacilities /> },
             { path: 'facilities/add', element: <LocationFacilitiesDetail /> },
             { path: 'facilities/:id', element: <LocationFacilitiesDetail /> },
+            { path: 'cage-management', element: <CageManagement /> },
+            { path: 'cage-management/:id', element: <CageManagementDetail /> },
             { path: 'material-data', element: <LocationStaticData /> }
           ]
         },
@@ -284,9 +301,13 @@ const MainRoutes = {
           children: [
             { path: 'dashboard', element: <FinanceDashboard /> },
             { path: 'finance-sales', element: <FinanceSales /> },
+            { path: 'payment-record', element: <FinancePaymentRecord /> },
+            { path: 'piutang', element: <FinancePiutang /> },
+            { path: 'refund', element: <FinanceRefund /> },
             { path: 'quotation', element: <FinanceQuotation /> },
             { path: 'expenses', element: <FinanceExpenses /> },
-            { path: 'material-data', element: <FinanceStaticData /> }
+            { path: 'material-data', element: <FinanceStaticData /> },
+            { path: 'installment', element: <FinanceInstallment /> }
           ]
         },
         {
@@ -310,6 +331,15 @@ const MainRoutes = {
           element: <SamplePage />
         }
       ]
+    },
+    // Queue Display — publik, tanpa auth, tanpa layout
+    {
+      path: '/queue/display',
+      element: (
+        <Suspense fallback={<div style={{ background: '#0d1117', minHeight: '100vh' }} />}>
+          <QueueDisplay />
+        </Suspense>
+      )
     }
   ]
 };

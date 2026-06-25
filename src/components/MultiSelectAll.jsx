@@ -23,6 +23,15 @@ const MultiSelectAll = ({ items, isDetail, selectAllLabel, onChange, value, labe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReset]);
 
+  // Sync internal selectedOptions when external value prop changes
+  // (e.g. prefilter applied after async extData loads)
+  useEffect(() => {
+    if (!isEqual(value, selectedOptions)) {
+      setSelectedOptions(value ?? []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
   const handleToggleOption = (selectedOptions) => setSelectedOptions(selectedOptions);
   const handleClearOptions = () => setSelectedOptions([]);
   const getOptionLabel = (option) => `${option.label}`;

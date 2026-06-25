@@ -3,7 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from '@mui/material';
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
-import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
+import { snackbarSuccess } from 'store/reducers/snackbar';
 import { createMessageBackend } from 'service/service-global';
 import { createDeliveryOrder, updateDeliveryOrder } from '../service';
 import { getAllState, useOrderFormStore } from './form-store';
@@ -71,12 +71,7 @@ const OrderFormHeader = () => {
         }
         locationBackConfig={{ setLocationBack: true, customUrl: '/product/delivery-agent' }}
         action={
-          <Button
-            variant="contained"
-            startIcon={<PlusOutlined />}
-            onClick={onSubmit}
-            disabled={!isFormTouch || isFormError}
-          >
+          <Button variant="contained" startIcon={<PlusOutlined />} onClick={onSubmit} disabled={!isFormTouch || isFormError}>
             <FormattedMessage id="save" defaultMessage="Save" />
           </Button>
         }

@@ -213,22 +213,13 @@ const StockOpnameDetail = (props) => {
                   >
                     <FormattedMessage id="edit" />
                   </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<PlayArrowOutlinedIcon />}
-                    onClick={() => setConfirmStart(true)}
-                    color="success"
-                  >
+                  <Button variant="contained" startIcon={<PlayArrowOutlinedIcon />} onClick={() => setConfirmStart(true)} color="success">
                     <FormattedMessage id="start-stock-opname" />
                   </Button>
                 </>
               )}
               {isOnProgress && (
-                <Button
-                  variant="contained"
-                  onClick={() => navigate(`/product/stockopname/input-product/${props.id}`)}
-                  color="primary"
-                >
+                <Button variant="contained" onClick={() => navigate(`/product/stockopname/input-product/${props.id}`)} color="primary">
                   <FormattedMessage id="input-product" />
                 </Button>
               )}

@@ -1,7 +1,10 @@
 import { PlusOutlined } from '@ant-design/icons';
 import {
+  Alert,
   Autocomplete,
+  Box,
   Button,
+  Divider,
   FormControl,
   FormControlLabel,
   Grid,
@@ -11,7 +14,11 @@ import {
   RadioGroup,
   Select,
   Stack,
-  TextField
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -33,6 +40,23 @@ import FormPet from '../../form-pet';
 import { createTransactionPetSalon, getTransactionPetSalonDetail, updateTransactionPetSalon } from './service';
 import { getBookingDetail, getBookingListTransaction } from 'pages/booking/service';
 
+const MONTH_NAMES = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember'
+];
+
+const STEPS = ['Asal Kunjungan', 'Pasien & Hewan', 'Detail Kunjungan'];
+
 const CONSTANT_PET_FORM = {
   petId: '',
   petName: '',
@@ -47,21 +71,19 @@ const CONSTANT_PET_FORM = {
 };
 
 const CONSTANT_FORM_VALUE = {
-  registrationNo: '', // used in update form
+  registrationNo: '',
   customer: '',
   location: null,
   customerId: '',
   customerName: null,
   registrantName: '',
-  pets: null, // hewan peliharaan,
+  pets: null,
   configTransaction: '',
   typeOfCare: '',
   startDate: null,
   endDate: null,
   treatingDoctor: null,
   notes: '',
-
-  // Pet form
   ...CONSTANT_PET_FORM
 };
 
@@ -70,20 +92,65 @@ export const dropdownList = create(() =>
 );
 export const getDropdownAll = () => dropdownList.getState();
 
+const SectionLabel = ({ children }) => (
+  <Grid item xs={12}>
+    <Stack spacing={0.5} sx={{ mt: 0.5 }}>
+      <Typography variant="subtitle2" color="primary.dark" fontWeight="bold">
+        {children}
+      </Typography>
+      <Divider />
+    </Stack>
+  </Grid>
+);
+SectionLabel.propTypes = { children: PropTypes.node };
+
 const FormTransaction = (props) => {
-  const { id } = props;
+  const { id, queueId } = props;
   const customerList = dropdownList((state) => state.customerList);
   const customerPetList = dropdownList((state) => state.customerPetList);
 
   const [isEditForm, setIsEditForm] = useState(false);
   const [formValue, setFormValue] = useState({ ...CONSTANT_FORM_VALUE });
-  const [disabledOk, setDisabledOk] = useState(false);
   const [formPetConfig, setFormPetConfig] = useState({ isOpen: false });
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
   const [visitSource, setVisitSource] = useState('');
   const [bookingList, setBookingList] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [stepError, setStepError] = useState('');
   const dispatch = useDispatch();
+
+  const validateStep = (step) => {
+    if (step === 0) {
+      if (!visitSource) return 'Pilih asal kunjungan terlebih dahulu';
+      if (visitSource === 'booking' && !selectedBooking) return 'Pilih nomor booking terlebih dahulu';
+      return '';
+    }
+    if (step === 1) {
+      if (!formValue.customer) return 'Pilih tipe customer terlebih dahulu';
+      if (!formValue.location) return 'Pilih lokasi terlebih dahulu';
+      if (formValue.customer === 'old' && !formValue.customerName) return 'Pilih nama customer';
+      if (formValue.customer === 'old' && !formValue.pets) return 'Pilih hewan peliharaan';
+      if (formValue.customer === 'new' && !formValue.petName?.trim()) return 'Isi nama hewan peliharaan';
+      return '';
+    }
+    return '';
+  };
+
+  const handleNext = () => {
+    const err = validateStep(activeStep);
+    if (err) {
+      setStepError(err);
+      return;
+    }
+    setStepError('');
+    setActiveStep((s) => s + 1);
+  };
+
+  const handleBack = () => {
+    setStepError('');
+    setActiveStep((s) => s - 1);
+  };
 
   const onSubmit = async () => {
     const responseError = (err) => {
@@ -91,11 +158,9 @@ const FormTransaction = (props) => {
       const { msg, detail } = createMessageBackend(err, true);
       setErrContent({ title: msg, detail: detail });
     };
-
     const responseSuccess = (resp) => {
-      const message = `Transaction has been ${id ? 'updated' : 'created'} successfully`;
       if (resp && resp.status === 200) {
-        dispatch(snackbarSuccess(message));
+        dispatch(snackbarSuccess(`Transaction has been ${id ? 'updated' : 'created'} successfully`));
         props.onClose(true);
       }
     };
@@ -106,64 +171,66 @@ const FormTransaction = (props) => {
         .catch(responseError);
     } else {
       try {
-        const response = await createTransactionPetSalon(formValue);
+        const response = await createTransactionPetSalon({ ...formValue, queueId });
         responseSuccess(response);
       } catch (error) {
         responseError(error);
       }
     }
   };
+
   const clearForm = () => {
-    setFormValue((prevState) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prevState.configTransaction }));
+    setFormValue((prev) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prev.configTransaction }));
     setSelectedBooking(null);
+    setVisitSource('');
+    setActiveStep(0);
+    setStepError('');
   };
+
   const onCancel = () => props.onClose(false);
 
   const onFieldHandler = (event) => {
     if (event.target.name === 'petYear' && +event.target.value > 9999) return;
-
-    setFormValue((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
+    setFormValue((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
   const onDropdownHandler = (selected, procedure) => {
     setFormValue((prevState) => {
       let returnNewFormValue = { ...prevState, [procedure]: selected ? selected : null };
       if (procedure === 'pets') {
-        if (selected.formPetValue) {
-          const newPet = {
-            petName: selected.formPetValue.petName,
-            petCategory: selected.formPetValue.petCategory,
-            petCondition: selected.formPetValue.petCondition,
-            petGender: selected.formPetValue.petGender,
-            petSterile: selected.formPetValue.petSterile,
-            petBirthDateType: selected.formPetValue.petBirthDateType,
-            petDateOfBirth: selected.formPetValue.petDateOfBirth,
-            petMonth: selected.formPetValue.petMonth,
-            petYear: selected.formPetValue.petYear
-          };
-          returnNewFormValue = { ...returnNewFormValue, ...newPet };
+        if (selected?.formPetValue) {
+          returnNewFormValue = { ...returnNewFormValue, ...selected.formPetValue };
         } else {
           returnNewFormValue = { ...returnNewFormValue, ...CONSTANT_PET_FORM };
         }
       }
-
       return returnNewFormValue;
     });
   };
 
   const getDoctorStaffByLocation = async (locationId) => {
-    const getDoctor = await getDoctorStaffByLocationList(locationId);
-    dropdownList.setState((prevState) => ({ ...prevState, doctorList: getDoctor }));
+    const doctors = await getDoctorStaffByLocationList(locationId);
+    dropdownList.setState((prev) => ({ ...prev, doctorList: doctors }));
   };
 
   const getCustomerByLocation = async (locationId) => {
-    const getCustomer = await getCustomerByLocationList(locationId);
-    dropdownList.setState((prevState) => ({ ...prevState, customerList: getCustomer }));
+    const customers = await getCustomerByLocationList(locationId);
+    dropdownList.setState((prev) => ({ ...prev, customerList: customers }));
   };
 
   const getCustomerPet = async (customerId) => {
-    const getPet = await getCustomerPetList(customerId);
-    dropdownList.setState((prevState) => ({ ...prevState, customerPetList: getPet }));
+    const pets = await getCustomerPetList(customerId);
+    dropdownList.setState((prev) => ({ ...prev, customerPetList: pets }));
+  };
+
+  const handleLocationChange = (selected) => {
+    const locationValue = selected ? selected : null;
+    setFormValue((e) => ({ ...e, location: locationValue, customerName: null, treatingDoctor: null, pets: null }));
+    dropdownList.setState((prev) => ({ ...prev, customerList: [], doctorList: [], customerPetList: [] }));
+    if (locationValue) {
+      getCustomerByLocation(locationValue.value);
+      getDoctorStaffByLocation(locationValue.value);
+    }
   };
 
   const handleBookingSelect = async (selected) => {
@@ -172,9 +239,7 @@ const FormTransaction = (props) => {
       setFormValue((prev) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prev.configTransaction }));
       return;
     }
-
     loaderGlobalConfig.setLoader(true);
-
     try {
       const resp = await getBookingDetail(selected.value);
       const apiData = resp.data?.data || resp.data || {};
@@ -195,7 +260,6 @@ const FormTransaction = (props) => {
           getDoctorStaffByLocationList(location.value),
           getCustomerByLocationList(location.value)
         ]);
-
         dropdownList.setState((prev) => ({ ...prev, doctorList: doctors, customerList: customers }));
         treatingDoctor = doctors.find((d) => d.value === Number(booking.doctorId)) || null;
         customerName = customers.find((c) => c.value === Number(booking.customerId)) || null;
@@ -220,7 +284,6 @@ const FormTransaction = (props) => {
         petName: booking.petName || pets?.label || '',
         petCategory,
         startDate: booking.bookingTime || null,
-        endDate: detail.endDate || null,
         treatingDoctor,
         notes: detail.additionalInfo || ''
       }));
@@ -231,26 +294,10 @@ const FormTransaction = (props) => {
     }
   };
 
-  const getDropdownList = () => {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve) => {
-      const getPetCategory = await getPetCategoryList();
-      const getLocation = await getLocationTransactionList();
-
-      dropdownList.setState((prevState) => ({ ...prevState, petCategoryList: getPetCategory, locationList: getLocation }));
-
-      resolve(true);
-    });
-  };
-
-  const getData = async () => {
-    loaderGlobalConfig.setLoader(true);
-
-    await getDropdownList();
-    getDetail();
-
-    loaderGlobalConfig.setLoader(false);
-    loaderService.setManualLoader(false);
+  const getDropdownList = async () => {
+    const getPetCategory = await getPetCategoryList();
+    const getLocation = await getLocationTransactionList();
+    dropdownList.setState((prev) => ({ ...prev, petCategoryList: getPetCategory, locationList: getLocation }));
   };
 
   const getDetail = async () => {
@@ -260,49 +307,55 @@ const FormTransaction = (props) => {
       setIsEditForm(true);
 
       const getDoctorList = await getDoctorStaffByLocationList(+data.locationId);
-      dropdownList.setState((prevState) => ({ ...prevState, doctorList: getDoctorList }));
+      dropdownList.setState((prev) => ({ ...prev, doctorList: getDoctorList }));
 
       const getLocationList = getDropdownAll().locationList;
-      const getPetCategoryList = getDropdownAll().petCategoryList;
+      const getPetCategoryListState = getDropdownAll().petCategoryList;
       const locations = getLocationList.length ? getLocationList.find((dt) => dt.value === +data.locationId) : null;
-      const petCategory = getPetCategoryList.length ? getPetCategoryList.find((dt) => dt.value === +data.petCategoryId) : null;
+      const petCategory = getPetCategoryListState.length ? getPetCategoryListState.find((dt) => dt.value === +data.petCategoryId) : null;
       const treatingDoctor = getDoctorList.length ? getDoctorList.find((dt) => dt.value === +data.doctorId) : null;
 
       setFormValue({
         registrationNo: data.registrationNo,
         customer: +data.isNewCustomer ? 'new' : 'old',
-        location: locations, // need id
+        location: locations,
         customerId: data.customerId,
         customerName: data.customerName,
         registrantName: data.registrant,
-        pets: +data.petId, // need pet id
+        pets: +data.petId,
         petId: +data.petId,
         petName: data.petName,
-        petCategory, // need id
+        petCategory,
         petCondition: data.condition,
-        petGender: data.petGender, // need J or B
-        petSterile: data.petSterile, // need '1' or '0'
-        petBirthDateType: data.petMonth || data.petYear ? 'monthAndYear' : 'birthDate', // need 'birthDate' or 'monthAndYear'
-        petDateOfBirth: data.dateOfBirth, // belum ada
-        petMonth: data.petMonth, // belum ada
-        petYear: data.petYear, // belum ada
+        petGender: data.petGender,
+        petSterile: data.petSterile,
+        petBirthDateType: data.petMonth || data.petYear ? 'monthAndYear' : 'birthDate',
+        petDateOfBirth: data.dateOfBirth,
+        petMonth: data.petMonth,
+        petYear: data.petYear,
         configTransaction: getKeyServiceCategoryByValue(ServiceCategory.pacak),
         startDate: data.startDate,
         endDate: data.endDate,
-        treatingDoctor, // need id
+        treatingDoctor,
         notes: data.note
       });
     }
   };
 
   const decideFormTransactionType = () => {
-    setFormValue((prevState) => ({ ...prevState, configTransaction: getKeyServiceCategoryByValue(ServiceCategory.pacak) }));
+    setFormValue((prev) => ({ ...prev, configTransaction: getKeyServiceCategoryByValue(ServiceCategory.pacak) }));
   };
 
   useEffect(() => {
-    getData();
+    const init = async () => {
+      loaderGlobalConfig.setLoader(true);
+      await getDropdownList();
+      await getDetail();
+      loaderGlobalConfig.setLoader(false);
+      loaderService.setManualLoader(false);
+    };
+    init();
     decideFormTransactionType();
-
     return () => {
       dropdownList.setState(
         jsonCentralized({ locationList: [], petCategoryList: [], customerList: [], doctorList: [], customerPetList: [] })
@@ -314,655 +367,761 @@ const FormTransaction = (props) => {
   useEffect(() => {
     if (visitSource === 'booking' && bookingList.length === 0) {
       const userStorage = JSON.parse(localStorage.getItem('user') || '{}');
-      getBookingListTransaction({
-        locationId: userStorage?.locations,
-        serviceType: 'Pet Salon'
-      })
+      getBookingListTransaction({ locationId: userStorage?.locations?.map((l) => l.id), serviceType: 'Pet Salon' })
         .then(setBookingList)
         .catch((err) => dispatch(snackbarError(createMessageBackend(err))));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitSource]);
 
+  const renderBirthDateFields = () => (
+    <Grid item xs={12}>
+      <Stack spacing={1.5}>
+        <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+          <InputLabel sx={{ mb: 0, minWidth: 'max-content' }}>
+            <FormattedMessage id="birth-date" />
+          </InputLabel>
+          <RadioGroup
+            row
+            name="petBirthDateType"
+            value={formValue.petBirthDateType}
+            onChange={(e) =>
+              setFormValue((prev) => ({ ...prev, petBirthDateType: e.target.value, petDateOfBirth: null, petMonth: '', petYear: '' }))
+            }
+          >
+            <FormControlLabel value="birthDate" control={<Radio size="small" />} label="Tanggal Lahir" />
+            <FormControlLabel value="monthAndYear" control={<Radio size="small" />} label="Bulan &amp; Tahun" />
+          </RadioGroup>
+        </Stack>
+        {formValue.petBirthDateType === 'birthDate' && (
+          <Fragment>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                inputFormat="DD/MM/YYYY"
+                value={formValue.petDateOfBirth}
+                onChange={(selected) => onDropdownHandler(selected, 'petDateOfBirth')}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </Fragment>
+        )}
+        {formValue.petBirthDateType === 'monthAndYear' && (
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                type="number"
+                fullWidth
+                label="Tahun"
+                id="petYear"
+                name="petYear"
+                value={formValue.petYear}
+                onChange={(event) => onFieldHandler(event)}
+                inputProps={{ min: 0, max: 9999 }}
+                placeholder="2020"
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <InputLabel>Bulan</InputLabel>
+                <Select id="petMonth" name="petMonth" value={formValue.petMonth} onChange={(event) => onFieldHandler(event)} label="Bulan">
+                  <MenuItem value="">
+                    <em>Pilih Bulan</em>
+                  </MenuItem>
+                  {MONTH_NAMES.map((name, idx) => (
+                    <MenuItem value={idx + 1} key={idx}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        )}
+      </Stack>
+    </Grid>
+  );
+
+  const renderStep0 = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Stack spacing={1.5}>
+          <InputLabel required>Asal Kunjungan</InputLabel>
+          <RadioGroup
+            row
+            value={visitSource}
+            onChange={(e) => {
+              setVisitSource(e.target.value);
+              setSelectedBooking(null);
+              setFormValue((prev) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prev.configTransaction }));
+            }}
+          >
+            <FormControlLabel value="booking" control={<Radio />} label="Dari Booking" />
+            <FormControlLabel value="walkIn" control={<Radio />} label="Datang Langsung (Walk-in)" />
+          </RadioGroup>
+        </Stack>
+      </Grid>
+      {visitSource === 'booking' && (
+        <Grid item xs={12}>
+          <Stack spacing={1}>
+            <InputLabel required>Pilih Booking</InputLabel>
+            <Autocomplete
+              options={bookingList}
+              value={selectedBooking}
+              isOptionEqualToValue={(option, val) => option.value === val.value}
+              onChange={(_, selected) => handleBookingSelect(selected)}
+              renderInput={(params) => <TextField {...params} placeholder="Cari nomor atau nama booking..." />}
+              noOptionsText="Tidak ada data booking tersedia"
+            />
+            {selectedBooking && (
+              <Alert severity="success" sx={{ mt: 1 }}>
+                Booking terpilih — data pasien &amp; kunjungan akan terisi otomatis.
+              </Alert>
+            )}
+          </Stack>
+        </Grid>
+      )}
+      {visitSource === 'walkIn' && (
+        <Grid item xs={12}>
+          <Alert severity="info">Silakan isi data pasien dan detail kunjungan di langkah berikutnya.</Alert>
+        </Grid>
+      )}
+    </Grid>
+  );
+
+  const renderStep1 = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Stack spacing={1}>
+          <InputLabel required>Tipe Customer</InputLabel>
+          <RadioGroup
+            row
+            value={formValue.customer}
+            onChange={(e) => {
+              setFormValue((prev) => ({ ...prev, customer: e.target.value, customerName: null, pets: null, ...CONSTANT_PET_FORM }));
+              dropdownList.setState((prev) => ({ ...prev, customerPetList: [] }));
+            }}
+          >
+            <FormControlLabel value="old" control={<Radio />} label="Customer Lama (sudah terdaftar)" />
+            <FormControlLabel value="new" control={<Radio />} label="Customer Baru (pertama kali)" />
+          </RadioGroup>
+        </Stack>
+      </Grid>
+
+      {formValue.customer && (
+        <>
+          <SectionLabel>Lokasi</SectionLabel>
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel required>
+                <FormattedMessage id="location" />
+              </InputLabel>
+              <Autocomplete
+                id="location"
+                options={getDropdownAll().locationList}
+                value={formValue.location}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, selected) => handleLocationChange(selected)}
+                renderInput={(params) => <TextField {...params} placeholder="Pilih lokasi..." />}
+              />
+            </Stack>
+          </Grid>
+        </>
+      )}
+
+      {formValue.customer === 'old' && (
+        <>
+          <SectionLabel>Informasi Customer</SectionLabel>
+          <Grid item xs={12} sm={6}>
+            <Stack spacing={1}>
+              <InputLabel required>
+                <FormattedMessage id="customer-name" />
+              </InputLabel>
+              <Autocomplete
+                id="customer-name"
+                options={customerList}
+                value={formValue.customerName}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                disabled={!formValue.location}
+                onChange={(_, selected) => {
+                  const customerValue = selected ? selected : null;
+                  setFormValue((e) => ({ ...e, customerName: customerValue, pets: null }));
+                  dropdownList.setState((prev) => ({ ...prev, customerPetList: [] }));
+                  if (customerValue) getCustomerPet(customerValue.value);
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} placeholder={formValue.location ? 'Cari nama customer...' : 'Pilih lokasi dulu'} />
+                )}
+              />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="registrant-name" />
+              </InputLabel>
+              <TextField
+                fullWidth
+                id="registrantName"
+                name="registrantName"
+                value={formValue.registrantName}
+                onChange={(event) => setFormValue((e) => ({ ...e, registrantName: event.target.value }))}
+                placeholder="Nama yang mendaftarkan (opsional)"
+              />
+            </Stack>
+          </Grid>
+          <SectionLabel>Hewan Peliharaan</SectionLabel>
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel required>
+                <FormattedMessage id="pets" />
+              </InputLabel>
+              <Stack direction="row" spacing={1} alignItems="flex-start">
+                <Box flex={1}>
+                  <Autocomplete
+                    id="pets"
+                    options={customerPetList}
+                    value={formValue.pets}
+                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                    disabled={!formValue.customerName}
+                    onChange={(_, value) => onDropdownHandler(value, 'pets')}
+                    renderInput={(params) => (
+                      <TextField {...params} placeholder={formValue.customerName ? 'Pilih hewan peliharaan...' : 'Pilih customer dulu'} />
+                    )}
+                  />
+                </Box>
+                <IconButton
+                  size="large"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setFormPetConfig((e) => ({ ...e, isOpen: true }))}
+                  sx={{ mt: 0.5, flexShrink: 0 }}
+                >
+                  <PlusOutlined />
+                </IconButton>
+              </Stack>
+            </Stack>
+          </Grid>
+        </>
+      )}
+
+      {formValue.customer === 'new' && (
+        <>
+          <SectionLabel>Informasi Customer Baru</SectionLabel>
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel required>
+                <FormattedMessage id="customer-name" />
+              </InputLabel>
+              <TextField
+                fullWidth
+                id="customerName"
+                name="customerName"
+                value={formValue.customerName || ''}
+                onChange={(event) => onFieldHandler(event)}
+                placeholder="Nama lengkap customer"
+              />
+            </Stack>
+          </Grid>
+          <SectionLabel>Data Hewan Peliharaan</SectionLabel>
+          <Grid item xs={12} sm={6}>
+            <Stack spacing={1}>
+              <InputLabel required>
+                <FormattedMessage id="pet-name" />
+              </InputLabel>
+              <TextField
+                fullWidth
+                id="petName"
+                name="petName"
+                value={formValue.petName}
+                onChange={(event) => onFieldHandler(event)}
+                inputProps={{ maxLength: 100 }}
+                placeholder="Nama hewan"
+              />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="pet-category" />
+              </InputLabel>
+              <Autocomplete
+                id="pet-category"
+                options={getDropdownAll().petCategoryList}
+                value={formValue.petCategory}
+                isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+                onChange={(_, value) => onDropdownHandler(value, 'petCategory')}
+                renderInput={(params) => <TextField {...params} placeholder="Misal: Kucing, Anjing..." />}
+              />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="gender" />
+              </InputLabel>
+              <FormControl>
+                <Select id="petGender" name="petGender" value={formValue.petGender} onChange={(event) => onFieldHandler(event)}>
+                  <MenuItem value="">
+                    <em>
+                      <FormattedMessage id="select-gender" />
+                    </em>
+                  </MenuItem>
+                  <MenuItem value="J">Jantan</MenuItem>
+                  <MenuItem value="B">Betina</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="sterile" />
+              </InputLabel>
+              <FormControl>
+                <Select id="petSterile" name="petSterile" value={formValue.petSterile} onChange={(event) => onFieldHandler(event)}>
+                  <MenuItem value="">
+                    <em>
+                      <FormattedMessage id="select" />
+                    </em>
+                  </MenuItem>
+                  <MenuItem value="1">
+                    <FormattedMessage id="yes" />
+                  </MenuItem>
+                  <MenuItem value="0">
+                    <FormattedMessage id="no" />
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
+          </Grid>
+          <Grid item xs={12}>
+            <Stack spacing={1}>
+              <InputLabel>
+                <FormattedMessage id="condition" />
+              </InputLabel>
+              <TextField
+                fullWidth
+                id="petCondition"
+                name="petCondition"
+                value={formValue.petCondition}
+                onChange={(event) => onFieldHandler(event)}
+                inputProps={{ maxLength: 100 }}
+                placeholder="Misal: Sehat, Demam, Luka..."
+              />
+            </Stack>
+          </Grid>
+          {renderBirthDateFields()}
+        </>
+      )}
+    </Grid>
+  );
+
+  const renderStep2 = () => (
+    <Grid container spacing={3}>
+      <SectionLabel>Dokter &amp; Periode</SectionLabel>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="treating-doctor" />
+          </InputLabel>
+          <Autocomplete
+            id="treating-doctor"
+            options={getDropdownAll().doctorList}
+            value={formValue.treatingDoctor}
+            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+            onChange={(_, selected) => setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }))}
+            renderInput={(params) => <TextField {...params} placeholder="Pilih dokter penanggung jawab..." />}
+          />
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="start-date" />
+          </InputLabel>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              inputFormat="DD/MM/YYYY"
+              value={formValue.startDate}
+              onChange={(value) => setFormValue((prev) => ({ ...prev, startDate: value }))}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </LocalizationProvider>
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="end-date" />
+          </InputLabel>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              inputFormat="DD/MM/YYYY"
+              value={formValue.endDate}
+              onChange={(value) => setFormValue((prev) => ({ ...prev, endDate: value }))}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </LocalizationProvider>
+        </Stack>
+      </Grid>
+      <SectionLabel>Catatan Tambahan</SectionLabel>
+      <Grid item xs={12}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="notes" />
+          </InputLabel>
+          <TextField
+            multiline
+            fullWidth
+            rows={2}
+            id="notes"
+            name="notes"
+            value={formValue.notes}
+            onChange={(event) => setFormValue((prev) => ({ ...prev, notes: event.target.value }))}
+            placeholder="Catatan tambahan untuk kunjungan ini (opsional)..."
+          />
+        </Stack>
+      </Grid>
+    </Grid>
+  );
+
+  const renderEditForm = () => (
+    <Grid container spacing={3}>
+      <SectionLabel>Informasi Pasien</SectionLabel>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="customer-name" />
+          </InputLabel>
+          {formValue.customer === 'old' ? (
+            <Autocomplete
+              id="customer-name"
+              options={customerList}
+              value={formValue.customerName}
+              isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+              onChange={(_, selected) => {
+                const customerValue = selected ? selected : null;
+                setFormValue((e) => ({ ...e, customerName: customerValue, pets: null }));
+                dropdownList.setState((prev) => ({ ...prev, customerPetList: [] }));
+                if (customerValue) getCustomerPet(customerValue.value);
+              }}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          ) : (
+            <TextField
+              fullWidth
+              id="customerName"
+              name="customerName"
+              value={formValue.customerName || ''}
+              onChange={(event) => onFieldHandler(event)}
+            />
+          )}
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="registrant-name" />
+          </InputLabel>
+          <TextField
+            fullWidth
+            id="registrantName"
+            name="registrantName"
+            value={formValue.registrantName}
+            onChange={(event) => setFormValue((e) => ({ ...e, registrantName: event.target.value }))}
+          />
+        </Stack>
+      </Grid>
+      <SectionLabel>Data Hewan</SectionLabel>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="pet-name" />
+          </InputLabel>
+          <TextField fullWidth id="petName" name="petName" value={formValue.petName} onChange={(event) => onFieldHandler(event)} />
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="pet-category" />
+          </InputLabel>
+          <Autocomplete
+            id="pet-category"
+            options={getDropdownAll().petCategoryList}
+            value={formValue.petCategory}
+            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+            onChange={(_, value) => onDropdownHandler(value, 'petCategory')}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="gender" />
+          </InputLabel>
+          <FormControl>
+            <Select id="petGender" name="petGender" value={formValue.petGender} onChange={(event) => onFieldHandler(event)}>
+              <MenuItem value="">
+                <em>
+                  <FormattedMessage id="select-gender" />
+                </em>
+              </MenuItem>
+              <MenuItem value="J">Jantan</MenuItem>
+              <MenuItem value="B">Betina</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="sterile" />
+          </InputLabel>
+          <FormControl>
+            <Select id="petSterile" name="petSterile" value={formValue.petSterile} onChange={(event) => onFieldHandler(event)}>
+              <MenuItem value="">
+                <em>
+                  <FormattedMessage id="select" />
+                </em>
+              </MenuItem>
+              <MenuItem value="1">
+                <FormattedMessage id="yes" />
+              </MenuItem>
+              <MenuItem value="0">
+                <FormattedMessage id="no" />
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="condition" />
+          </InputLabel>
+          <TextField
+            fullWidth
+            id="petCondition"
+            name="petCondition"
+            value={formValue.petCondition}
+            onChange={(event) => onFieldHandler(event)}
+            inputProps={{ maxLength: 100 }}
+          />
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="birth-date" />
+          </InputLabel>
+          {formValue.petBirthDateType === 'birthDate' ? (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                inputFormat="DD/MM/YYYY"
+                value={formValue.petDateOfBirth}
+                onChange={(selected) => onDropdownHandler(selected, 'petDateOfBirth')}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          ) : (
+            <Stack direction="row" spacing={1}>
+              <TextField
+                type="number"
+                label="Tahun"
+                id="petYear"
+                name="petYear"
+                value={formValue.petYear}
+                onChange={(event) => onFieldHandler(event)}
+                inputProps={{ min: 0, max: 9999 }}
+                sx={{ width: '50%' }}
+              />
+              <FormControl sx={{ width: '50%' }}>
+                <InputLabel>Bulan</InputLabel>
+                <Select id="petMonth" name="petMonth" value={formValue.petMonth} onChange={(event) => onFieldHandler(event)} label="Bulan">
+                  <MenuItem value="">
+                    <em>Pilih Bulan</em>
+                  </MenuItem>
+                  {MONTH_NAMES.map((name, idx) => (
+                    <MenuItem value={idx + 1} key={idx}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+          )}
+        </Stack>
+      </Grid>
+      <SectionLabel>Detail Kunjungan</SectionLabel>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="location" />
+          </InputLabel>
+          <Autocomplete
+            id="location"
+            options={getDropdownAll().locationList}
+            value={formValue.location}
+            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+            onChange={(_, selected) => {
+              const locationValue = selected ? selected : null;
+              setFormValue((e) => ({ ...e, location: locationValue, treatingDoctor: null }));
+              dropdownList.setState((prev) => ({ ...prev, doctorList: [] }));
+              if (locationValue) getDoctorStaffByLocation(locationValue.value);
+            }}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="treating-doctor" />
+          </InputLabel>
+          <Autocomplete
+            id="treating-doctor"
+            options={getDropdownAll().doctorList}
+            value={formValue.treatingDoctor}
+            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
+            onChange={(_, selected) => setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }))}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="start-date" />
+          </InputLabel>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              inputFormat="DD/MM/YYYY"
+              value={formValue.startDate}
+              onChange={(value) => setFormValue((prev) => ({ ...prev, startDate: value }))}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </LocalizationProvider>
+        </Stack>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="end-date" />
+          </InputLabel>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              inputFormat="DD/MM/YYYY"
+              value={formValue.endDate}
+              onChange={(value) => setFormValue((prev) => ({ ...prev, endDate: value }))}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </LocalizationProvider>
+        </Stack>
+      </Grid>
+      <Grid item xs={12}>
+        <Stack spacing={1}>
+          <InputLabel>
+            <FormattedMessage id="notes" />
+          </InputLabel>
+          <TextField
+            multiline
+            fullWidth
+            rows={2}
+            id="notes"
+            name="notes"
+            value={formValue.notes}
+            onChange={(event) => setFormValue((prev) => ({ ...prev, notes: event.target.value }))}
+          />
+        </Stack>
+      </Grid>
+    </Grid>
+  );
+
+  const isLastStep = activeStep === STEPS.length - 1;
+
   return (
     <>
       <ModalC
         title={<FormattedMessage id={(isEditForm ? 'edit' : 'add') + '-transaction'} />}
         open={props.open}
-        onOk={onSubmit}
-        disabledOk={disabledOk}
+        onOk={isEditForm ? onSubmit : undefined}
         onCancel={onCancel}
         fullWidth
         maxWidth="md"
+        isModalAction={isEditForm}
         otherDialogAction={
-          <>
+          isEditForm ? (
             <Button variant="outlined" onClick={clearForm}>
-              {<FormattedMessage id="clear" />}
+              <FormattedMessage id="clear" />
             </Button>
-          </>
+          ) : undefined
         }
       >
         <ErrorContainer open={Boolean(errContent.title || errContent.detail)} content={errContent} />
-        <Grid container spacing={3}>
-          {!isEditForm && (
-            <>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel>Asal Kunjungan</InputLabel>
-                  <RadioGroup
-                    row
-                    name="visitSource"
-                    value={visitSource}
-                    onChange={(e) => {
-                      setVisitSource(e.target.value);
-                      setSelectedBooking(null);
-                      setFormValue((prev) => ({ ...CONSTANT_FORM_VALUE, configTransaction: prev.configTransaction }));
-                    }}
-                  >
-                    <FormControlLabel value="booking" control={<Radio />} label="Dari Booking" />
-                    <FormControlLabel value="walkIn" control={<Radio />} label="Datang Langsung" />
-                  </RadioGroup>
-                </Stack>
-              </Grid>
 
-              {visitSource === 'booking' && (
-                <>
-                  <Grid item xs={12}>
-                    <Stack spacing={1}>
-                      <InputLabel>Pilih Booking</InputLabel>
-                      <Autocomplete
-                        options={bookingList}
-                        value={selectedBooking}
-                        isOptionEqualToValue={(option, val) => option.value === val.value}
-                        onChange={(_, selected) => handleBookingSelect(selected)}
-                        renderInput={(params) => <TextField {...params} />}
-                      />
-                    </Stack>
-                  </Grid>
+        {!isEditForm && (
+          <>
+            <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
+              {STEPS.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
+              <Button size="small" variant="text" color="inherit" onClick={clearForm} sx={{ color: 'text.secondary' }}>
+                Reset Form
+              </Button>
+            </Stack>
+          </>
+        )}
 
-                  {selectedBooking && (
-                    <>
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="location">
-                            <FormattedMessage id="location" />
-                          </InputLabel>
-                          <Autocomplete
-                            id="location"
-                            options={getDropdownAll().locationList}
-                            value={formValue.location}
-                            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                            onChange={(_, selected) => {
-                              const locationValue = selected ? selected : null;
-                              setFormValue((e) => ({ ...e, location: locationValue, customerName: null, treatingDoctor: null }));
-                              dropdownList.setState((prevState) => ({ ...prevState, customerList: [], doctorList: [] }));
-                              if (locationValue) {
-                                getCustomerByLocation(locationValue.value);
-                                getDoctorStaffByLocation(locationValue.value);
-                              }
-                            }}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </Stack>
-                      </Grid>
+        {stepError && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {stepError}
+          </Alert>
+        )}
 
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="customer-name">
-                            <FormattedMessage id="customer-name" />
-                          </InputLabel>
-                          <Autocomplete
-                            id="customer-name"
-                            options={customerList}
-                            value={formValue.customerName}
-                            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                            onChange={(_, selected) => {
-                              const customerValue = selected ? selected : null;
-                              setFormValue((e) => ({ ...e, customerName: customerValue, pets: null }));
-                              dropdownList.setState((prevState) => ({ ...prevState, customerPetList: [] }));
-                              if (customerValue) getCustomerPet(customerValue.value);
-                            }}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </Stack>
-                      </Grid>
+        {isEditForm ? (
+          renderEditForm()
+        ) : (
+          <>
+            {activeStep === 0 && renderStep0()}
+            {activeStep === 1 && renderStep1()}
+            {activeStep === 2 && renderStep2()}
+          </>
+        )}
 
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="pets">
-                            <FormattedMessage id="pets" />
-                          </InputLabel>
-                          <Autocomplete
-                            id="pets"
-                            options={customerPetList}
-                            value={formValue.pets}
-                            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                            onChange={(_, value) => onDropdownHandler(value, 'pets')}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="treating-doctor">
-                            <FormattedMessage id="treating-doctor" />
-                          </InputLabel>
-                          <Autocomplete
-                            id="treating-doctor"
-                            options={getDropdownAll().doctorList}
-                            value={formValue.treatingDoctor}
-                            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                            onChange={(_, selected) => setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }))}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="start-date">
-                            <FormattedMessage id="start-date" />
-                          </InputLabel>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DesktopDatePicker
-                              inputFormat="DD/MM/YYYY"
-                              value={formValue.startDate}
-                              onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
-                              renderInput={(params) => <TextField {...params} />}
-                            />
-                          </LocalizationProvider>
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="end-date">
-                            <FormattedMessage id="end-date" />
-                          </InputLabel>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DesktopDatePicker
-                              inputFormat="DD/MM/YYYY"
-                              value={formValue.endDate}
-                              onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
-                              renderInput={(params) => <TextField {...params} />}
-                            />
-                          </LocalizationProvider>
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel>
-                            <FormattedMessage id="notes" />
-                          </InputLabel>
-                          <TextField
-                            multiline
-                            fullWidth
-                            rows={5}
-                            name="notes"
-                            value={formValue.notes}
-                            onChange={(event) => setFormValue((prevState) => ({ ...prevState, notes: event.target.value }))}
-                          />
-                        </Stack>
-                      </Grid>
-                    </>
-                  )}
-                </>
+        {!isEditForm && (
+          <Stack
+            direction="row"
+            spacing={1.5}
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ mt: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}
+          >
+            <Box>
+              {activeStep > 0 && (
+                <Button variant="outlined" onClick={handleBack}>
+                  ← Kembali
+                </Button>
               )}
-
-              {visitSource === 'walkIn' && (
-                <>
-                  <Grid item xs={12}>
-                    <Stack spacing={1}>
-                      <InputLabel>
-                        <FormattedMessage id="customer" />
-                      </InputLabel>
-                      <FormControl fullWidth>
-                        <Select
-                          id="customer"
-                          name="customer"
-                          value={formValue.customer}
-                          onChange={(event) => {
-                            setFormValue((e) => ({
-                              ...e,
-                              customer: event.target.value,
-                              location: null,
-                              // reset pet form
-                              ...CONSTANT_PET_FORM
-                            }));
-                          }}
-                          placeholder="Select customer"
-                        >
-                          <MenuItem value="">
-                            <em>
-                              <FormattedMessage id="select-customer" />
-                            </em>
-                          </MenuItem>
-                          <MenuItem value={'old'}>
-                            <FormattedMessage id="customer-old" />
-                          </MenuItem>
-                          <MenuItem value={'new'}>
-                            <FormattedMessage id="customer-new" />
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Stack>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Stack spacing={1}>
-                      <InputLabel htmlFor="location">
-                        <FormattedMessage id="location" />
-                      </InputLabel>
-                      <Autocomplete
-                        id="location"
-                        options={getDropdownAll().locationList}
-                        value={formValue.location}
-                        isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                        onChange={(_, selected) => {
-                          const locationValue = selected ? selected : null;
-                          setFormValue((e) => ({ ...e, location: locationValue, customerName: null, treatingDoctor: null }));
-
-                          // setDropdownList((prevState) => ({ ...prevState, customerList: [], doctorList: [] }));
-                          dropdownList.setState((prevState) => ({ ...prevState, customerList: [], doctorList: [] }));
-                          if (locationValue) {
-                            getCustomerByLocation(locationValue.value);
-                            getDoctorStaffByLocation(locationValue.value);
-                          }
-                        }}
-                        renderInput={(params) => <TextField {...params} />}
-                      />
-                    </Stack>
-                  </Grid>
-
-                  {formValue.customer && (
-                    <Grid item xs={12}>
-                      <Stack spacing={1}>
-                        <InputLabel htmlFor="customer-name">
-                          <FormattedMessage id="customer-name" />
-                        </InputLabel>
-                        {formValue.customer === 'old' && (
-                          <Autocomplete
-                            id="customer-name"
-                            options={customerList}
-                            value={formValue.customerName}
-                            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                            onChange={(_, selected) => {
-                              const customerValue = selected ? selected : null;
-                              setFormValue((e) => ({ ...e, customerName: customerValue, pets: null }));
-
-                              // setDropdownList((prevState) => ({ ...prevState, customerPetList: [] }));
-                              dropdownList.setState((prevState) => ({ ...prevState, customerPetList: [] }));
-                              if (customerValue) getCustomerPet(customerValue.value);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                // error={Boolean(dt.error.customerNameErr && dt.error.customerNameErr.length > 0)}
-                                // helperText={dt.error.customerNameErr}
-                                // variant="outlined"
-                              />
-                            )}
-                          />
-                        )}
-                        {formValue.customer === 'new' && (
-                          <TextField
-                            fullWidth
-                            id="customerName"
-                            name="customerName"
-                            value={formValue.customerName || ''}
-                            onChange={(event) => onFieldHandler(event)}
-                            // error={Boolean(dt.error.customerNameErr && dt.error.customerNameErr.length > 0)}
-                            // helperText={dt.error.customerNameErr}
-                          />
-                        )}
-                      </Stack>
-                    </Grid>
-                  )}
-
-                  {formValue.customer === 'old' && (
-                    <>
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel>
-                            <FormattedMessage id="registrant-name" />
-                          </InputLabel>
-                          <TextField
-                            type="registrant-name"
-                            fullWidth
-                            id="registrantName"
-                            name="registrantName"
-                            value={formValue.registrantName}
-                            onChange={(event) => {
-                              setFormValue((e) => ({ ...e, registrantName: event.target.value }));
-                            }}
-                          />
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Grid container spacing={1}>
-                          <Grid item xs={12}>
-                            <InputLabel htmlFor="pets">
-                              <FormattedMessage id="pets" />
-                            </InputLabel>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Grid container spacing={1}>
-                              <Grid item xs={11} sm={11} md={11}>
-                                <Autocomplete
-                                  id="pets"
-                                  options={customerPetList}
-                                  value={formValue.pets}
-                                  isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                                  onChange={(_, value) => onDropdownHandler(value, 'pets')}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      // error={Boolean(dt.error.countryErr && dt.error.countryErr.length > 0)}
-                                      // helperText={dt.error.countryErr}
-                                      // variant="outlined"
-                                    />
-                                  )}
-                                />
-                              </Grid>
-                              <Grid item xs={1} sm={1} md={1} display="flex" justifyContent={'flex-end'}>
-                                <IconButton
-                                  size="medium"
-                                  variant="contained"
-                                  color="primary"
-                                  onClick={() => setFormPetConfig((e) => ({ ...e, isOpen: true }))}
-                                >
-                                  <PlusOutlined />
-                                </IconButton>
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </>
-                  )}
-
-                  {formValue.customer === 'new' && (
-                    <>
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="name">{<FormattedMessage id="pet-name" />}</InputLabel>
-                          <TextField
-                            fullWidth
-                            id="petName"
-                            name="petName"
-                            value={formValue.petName}
-                            onChange={(event) => onFieldHandler(event)}
-                            inputProps={{ maxLength: 100 }}
-                            // error={Boolean(dt.error.petNameErr && dt.error.petNameErr.length > 0)}
-                            // helperText={dt.error.petNameErr}
-                          />
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel>
-                            <FormattedMessage id="pet-category" />
-                          </InputLabel>
-                          <Autocomplete
-                            id="pet-category"
-                            options={getDropdownAll().petCategoryList}
-                            value={formValue.petCategory}
-                            isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                            onChange={(_, value) => onDropdownHandler(value, 'petCategory')}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                // error={Boolean(dt.error.petCategoryErr && dt.error.petCategoryErr.length > 0)}
-                                // helperText={dt.error.petCategoryErr}
-                                // variant="outlined"
-                              />
-                            )}
-                          />
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="petCondition">{<FormattedMessage id="condition" />}</InputLabel>
-                          <TextField
-                            fullWidth
-                            id="petCondition"
-                            name="petCondition"
-                            value={formValue.petCondition}
-                            onChange={(event) => onFieldHandler(event)}
-                            inputProps={{ maxLength: 100 }}
-                            // error={Boolean(dt.error.conditionErr && dt.error.conditionErr.length > 0)}
-                            // helperText={dt.error.conditionErr}
-                          />
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="petGender">
-                            <FormattedMessage id="gender" />
-                          </InputLabel>
-                          <FormControl>
-                            <Select
-                              id={'petGender'}
-                              name="petGender"
-                              value={formValue.petGender}
-                              onChange={(event) => onFieldHandler(event)}
-                            >
-                              <MenuItem value="">
-                                <em>
-                                  <FormattedMessage id="select-gender" />
-                                </em>
-                              </MenuItem>
-                              <MenuItem value={'J'}>Jantan</MenuItem>
-                              <MenuItem value={'B'}>Betina</MenuItem>
-                            </Select>
-                            {/* {dt.error.petGenderErr.length > 0 && <FormHelperText error> {dt.error.petGenderErr} </FormHelperText>} */}
-                          </FormControl>
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Stack spacing={1}>
-                          <InputLabel htmlFor="petSterile">
-                            <FormattedMessage id="sterile" />
-                          </InputLabel>
-                          <FormControl>
-                            <Select
-                              id={'petSterile'}
-                              name="petSterile"
-                              value={formValue.petSterile}
-                              onChange={(event) => onFieldHandler(event)}
-                            >
-                              <MenuItem value="">
-                                <em>
-                                  <FormattedMessage id="select" />
-                                </em>
-                              </MenuItem>
-                              <MenuItem value={'1'}>
-                                <FormattedMessage id="yes" />
-                              </MenuItem>
-                              <MenuItem value={'0'}>
-                                <FormattedMessage id="no" />
-                              </MenuItem>
-                            </Select>
-                            {/* {dt.error.isSterilErr.length > 0 && <FormHelperText error> {dt.error.isSterilErr} </FormHelperText>} */}
-                          </FormControl>
-                        </Stack>
-                      </Grid>
-
-                      <Grid item xs={12} md={12}>
-                        <Stack spacing={1}>
-                          <Stack spacing={1} flexDirection="row" alignItems="center">
-                            <InputLabel htmlFor="pet-birth-date">
-                              <FormattedMessage id="birth-date" />
-                            </InputLabel>
-                            <RadioGroup
-                              name="petBirthDateType"
-                              value={formValue.petBirthDateType} // birthDate || monthAndYear
-                              style={{ flexDirection: 'row', height: '20px', marginLeft: '16px', marginTop: '0px' }}
-                              onChange={(e) => {
-                                setFormValue((prevState) => {
-                                  return {
-                                    ...prevState,
-                                    petBirthDateType: e.target.value,
-                                    petDateOfBirth: null,
-                                    petMonth: '',
-                                    petYear: ''
-                                  };
-                                });
-                              }}
-                            >
-                              <FormControlLabel
-                                value="birthDate"
-                                control={<Radio />}
-                                label={<FormattedMessage id="birth-date" />}
-                                style={{ height: '20px' }}
-                              />
-                              <FormControlLabel
-                                value="monthAndYear"
-                                control={<Radio />}
-                                label={<FormattedMessage id="month-and-year" />}
-                                style={{ height: '20px' }}
-                              />
-                            </RadioGroup>
-                          </Stack>
-
-                          {formValue.petBirthDateType === 'birthDate' && (
-                            <Fragment>
-                              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DesktopDatePicker
-                                  inputFormat="DD/MM/YYYY"
-                                  value={formValue.petDateOfBirth}
-                                  onChange={(selected) => onDropdownHandler(selected, 'petDateOfBirth')}
-                                  renderInput={(params) => <TextField {...params} />}
-                                />
-                              </LocalizationProvider>
-                            </Fragment>
-                          )}
-
-                          {formValue.petBirthDateType === 'monthAndYear' && (
-                            <Fragment>
-                              <Stack spacing={1} flexDirection={'row'} sx={{ width: '100%' }} gap={'10px'}>
-                                <TextField
-                                  type="number"
-                                  fullWidth
-                                  label={<FormattedMessage id="year" />}
-                                  id={'petYear'}
-                                  name="petYear"
-                                  value={formValue.petYear}
-                                  onChange={(event) => onFieldHandler(event)}
-                                  inputProps={{ min: 0, max: 9999 }}
-                                  sx={{ width: '50%' }}
-                                />
-                                <FormControl style={{ marginTop: 'unset' }} sx={{ width: '50%' }}>
-                                  <InputLabel>
-                                    <FormattedMessage id="select-month" />
-                                  </InputLabel>
-                                  <Select
-                                    id={'petMonth'}
-                                    name="petMonth"
-                                    value={formValue.petMonth}
-                                    onChange={(event) => onFieldHandler(event)}
-                                  >
-                                    <MenuItem value="">
-                                      <em>
-                                        <FormattedMessage id="select-month" />
-                                      </em>
-                                    </MenuItem>
-                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((dt, idx) => (
-                                      <MenuItem value={dt} key={idx}>
-                                        {dt}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              </Stack>
-                            </Fragment>
-                          )}
-                        </Stack>
-                      </Grid>
-                    </>
-                  )}
-                </>
+            </Box>
+            <Box>
+              {!isLastStep ? (
+                <Button variant="contained" onClick={handleNext}>
+                  Lanjut →
+                </Button>
+              ) : (
+                <Button variant="contained" color="primary" onClick={onSubmit}>
+                  💾 Simpan Transaksi
+                </Button>
               )}
-            </>
-          )}
-
-          {(isEditForm || visitSource === 'walkIn') && (
-            <>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="start-date">
-                    <FormattedMessage id="start-date" />
-                  </InputLabel>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DesktopDatePicker
-                      inputFormat="DD/MM/YYYY"
-                      value={formValue.startDate}
-                      onChange={(value) => setFormValue((prevState) => ({ ...prevState, startDate: value }))}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </LocalizationProvider>
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="end-date">
-                    <FormattedMessage id="end-date" />
-                  </InputLabel>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DesktopDatePicker
-                      inputFormat="DD/MM/YYYY"
-                      value={formValue.endDate}
-                      onChange={(value) => setFormValue((prevState) => ({ ...prevState, endDate: value }))}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </LocalizationProvider>
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="treating-doctor">
-                    <FormattedMessage id="treating-doctor" />
-                  </InputLabel>
-                  <Autocomplete
-                    id="treating-doctor"
-                    options={getDropdownAll().doctorList}
-                    value={formValue.treatingDoctor}
-                    isOptionEqualToValue={(option, val) => val === '' || option.value === val.value}
-                    onChange={(_, selected) => {
-                      setFormValue((e) => ({ ...e, treatingDoctor: selected ? selected : null }));
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel>
-                    <FormattedMessage id="notes" />
-                  </InputLabel>
-                  <TextField
-                    multiline
-                    fullWidth
-                    rows={5}
-                    id="notes"
-                    name="notes"
-                    value={formValue.notes}
-                    onChange={(event) => {
-                      setFormValue((prevState) => ({ ...prevState, notes: event.target.value }));
-                    }}
-                  />
-                </Stack>
-              </Grid>
-            </>
-          )}
-        </Grid>
+            </Box>
+          </Stack>
+        )}
       </ModalC>
 
       {formPetConfig.isOpen && (
@@ -970,7 +1129,6 @@ const FormTransaction = (props) => {
           open={formPetConfig.isOpen}
           onClose={(e) => {
             setFormPetConfig({ isOpen: false });
-
             if (e) {
               const newPet = {
                 petName: e.name,
@@ -983,15 +1141,13 @@ const FormTransaction = (props) => {
                 petMonth: e.petMonth,
                 petYear: e.petYear
               };
-
               const selectedPet = {
                 label: newPet.petName,
                 value: `${newPet.petName}-${customerPetList.length}`,
                 formPetValue: newPet
               };
-
-              dropdownList.setState((prevState) => ({ ...prevState, customerPetList: [selectedPet, ...prevState.customerPetList] }));
-              setFormValue((prevState) => ({ ...prevState, ...newPet, pets: selectedPet }));
+              dropdownList.setState((prev) => ({ ...prev, customerPetList: [selectedPet, ...prev.customerPetList] }));
+              setFormValue((prev) => ({ ...prev, ...newPet, pets: selectedPet }));
             }
           }}
         />
@@ -1003,7 +1159,8 @@ const FormTransaction = (props) => {
 FormTransaction.propTypes = {
   id: PropTypes.number,
   open: PropTypes.bool,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  queueId: PropTypes.number
 };
 
 export default FormTransaction;

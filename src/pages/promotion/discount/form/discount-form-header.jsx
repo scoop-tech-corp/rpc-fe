@@ -20,7 +20,7 @@ const PromotionDiscountFormHeader = (props) => {
   const discountFormError = useDiscountFormStore((state) => state.discountFormError);
   const isTouchForm = useDiscountFormStore((state) => state.discountFormTouch);
 
-  const [formError, setFormError] = useState(false);
+  const [formError] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });
 

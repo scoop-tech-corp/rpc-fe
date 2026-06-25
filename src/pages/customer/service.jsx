@@ -221,6 +221,19 @@ export const exportCustomer = async (param) => {
   });
 };
 
+export const exportCustomerPdf = async (param) => {
+  return await axios.get('customer/export-pdf', {
+    responseType: 'blob',
+    params: {
+      orderValue: param.orderValue,
+      orderColumn: param.orderColumn,
+      locationId: param.locationId.length ? param.locationId : [''],
+      keyword: param.keyword,
+      customerGroupId: param.customerGroupId?.length ? param.customerGroupId : ['']
+    }
+  });
+};
+
 export const deleteCustomerList = async (id) => {
   return await axios.delete('customer', {
     data: { customerId: id }

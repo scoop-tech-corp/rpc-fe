@@ -121,7 +121,6 @@ export const updateServiceList = async (payload) => {
   };
 
   return await axios.put(serviceListUrl, new_payload);
-
 };
 
 export const getServiceListById = async (params) => {

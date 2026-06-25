@@ -49,43 +49,6 @@ export default function SalesNetIncome({ data, filter, setFilter }) {
     categories: data?.chartsNetIncome.categories || []
   };
 
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        period: 'Jan',
-        revenueAmount: 2_299_755_907.95,
-        expensesAmount: 20_778_500.0,
-        netIncome: 2_278_977_407.95
-      },
-      {
-        period: 'Feb',
-        revenueAmount: 2_737_031_819.7,
-        expensesAmount: 58_152_596.0,
-        netIncome: 2_678_879_223.7
-      },
-      {
-        period: 'Mar',
-        revenueAmount: 3_271_008_567.0,
-        expensesAmount: 84_560_306.0,
-        netIncome: 3_186_448_261.0
-      },
-      {
-        period: 'Apr',
-        revenueAmount: 3_148_391_525.15,
-        expensesAmount: 83_965_880.0,
-        netIncome: 3_064_425_645.15
-      },
-      {
-        period: 'May',
-        revenueAmount: 1_498_196_588.5,
-        expensesAmount: 13_430_987.0,
-        netIncome: 1_484_765_607.5
-      }
-    ],
-    []
-  );
-
   return (
     <div>
       <Box sx={{ padding: 2 }}>
@@ -121,9 +84,9 @@ export default function SalesNetIncome({ data, filter, setFilter }) {
             ...tablesData,
             {
               period: 'TOTAL',
-              revenueAmount: formatThousandSeparator(totalRevenue),
-              expensesAmount: formatThousandSeparator(totalExpenses),
-              netIncome: formatThousandSeparator(netIncome)
+              revenueAmount: totalRevenue,
+              expensesAmount: totalExpenses,
+              netIncome: netIncome
             }
           ]}
           totalPagination={totalPagination || 0}

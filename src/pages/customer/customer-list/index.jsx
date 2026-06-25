@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField } from '@mui/material';
+import { Stack, useMediaQuery, Button, Link, Autocomplete, TextField, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ReactTable, IndeterminateCheckbox } from 'components/third-party/ReactTable';
 import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
@@ -14,17 +14,22 @@ import {
   detectUserPrivilage,
   getCustomerGroupList,
   getLocationList,
-  processDownloadExcel
+  processDownloadExcel,
+  processDownloadPDF
 } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
 import { GlobalFilter } from 'utils/react-table';
-import { getCustomerList, deleteCustomerList, exportCustomer } from '../service';
+import { getCustomerList, deleteCustomerList, exportCustomer, exportCustomerPdf } from '../service';
 import { loaderGlobalConfig, loaderService } from 'components/LoaderGlobal';
 
 import MainCard from 'components/MainCard';
 import ScrollX from 'components/ScrollX';
 import ConfirmationC from 'components/ConfirmationC';
+import CustomerDetailModal from './detail';
 import DownloadIcon from '@mui/icons-material/Download';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import TableViewIcon from '@mui/icons-material/TableView';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import iconWhatsapp from '../../../../src/assets/images/ico-whatsapp.png';
 import HeaderPageCustom from 'components/@extended/HeaderPageCustom';
 import IconButton from 'components/@extended/IconButton';
@@ -49,8 +54,10 @@ const CustomerList = () => {
   const [selectedFilterCustomerGroup, setFilterCustomerGroup] = useState([]);
   const [filterCustomerGroupList, setFilterCustomerGroupList] = useState([]);
   const [dialog, setDialog] = useState(false);
+  const [detailModal, setDetailModal] = useState({ open: false, customerId: null });
+  const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const isCheckbox = () => {
     return userPrivilage == 4
@@ -82,7 +89,16 @@ const CustomerList = () => {
         accessor: 'customerName',
         Cell: (data) => {
           const getId = data.row.original.id;
-          return <Link href={`/customer/list/form/${getId}`}>{data.value}</Link>;
+          return (
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => setDetailModal({ open: true, customerId: getId })}
+              sx={{ cursor: 'pointer', textAlign: 'left' }}
+            >
+              {data.value}
+            </Link>
+          );
         }
       },
       {
@@ -167,8 +183,20 @@ const CustomerList = () => {
   };
 
   const onExport = async () => {
+    setExportMenuAnchor(null);
     await exportCustomer(paramCustomerList)
       .then(processDownloadExcel)
+      .catch((err) => {
+        if (err) {
+          dispatch(snackbarError(createMessageBackend(err)));
+        }
+      });
+  };
+
+  const onExportPdf = async () => {
+    setExportMenuAnchor(null);
+    await exportCustomerPdf(paramCustomerList)
+      .then((resp) => processDownloadPDF(resp, 'Customer List'))
       .catch((err) => {
         if (err) {
           dispatch(snackbarError(createMessageBackend(err)));
@@ -292,9 +320,37 @@ const CustomerList = () => {
                 <RefreshIcon />
               </IconButton>
               {roleCanExport.includes(user?.role) && (
-                <Button variant="contained" startIcon={<DownloadIcon />} onClick={onExport} color="success">
-                  <FormattedMessage id="export" />
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    startIcon={<DownloadIcon />}
+                    endIcon={<ArrowDropDownIcon />}
+                    onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+                    color="success"
+                  >
+                    <FormattedMessage id="export" />
+                  </Button>
+                  <Menu
+                    anchorEl={exportMenuAnchor}
+                    open={Boolean(exportMenuAnchor)}
+                    onClose={() => setExportMenuAnchor(null)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  >
+                    <MenuItem onClick={onExport}>
+                      <ListItemIcon>
+                        <TableViewIcon fontSize="small" sx={{ color: '#1d6f42' }} />
+                      </ListItemIcon>
+                      <ListItemText primary="Export Excel" />
+                    </MenuItem>
+                    <MenuItem onClick={onExportPdf}>
+                      <ListItemIcon>
+                        <PictureAsPdfIcon fontSize="small" sx={{ color: '#d32f2f' }} />
+                      </ListItemIcon>
+                      <ListItemText primary="Export PDF" />
+                    </MenuItem>
+                  </Menu>
+                </>
               )}
               {[2, 4].includes(userPrivilage) && (
                 <Button variant="contained" startIcon={<PlusOutlined />} onClick={onClickAdd}>
@@ -325,6 +381,12 @@ const CustomerList = () => {
         onClose={(response) => onConfirm(response)}
         btnTrueText="Ok"
         btnFalseText="Cancel"
+      />
+
+      <CustomerDetailModal
+        open={detailModal.open}
+        customerId={detailModal.customerId}
+        onClose={() => setDetailModal({ open: false, customerId: null })}
       />
     </>
   );

@@ -1,61 +1,16 @@
 import { ReactTable } from 'components/third-party/ReactTable';
 import { useCallback, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import ScrollX from 'components/ScrollX';
 
-export default function BookingByDiagnosisSpeciesGender({ data, filter, setFilter }) {
-  const tablesData = data?.data.species || [];
-  const totalPagination = data?.totalPagination;
-
-  const extData = useMemo(
-    () => ({
-      speciesList: data?.speciesList || []
-    }),
-    [data]
-  );
-
-  // Dummy data for the table
-  const dummyTableData = useMemo(
-    () => [
-      {
-        no: '1',
-        diagnosis: 'Diagnosis 1',
-        total: 60,
-        anjing: {
-          betina: 10,
-          jantan: 10
-        },
-        ayam: {
-          betina: 10,
-          jantan: 10
-        },
-        burung: {
-          betina: 10,
-          jantan: 10
-        }
-      },
-      {
-        no: '2',
-        diagnosis: 'Diagnosis 2',
-        total: 60,
-        anjing: {
-          betina: 10,
-          jantan: 10
-        },
-        ayam: {
-          betina: 10,
-          jantan: 10
-        },
-        burung: {
-          betina: 10,
-          jantan: 10
-        }
-      }
-    ],
-    []
-  );
+export default function BookingByDiagnosisSpeciesGender({ data, loading, filter, setFilter }) {
+  const speciesList = useMemo(() => data?.speciesList || [], [data]);
+  const tablesData = data?.data?.species || [];
+  const totalPagination = data?.totalPagination || 0;
 
   const getSpeciesColumns = useCallback(() => {
-    return extData.speciesList?.map((speciesItem) => ({
+    return speciesList.map((speciesItem) => ({
       Header: speciesItem,
       isNotSorting: true,
       columns: [
@@ -63,21 +18,17 @@ export default function BookingByDiagnosisSpeciesGender({ data, filter, setFilte
           Header: 'Jantan',
           id: `${speciesItem}-jantan`,
           isNotSorting: true,
-          accessor: (row) => {
-            return row[speciesItem].jantan;
-          }
+          accessor: (row) => row[speciesItem]?.jantan ?? 0
         },
         {
           Header: 'Betina',
           id: `${speciesItem}-betina`,
           isNotSorting: true,
-          accessor: (row) => {
-            return row[speciesItem].betina;
-          }
+          accessor: (row) => row[speciesItem]?.betina ?? 0
         }
       ]
     }));
-  }, [extData]);
+  }, [speciesList]);
 
   const columns = useMemo(
     () => [
@@ -87,7 +38,7 @@ export default function BookingByDiagnosisSpeciesGender({ data, filter, setFilte
         isNotSorting: true,
         columns: [
           {
-            Header: 'no',
+            Header: 'No',
             accessor: 'no',
             isNotSorting: true
           },
@@ -105,30 +56,49 @@ export default function BookingByDiagnosisSpeciesGender({ data, filter, setFilte
         columns: [
           {
             Header: <FormattedMessage id="total" />,
-            accessor: 'total'
+            accessor: 'total',
+            isNotSorting: true
           }
         ]
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getSpeciesColumns, extData]
+    [getSpeciesColumns, speciesList]
   );
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={6}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!tablesData.length) {
+    return (
+      <Box display="flex" justifyContent="center" py={6}>
+        <Typography color="text.secondary">
+          <FormattedMessage id="no-data" defaultMessage="Tidak ada data" />
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <div>
+    <ScrollX>
       <ReactTable
         columns={columns}
         data={tablesData}
-        totalPagination={totalPagination || 0}
-        colSpanPagination={3 + (extData.speciesList?.length || 0) * 2}
-        setPageNumber={filter.goToPage}
+        totalPagination={totalPagination}
+        colSpanPagination={3 + speciesList.length * 2}
+        setPageNumber={filter?.goToPage}
         onGotoPage={(event) => setFilter((e) => ({ ...e, goToPage: event }))}
-        setPageRow={filter.rowPerPage}
-        onPageSize={(event) => setFilter((e) => ({ ...e, rowPerPage: event }))}
+        setPageRow={filter?.rowPerPage}
+        onPageSize={(event) => setFilter((e) => ({ ...e, rowPerPage: event, goToPage: 1 }))}
         onOrder={(event) => {
           setFilter((e) => ({ ...e, orderValue: event.order, orderColumn: event.column }));
         }}
       />
-    </div>
+    </ScrollX>
   );
 }

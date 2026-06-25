@@ -24,7 +24,7 @@ const CustomerDataStatic = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const [staticData, setStaticData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);

@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Stack } from '@mui/material';
+import { Box, Grid, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { FormattedMessage } from 'react-intl';

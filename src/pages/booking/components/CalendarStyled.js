@@ -70,7 +70,6 @@ const ExperimentalStyled = styled('div')(({ theme }) => ({
     whiteSpace: 'nowrap'
   },
 
-
   // popover when multiple events
   '& .fc .fc-more-popover': {
     border: 'none',

@@ -1,4 +1,4 @@
-import { Grid, InputLabel, Stack, TextField, Autocomplete, FormControl, Select, MenuItem, Box, FormHelperText } from '@mui/material';
+import { Grid, InputLabel, Stack, TextField, Autocomplete, FormControl, Select, MenuItem, Box } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getAllState, useCustomerFormStore } from '../../customer-form-store';
 import { PlusOutlined } from '@ant-design/icons';

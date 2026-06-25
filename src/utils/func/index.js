@@ -11,10 +11,10 @@ export const formatThousandSeparator = (number, separator = ',') => {
 export const uppercaseWord = (word) => {
   return word
     ? word
-      .toLowerCase()
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
     : '';
 };
 

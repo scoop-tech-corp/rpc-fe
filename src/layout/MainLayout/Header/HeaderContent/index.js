@@ -16,7 +16,7 @@ import ProductTransferApproval from 'pages/product/transfer-approval';
 import ProductRestockQuickAccessApproval from 'pages/product/restock/approval/quick-access';
 
 // import Message from './Message';
-// import Notification from './Notification';
+import Notification from './Notification';
 import Reminder from './Reminder';
 // import MegaMenuSection from './MegaMenuSection';
 
@@ -50,7 +50,7 @@ const HeaderContent = () => {
       {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
       {localization}
       <Reminder />
-      {/* <Notification /> */}
+      <Notification />
       {/* <Message /> */}
       <Profile />
       {/* {!matchesXs && <Profile />}
