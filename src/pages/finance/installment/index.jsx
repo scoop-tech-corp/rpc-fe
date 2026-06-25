@@ -399,7 +399,7 @@ const InstallmentPage = () => {
             {/* Filter bar */}
             <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} justifyContent="space-between" alignItems="flex-start">
               <Stack direction="row" spacing={1} flexWrap="wrap">
-                <GlobalFilter preGlobalFilteredRows={[]} globalFilter={keyword} setGlobalFilter={onSearch} size="small" />
+                <GlobalFilter globalFilter={keyword} setGlobalFilter={onSearch} size="small" />
                 <FormControl size="small" sx={{ minWidth: 140 }}>
                   <InputLabel>Lokasi</InputLabel>
                   <Select value={filterLoc} label="Lokasi" onChange={(e) => onFilterLoc(e.target.value)}>
@@ -447,9 +447,11 @@ const InstallmentPage = () => {
               columns={columns}
               data={listData.data}
               totalPagination={listData.totalPagination}
-              setPageIndex={onPage}
-              setPageSize={onSize}
-              handleOrder={onOrder}
+              setPageNumber={paramList.goToPage}
+              setPageRow={paramList.rowPerPage}
+              onGotoPage={onPage}
+              onPageSize={onSize}
+              onOrder={onOrder}
             />
           </Stack>
         </ScrollX>

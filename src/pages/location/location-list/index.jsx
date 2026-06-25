@@ -28,7 +28,7 @@ const LocationList = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const [getLocationData, setLocationData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);

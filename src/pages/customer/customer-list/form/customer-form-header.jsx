@@ -21,7 +21,7 @@ const CustomerFormHeader = (props) => {
   const isTouchForm = useCustomerFormStore((state) => state.customerFormTouch);
   const [formError, setFormError] = useState(false);
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const [isError, setIsError] = useState(false);
   const [errContent, setErrContent] = useState({ title: '', detail: '' });

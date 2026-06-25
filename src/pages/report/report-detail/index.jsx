@@ -36,7 +36,12 @@ import {
   exportReportProductsExpiry,
   exportReportProductsStockCount,
   exportReportSalesByProduct,
+  exportReportSalesByItemType,
   exportReportSalesByService,
+  exportReportSalesPackageSummary,
+  exportReportSalesCustomerSpend,
+  exportReportSalesDailyReconciliation,
+  exportReportSalesRefunds,
   exportReportSalesDailyAudit,
   exportReportSalesDetails,
   exportReportSalesItems,
@@ -78,7 +83,12 @@ import {
   getReportProductsBatches,
   getReportProductsExpiry,
   getReportProductsStockCount,
+  getReportSalesByItemType,
   getReportSalesByProduct,
+  getReportSalesPackageSummary,
+  getReportSalesCustomerSpend,
+  getReportSalesDailyReconciliation,
+  getReportSalesRefunds,
   getReportSalesByService,
   getReportSalesDailyAudit,
   getReportSalesDetails,
@@ -107,6 +117,11 @@ import FilterDeposit from './filter/deposit';
 import FilterProducts from './filter/products';
 import FilterSales from './filter/sales';
 import FilterStaff from './filter/staff';
+import SalesByItemType from './sales/by-item-type';
+import SalesPackageSummary from './sales/package-summary';
+import SalesCustomerSpend from './sales/customer-spend';
+import SalesDailyReconciliation from './sales/daily-reconciliation';
+import SalesRefunds from './sales/refunds';
 import SalesByProduct from './sales/by-product';
 import SalesByService from './sales/by-service';
 import SalesDailyAudit from './sales/daily-audit';
@@ -275,7 +290,8 @@ export default function Index() {
         category: [],
         method: [],
         customer: [],
-        invoiceCategory: []
+        invoiceCategory: [],
+        packageStatus: ''
       };
     }
 
@@ -394,6 +410,25 @@ export default function Index() {
     } else if (type === 'sales') {
       if (detail === 'summary') respFetch = await getReportSalesSummary(filter);
       if (detail === 'items') respFetch = await getReportSalesItems(filter);
+      if (detail === 'by-item-type') respFetch = await getReportSalesByItemType(filter);
+      if (detail === 'package-summary') respFetch = await getReportSalesPackageSummary({ ...filter, packageStatus: filter.packageStatus });
+      if (detail === 'customer-spend')
+        respFetch = await getReportSalesCustomerSpend({
+          ...filter,
+          minSpend: filter.minSpend || 0,
+          customerGroup: filter.customerGroup || [],
+          orderColumn: filter.orderColumn || 'totalSpend',
+          orderValue: filter.orderValue || 'desc'
+        });
+      if (detail === 'daily-reconciliation') respFetch = await getReportSalesDailyReconciliation(filter);
+      if (detail === 'refunds')
+        respFetch = await getReportSalesRefunds({
+          ...filter,
+          serviceType: filter.serviceType || '',
+          refundStatus: filter.refundStatus !== undefined ? filter.refundStatus : '',
+          orderColumn: filter.orderColumn || 'fr.created_at',
+          orderValue: filter.orderValue || 'desc'
+        });
       if (detail === 'by-service') respFetch = await getReportSalesByService(filter);
       if (detail === 'by-product') respFetch = await getReportSalesByProduct(filter);
       if (detail === 'payment-list') respFetch = await getReportSalesPaymentList(filter);
@@ -475,6 +510,22 @@ export default function Index() {
       else if (type === 'deposit' && detail === 'summary') return await exportReportDepositSummary(filter);
       else if (type === 'sales' && detail === 'summary') return await exportReportSalesSummary(filter);
       else if (type === 'sales' && detail === 'items') return await exportReportSalesItems(filter);
+      else if (type === 'sales' && detail === 'by-item-type') return await exportReportSalesByItemType(filter);
+      else if (type === 'sales' && detail === 'package-summary')
+        return await exportReportSalesPackageSummary({ ...filter, packageStatus: filter.packageStatus });
+      else if (type === 'sales' && detail === 'customer-spend')
+        return await exportReportSalesCustomerSpend({
+          ...filter,
+          minSpend: filter.minSpend || 0,
+          customerGroup: filter.customerGroup || []
+        });
+      else if (type === 'sales' && detail === 'daily-reconciliation') return await exportReportSalesDailyReconciliation(filter);
+      else if (type === 'sales' && detail === 'refunds')
+        return await exportReportSalesRefunds({
+          ...filter,
+          serviceType: filter.serviceType || '',
+          refundStatus: filter.refundStatus !== undefined ? filter.refundStatus : ''
+        });
       else if (type === 'sales' && detail === 'by-service') return await exportReportSalesByService(filter);
       else if (type === 'sales' && detail === 'by-product') return await exportReportSalesByProduct(filter);
       else if (type === 'sales' && detail === 'payment-list') return await exportReportSalesPaymentList(filter);
@@ -679,6 +730,11 @@ export default function Index() {
 
     if (type === 'sales' && detail === 'summary') return 'sales-summary';
     if (type === 'sales' && detail === 'items') return 'sales-items';
+    if (type === 'sales' && detail === 'by-item-type') return 'sales-by-item-type';
+    if (type === 'sales' && detail === 'package-summary') return 'sales-package-summary';
+    if (type === 'sales' && detail === 'customer-spend') return 'sales-customer-spend';
+    if (type === 'sales' && detail === 'daily-reconciliation') return 'sales-daily-reconciliation';
+    if (type === 'sales' && detail === 'refunds') return 'sales-refunds';
     if (type === 'sales' && detail === 'by-service') return 'sales-by-service';
     if (type === 'sales' && detail === 'by-product') return 'sales-by-product';
     if (type === 'sales' && detail === 'payment-list') return 'sales-payment-list';
@@ -750,6 +806,38 @@ export default function Index() {
 
     if (type === 'sales' && detail === 'summary') return <SalesSummary data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'items') return <SalesItems data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'by-item-type') return <SalesByItemType data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'package-summary')
+      return <SalesPackageSummary data={mainData} setFilter={setFilter} filter={filter} />;
+    if (type === 'sales' && detail === 'customer-spend')
+      return (
+        <SalesCustomerSpend
+          data={{
+            ...mainData,
+            orderColumn: filter.orderColumn,
+            orderValue: filter.orderValue,
+            goToPage: filter.goToPage,
+            rowPerPage: filter.rowPerPage
+          }}
+          onFilterChange={(patch) => setFilter((prev) => ({ ...prev, ...patch }))}
+        />
+      );
+    if (type === 'sales' && detail === 'daily-reconciliation') return <SalesDailyReconciliation data={mainData} />;
+    if (type === 'sales' && detail === 'refunds')
+      return (
+        <SalesRefunds
+          data={{
+            ...mainData,
+            serviceType: filter.serviceType,
+            refundStatus: filter.refundStatus,
+            orderColumn: filter.orderColumn,
+            orderValue: filter.orderValue,
+            goToPage: filter.goToPage,
+            rowPerPage: filter.rowPerPage
+          }}
+          onFilterChange={(patch) => setFilter((prev) => ({ ...prev, ...patch }))}
+        />
+      );
     if (type === 'sales' && detail === 'by-service') return <SalesByService data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'by-product') return <SalesByProduct data={mainData} setFilter={setFilter} filter={filter} />;
     if (type === 'sales' && detail === 'payment-list') return <SalesPaymentList data={mainData} setFilter={setFilter} filter={filter} />;

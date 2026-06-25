@@ -79,7 +79,7 @@ const CustomerSupportRequestPage = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const [supportData, setSupportData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -100,6 +100,44 @@ const CustomerSupportRequestPage = () => {
   const [formMode, setFormMode] = useState('add');
   const [formLoading, setFormLoading] = useState(false);
   const [handledByName, setHandledByName] = useState('');
+
+  // ── CRUD ──────────────────────────────────────────────────────────────────
+  const onEditRow = useCallback(
+    (row) => {
+      setHandledByName(row.handledByName?.trim() || '');
+      setFormData({
+        supportRequestId: row.id,
+        customerId: row.customerId,
+        customerOption: null,
+        locationId: row.locationId || '',
+        locationOption: locationList.find((l) => l.value === row.locationId) || null,
+        subject: row.subject || '',
+        message: row.message || '',
+        status: row.status || 'open',
+        notes: ''
+      });
+      setFormMode('edit');
+      setFormDialog(true);
+    },
+    [locationList]
+  );
+
+  const onOpenHistory = useCallback(
+    async (row) => {
+      setHistoryDialog(true);
+      setHistoryLoading(true);
+      setHistoryData([]);
+      try {
+        const resp = await getSupportRequestHistory(row.id);
+        setHistoryData(resp.data.data || []);
+      } catch (err) {
+        dispatch(snackbarError(createMessageBackend(err)));
+      } finally {
+        setHistoryLoading(false);
+      }
+    },
+    [dispatch]
+  );
 
   // ── Columns ───────────────────────────────────────────────────────────────
   const columns = useMemo(
@@ -135,7 +173,7 @@ const CustomerSupportRequestPage = () => {
           />
         )
       },
-      { Header: 'Ditangani Oleh', accessor: 'handledByName', Cell: ({ value }) => value?.trim() || '-' },
+      { Header: <FormattedMessage id="handled-by" />, accessor: 'handledByName', Cell: ({ value }) => value?.trim() || '-' },
       {
         Header: <FormattedMessage id="date" />,
         accessor: 'created_at',
@@ -280,26 +318,6 @@ const CustomerSupportRequestPage = () => {
     setFormDialog(true);
   };
 
-  const onEditRow = useCallback(
-    (row) => {
-      setHandledByName(row.handledByName?.trim() || '');
-      setFormData({
-        supportRequestId: row.id,
-        customerId: row.customerId,
-        customerOption: null,
-        locationId: row.locationId || '',
-        locationOption: locationList.find((l) => l.value === row.locationId) || null,
-        subject: row.subject || '',
-        message: row.message || '',
-        status: row.status || 'open',
-        notes: ''
-      });
-      setFormMode('edit');
-      setFormDialog(true);
-    },
-    [locationList]
-  );
-
   const onDeleteSingle = (id) => {
     setSelectedRow([id]);
     setDialog(true);
@@ -349,29 +367,10 @@ const CustomerSupportRequestPage = () => {
     }
   };
 
-  // ── History ───────────────────────────────────────────────────────────────
-  const onOpenHistory = useCallback(
-    async (row) => {
-      setHistoryDialog(true);
-      setHistoryLoading(true);
-      setHistoryData([]);
-      try {
-        const resp = await getSupportRequestHistory(row.id);
-        setHistoryData(resp.data.data || []);
-      } catch (err) {
-        dispatch(snackbarError(createMessageBackend(err)));
-      } finally {
-        setHistoryLoading(false);
-      }
-    },
-    [dispatch]
-  );
-
   const statusLabel = (s) => {
-    if (s === 'open') return 'Terbuka';
-    if (s === 'in_progress') return 'Sedang Ditangani';
-    if (s === 'closed') return 'Selesai';
-    return s || 'Dibuat';
+    if (!s) return intl.formatMessage({ id: 'created-at' });
+    const key = s === 'in_progress' ? 'in-progress' : s;
+    return intl.formatMessage({ id: key, defaultMessage: s });
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -385,7 +384,7 @@ const CustomerSupportRequestPage = () => {
             {/* Filter Bar */}
             <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} justifyContent="space-between" alignItems="flex-start">
               <Stack direction="row" spacing={1} flexWrap="wrap">
-                <GlobalFilter preGlobalFilteredRows={[]} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
+                <GlobalFilter globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
                 <FormControl size="small" sx={{ minWidth: 160 }}>
                   <InputLabel>
                     <FormattedMessage id="location" />
@@ -441,9 +440,12 @@ const CustomerSupportRequestPage = () => {
               columns={columns}
               data={supportData.data}
               totalPagination={supportData.totalPagination}
-              setPageIndex={onGotoPageChange}
-              setPageSize={onPageSizeChange}
-              handleOrder={onOrderingChange}
+              setPageNumber={paramSupportList.goToPage}
+              setPageRow={paramSupportList.rowPerPage}
+              onGotoPage={onGotoPageChange}
+              onPageSize={onPageSizeChange}
+              onOrder={onOrderingChange}
+              colSpanPagination={9}
             />
           </Stack>
         </ScrollX>
@@ -487,7 +489,7 @@ const CustomerSupportRequestPage = () => {
                   label={intl.formatMessage({ id: 'customer' })}
                   required
                   size="small"
-                  helperText={!formData.locationId ? 'Pilih lokasi terlebih dahulu' : ''}
+                  helperText={!formData.locationId ? intl.formatMessage({ id: 'choose-location-first' }) : ''}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -549,21 +551,21 @@ const CustomerSupportRequestPage = () => {
                 {/* 6. HandledBy (read-only info) */}
                 {handledByName && (
                   <TextField
-                    label="Ditangani Oleh"
+                    label={intl.formatMessage({ id: 'handled-by' })}
                     value={handledByName}
                     size="small"
                     fullWidth
                     InputProps={{ readOnly: true }}
-                    helperText="Otomatis diisi saat status berubah ke Sedang Ditangani"
+                    helperText={intl.formatMessage({ id: 'auto-filled-handled-by' })}
                   />
                 )}
 
                 {/* 7. Notes untuk history */}
                 <TextField
-                  label="Catatan Perubahan"
+                  label={intl.formatMessage({ id: 'change-notes' })}
                   value={formData.notes}
                   onChange={(e) => setFormData((p) => ({ ...p, notes: e.target.value }))}
-                  placeholder="Opsional — dicatat di riwayat status"
+                  placeholder={intl.formatMessage({ id: 'change-notes-placeholder' })}
                   size="small"
                   fullWidth
                 />
@@ -590,7 +592,9 @@ const CustomerSupportRequestPage = () => {
         <DialogTitle>
           <Stack direction="row" alignItems="center" spacing={1}>
             <HistoryOutlined />
-            <span>Riwayat Pengajuan</span>
+            <span>
+              <FormattedMessage id="request-history" />
+            </span>
           </Stack>
         </DialogTitle>
         <DialogContent>
@@ -600,7 +604,7 @@ const CustomerSupportRequestPage = () => {
             </Box>
           ) : historyData.length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-              Belum ada riwayat
+              <FormattedMessage id="no-history-yet" />
             </Typography>
           ) : (
             <Stepper orientation="vertical" sx={{ mt: 1 }}>

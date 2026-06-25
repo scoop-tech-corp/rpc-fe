@@ -47,16 +47,16 @@ const customer = {
           url: '/customer/merge'
         },
         {
-          id: 'customer-material-data',
-          title: <FormattedMessage id="material-data" />,
-          type: 'item',
-          url: '/customer/material-data'
-        },
-        {
           id: 'customer-import',
           title: <FormattedMessage id="import" />,
           type: 'item',
           url: '/customer/import'
+        },
+        {
+          id: 'customer-material-data',
+          title: <FormattedMessage id="material-data" />,
+          type: 'item',
+          url: '/customer/material-data'
         },
         {
           id: 'customer-feedback',

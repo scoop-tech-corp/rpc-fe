@@ -57,7 +57,7 @@ const CustomerFeedbackPage = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const [feedbackData, setFeedbackData] = useState({ data: [], totalPagination: 0 });
   const [selectedRow, setSelectedRow] = useState([]);
@@ -326,7 +326,7 @@ const CustomerFeedbackPage = () => {
             {/* Filter Bar */}
             <Stack direction={matchDownSM ? 'column' : 'row'} spacing={1} justifyContent="space-between" alignItems="flex-start">
               <Stack direction="row" spacing={1} flexWrap="wrap">
-                <GlobalFilter preGlobalFilteredRows={[]} globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
+                <GlobalFilter globalFilter={keywordSearch} setGlobalFilter={onSearch} size="small" />
                 <FormControl size="small" sx={{ minWidth: 160 }}>
                   <InputLabel>
                     <FormattedMessage id="location" />
@@ -364,9 +364,12 @@ const CustomerFeedbackPage = () => {
               columns={columns}
               data={feedbackData.data}
               totalPagination={feedbackData.totalPagination}
-              setPageIndex={onGotoPageChange}
-              setPageSize={onPageSizeChange}
-              handleOrder={onOrderingChange}
+              setPageNumber={paramFeedbackList.goToPage}
+              setPageRow={paramFeedbackList.rowPerPage}
+              onGotoPage={onGotoPageChange}
+              onPageSize={onPageSizeChange}
+              onOrder={onOrderingChange}
+              colSpanPagination={8}
             />
           </Stack>
         </ScrollX>
@@ -410,7 +413,7 @@ const CustomerFeedbackPage = () => {
                   label={intl.formatMessage({ id: 'customer' })}
                   required
                   size="small"
-                  helperText={!formData.locationId ? intl.formatMessage({ id: 'location' }) + ' harus dipilih terlebih dahulu' : ''}
+                  helperText={!formData.locationId ? intl.formatMessage({ id: 'choose-location-first' }) : ''}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (

@@ -57,7 +57,7 @@ const CustomerList = () => {
   const [detailModal, setDetailModal] = useState({ open: false, customerId: null });
   const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
   const { user } = useAuth();
-  const userPrivilage = detectUserPrivilage(user?.extractMenu.masterMenu);
+  const userPrivilage = detectUserPrivilage(user?.extractMenu?.masterMenu);
 
   const isCheckbox = () => {
     return userPrivilage == 4

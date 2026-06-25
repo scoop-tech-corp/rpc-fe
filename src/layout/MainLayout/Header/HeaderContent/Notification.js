@@ -28,20 +28,20 @@ import { createSocketConnection } from 'service/service-socket';
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from 'pages/notification/service';
 
 const MENU_ICON = {
-  petclinic:   '🏥',
-  pethotel:    '🏨',
-  petsalon:    '✂️',
-  breeding:    '🐾',
-  booking:     '📅',
-  restock:     '📦',
-  transfer:    '🔄',
-  leave:       '🏖️',
-  quotation:   '📋',
-  refund:      '💸',
+  petclinic: '🏥',
+  pethotel: '🏨',
+  petsalon: '✂️',
+  breeding: '🐾',
+  booking: '📅',
+  restock: '📦',
+  transfer: '🔄',
+  leave: '🏖️',
+  quotation: '📋',
+  refund: '💸',
   installment: '💳',
-  queue:       '🔢',
-  feedback:    '⭐',
-  support:     '🎧'
+  queue: '🔢',
+  feedback: '⭐',
+  support: '🎧'
 };
 
 const TYPE_COLOR = {

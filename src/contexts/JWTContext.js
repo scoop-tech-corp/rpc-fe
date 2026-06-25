@@ -90,6 +90,21 @@ export const JWTProvider = ({ children }) => {
       if (serviceToken && verifyToken(serviceToken)) {
         setSession(serviceToken);
 
+        // Always re-fetch reportMenu from server so new menus are available
+        // without requiring the user to logout/login.
+        let freshReportMenu = userLogin.reportMenu;
+        try {
+          const menuResp = await axios.get('user/reportmenu');
+          if (menuResp?.data?.items) {
+            freshReportMenu = { items: menuResp.data.items };
+            // Persist fresh menu back to localStorage
+            const updatedUser = { ...userLogin, reportMenu: freshReportMenu };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
+        } catch (_) {
+          // Fallback to cached reportMenu if request fails
+        }
+
         const setUser = {
           id: userLogin.id,
           email: userLogin.email,
@@ -101,7 +116,7 @@ export const JWTProvider = ({ children }) => {
           profileMenu: userLogin.profileMenu,
           settingMenu: userLogin.settingMenu,
           extractMenu: userLogin.extractMenu,
-          reportMenu: userLogin.reportMenu,
+          reportMenu: freshReportMenu,
           jobName: userLogin.jobName,
           locations: userLogin.locations || []
         };

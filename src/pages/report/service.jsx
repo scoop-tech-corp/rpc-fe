@@ -34,6 +34,11 @@ const urlSalesPaymentList = 'report/sales/paymentlist';
 const urlSalesUnpaid = 'report/sales/unpaid';
 const urlSalesNetIncome = 'report/sales/netincome';
 const urlSalesDailyAudit = 'report/sales/dailyaudit';
+const urlSalesByItemType = 'report/sales/salesbyitemtype';
+const urlSalesPackageSummary = 'report/sales/packagesummary';
+const urlSalesCustomerSpend = 'report/sales/customerspend';
+const urlSalesDailyReconciliation = 'report/sales/dailyreconciliation';
+const urlSalesRefunds = 'report/sales/refunds';
 const urlSalesDiscountSummary = 'report/sales/discountsummary';
 const urlSalesPaymentsSummary = 'report/sales/paymentsummary';
 const urlSalesDetails = 'report/sales/details';
@@ -1386,6 +1391,66 @@ export const exportReportSalesStaffServiceSales = async (payload) => {
   });
 };
 
+export const getReportSalesPackageSummary = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesPackageSummary, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      status: payload.packageStatus || ''
+    }
+  });
+};
+
+export const exportReportSalesPackageSummary = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlSalesPackageSummary}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      status: payload.packageStatus || ''
+    }
+  });
+};
+
+export const getReportSalesByItemType = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(urlSalesByItemType, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : ['']
+    }
+  });
+};
+
+export const exportReportSalesByItemType = async (payload) => {
+  const location = payload.location.map((dt) => dt.value);
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+
+  return await axios.get(`${urlSalesByItemType}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : ['']
+    }
+  });
+};
+
 export const getReportSalesNetIncome = async () => {
   return await axios.get(urlSalesNetIncome);
 };
@@ -1540,6 +1605,114 @@ export const getReportBookingByLocation = async (payload) => {
   return await axios.get(urlBookingByLocation, {
     params: {
       year: payload.year
+    }
+  });
+};
+
+// ─── Customer Spend ───────────────────────────────────────────────────────────
+export const getReportSalesCustomerSpend = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+  const customerGroup = (payload.customerGroup || []).map((dt) => dt.value);
+
+  return await axios.get(urlSalesCustomerSpend, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : [''],
+      minSpend: payload.minSpend || 0,
+      goToPage: payload.goToPage || 1,
+      rowPerPage: payload.rowPerPage || 10,
+      orderColumn: payload.orderColumn || 'totalSpend',
+      orderValue: payload.orderValue || 'desc'
+    }
+  });
+};
+
+export const exportReportSalesCustomerSpend = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+  const customerGroup = (payload.customerGroup || []).map((dt) => dt.value);
+
+  return await axios.get(`${urlSalesCustomerSpend}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      customerGroup: customerGroup.length ? customerGroup : [''],
+      minSpend: payload.minSpend || 0
+    }
+  });
+};
+
+// ─── Daily Reconciliation ─────────────────────────────────────────────────────
+export const getReportSalesDailyReconciliation = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(urlSalesDailyReconciliation, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : ['']
+    }
+  });
+};
+
+export const exportReportSalesDailyReconciliation = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(`${urlSalesDailyReconciliation}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : ['']
+    }
+  });
+};
+
+// ─── Refunds ──────────────────────────────────────────────────────────────────
+export const getReportSalesRefunds = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(urlSalesRefunds, {
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      serviceType: payload.serviceType || '',
+      status: payload.refundStatus !== undefined && payload.refundStatus !== '' ? payload.refundStatus : '',
+      goToPage: payload.goToPage || 1,
+      rowPerPage: payload.rowPerPage || 10,
+      orderColumn: payload.orderColumn || 'fr.created_at',
+      orderValue: payload.orderValue || 'desc'
+    }
+  });
+};
+
+export const exportReportSalesRefunds = async (payload) => {
+  const dateFrom = payload.date ? formateDateYYYMMDD(payload.date[0]) : '';
+  const dateTo = payload.date ? formateDateYYYMMDD(payload.date[1]) : '';
+  const location = (payload.location || []).map((dt) => dt.value);
+
+  return await axios.get(`${urlSalesRefunds}/export`, {
+    responseType: 'blob',
+    params: {
+      dateFrom,
+      dateTo,
+      locationId: location.length ? location : [''],
+      serviceType: payload.serviceType || '',
+      status: payload.refundStatus !== undefined && payload.refundStatus !== '' ? payload.refundStatus : ''
     }
   });
 };

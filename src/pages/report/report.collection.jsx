@@ -53,7 +53,7 @@ export const list = {
   ],
   sales: [
     { id: 1, val: 'Summary', url: 'summary', icon: <LineChartOutlined /> },
-    { id: 2, val: 'Value by item type', icon: <BarChartOutlined />, comingSoon: true },
+    { id: 2, val: 'Value by item type', url: 'by-item-type', icon: <BarChartOutlined /> },
     { id: 3, val: 'Details', url: 'details', icon: <TableOutlined /> },
     { id: 4, val: 'Items', url: 'items', icon: <TableOutlined /> },
     { id: 5, val: 'Discount summary', url: 'discount-summary', icon: <BarChartOutlined /> },
@@ -63,11 +63,11 @@ export const list = {
     { id: 9, val: 'Sales by service', url: 'by-service', icon: <BarChartOutlined /> },
     { id: 10, val: 'Sales by product', url: 'by-product', icon: <BarChartOutlined /> },
     { id: 11, val: 'Net income', url: 'net-income', icon: <BarChartOutlined /> },
-    { id: 12, val: 'Package summary', icon: <FileTextOutlined />, comingSoon: true },
-    { id: 13, val: 'Customer spend', icon: <DollarOutlined />, comingSoon: true },
-    { id: 14, val: 'Daily reconciliation', icon: <ReconciliationOutlined />, comingSoon: true },
+    { id: 12, val: 'Package summary', url: 'package-summary', icon: <FileTextOutlined /> },
+    { id: 13, val: 'Customer spend', url: 'customer-spend', icon: <DollarOutlined /> },
+    { id: 14, val: 'Daily reconciliation', url: 'daily-reconciliation', icon: <ReconciliationOutlined /> },
     { id: 15, val: 'Daily audit', url: 'daily-audit', icon: <AuditOutlined /> },
-    { id: 16, val: 'Refunds', icon: <TableOutlined />, comingSoon: true },
+    { id: 16, val: 'Refunds', url: 'refunds', icon: <TableOutlined /> },
     { id: 17, val: 'Staff Service Sales', url: 'staff-service-sales', icon: <TeamOutlined /> }
   ],
   staff: [

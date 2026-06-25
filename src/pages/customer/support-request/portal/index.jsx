@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, Chip, CircularProgress, Divider, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { createMessageBackend } from 'service/service-global';
 import { snackbarError, snackbarSuccess } from 'store/reducers/snackbar';
@@ -15,17 +16,11 @@ const STATUS_COLORS = {
   closed: 'success'
 };
 
-const statusLabel = (s) => {
-  if (s === 'open') return 'Terbuka';
-  if (s === 'in_progress') return 'Sedang Ditangani';
-  if (s === 'closed') return 'Selesai';
-  return s;
-};
-
 const defaultForm = { subject: '', message: '' };
 
 const CustomerSupportPortal = () => {
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const [tab, setTab] = useState(0);
   const [formData, setFormData] = useState(defaultForm);
@@ -55,7 +50,7 @@ const CustomerSupportPortal = () => {
     setSubmitting(true);
     try {
       await selfSubmitSupportRequest(formData);
-      dispatch(snackbarSuccess('Pengajuan bantuan berhasil dikirim!'));
+      dispatch(snackbarSuccess(intl.formatMessage({ id: 'request-sent-title' })));
       setSubmitted(true);
       setFormData(defaultForm);
     } catch (err) {
@@ -69,13 +64,13 @@ const CustomerSupportPortal = () => {
 
   return (
     <>
-      <HeaderPageCustom title="Pusat Bantuan" />
+      <HeaderPageCustom title={intl.formatMessage({ id: 'help-center' })} />
 
       <MainCard content={false}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 2 }}>
-            <Tab label="Ajukan Bantuan" />
-            <Tab label="Pengajuan Saya" />
+            <Tab label={<FormattedMessage id="submit-request" />} />
+            <Tab label={<FormattedMessage id="my-requests" />} />
           </Tabs>
         </Box>
 
@@ -85,35 +80,37 @@ const CustomerSupportPortal = () => {
             {submitted ? (
               <Stack alignItems="center" spacing={2} sx={{ py: 4 }}>
                 <CheckCircleOutlined style={{ fontSize: 56, color: '#52c41a' }} />
-                <Typography variant="h5">Pengajuan Terkirim!</Typography>
+                <Typography variant="h5">
+                  <FormattedMessage id="request-sent-title" />
+                </Typography>
                 <Typography variant="body2" color="text.secondary" textAlign="center">
-                  Tim kami akan segera menindaklanjuti pengajuan Anda. Pantau status di tab <strong>Pengajuan Saya</strong>.
+                  <FormattedMessage id="request-sent-desc" />
                 </Typography>
                 <Button variant="outlined" startIcon={<PlusOutlined />} onClick={onNewRequest}>
-                  Buat Pengajuan Baru
+                  <FormattedMessage id="new-request" />
                 </Button>
               </Stack>
             ) : (
               <Stack spacing={2.5}>
                 <Typography variant="body2" color="text.secondary">
-                  Sampaikan kendala atau pertanyaan Anda. Kami akan merespons secepatnya.
+                  <FormattedMessage id="support-portal-desc" />
                 </Typography>
 
                 <TextField
-                  label="Perihal / Topik *"
+                  label={`${intl.formatMessage({ id: 'subject' })} *`}
                   value={formData.subject}
                   onChange={(e) => setFormData((p) => ({ ...p, subject: e.target.value }))}
-                  placeholder="Contoh: Pertanyaan jadwal grooming"
+                  placeholder={intl.formatMessage({ id: 'subject-placeholder' })}
                   size="small"
                   fullWidth
                   inputProps={{ maxLength: 255 }}
                 />
 
                 <TextField
-                  label="Detail Pesan *"
+                  label={`${intl.formatMessage({ id: 'message-detail' })} *`}
                   value={formData.message}
                   onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
-                  placeholder="Jelaskan kendala atau pertanyaan Anda secara lengkap..."
+                  placeholder={intl.formatMessage({ id: 'message-placeholder' })}
                   multiline
                   rows={5}
                   size="small"
@@ -127,7 +124,7 @@ const CustomerSupportPortal = () => {
                   disabled={!formData.subject.trim() || !formData.message.trim() || submitting}
                   startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : <PlusOutlined />}
                 >
-                  {submitting ? 'Mengirim...' : 'Kirim Pengajuan'}
+                  {submitting ? intl.formatMessage({ id: 'sending' }) : intl.formatMessage({ id: 'send-request' })}
                 </Button>
               </Stack>
             )}
@@ -143,7 +140,7 @@ const CustomerSupportPortal = () => {
               </Box>
             ) : myRequests.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-                Belum ada pengajuan bantuan
+                <FormattedMessage id="no-requests-yet" />
               </Typography>
             ) : (
               <Stack spacing={1.5}>
@@ -154,7 +151,11 @@ const CustomerSupportPortal = () => {
                         <Typography variant="subtitle2" fontWeight={600}>
                           {r.subject}
                         </Typography>
-                        <Chip label={statusLabel(r.status)} color={STATUS_COLORS[r.status] || 'default'} size="small" />
+                        <Chip
+                          label={<FormattedMessage id={r.status === 'in_progress' ? 'in-progress' : r.status} />}
+                          color={STATUS_COLORS[r.status] || 'default'}
+                          size="small"
+                        />
                       </Stack>
 
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 1, whiteSpace: 'pre-wrap' }}>
@@ -165,7 +166,7 @@ const CustomerSupportPortal = () => {
 
                       <Stack direction="row" spacing={2} flexWrap="wrap">
                         <Typography variant="caption" color="text.secondary">
-                          📅 Dibuat: {r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID') : '-'}
+                          📅 <FormattedMessage id="created-at" />: {r.created_at ? new Date(r.created_at).toLocaleDateString() : '-'}
                         </Typography>
                         {r.locationName && (
                           <Typography variant="caption" color="text.secondary">
@@ -174,12 +175,12 @@ const CustomerSupportPortal = () => {
                         )}
                         {r.handledByName?.trim() && (
                           <Typography variant="caption" color="text.secondary">
-                            👤 Ditangani: {r.handledByName}
+                            👤 <FormattedMessage id="handled-by" />: {r.handledByName}
                           </Typography>
                         )}
                         {r.resolvedAt && (
                           <Typography variant="caption" color="success.main">
-                            ✅ Selesai: {new Date(r.resolvedAt).toLocaleDateString('id-ID')}
+                            ✅ <FormattedMessage id="resolved-at" />: {new Date(r.resolvedAt).toLocaleDateString()}
                           </Typography>
                         )}
                       </Stack>
